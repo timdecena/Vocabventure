@@ -8,7 +8,7 @@ import "../styles/Auth.css"; // Imports custom styling for authentication pages
 
 const Login = () => {
   // State variables for form fields - Track user input values
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
   // State variable for displaying error messages to the user
@@ -134,22 +134,29 @@ const Login = () => {
    * @param {Event} e - The form submission event
    */
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault(); // Prevent default form submission behavior
+    
+    // Validate form fields
+    if (!email || !password) {
+      setError("All fields are required");
+      return;
+    }
+    
     setError(""); // Clear any previous error messages
     setIsLoading(true); // Activate loading state for button animation
 
     // Define the API configuration for the authentication request
     const API_URL = "http://localhost:8080/auth/login"; // Spring Boot backend endpoint
-    const requestBody = { username, password }; // User credentials from form state
+    const requestBody = { email, password }; // User credentials from form state
     const requestConfig = { 
       withCredentials: true, // Allow cookies to be sent with request
       headers: {
-        'Content-Type': 'application/json' // Specify JSON content type
+        "Content-Type": "application/json"
       }
     };
 
     try {
-      // Send authentication request to the backend API
+      // Send authentication request to backend API
       const response = await axios.post(API_URL, requestBody, requestConfig);
       const authData = response.data; // Extract response data with token and user info
       
@@ -198,16 +205,16 @@ const Login = () => {
             
             {/* Login form with handler for submission */}
             <form className="auth-form" onSubmit={handleSubmit}>
-              {/* Username input group */}
+              {/* Email input group */}
               <div className="form-group">
-                <label htmlFor="username">Username:</label>
+                <label htmlFor="email">Email:</label>
                 <input
-                  id="username"
-                  type="text"
-                  placeholder="Enter your username"
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
                   className="auth-input" 
-                  value={username} 
-                  onChange={(e) => setUsername(e.target.value)} 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
                   required
                 />
               </div>

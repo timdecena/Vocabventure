@@ -14,9 +14,9 @@
 
 /* Profile container */
 .profile-container {
-  width: 90%;
+  width: 95%;
   max-width: 1200px;
-  margin: 2rem auto;
+  margin: 1rem auto;
   position: relative;
   z-index: 1;
 }
@@ -26,9 +26,9 @@
   display: flex;
   align-items: center;
   background: rgba(13, 12, 34, 0.8);
-  padding: 2rem;
-  border-radius: 20px;
-  margin-bottom: 2rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  margin-bottom: 1.25rem;
   box-shadow: 0 0 30px rgba(51, 255, 119, 0.2);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(51, 255, 119, 0.15);
@@ -37,20 +37,20 @@
 
 /* Profile avatar */
 .profile-avatar {
-  width: 120px;
-  height: 120px;
+  width: 90px;
+  height: 90px;
   background: linear-gradient(45deg, #33ff77, #33ffbb);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
+  font-size: 2.25rem;
   font-weight: bold;
   color: #050e1d;
-  margin-right: 2rem;
+  margin-right: 1.5rem;
   flex-shrink: 0;
   box-shadow: 0 0 20px rgba(51, 255, 119, 0.6);
-  border: 4px solid rgba(51, 255, 119, 0.3);
+  border: 3px solid rgba(51, 255, 119, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -74,8 +74,8 @@
 
 /* Profile title */
 .profile-info h1 {
-  font-size: 2.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  margin-bottom: 0.3rem;
   color: #33ff77;
   text-shadow: 0 0 10px rgba(51, 255, 119, 0.5);
 }
@@ -92,14 +92,14 @@
 
 /* User email display */
 .profile-email {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #d7d7f4;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.8rem;
 }
 
 /* Level progression container */
 .level-container {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 /* Level container text */
@@ -155,16 +155,16 @@
 /* Stats cards container */
 .profile-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 /* Individual stat card */
 .stat-card {
   background: rgba(13, 12, 34, 0.8);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 12px;
+  padding: 1rem;
   text-align: center;
   border: 1px solid rgba(51, 255, 119, 0.15);
   box-shadow: 0 0 20px rgba(51, 255, 119, 0.15);
@@ -180,18 +180,19 @@
 
 /* Stat icon */
 .stat-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-bottom: 0.6rem;
   filter: drop-shadow(0 0 8px rgba(51, 255, 119, 0.7));
   animation: hover 3s ease-in-out infinite alternate;
 }
 
 /* Stat value */
 .stat-value {
-  font-size: 2rem;
+  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: bold;
   color: #33ff77;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   text-shadow: 0 0 10px rgba(51, 255, 119, 0.5);
 }
 
@@ -204,15 +205,15 @@
 /* Profile sections container */
 .profile-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
 /* Individual profile section */
 .profile-section {
   background: rgba(13, 12, 34, 0.8);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 12px;
+  padding: 1.25rem;
   border: 1px solid rgba(51, 255, 119, 0.15);
   box-shadow: 0 0 20px rgba(51, 255, 119, 0.15);
   backdrop-filter: blur(10px);
@@ -274,8 +275,8 @@
 .achievement {
   display: flex;
   align-items: center;
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 0.75rem;
+  border-radius: 10px;
   background: rgba(5, 20, 37, 0.6);
   transition: transform 0.3s ease;
 }
@@ -293,15 +294,15 @@
 
 /* Achievement icon */
 .achievement-icon {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(51, 255, 119, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  margin-right: 1rem;
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
   flex-shrink: 0;
   box-shadow: 0 0 10px rgba(51, 255, 119, 0.3);
 }

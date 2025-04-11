@@ -292,7 +292,7 @@ const Register = () => {
               {/* Link to login page */}
               <div className="auth-links">
                 <p>
-                  Already a crew member? <Link to="/login" className="auth-link">Access your station</Link>
+                  Already a have an account? <Link to="/login" className="auth-link">Login now!</Link>
                 </p>
               </div>
             </form>

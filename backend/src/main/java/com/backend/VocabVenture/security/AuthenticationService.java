@@ -76,17 +76,22 @@ public class AuthenticationService {
 
     public AuthResponse authenticate(AuthRequest request) {
         try {
+            // Find user by email first
+            var user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new CustomException("User not found with this email", HttpStatus.NOT_FOUND));
+            
+            // Then authenticate with username and password
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
+                            user.getUsername(),
                             request.getPassword()
                     )
             );
         } catch (AuthenticationException e) {
-            throw new CustomException("Invalid username or password", HttpStatus.UNAUTHORIZED);
+            throw new CustomException("Invalid email or password", HttpStatus.UNAUTHORIZED);
         }
         
-        var user = userRepository.findByUsername(request.getUsername())
+        var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
         
         // Create UserDetails for token generation

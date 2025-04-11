@@ -5,21 +5,21 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Authentication request object for user login")
 public class AuthRequest {
-    @NotBlank(message = "Username is required")
-    @Schema(description = "User's username", example = "johndoe", required = true)
-    private String username;
+    @NotBlank(message = "Email is required")
+    @Schema(description = "User's email", example = "johndoe@example.com", required = true)
+    private String email;
     
     @NotBlank(message = "Password is required")
     @Schema(description = "User's password", example = "password123", required = true)
     private String password;
     
     // Getters and Setters
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
     
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
     
     public String getPassword() {
@@ -34,8 +34,8 @@ public class AuthRequest {
     public AuthRequest() {
     }
     
-    public AuthRequest(String username, String password) {
-        this.username = username;
+    public AuthRequest(String email, String password) {
+        this.email = email;
         this.password = password;
     }
     
@@ -46,14 +46,14 @@ public class AuthRequest {
     
     // Builder class
     public static class AuthRequestBuilder {
-        private String username;
+        private String email;
         private String password;
         
         AuthRequestBuilder() {
         }
         
-        public AuthRequestBuilder username(String username) {
-            this.username = username;
+        public AuthRequestBuilder email(String email) {
+            this.email = email;
             return this;
         }
         
@@ -63,7 +63,7 @@ public class AuthRequest {
         }
         
         public AuthRequest build() {
-            return new AuthRequest(username, password);
+            return new AuthRequest(email, password);
         }
     }
 }
