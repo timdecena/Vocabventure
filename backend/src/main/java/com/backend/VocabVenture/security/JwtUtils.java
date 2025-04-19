@@ -6,6 +6,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -73,5 +75,18 @@ public class JwtUtils {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    // ✅ NEW METHODS: Used in AdventureModeController
+    public static Long getUserIdFromContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Claims claims = (Claims) authentication.getPrincipal();
+        return claims.get("userId", Long.class);
+    }
+
+    public static String getRoleFromContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Claims claims = (Claims) authentication.getPrincipal();
+        return claims.get("role", String.class);
     }
 }

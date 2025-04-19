@@ -230,7 +230,7 @@ const Profile = () => {
   return (
     <div className="profile-page">
       {/* Top navigation bar */}
-      <Navbar />
+      
       
       {/* Main content container */}
       <div className="profile-container">

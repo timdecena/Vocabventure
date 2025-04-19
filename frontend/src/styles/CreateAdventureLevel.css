@@ -1,0 +1,37 @@
+.create-level-form {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fafafa;
+    border-radius: 10px;
+  }
+  
+  .create-level-form h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .create-level-form input,
+  .create-level-form textarea {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  
+  .create-level-form button {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .create-level-form button:hover {
+    background-color: #218838;
+  }
+  

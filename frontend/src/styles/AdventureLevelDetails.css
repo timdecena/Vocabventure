@@ -1,0 +1,45 @@
+.adventure-level-details {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .adventure-level-details h2 {
+    margin-bottom: 1rem;
+  }
+  
+  .word-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .word-item {
+    padding: 0.5rem;
+    margin: 0.3rem 0;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+  }
+  
+  .answer-section {
+    margin-top: 1.5rem;
+  }
+  
+  .answer-section input[type="text"] {
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    width: 60%;
+  }
+  
+  .answer-section button {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .answer-section button:hover {
+    background-color: #0056b3;
+  }
+  
