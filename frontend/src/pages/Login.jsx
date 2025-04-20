@@ -3,8 +3,140 @@
 // Features: Login form, animated space background, JWT authentication
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import "../styles/Auth.css"; // Imports custom styling for authentication pages
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { styled } from '@mui/material/styles';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Link,
+  CircularProgress,
+  Alert
+} from '@mui/material';
+
+// Styled components for space-themed elements
+const SpaceBackground = styled(Box)(({ theme }) => ({
+  height: '100vh',
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: `linear-gradient(135deg, ${theme.palette.background.dark} 0%, ${theme.palette.background.darkSecondary} 100%)`,
+  overflow: 'hidden',
+  color: theme.palette.text.primary,
+  fontFamily: theme.typography.fontFamily,
+  margin: 0,
+  padding: 0,
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundImage: `
+      radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 5%),
+      radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 5%),
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0) 10%)
+    `,
+    zIndex: 0,
+  }
+}));
+
+const SpaceCard = styled(Card)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  minHeight: '420px',
+  width: '95%',
+  maxWidth: '900px',
+  background: 'rgba(10, 10, 46, 0.8)',
+  borderRadius: theme.shape.borderRadius * 1.5,
+  boxShadow: '0 0 15px rgba(51, 255, 119, 0.2), 0 0 20px rgba(0, 128, 255, 0.1)',
+  animation: 'cardGlow 3s ease-in-out infinite alternate',
+  overflow: 'hidden',
+  backdropFilter: 'blur(5px)',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
+  [theme.breakpoints.down('md')]: {
+    flexDirection: 'column',
+    minHeight: 'auto',
+  },
+}));
+
+const FormSide = styled(CardContent)(({ theme }) => ({
+  flex: 1.2,
+  padding: theme.spacing(3),
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  background: 'rgba(10, 15, 30, 0.7)',
+  position: 'relative',
+}));
+
+const WelcomeSide = styled(CardContent)(({ theme }) => ({
+  flex: 0.8,
+  padding: theme.spacing(3),
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'rgba(10, 10, 30, 0.9)',
+  position: 'relative',
+  [theme.breakpoints.down('sm')]: {
+    display: 'none',
+  },
+}));
+
+const Star = styled('div')(({ size, x, y, duration, delay }) => ({
+  position: 'absolute',
+  left: `${x}%`,
+  top: `${y}%`,
+  width: `${size}px`,
+  height: `${size}px`,
+  backgroundColor: '#fff',
+  borderRadius: '50%',
+  opacity: 0.5,
+  animation: `twinkle ${duration}s ease-in-out infinite`,
+  animationDelay: `${delay}s`,
+}));
+
+const Planet = styled('div')(({ type }) => ({
+  position: 'absolute',
+  pointerEvents: 'none',
+  opacity: 0.6,
+  transition: 'opacity 0.5s ease',
+  ...(type === 'planet1' ? {
+    width: '80px',
+    height: '80px',
+    top: '5%',
+    right: '3%',
+    background: 'radial-gradient(circle at 30% 30%, #33ffbb, #0c4a7c)',
+    borderRadius: '50%',
+    boxShadow: '0 0 20px rgba(51, 255, 187, 0.4)',
+  } : {
+    width: '40px',
+    height: '40px',
+    bottom: '10%',
+    left: '5%',
+    background: 'radial-gradient(circle at 40% 40%, #66ff99, #006633)',
+    borderRadius: '50%',
+    boxShadow: '0 0 15px rgba(102, 255, 153, 0.3)',
+  }),
+}));
+
+const Meteor = styled('div')(({ delay, duration, size }) => ({
+  position: 'absolute',
+  width: `${size}px`,
+  height: `${size / 15}px`,
+  backgroundColor: '#fff',
+  opacity: 0,
+  borderRadius: '50%',
+  filter: 'blur(1px)',
+  boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)',
+  animation: `meteor ${duration}s linear infinite`,
+  animationDelay: `${delay}s`,
+}));
 
 const Login = () => {
   // State variables for form fields - Track user input values
@@ -23,108 +155,49 @@ const Login = () => {
   // Effect hook to create space-themed animated background elements
   // Runs once on component mount and cleans up on unmount
   useEffect(() => {
-    // Create various space-themed background elements
-    createStars();      // Generates twinkling stars in the background
-    createSpaceObjects(); // Adds planets and space objects
-    createMeteors();    // Adds animated meteor effects
-    
-    // Cleanup function to remove all created elements when component unmounts
-    return () => {
-      // Remove stars container
-      const starsContainer = document.querySelector('.stars');
-      if (starsContainer) {
-        starsContainer.remove();
-      }
-      
-      // Remove all space objects (planets, etc.)
-      const spaceObjects = document.querySelectorAll('.space-object');
-      spaceObjects.forEach(obj => obj.remove());
-      
-      // Remove all meteor elements
-      const meteors = document.querySelectorAll('.meteor');
-      meteors.forEach(meteor => meteor.remove());
-    };
-  }, []); // Empty dependency array means this runs once on mount
+    // No need for DOM manipulation with MUI and styled components
+    // The space elements are now rendered declaratively in the JSX
+  }, []);
   
-  // Creates an animated starfield background with twinkling effect
-  const createStars = () => {
-    // Create container for all stars
-    const starsContainer = document.createElement('div');
-    starsContainer.className = 'stars';
-    document.querySelector('.auth-page').appendChild(starsContainer);
-    
-    // Number of stars to generate
+  // Generate stars data for the starfield background
+  const generateStarsData = () => {
+    const starsData = [];
     const starsCount = 100;
     
-    // Generate individual star elements with randomized properties
     for (let i = 0; i < starsCount; i++) {
-      const star = document.createElement('div');
-      star.className = 'star';
-      
-      // Generate random position coordinates (as percentage of container)
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      
-      // Generate random star size (pixels)
-      const size = Math.random() * 3;
-      
-      // Generate random animation duration for twinkling effect
-      const duration = 3 + Math.random() * 7;
-      
-      // Apply generated properties to the star element
-      star.style.left = `${x}%`;
-      star.style.top = `${y}%`;
-      star.style.width = `${size}px`;
-      star.style.height = `${size}px`;
-      star.style.setProperty('--duration', `${duration}s`);
-      star.style.animationDelay = `${Math.random() * duration}s`;
-      
-      // Add star to the container
-      starsContainer.appendChild(star);
+      starsData.push({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 3,
+        duration: 3 + Math.random() * 7,
+        delay: Math.random() * 7
+      });
     }
+    
+    return starsData;
   };
   
-  // Creates decorative planet elements for the space theme
-  const createSpaceObjects = () => {
-    // Get reference to the main container
-    const authPage = document.querySelector('.auth-page');
+  // Generate meteors data for the meteor animation
+  const generateMeteorsData = () => {
+    const meteorsData = [];
+    const meteorCount = 5;
     
-    // Create first planet - larger bluish-green planet in top right
-    const planet1 = document.createElement('div');
-    planet1.className = 'space-object planet-1';
-    authPage.appendChild(planet1);
-    
-    // Create second planet - smaller green planet in bottom left
-    const planet2 = document.createElement('div');
-    planet2.className = 'space-object planet-2';
-    authPage.appendChild(planet2);
-  };
-  
-  // Creates animated meteor effects that streak across the screen
-  const createMeteors = () => {
-    // Get reference to the main container
-    const authPage = document.querySelector('.auth-page');
-    // Number of meteors to create
-    const meteorCount = 3;
-    
-    // Generate each meteor with different timing
     for (let i = 0; i < meteorCount; i++) {
-      const meteor = document.createElement('div');
-      meteor.className = 'meteor';
-      
-      // Random starting position for each meteor
-      const x = Math.random() * 100;
-      const y = Math.random() * 50;
-      
-      // Apply position and stagger animation timing
-      meteor.style.left = `${x}%`;
-      meteor.style.top = `${y}%`;
-      meteor.style.animationDelay = `${i * 3}s`; // Stagger meteors by 3 seconds each
-      
-      // Add meteor to page
-      authPage.appendChild(meteor);
+      meteorsData.push({
+        id: i,
+        delay: Math.random() * 15,
+        duration: 5 + Math.random() * 10,
+        size: 100 + Math.random() * 150
+      });
     }
+    
+    return meteorsData;
   };
+  
+  // Generate the data for stars and meteors
+  const starsData = generateStarsData();
+  const meteorsData = generateMeteorsData();
 
   /**
    * Handles the login form submission
@@ -136,44 +209,39 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission behavior
     
-    // Validate form fields
-    if (!email || !password) {
-      setError("All fields are required");
-      return;
-    }
+    // Clear any previous error messages
+    setError("");
     
-    setError(""); // Clear any previous error messages
-    setIsLoading(true); // Activate loading state for button animation
-
-    // Define the API configuration for the authentication request
-    const API_URL = "http://localhost:8080/auth/login"; // Spring Boot backend endpoint
-    const requestBody = { email, password }; // User credentials from form state
-    const requestConfig = { 
-      withCredentials: true, // Allow cookies to be sent with request
-      headers: {
-        "Content-Type": "application/json"
-      }
-    };
-
+    // Set loading state to display button animation
+    setIsLoading(true);
+    
     try {
-      // Send authentication request to backend API
-      const response = await axios.post(API_URL, requestBody, requestConfig);
-      const authData = response.data; // Extract response data with token and user info
+      // Send login request to API endpoint
+      const response = await axios.post("/auth/login", {
+        email,
+        password
+      });
       
-      // Process successful authentication response
-      if (authData.token) {
-        // Store JWT authentication token in browser's localStorage
-        localStorage.setItem("token", authData.token);
+      // Check if response contains authentication data
+      if (response.data && response.data.token) {
+        // Store authentication token in localStorage for session persistence
+        localStorage.setItem("token", response.data.token);
         
-        // Store user profile data if available in the response
-        if (authData.user) {
-          localStorage.setItem("user", JSON.stringify(authData.user));
+        // Store user data if provided by the API
+        if (response.data.user) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
         }
-
-        // Navigate to the user profile page after successful login
+        
+        // Reset form and loading state
+        setEmail("");
+        setPassword("");
+        setIsLoading(false);
+        
+        // Redirect user to profile/dashboard page
         navigate("/profile");
       } else {
-        // Handle unexpected response format (missing token)
+        // Handle unexpected response format
+        setIsLoading(false);
         throw new Error("Authentication response missing required data");
       }
     } catch (error) {
@@ -189,80 +257,133 @@ const Login = () => {
     }
   };
 
-  // Render the login page with space-themed components and form
+  // Render the login page with space-themed components and form using MUI
   return (
-    <div className="auth-page"> {/* Main container with starry background */}
-      <div className="split-auth-container"> {/* Centered container for auth card */}
-        <div className="split-auth-card"> {/* Two-panel card with glowing border effect */}
+    <SpaceBackground>
+      {/* Render stars */}
+      {starsData.map((star) => (
+        <Star
+          key={star.id}
+          x={star.x}
+          y={star.y}
+          size={star.size}
+          duration={star.duration}
+          delay={star.delay}
+        />
+      ))}
+      
+      {/* Render planets */}
+      <Planet type="planet1" />
+      <Planet type="planet2" />
+      
+      {/* Render meteors */}
+      {meteorsData.map((meteor) => (
+        <Meteor
+          key={meteor.id}
+          delay={meteor.delay}
+          duration={meteor.duration}
+          size={meteor.size}
+        />
+      ))}
+      
+      <Box sx={{ width: '100%', maxWidth: '900px', margin: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <SpaceCard>
           {/* Left side - Login form */}
-          <div className="auth-form-side"> {/* Container for the login form panel */}
-            <h1 className="auth-title">VocabVenture Portal</h1> {/* Main title with neon green glow */}
-            <p className="auth-subtitle">
-              Enter credentials for your account {/* Subtitle explaining purpose */}
-            </p>
+          <FormSide>
+            <Typography variant="h1" sx={{ color: 'secondary.main', mb: 1 }}>VocabVenture Portal</Typography>
+            <Typography variant="subtitle1" sx={{ mb: 2 }}>
+              Enter credentials for your account
+            </Typography>
+            
             {/* Conditional error message display */}
-            {error && <div className="auth-error">{error}</div>}
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             
             {/* Login form with handler for submission */}
-            <form className="auth-form" onSubmit={handleSubmit}>
-              {/* Email input group */}
-              <div className="form-group">
-                <label htmlFor="email">Email:</label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  className="auth-input" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  required
-                />
-              </div>
+            <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                id="email"
+                label="Email"
+                type="email"
+                placeholder="Enter your email"
+                fullWidth
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+              />
               
-              {/* Password input group */}
-              <div className="form-group">
-                <label htmlFor="password">Password:</label>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  className="auth-input" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  required
-                />
-              </div>
+              <TextField
+                id="password"
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                fullWidth
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+              />
               
-              {/* Submit button with loading state */}
-              <button
+              <Button
                 type="submit"
-                className="auth-button" 
+                variant="contained"
+                color="primary"
                 disabled={isLoading}
+                fullWidth
+                sx={{ mt: 1 }}
               >
-                {isLoading ? 'Launching...' : 'Launch Mission'} {/* Dynamic text based on loading state */}
-              </button>
-            </form>
-            <br></br>
+                {isLoading ? (
+                  <>
+                    <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
+                    Launching...
+                  </>
+                ) : 'Launch Mission'}
+              </Button>
+            </Box>
             
-            {/* Link to registration page */}
-            <div className="auth-alt-text">
-              Don't have an account?{' '}
-              <Link to="/register" className="auth-link"> {/* Navigation link with Router */}
-                Register now!
-              </Link>
-            </div>
-          </div>
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Typography variant="body2">
+                Don't have an account?{' '}
+                <Link component={RouterLink} to="/register" color="secondary">
+                  Register now!
+                </Link>
+              </Typography>
+            </Box>
+          </FormSide>
           
           {/* Right side - Welcome message with decorative elements */}
-          <div className="auth-welcome-side"> {/* Darker panel with space background */}
-            <div className="space-ship"></div> {/* Decorative spaceship SVG with animation */}
-            <h2 className="welcome-title">VocabVenture Quest</h2> {/* Welcome panel title */}
-            <p className="welcome-text">Embark on a journey through the universe of vocabulary and spelling.</p>
-            <div className="space-station"></div> {/* Decorative space station SVG with animation */}
-          </div>
-        </div>
-      </div>
-    </div>
+          <WelcomeSide>
+            {/* We'll replace the div elements with Box components for the space ship and station */}
+            <Box sx={{ 
+              width: '80px', 
+              height: '80px', 
+              background: 'radial-gradient(circle, rgba(0,255,170,0.3) 0%, rgba(0,170,127,0.1) 100%)',
+              borderRadius: '50%',
+              mb: 3,
+              animation: 'hover 3s ease-in-out infinite alternate'
+            }} />
+            
+            <Typography variant="h2" sx={{ color: 'secondary.main', mb: 1, textAlign: 'center' }}>
+              VocabVenture Quest
+            </Typography>
+            
+            <Typography variant="body1" sx={{ color: 'text.secondary', textAlign: 'center', mb: 3 }}>
+              Embark on a journey through the universe of vocabulary and spelling.
+            </Typography>
+            
+            <Box sx={{ 
+              width: '100px', 
+              height: '40px', 
+              background: 'radial-gradient(circle, rgba(0,255,170,0.2) 0%, rgba(0,170,127,0.05) 100%)',
+              borderRadius: '10px',
+              animation: 'hover 4s ease-in-out infinite alternate'
+            }} />
+          </WelcomeSide>
+        </SpaceCard>
+      </Box>
+    </SpaceBackground>
   );
 };
 

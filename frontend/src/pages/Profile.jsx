@@ -1,359 +1,592 @@
-// File: src/pages/Profile.jsx
-// Purpose: User profile page with space-themed adventure aesthetic
-// Features: User stats, level progression, achievements, and space-themed UI elements
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar"; // Navigation component
-import "../styles/Profile.css"; // Imports custom styling for profile page
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  Divider,
+  LinearProgress,
+  CardContent,
+  useTheme
+} from '@mui/material';
+import SchoolIcon from '@mui/icons-material/School';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import { styled } from '@mui/material/styles';
+
+// Meteor animation component
+const Meteor = styled(Box)(({ delay = 0 }) => ({
+  position: 'absolute',
+  width: '2px',
+  height: '2px',
+  background: '#fff',
+  opacity: 0,
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    width: '50px',
+    height: '1px',
+    background: 'linear-gradient(90deg, #fff, transparent)',
+    transform: 'translateX(-100%)',
+  },
+  animation: 'meteor 3s ease-in infinite',
+  animationDelay: delay + 's',
+  top: Math.random() * 50 + '%',
+  left: Math.random() * 100 + '%',
+}));
+
+// Constellation point
+const ConstellationPoint = styled(Box)(({ size = 2, glow = false }) => ({
+  position: 'absolute',
+  width: size + 'px',
+  height: size + 'px',
+  background: '#fff',
+  borderRadius: '50%',
+  boxShadow: glow ? '0 0 10px rgba(0, 255, 170, 0.8)' : 'none',
+  animation: 'twinkle 3s ease-in-out infinite',
+}));
+
+// Constellation line
+const ConstellationLine = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  height: '1px',
+  background: 'linear-gradient(90deg, rgba(0, 255, 170, 0.2), rgba(0, 255, 170, 0))',
+  transformOrigin: '0 0',
+  opacity: 0.3,
+}));
+
+// Enhanced star background with multiple layers
+const StarBackground = styled(Box)(({ theme }) => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  pointerEvents: 'none',
+  '&::before, &::after, &::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'radial-gradient(2px 2px at var(--star-x) var(--star-y), #fff, rgba(0,0,0,0))',
+    backgroundSize: '200px 200px',
+    animation: 'moveStars 60s linear infinite',
+  },
+  '&::after': {
+    backgroundSize: '300px 300px',
+    animation: 'moveStars 90s linear infinite',
+    opacity: 0.6,
+    filter: 'blur(1px)',
+  },
+  '& > div': {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'radial-gradient(1px 1px at var(--star-x2) var(--star-y2), rgba(0,255,170,0.4), rgba(0,0,0,0))',
+    backgroundSize: '400px 400px',
+    animation: 'moveStars 120s linear infinite',
+    opacity: 0.3,
+    filter: 'blur(0.5px)',
+  },
+  '@keyframes moveStars': {
+    '0%': {
+      transform: 'translateY(0)'
+    },
+    '100%': {
+      transform: 'translateY(-100%)'
+    }
+  }
+}));
+
+// Enhanced Styled components
+const StyledCard = styled(Paper)(({ theme }) => ({
+  backgroundColor: 'rgba(10, 15, 30, 0.95)',
+  backdropFilter: 'blur(16px)',
+  border: '1px solid rgba(0, 255, 170, 0.15)',
+  borderRadius: theme.shape.borderRadius * 3,
+  boxShadow: theme.shadows[10],
+  overflow: 'hidden',
+  position: 'relative',
+  transition: 'all 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 8px 40px rgba(0, 255, 170, 0.2)'
+  },
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    background: 'linear-gradient(145deg, rgba(0,255,170,0.08) 0%, rgba(0,255,170,0) 50%)',
+    pointerEvents: 'none',
+  }
+}));
+
+// Cosmic glow effect
+const CosmicGlow = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  width: '200%',
+  height: '200%',
+  transform: 'translate(-50%, -50%)',
+  background: 'radial-gradient(circle, rgba(0,255,170,0.1) 0%, rgba(0,0,0,0) 70%)',
+  animation: 'pulse 4s ease-in-out infinite',
+  '@keyframes pulse': {
+    '0%': { opacity: 0.3 },
+    '50%': { opacity: 0.6 },
+    '100%': { opacity: 0.3 }
+  }
+}));
+
+// Enhanced avatar with cosmic effects
+const LargeAvatar = styled(Box)(({ theme }) => ({
+  width: 160,
+  height: 160,
+  borderRadius: '50%',
+  background: 'linear-gradient(45deg, ' + theme.palette.secondary.main + ' 0%, ' + theme.palette.secondary.dark + ' 100%)',
+  color: theme.palette.common.white,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: '0 auto',
+  marginBottom: theme.spacing(4),
+  fontSize: '4.5rem',
+  border: '4px solid ' + theme.palette.primary.dark,
+  boxShadow: '0 0 32px ' + theme.palette.secondary.dark + '40',
+  transition: 'all 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.05) rotate(8deg)'
+  }
+}));
+
+const ProgressBar = styled(LinearProgress)(({ theme }) => ({
+  height: 12,
+  borderRadius: 8,
+  backgroundColor: 'rgba(0, 255, 170, 0.1)',
+  '& .MuiLinearProgress-bar': {
+    background: 'linear-gradient(90deg, ' + theme.palette.secondary.main + ', ' + theme.palette.secondary.light + ')',
+    borderRadius: 8,
+    boxShadow: '0 0 16px ' + theme.palette.secondary.main + '40'
+  }
+}));
+
+// Glowing effect for icons
+const StatIconWrapper = styled(Box)(({ theme }) => ({
+  width: 48,
+  height: 48,
+  borderRadius: 12,
+  backgroundColor: 'rgba(0, 255, 170, 0.1)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: theme.spacing(2),
+  position: 'relative',
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    background: `linear-gradient(45deg, ${theme.palette.secondary.main}40, transparent)`,
+    borderRadius: 'inherit',
+    animation: 'rotate 4s linear infinite',
+    zIndex: -1
+  },
+  '& svg': {
+    fontSize: 28,
+    color: theme.palette.secondary.main,
+    filter: 'drop-shadow(0 0 8px ' + theme.palette.secondary.main + '40)'
+  },
+  '@keyframes rotate': {
+    '0%': {
+      transform: 'rotate(0deg)'
+    },
+    '100%': {
+      transform: 'rotate(360deg)'
+    }
+  }
+}));
 
 const Profile = () => {
-  // State for user profile data
-  const [user, setUser] = useState(null);
-  // Loading state to show loading indicator
-  const [isLoading, setIsLoading] = useState(true);
-  // Error state for displaying error messages
-  const [error, setError] = useState("");
-  // React Router hook for navigation
-  const navigate = useNavigate();
-  
-  // Effect hook to create space-themed animated background elements
-  // Runs once on component mount and cleans up on unmount
-  useEffect(() => {
-    // Create various space-themed background elements
-    createStars();    // Generates twinkling stars background
-    createGalaxy();   // Adds a galaxy visual element
-    createSatellite(); // Adds an orbiting satellite
-    
-    // Cleanup function to remove all created elements when component unmounts
-    return () => {
-      // Remove stars container
-      const starsContainer = document.querySelector('.stars');
-      if (starsContainer) {
-        starsContainer.remove();
-      }
-      
-      // Remove all space objects
-      const spaceObjects = document.querySelectorAll('.space-object');
-      spaceObjects.forEach(obj => obj.remove());
-    };
-  }, []); // Empty dependency array means this runs once on mount
-  
-  // Creates an animated starfield background with twinkling effect
-  const createStars = () => {
-    // Create container for all stars
-    const starsContainer = document.createElement('div');
-    starsContainer.className = 'stars';
-    document.querySelector('.profile-page').appendChild(starsContainer);
-    
-    // Number of stars to generate
-    const starsCount = 100;
-    
-    // Generate individual star elements with randomized properties
-    for (let i = 0; i < starsCount; i++) {
-      const star = document.createElement('div');
-      star.className = 'star';
-      
-      // Generate random position coordinates (as percentage of container)
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      
-      // Generate random star size (pixels)
-      const size = Math.random() * 3;
-      
-      // Generate random animation duration for twinkling effect
-      const duration = 3 + Math.random() * 7;
-      
-      // Apply generated properties to the star element
-      star.style.left = `${x}%`;
-      star.style.top = `${y}%`;
-      star.style.width = `${size}px`;
-      star.style.height = `${size}px`;
-      star.style.setProperty('--duration', `${duration}s`);
-      star.style.animationDelay = `${Math.random() * duration}s`;
-      
-      // Add star to the container
-      starsContainer.appendChild(star);
-    }
-  };
-  
-  // Creates a decorative galaxy element with glow effect and rotation
-  const createGalaxy = () => {
-    // Get reference to the main container
-    const profilePage = document.querySelector('.profile-page');
-    // Create the galaxy element
-    const galaxy = document.createElement('div');
-    galaxy.className = 'space-object galaxy';
-    // Add the galaxy to the page
-    profilePage.appendChild(galaxy);
-  };
-  
-  // Creates an orbiting satellite element that circles the page
-  const createSatellite = () => {
-    // Get reference to the main container
-    const profilePage = document.querySelector('.profile-page');
-    // Create the satellite element
-    const satellite = document.createElement('div');
-    satellite.className = 'space-object satellite';
-    satellite.innerHTML = '🛰️'; // Satellite emoji as visual
-    // Add the satellite to the page
-    profilePage.appendChild(satellite);
+  const theme = useTheme();
+  // Constellation configuration
+  const constellationPoints = [
+    { x: 15, y: 15, size: 3, glow: true },
+    { x: 25, y: 25, size: 2 },
+    { x: 35, y: 15, size: 2 },
+    { x: 85, y: 35, size: 3, glow: true },
+    { x: 75, y: 45, size: 2 },
+    { x: 65, y: 35, size: 2 },
+  ];
+
+  const constellationLines = [
+    { x1: 15, y1: 15, x2: 25, y2: 25 },
+    { x1: 25, y1: 25, x2: 35, y2: 15 },
+    { x1: 85, y1: 35, x2: 75, y2: 45 },
+    { x1: 75, y1: 45, x2: 65, y2: 35 },
+  ];
+
+  const [userData, setUserData] = useState(null);
+  const [stats, setStats] = useState({
+    level: 1,
+    experience: 0,
+    nextLevelExp: 100,
+    wordsLearned: 0,
+    quizzesTaken: 0,
+    achievements: [],
+    recentActivity: []
+  });
+
+  const calculateProgress = () => {
+    return Math.min((stats.experience / stats.nextLevelExp) * 100, 100);
   };
 
-  /**
-   * Authentication check and user profile data loading
-   * Verifies user is logged in and loads their profile data
-   * Redirects to login page if authentication is missing
-   */
-  useEffect(() => {
-    // Retrieve authentication data from local storage
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
-    
-    // Check if authentication data exists
-    if (!token || !userData) {
-      // If missing, redirect to login page
-      navigate("/login");
-      return;
-    }
-    
-    // If authenticated, process and load the user profile data
-    loadUserProfile(userData, token);
-  }, [navigate]); // Re-run if navigate function changes
-
-  /**
-   * Processes user profile data from localStorage and optionally syncs with backend
-   * Handles parsing stored JSON data and updating component state
-   * 
-   * @param {string} userData - JSON string of cached user data from localStorage
-   * @param {string} token - JWT authentication token for API requests
-   */
-  const loadUserProfile = (userData, token) => {
+  const fetchUserData = async () => {
     try {
-      // Parse the JSON string from localStorage into a JavaScript object
-      const parsedUser = JSON.parse(userData);
-      // Update the user state with the parsed data
-      setUser(parsedUser);
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
       
-      // Backend synchronization - Fetch latest user data from server
-      // This is currently disabled but can be enabled for real-time data
-      // fetchUserProfileFromServer(token);
-      
-      // End loading state since data is now available
-      setIsLoading(false);
-    } catch (error) {
-      // Handle any errors that occur during parsing or processing
-      console.error("Profile data processing error:", error);
-      setError("Failed to load your adventure profile data");
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Fetches the latest user profile data from the backend server
-   * 
-   * @param {string} token - Authentication token for API authorization
-   */
-  // Commented out to avoid unused variable warning, will be implemented in future updates
-  /* const fetchUserProfileFromServer = async (token) => {
-    const API_URL = "http://localhost:8081/api/user/profile";
-    const requestConfig = {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    };
-    
-    try {
-      // Request latest profile data from server
-      const response = await axios.get(API_URL, requestConfig);
-      
-      if (response.status === 200 && response.data) {
-        // Update user state with latest data
-        setUser(response.data);
+      if (token && userStr) {
+        const user = JSON.parse(userStr);
+        setUserData(user);
         
-        // Update cached user data
-        localStorage.setItem("user", JSON.stringify(response.data));
-      } else {
-        throw new Error("Invalid server response");
+        const response = await axios.get('http://localhost:8081/api/users/stats', {
+          headers: { Authorization: 'Bearer ' + token },
+          withCredentials: true
+        });
+        setStats(response.data);
       }
     } catch (error) {
-      console.error("Profile fetch error:", error);
-      
-      // Only show error if we don't already have cached data
-      if (!user) {
-        setError("Unable to retrieve your latest cosmic data");
-      }
+      console.error('Error fetching user data:', error);
     }
-  }; */
-
-  /**
-   * Extracts and formats user initials for the profile avatar
-   * Takes the first letter of each word in the username
-   * 
-   * @param {string} name - User's name or username
-   * @returns {string} - Formatted initials in uppercase
-   */
-  const getInitials = (name) => {
-    // Return placeholder if name is not available
-    if (!name) return '??';
-    // Split name into parts, take first letter of each, join, and convert to uppercase
-    return name.split(' ').map(part => part[0]).join('').toUpperCase();
   };
 
-  if (isLoading) {
-    return (
-      <div className="profile-page">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Establishing connection to your cosmic profile database...</p>
-        </div>
-      </div>
-    );
-  }
+  const generateStarPositions = () => {
+    const style = document.createElement('style');
+    const positions = [];
+    for (let i = 0; i < 4; i++) {
+      positions.push(Math.random() * 100 + '% ' + Math.random() * 100 + '%');
+    }
+    style.textContent = 
+      ':root {' +
+      '  --star-x: ' + positions[0] + ';' +
+      '  --star-y: ' + positions[1] + ';' +
+      '  --star-x2: ' + positions[2] + ';' +
+      '  --star-y2: ' + positions[3] + ';' +
+      '}';
+    document.head.appendChild(style);
+    return () => style.remove();
+  };
 
-  if (error) {
-    return (
-      <div className="profile-page">
-        <Navbar />
-        <div className="error-container">
-          <h2>Space Mission Aborted!</h2>
-          <p>{error}</p>
-          <button onClick={() => navigate("/login")} className="return-button">
-            Return to Command Center
-          </button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const cleanup = generateStarPositions();
+    return cleanup;
+  }, []);
 
-  // Main profile page render
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  if (!userData) return null;
+
   return (
-    <div className="profile-page">
-      {/* Top navigation bar */}
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: theme.palette.background.default,
+      position: 'relative',
+      overflow: 'hidden',
+      pt: { xs: 8, sm: 9 },
+      '&::before': {
+        content: '""',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        background: 'radial-gradient(circle at center, rgba(10, 10, 46, 0.8) 0%, rgba(10, 10, 46, 0.95) 100%)',
+        zIndex: -2
+      },
+      '&::after': {
+        content: '""',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        background: 'linear-gradient(45deg, rgba(0, 255, 170, 0.05) 0%, transparent 70%)',
+        zIndex: -1
+      }
+    }}>
+      <StarBackground>
+        <div /> {/* Additional star layer */}
+        {/* Render constellation points */}
+        {constellationPoints.map((point, index) => (
+          <ConstellationPoint
+            key={`point-${index}`}
+            sx={{
+              left: point.x + '%',
+              top: point.y + '%',
+            }}
+            size={point.size}
+            glow={point.glow}
+          />
+        ))}
+        {/* Render constellation lines */}
+        {constellationLines.map((line, index) => {
+          const dx = line.x2 - line.x1;
+          const dy = line.y2 - line.y1;
+          const length = Math.sqrt(dx * dx + dy * dy);
+          const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+          return (
+            <ConstellationLine
+              key={`line-${index}`}
+              sx={{
+                left: line.x1 + '%',
+                top: line.y1 + '%',
+                width: length + '%',
+                transform: 'rotate(' + angle + 'deg)',
+              }}
+            />
+          );
+        })}
+        {/* Add meteors */}
+        {[...Array(3)].map((_, index) => (
+          <Meteor key={`meteor-${index}`} delay={index * 2} />
+        ))}
+      </StarBackground>
+      <CosmicGlow />
       <Navbar />
-      
-      {/* Main content container */}
-      <div className="profile-container">
-        {/* Profile header with user info and level */}
-        <div className="profile-header">
-          {/* User avatar with initials */}
-          <div className="profile-avatar" title={user?.username || 'Space Explorer'}>
-            {getInitials(user?.username)}
-          </div>
-          
-          {/* User information section */}
-          <div className="profile-info">
-            {/* Username with cosmic title */}
-            <h1>{user?.username}'s Cosmic Profile</h1>
-            
-            {/* User role with appropriate icon */}
-            <p className="profile-role">
-              {user?.role === "STUDENT" ? "Vocabulary Cadet" : "Fleet Commander"} 
-              {user?.role === "STUDENT" ? "🚀" : "👨‍🚀"}
-            </p>
-            
-            {/* User email */}
-            <p className="profile-email">{user?.email}</p>
-            
-            {/* Level progression section */}
-            <div className="level-container">
-              <p>Level 1: Cosmic Recruit</p>
-              
-              {/* Progress bar for level advancement */}
-              <div className="progress-container">
-                <div className="progress-bar" style={{ width: "10%" }}></div>
-              </div>
-              
-              {/* Level stats and next level information */}
-              <div className="level-info">
-                <span>0 / 100 Stellar Points</span>
-                <span>Next: Level 2 - Space Navigator</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* User statistics cards */}
-        <div className="profile-stats">
-          {/* Words discovered stat */}
-          <div className="stat-card">
-            <div className="stat-icon">🪐</div>
-            <div className="stat-value">0</div>
-            <div className="stat-label">Words Discovered</div>
-          </div>
-          
-          {/* Missions completed stat */}
-          <div className="stat-card">
-            <div className="stat-icon">🛸</div>
-            <div className="stat-value">0</div>
-            <div className="stat-label">Missions Completed</div>
-          </div>
-          
-          {/* Day streak stat */}
-          <div className="stat-card">
-            <div className="stat-icon">⭐</div>
-            <div className="stat-value">0</div>
-            <div className="stat-label">Day Orbit</div>
-          </div>
-          
-          {/* Rewards stat */}
-          <div className="stat-card">
-            <div className="stat-icon">💫</div>
-            <div className="stat-value">0</div>
-            <div className="stat-label">Cosmic Rewards</div>
-          </div>
-        </div>
-        
-        {/* Lower profile content sections */}
-        <div className="profile-sections">
-          {/* Recent activity section */}
-          <div className="profile-section">
-            <h2>Recent Expeditions</h2>
-            
-            {/* Empty state when no activities exist */}
-            <div className="activity-empty">
-              <p>Your mission log is empty. Begin your first vocabulary expedition!</p>
-              <button className="quest-button">Launch New Mission</button>
-            </div>
-          </div>
-          
-          {/* Achievements/badges section */}
-          <div className="profile-section">
-            <h2>Space Medals</h2>
-            
-            {/* List of available achievements */}
-            <div className="achievements-list">
-              {/* Locked achievement 1 */}
-              <div className="achievement locked">
-                <div className="achievement-icon">🔒</div>
-                <div className="achievement-info">
-                  <h3>Vocabulary Astronaut</h3>
-                  <p>Master your first 10 cosmic vocabulary terms</p>
-                </div>
-              </div>
-              
-              {/* Locked achievement 2 */}
-              <div className="achievement locked">
-                <div className="achievement-icon">🔒</div>
-                <div className="achievement-info">
-                  <h3>Orbital Scholar</h3>
-                  <p>Maintain a 5-day learning orbit</p>
-                </div>
-              </div>
-              
-              {/* Locked achievement 3 */}
-              <div className="achievement locked">
-                <div className="achievement-icon">🔒</div>
-                <div className="achievement-info">
-                  <h3>Galactic Wordsmith</h3>
-                  <p>Complete all beginner level word missions</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <Container maxWidth="lg" sx={{ mt: 8, pb: 4 }}>
+        <Grid container spacing={3}>
+          {/* Left Column - Profile Info */}
+          <Grid item xs={12} md={5} lg={4}>
+            <StyledCard sx={{ mb: 4 }}>
+              <CardContent sx={{ p: 4 }}>
+                <LargeAvatar>
+                  {userData.username.charAt(0).toUpperCase()}
+                </LargeAvatar>
+                <Typography variant="h4" sx={{ 
+                  color: 'secondary.main', 
+                  fontWeight: 700,
+                  letterSpacing: 0.5,
+                  textAlign: 'center',
+                  mb: 1
+                }}>
+                  {userData.username}
+                </Typography>
+                <Typography variant="subtitle1" sx={{ 
+                  color: 'text.secondary', 
+                  textAlign: 'center',
+                  mb: 4
+                }}>
+                  Level {stats.level} Explorer
+                </Typography>
+                
+                <Divider sx={{ 
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  mb: 4 
+                }} />
+                
+                <Box sx={{ px: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Progress
+                    </Typography>
+                    <Typography variant="body2" color="secondary.main">
+                      {Math.round(calculateProgress())}%
+                    </Typography>
+                  </Box>
+                  <ProgressBar
+                    variant="determinate"
+                    value={calculateProgress()}
+                  />
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    mt: 2
+                  }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {stats.experience} XP
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {stats.nextLevelExp} XP
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </StyledCard>
+
+            {/* Stats Grid */}
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <StyledCard>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <StatIconWrapper>
+                        <SchoolIcon />
+                      </StatIconWrapper>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Words
+                        </Typography>
+                        <Typography variant="h5" color="text.primary">
+                          {stats.wordsLearned}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </StyledCard>
+              </Grid>
+              <Grid item xs={6}>
+                <StyledCard>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <StatIconWrapper>
+                        <WhatshotIcon />
+                      </StatIconWrapper>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Quests
+                        </Typography>
+                        <Typography variant="h5" color="text.primary">
+                          {stats.quizzesTaken}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </StyledCard>
+              </Grid>
+              <Grid item xs={6}>
+                <StyledCard>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <StatIconWrapper>
+                        <EmojiEventsIcon />
+                      </StatIconWrapper>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Achievements
+                        </Typography>
+                        <Typography variant="h5" color="text.primary">
+                          {stats.achievements.length}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </StyledCard>
+              </Grid>
+              <Grid item xs={6}>
+                <StyledCard>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <StatIconWrapper>
+                        <TimelineIcon />
+                      </StatIconWrapper>
+                      <Box>
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Streak
+                        </Typography>
+                        <Typography variant="h5" color="text.primary">
+                          7d
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </StyledCard>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* Right Column - Recent Activity */}
+          <Grid item xs={12} md={7} lg={8}>
+            <StyledCard>
+              <CardContent sx={{ p: 4 }}>
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="h5" sx={{ 
+                    fontWeight: 700,
+                    color: 'text.primary',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2
+                  }}>
+                    <RocketLaunchIcon sx={{ color: 'secondary.main' }} />
+                    Learning Activity
+                  </Typography>
+                  <Divider sx={{ 
+                    mt: 2,
+                    borderColor: 'rgba(255, 255, 255, 0.1)' 
+                  }} />
+                </Box>
+
+                {stats.recentActivity.length > 0 ? (
+                  <Grid container spacing={2}>
+                    {stats.recentActivity.map((activity, index) => (
+                      <Grid item xs={12} sm={6} lg={4} key={index}>
+                        <StyledCard sx={{ height: '100%' }}>
+                          <CardContent sx={{ p: 3 }}>
+                            <Typography variant="body1" color="text.primary" sx={{ mb: 1 }}>
+                              {activity.description}
+                            </Typography>
+                            <Typography variant="caption" color="secondary.main">
+                              {new Date(activity.timestamp).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </Typography>
+                            <Box sx={{ 
+                              mt: 2,
+                              height: 4,
+                              background: `linear-gradient(90deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.main} 100%)`,
+                              borderRadius: 2
+                            }} />
+                          </CardContent>
+                        </StyledCard>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  <Box sx={{ 
+                    textAlign: 'center', 
+                    p: 8,
+                    borderRadius: 4,
+                    border: `2px dashed ${theme.palette.divider}`,
+                    background: 'rgba(255, 255, 255, 0.02)'
+                  }}>
+                    <RocketLaunchIcon sx={{ 
+                      fontSize: 64, 
+                      color: 'secondary.main', 
+                      mb: 3,
+                      opacity: 0.8
+                    }} />
+                    <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                      Begin Your Journey!
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Complete your first lesson to unlock achievements
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </StyledCard>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
