@@ -13,7 +13,7 @@ This document provides instructions on how to set up and run the VocabVenture ba
 
 ### Database Setup
 
-1. Install MySQL if you haven't already
+1. Install XAMPP(MySQL) if you haven't already
 2. Create a new database for the application:
    ```sql
    CREATE DATABASE vocabventure;
