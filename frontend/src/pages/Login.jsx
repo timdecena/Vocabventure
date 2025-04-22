@@ -217,9 +217,11 @@ const Login = () => {
     
     try {
       // Send login request to API endpoint
-      const response = await axios.post("/auth/login", {
+      const response = await axios.post("http://localhost:8081/auth/login", {
         email,
         password
+      }, {
+        withCredentials: true // Allow cookies to be sent with request
       });
       
       // Check if response contains authentication data

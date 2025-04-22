@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { styled } from '@mui/material/styles';
+import axios from 'axios';
 import {
   AppBar,
   Toolbar,
@@ -117,6 +118,28 @@ const Navbar = () => {
   
   const isLoggedIn = localStorage.getItem("token") !== null;
   const [userData, setUserData] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+
+  // Fetch user profile picture
+  const fetchProfilePicture = async () => {
+    if (!isLoggedIn) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:8081/users/me/profile-picture', {
+        headers: { Authorization: 'Bearer ' + token },
+        responseType: 'blob',
+        withCredentials: true
+      });
+      
+      if (response.status === 200) {
+        const imageUrl = URL.createObjectURL(response.data);
+        setProfilePicture(imageUrl);
+      }
+    } catch (error) {
+      console.log('No profile picture available or error fetching it');
+    }
+  };
 
   useEffect(() => {
     // Close menus when route changes
@@ -130,12 +153,28 @@ const Navbar = () => {
         const userStr = localStorage.getItem("user");
         if (userStr) {
           setUserData(JSON.parse(userStr));
+          fetchProfilePicture();
         }
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    } else {
+      // Clear profile picture when logged out
+      if (profilePicture) {
+        URL.revokeObjectURL(profilePicture);
+        setProfilePicture(null);
+      }
     }
   }, [location.pathname, isLoggedIn]);
+  
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (profilePicture) {
+        URL.revokeObjectURL(profilePicture);
+      }
+    };
+  }, [profilePicture]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -177,8 +216,7 @@ const Navbar = () => {
           <Box component={Link} to="/" sx={{ 
             textDecoration: 'none', 
             display: 'flex', 
-            alignItems: 'center',
-            minWidth: 180
+            alignItems: 'center'
           }}>
             <LogoText variant="h5">
               Vocab<span>Venture</span>
@@ -190,8 +228,7 @@ const Navbar = () => {
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: 2,
-              ml: 'auto'
+              gap: 2
             }}>
               {isLoggedIn ? (
                 <>
@@ -257,7 +294,18 @@ const Navbar = () => {
 
                   <Tooltip title={userData?.username || 'Profile'}>
                     <UserAvatar onClick={handleUserMenuOpen}>
-                      {userData?.username?.charAt(0).toUpperCase() || "U"}
+                      {profilePicture ? (
+                        <Avatar 
+                          src={profilePicture} 
+                          alt={userData?.username}
+                          sx={{ 
+                            width: '100%', 
+                            height: '100%'
+                          }}
+                        />
+                      ) : (
+                        userData?.username?.charAt(0).toUpperCase() || "U"
+                      )}
                     </UserAvatar>
                   </Tooltip>
                   <Menu
@@ -279,11 +327,18 @@ const Navbar = () => {
                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                   >
-                    <MenuItem component={Link} to="/profile" onClick={handleUserMenuClose}>
-                      <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} />
-                      Profile
-                    </MenuItem>
-                    <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+                    {/* Only show Profile option if not already on Profile page */}
+                    {!isActive('/profile') && (
+                      <MenuItem component={Link} to="/profile" onClick={handleUserMenuClose}>
+                        <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} />
+                        Profile
+                      </MenuItem>
+                    )}
+                    
+                    {!isActive('/profile') && (
+                      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+                    )}
+                    
                     <MenuItem onClick={handleLogout}>
                       <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
                       Exit Adventure
@@ -371,7 +426,18 @@ const Navbar = () => {
                 {userData && (
                   <Box sx={{ p: 2, textAlign: 'center' }}>
                     <UserAvatar sx={{ width: 60, height: 60, mx: 'auto', mb: 1 }}>
-                      {userData?.username?.charAt(0).toUpperCase() || "U"}
+                      {profilePicture ? (
+                        <Avatar 
+                          src={profilePicture} 
+                          alt={userData?.username}
+                          sx={{ 
+                            width: '100%', 
+                            height: '100%'
+                          }}
+                        />
+                      ) : (
+                        userData?.username?.charAt(0).toUpperCase() || "U"
+                      )}
                     </UserAvatar>
                     <Typography variant="subtitle1" sx={{ color: 'secondary.main', fontWeight: 600 }}>
                       {userData.username}
@@ -400,15 +466,18 @@ const Navbar = () => {
                   <ExploreIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/missions') ? 'secondary.main' : 'inherit' }} />
                   Missions
                 </MenuItem>
-                <MenuItem 
-                  component={Link} 
-                  to="/profile" 
-                  onClick={handleMobileMenuClose}
-                  sx={{ backgroundColor: isActive('/profile') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
-                >
-                  <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/profile') ? 'secondary.main' : 'inherit' }} />
-                  My Quest
-                </MenuItem>
+                {/* Only show Profile option in mobile menu if not already on Profile page */}
+                {!isActive('/profile') && (
+                  <MenuItem 
+                    component={Link} 
+                    to="/profile" 
+                    onClick={handleMobileMenuClose}
+                    sx={{ backgroundColor: isActive('/profile') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+                  >
+                    <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/profile') ? 'secondary.main' : 'inherit' }} />
+                    My Quest
+                  </MenuItem>
+                )}
                 <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
                 <MenuItem onClick={handleLogout}>
                   <LogoutIcon sx={{ mr: 1.5, fontSize: 20 }} />
