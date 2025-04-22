@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -73,5 +75,14 @@ public class JwtUtils {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public Long extractUserIdFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String token = authHeader != null && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
+        if (token != null) {
+            return Long.parseLong(extractClaim(token, Claims::getSubject)); // assuming subject = userId
+        }
+        throw new RuntimeException("Invalid token");
     }
 }

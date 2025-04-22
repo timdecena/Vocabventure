@@ -1,5 +1,3 @@
-// File: src/components/Navbar.jsx
-// Enhanced version with improved styling and Material UI integration
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { styled } from '@mui/material/styles';
@@ -118,6 +116,13 @@ const Navbar = () => {
   const isLoggedIn = localStorage.getItem("token") !== null;
   const [userData, setUserData] = useState(null);
 
+  // Determine dashboard path based on user role
+  console.log(userData); // Check the content of userData
+  const dashboardPath = userData?.role?.toLowerCase() === 'teacher' 
+  ? '/teacher-dashboard' 
+  : '/student-dashboard';
+
+
   useEffect(() => {
     // Close menus when route changes
     setMenuOpen(false);
@@ -232,6 +237,27 @@ const Navbar = () => {
                       color="inherit"
                     >
                       Missions
+                    </NavButton>
+                    
+                  )}
+
+                  {isActive(dashboardPath) ? (
+                    <ActiveNavButton 
+                      startIcon={<RocketLaunchIcon />} 
+                      component={Link} 
+                      to={dashboardPath}
+                      color="inherit"
+                    >
+                      Dashboard
+                    </ActiveNavButton>
+                  ) : (
+                    <NavButton 
+                      startIcon={<RocketLaunchIcon />} 
+                      component={Link} 
+                      to={dashboardPath}
+                      color="inherit"
+                    >
+                      Dashboard
                     </NavButton>
                   )}
 
@@ -399,6 +425,15 @@ const Navbar = () => {
                 >
                   <ExploreIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/missions') ? 'secondary.main' : 'inherit' }} />
                   Missions
+                </MenuItem>
+                <MenuItem 
+                  component={Link} 
+                  to={dashboardPath} 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive(dashboardPath) ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+                >
+                  <RocketLaunchIcon sx={{ mr: 1.5, fontSize: 20, color: isActive(dashboardPath) ? 'secondary.main' : 'inherit' }} />
+                  Dashboard
                 </MenuItem>
                 <MenuItem 
                   component={Link} 
