@@ -26,6 +26,12 @@ public class JwtUtils {
     @Value("${jwt.expiration.ms}")
     private long jwtExpirationMs;
 
+    public JwtUtils(@Value("${jwt.secret}") String secret,
+                   @Value("${jwt.expiration.ms}") long jwtExpirationMs) {
+        this.secret = secret;
+        this.jwtExpirationMs = jwtExpirationMs;
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -85,4 +91,5 @@ public class JwtUtils {
         }
         throw new RuntimeException("Invalid token");
     }
+}
 }

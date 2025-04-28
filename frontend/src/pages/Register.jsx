@@ -234,7 +234,7 @@ const Register = () => {
     setError("");
     
     // Define the API configuration for the registration request
-    const API_URL = "http://localhost:8080/auth/register"; // Spring Boot backend endpoint
+    const API_URL = "http://localhost:8081/auth/register"; // Spring Boot backend endpoint
     const requestBody = { username, email, password, role }; // User registration data
     const requestConfig = { 
       withCredentials: true, // Allow cookies to be sent with request

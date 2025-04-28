@@ -7,13 +7,20 @@ import {
   Divider,
   LinearProgress,
   CardContent,
-  useTheme
+  useTheme,
+  Button,
+  Avatar,
+  IconButton,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
@@ -250,6 +257,12 @@ const Profile = () => {
     achievements: [],
     recentActivity: []
   });
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   const calculateProgress = () => {
     return Math.min((stats.experience / stats.nextLevelExp) * 100, 100);
@@ -264,14 +277,49 @@ const Profile = () => {
         const user = JSON.parse(userStr);
         setUserData(user);
         
-        const response = await axios.get('http://localhost:8081/api/users/stats', {
+        // Fetch user details
+        const userResponse = await axios.get('http://localhost:8081/users/me', {
           headers: { Authorization: 'Bearer ' + token },
           withCredentials: true
         });
-        setStats(response.data);
+        
+        // Update user data with the latest from the server
+        setUserData({...user, ...userResponse.data});
+        
+        // For now, use mock stats until backend implements stats endpoint
+        setStats({
+          level: 1,
+          experience: 75,
+          nextLevelExp: 100,
+          wordsLearned: 25,
+          quizzesTaken: 3,
+          achievements: [],
+          recentActivity: []
+        });
+        
+        // Check if user has a profile picture
+        try {
+          const profilePicResponse = await axios.get('http://localhost:8081/users/me/profile-picture', {
+            headers: { Authorization: 'Bearer ' + token },
+            responseType: 'blob',
+            withCredentials: true
+          });
+          
+          if (profilePicResponse.status === 200) {
+            const imageUrl = URL.createObjectURL(profilePicResponse.data);
+            setProfilePicture(imageUrl);
+          }
+        } catch (picError) {
+          console.log('No profile picture available or error fetching it');
+        }
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to load user data',
+        severity: 'error'
+      });
     }
   };
 
@@ -297,9 +345,91 @@ const Profile = () => {
     return cleanup;
   }, []);
 
+  const handleProfilePictureUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file is an image and size is reasonable
+    if (!file.type.startsWith('image/')) {
+      setSnackbar({
+        open: true,
+        message: 'Only image files are allowed',
+        severity: 'error'
+      });
+      return;
+    }
+    
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      setSnackbar({
+        open: true,
+        message: 'Image size should be less than 2MB',
+        severity: 'error'
+      });
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await axios.post('http://localhost:8081/users/me/profile-picture', 
+        formData, 
+        {
+          headers: { 
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'multipart/form-data'
+          },
+          withCredentials: true
+        }
+      );
+      
+      if (response.data && response.data.imageUrl) {
+        // Fetch the newly uploaded image
+        const profilePicResponse = await axios.get('http://localhost:8081/users/me/profile-picture', {
+          headers: { Authorization: 'Bearer ' + token },
+          responseType: 'blob',
+          withCredentials: true
+        });
+        
+        const imageUrl = URL.createObjectURL(profilePicResponse.data);
+        setProfilePicture(imageUrl);
+        
+        setSnackbar({
+          open: true,
+          message: response.data.message || 'Profile picture updated successfully',
+          severity: 'success'
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Failed to upload profile picture',
+        severity: 'error'
+      });
+    }
+  };
+  
+  const handleCloseSnackbar = () => {
+    setSnackbar({
+      ...snackbar,
+      open: false
+    });
+  };
+
   useEffect(() => {
     fetchUserData();
   }, []);
+  
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (profilePicture) {
+        URL.revokeObjectURL(profilePicture);
+      }
+    };
+  }, [profilePicture]);
 
   if (!userData) return null;
 
@@ -376,9 +506,48 @@ const Profile = () => {
           <Grid item xs={12} md={5} lg={4}>
             <StyledCard sx={{ mb: 4 }}>
               <CardContent sx={{ p: 4 }}>
-                <LargeAvatar>
-                  {userData.username.charAt(0).toUpperCase()}
-                </LargeAvatar>
+                <Box sx={{ position: 'relative', mb: 4 }}>
+                  <LargeAvatar>
+                    {profilePicture ? (
+                      <Avatar 
+                        src={profilePicture} 
+                        alt={userData.username}
+                        sx={{ 
+                          width: '100%', 
+                          height: '100%',
+                          border: '4px solid ' + theme.palette.primary.dark,
+                        }}
+                      />
+                    ) : (
+                      userData.username.charAt(0).toUpperCase()
+                    )}
+                  </LargeAvatar>
+                  
+                  {/* Profile picture upload button */}
+                  <IconButton 
+                    sx={{
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      backgroundColor: theme.palette.secondary.main,
+                      '&:hover': {
+                        backgroundColor: theme.palette.secondary.dark,
+                      },
+                      width: 48,
+                      height: 48,
+                      boxShadow: theme.shadows[4],
+                    }}
+                    component="label"
+                  >
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleProfilePictureUpload}
+                    />
+                    {profilePicture ? <PhotoCameraIcon /> : <AddAPhotoIcon />}
+                  </IconButton>
+                </Box>
                 <Typography variant="h4" sx={{ 
                   color: 'secondary.main', 
                   fontWeight: 700,
@@ -586,6 +755,22 @@ const Profile = () => {
           </Grid>
         </Grid>
       </Container>
+      
+      {/* Snackbar for notifications */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity} 
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
