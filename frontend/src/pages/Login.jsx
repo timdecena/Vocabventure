@@ -217,7 +217,7 @@ const Login = () => {
     
     try {
       // Send login request to API endpoint
-      const response = await axios.post("http://localhost:8081/auth/login", {
+      const response = await axios.post("http://localhost:8080/auth/login", {
         email,
         password
       }, {

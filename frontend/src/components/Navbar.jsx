@@ -124,7 +124,7 @@ const Navbar = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:8081/users/me/profile-picture', {
+      const response = await axios.get('http://localhost:8080/users/me/profile-picture', {
         headers: { Authorization: 'Bearer ' + token },
         responseType: 'blob',
         withCredentials: true
@@ -494,7 +494,7 @@ const Navbar = () => {
                 </MenuItem>
                 <MenuItem 
                   component={Link} 
-              <<    to={dashboardPath} 
+                  to={dashboardPath} 
                   onClick={handleMobileMenuClose}
                   sx={{ backgroundColor: isActive(dashboardPath) ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
                 >

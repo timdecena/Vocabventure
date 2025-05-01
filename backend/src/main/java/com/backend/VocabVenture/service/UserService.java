@@ -29,15 +29,15 @@ public class UserService {
     }
 
     public byte[] getProfilePicture(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getProfilePicture();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getProfilePicture();
     }
 
     public String getProfilePictureContentType(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getProfilePictureContentType();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getProfilePictureContentType();
     }
 
     public ProfilePictureResponse updateProfilePicture(String username, MultipartFile file) throws IOException {
