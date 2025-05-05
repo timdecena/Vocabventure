@@ -46,9 +46,15 @@ public class UserController {
     }
 
     @PostMapping(value = "/me/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProfilePictureResponse> uploadProfilePicture(@RequestParam("file") MultipartFile file) throws IOException {
-        String username = userService.getCurrentUser().getUsername();
-        ProfilePictureResponse response = userService.updateProfilePicture(username, file);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> uploadProfilePicture(@RequestParam("file") MultipartFile file) {
+        try {
+            String username = userService.getCurrentUser().getUsername();
+            ProfilePictureResponse response = userService.updateProfilePicture(username, file);
+            return ResponseEntity.ok(response);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(new ProfilePictureResponse("Failed to process image: " + e.getMessage(), null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new ProfilePictureResponse(e.getMessage(), null));
+        }
     }
 }

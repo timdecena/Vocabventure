@@ -27,6 +27,11 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return mapToDTO(user);
     }
+    
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
     public byte[] getProfilePicture(String username) {
         return userRepository.findByUsername(username)
@@ -41,25 +46,42 @@ public class UserService {
     }
 
     public ProfilePictureResponse updateProfilePicture(String username, MultipartFile file) throws IOException {
+        if (file == null) {
+            throw new RuntimeException("No file was provided");
+        }
+        
         if (file.isEmpty()) {
             throw new RuntimeException("File is empty");
         }
 
-        if (!file.getContentType().startsWith("image/")) {
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
             throw new RuntimeException("Only image files are allowed");
+        }
+
+        // Check file size (limit to 2MB as per application.properties)
+        if (file.getSize() > 2 * 1024 * 1024) {
+            throw new RuntimeException("File size exceeds the 2MB limit");
         }
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setProfilePicture(file.getBytes());
-        user.setProfilePictureContentType(file.getContentType());
-        userRepository.save(user);
-
-        return ProfilePictureResponse.builder()
-                .message("Profile picture updated successfully")
-                .imageUrl("/users/me/profile-picture")
-                .build();
+        try {
+            byte[] imageBytes = file.getBytes();
+            user.setProfilePicture(imageBytes);
+            user.setProfilePictureContentType(contentType);
+            userRepository.save(user);
+            
+            return ProfilePictureResponse.builder()
+                    .message("Profile picture updated successfully")
+                    .imageUrl("/users/me/profile-picture")
+                    .build();
+        } catch (IOException e) {
+            throw new IOException("Failed to process the image file: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error saving profile picture: " + e.getMessage(), e);
+        }
     }
 
     private UserDTO mapToDTO(User user) {

@@ -140,18 +140,27 @@ const Profile = () => {
   const fetchProfilePicture = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('No token available');
+        return;
+      }
+      
       const response = await axios.get('http://localhost:8080/users/me/profile-picture', {
-        headers: { Authorization: 'Bearer ' + token },
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'image/*'
+        },
         responseType: 'blob',
         withCredentials: true
       });
       
-      if (response.status === 200) {
+      if (response.status === 200 && response.data) {
         const imageUrl = URL.createObjectURL(response.data);
         setProfilePicture(imageUrl);
       }
     } catch (error) {
-      console.log('No profile picture available or error fetching it');
+      console.log('No profile picture available or error fetching it:', error.message);
+      // Don't show error to user as this is expected for new accounts
     }
   };
 
@@ -180,45 +189,81 @@ const Profile = () => {
     
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        setSnackbar({
+          open: true,
+          message: 'You must be logged in to upload a profile picture',
+          severity: 'error'
+        });
+        return;
+      }
+      
       const formData = new FormData();
       formData.append('file', file);
+      
+      // Log the token format to help debug
+      console.log('Token format check:', token.substring(0, 10) + '...');
       
       const response = await axios.post('http://localhost:8080/users/me/profile-picture', 
         formData, 
         {
           headers: { 
-            'Authorization': 'Bearer ' + token,
-            'Content-Type': 'multipart/form-data'
+            'Authorization': `Bearer ${token}`,
+            // Don't set Content-Type here, it will be set automatically with the correct boundary
           },
           withCredentials: true
         }
       );
       
-      if (response.data && response.data.imageUrl) {
+      if (response.data) {
         // Fetch the newly uploaded image
         const profilePicResponse = await axios.get('http://localhost:8080/users/me/profile-picture', {
-          headers: { Authorization: 'Bearer ' + token },
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'image/*'
+          },
           responseType: 'blob',
           withCredentials: true
         });
         
-        const imageUrl = URL.createObjectURL(profilePicResponse.data);
-        setProfilePicture(imageUrl);
-        
-        // Dispatch event to notify other components (like Navbar) of the profile picture update
-        window.dispatchEvent(new Event('profilePictureUpdated'));
-        
-        setSnackbar({
-          open: true,
-          message: response.data.message || 'Profile picture updated successfully',
-          severity: 'success'
-        });
+        if (profilePicResponse.data) {
+          const imageUrl = URL.createObjectURL(profilePicResponse.data);
+          setProfilePicture(imageUrl);
+          
+          // Dispatch event to notify other components (like Navbar) of the profile picture update
+          window.dispatchEvent(new Event('profilePictureUpdated'));
+          
+          setSnackbar({
+            open: true,
+            message: response.data.message || 'Profile picture updated successfully',
+            severity: 'success'
+          });
+        }
       }
     } catch (error) {
       console.error('Error uploading profile picture:', error);
+      let errorMessage = 'Failed to upload profile picture';
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMessage = error.response.data?.message || 
+                      `Server error: ${error.response.status} ${error.response.statusText}`;
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = 'No response from server. Please check your connection.';
+        console.error('Request:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = error.message;
+        console.error('Error message:', error.message);
+      }
+      
       setSnackbar({
         open: true,
-        message: error.response?.data?.message || 'Failed to upload profile picture',
+        message: errorMessage,
         severity: 'error'
       });
     }

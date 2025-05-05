@@ -12,13 +12,13 @@ import java.util.Optional;
 
 @Repository
 public interface ClassRepository extends JpaRepository<Class, Long> {
+    
     List<Class> findByTeacher(User teacher);
-
+    
     Optional<Class> findByJoinCode(String joinCode);
-
-    @Query("SELECT c FROM Class c LEFT JOIN FETCH c.students WHERE c.id = :classId")
-    Optional<Class> findByIdWithStudents(@Param("classId") Long classId);
-
-    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Class c WHERE c.joinCode = :joinCode")
-    boolean existsByJoinCode(@Param("joinCode") String joinCode);
+    
+    @Query("SELECT c FROM Class c JOIN c.students s WHERE s.id = :studentId")
+    List<Class> findClassesByStudentId(@Param("studentId") Long studentId);
+    
+    boolean existsByJoinCode(String joinCode);
 }

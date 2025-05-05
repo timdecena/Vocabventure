@@ -1,23 +1,20 @@
 package com.backend.VocabVenture.service;
 
-import com.backend.VocabVenture.exception.ResourceNotFoundException;
-import com.backend.VocabVenture.exception.UnauthorizedException;
-import com.backend.VocabVenture.exception.BadRequestException;
 import com.backend.VocabVenture.model.Class;
 import com.backend.VocabVenture.model.Role;
 import com.backend.VocabVenture.model.User;
 import com.backend.VocabVenture.repository.ClassRepository;
 import com.backend.VocabVenture.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
-@Transactional
 public class ClassService {
 
     private final ClassRepository classRepository;
@@ -29,99 +26,145 @@ public class ClassService {
         this.userRepository = userRepository;
     }
 
-    private String generateJoinCode() {
-        String joinCode;
-        do {
-            joinCode = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        } while (classRepository.existsByJoinCode(joinCode));
-        return joinCode;
+    @Transactional
+    public Class createClass(Class classObj, Long teacherId) {
+        User teacher = userRepository.findById(teacherId)
+                .orElseThrow(() -> new EntityNotFoundException("Teacher not found"));
+        
+        if (teacher.getRole() != Role.TEACHER) {
+            throw new AccessDeniedException("Only teachers can create classes");
+        }
+        
+        classObj.setTeacher(teacher);
+        classObj.setCreatedAt(LocalDateTime.now());
+        classObj.setUpdatedAt(LocalDateTime.now());
+        
+        return classRepository.save(classObj);
     }
 
-    public Class createClass(String className, String description, Long teacherId) {
+    @Transactional(readOnly = true)
+    public List<Class> getTeacherClasses(Long teacherId) {
         User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
-
+                .orElseThrow(() -> new EntityNotFoundException("Teacher not found"));
+        
         if (teacher.getRole() != Role.TEACHER) {
-            throw new UnauthorizedException("Only teachers can create classes");
+            throw new AccessDeniedException("User is not a teacher");
         }
-
-        Class newClass = new Class();
-        newClass.setClassName(className);
-        newClass.setDescription(description);
-        newClass.setCreatedAt(LocalDateTime.now());
-        newClass.setTeacher(teacher);
-        newClass.setJoinCode(generateJoinCode());
-
-        return classRepository.save(newClass);
-    }
-
-    public List<Class> getClassesByTeacherId(Long teacherId) {
-        User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
-
-        if (teacher.getRole() != Role.TEACHER) {
-            throw new UnauthorizedException("Only teachers can view their classes");
-        }
-
+        
         return classRepository.findByTeacher(teacher);
     }
 
-    public Class updateClass(Long classId, String newClassName, String newDescription, Long teacherId) {
-        User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
-
-        Class existingClass = classRepository.findById(classId)
-                .orElseThrow(() -> new ResourceNotFoundException("Class not found with id: " + classId));
-
-        if (!existingClass.getTeacher().getId().equals(teacher.getId())) {
-            throw new UnauthorizedException("You are not authorized to update this class");
+    @Transactional(readOnly = true)
+    public List<Class> getStudentClasses(Long studentId) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+        
+        if (student.getRole() != Role.STUDENT) {
+            throw new AccessDeniedException("User is not a student");
         }
+        
+        return classRepository.findClassesByStudentId(studentId);
+    }
 
-        existingClass.setClassName(newClassName);
-        existingClass.setDescription(newDescription);
+    @Transactional(readOnly = true)
+    public Class getClassById(Long classId) {
+        return classRepository.findById(classId)
+                .orElseThrow(() -> new EntityNotFoundException("Class not found"));
+    }
 
+    @Transactional
+    public Class updateClass(Long classId, Class updatedClass, Long teacherId) {
+        Class existingClass = classRepository.findById(classId)
+                .orElseThrow(() -> new EntityNotFoundException("Class not found"));
+        
+        // Verify the teacher owns this class
+        if (!existingClass.getTeacher().getId().equals(teacherId)) {
+            throw new AccessDeniedException("You don't have permission to update this class");
+        }
+        
+        existingClass.setClassName(updatedClass.getClassName());
+        existingClass.setDescription(updatedClass.getDescription());
+        existingClass.setUpdatedAt(LocalDateTime.now());
+        
         return classRepository.save(existingClass);
     }
 
+    @Transactional
     public void deleteClass(Long classId, Long teacherId) {
-        User teacher = userRepository.findById(teacherId)
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
-
-        Class existingClass = classRepository.findById(classId)
-                .orElseThrow(() -> new ResourceNotFoundException("Class not found with id: " + classId));
-
-        if (!existingClass.getTeacher().getId().equals(teacher.getId())) {
-            throw new UnauthorizedException("You are not authorized to delete this class");
+        Class classToDelete = classRepository.findById(classId)
+                .orElseThrow(() -> new EntityNotFoundException("Class not found"));
+        
+        // Verify the teacher owns this class
+        if (!classToDelete.getTeacher().getId().equals(teacherId)) {
+            throw new AccessDeniedException("You don't have permission to delete this class");
         }
-
-        classRepository.delete(existingClass);
+        
+        classRepository.delete(classToDelete);
     }
 
-    public void joinClass(String joinCode, Long studentId) {
+    @Transactional
+    public Class joinClass(String joinCode, Long studentId) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + studentId));
-
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+        
         if (student.getRole() != Role.STUDENT) {
-            throw new UnauthorizedException("Only students can join classes");
+            throw new AccessDeniedException("Only students can join classes");
         }
-
-        Class classroom = classRepository.findByJoinCode(joinCode)
-                .orElseThrow(() -> new BadRequestException("Invalid join code"));
-
-        if (classroom.getTeacher().getId().equals(student.getId())) {
-            throw new BadRequestException("Teachers cannot join their own class");
+        
+        Class classToJoin = classRepository.findByJoinCode(joinCode)
+                .orElseThrow(() -> new EntityNotFoundException("Invalid join code"));
+        
+        // Check if student is already in the class
+        if (classToJoin.getStudents().contains(student)) {
+            throw new IllegalStateException("Student is already in this class");
         }
-
-        if (classroom.getStudents().contains(student)) {
-            throw new BadRequestException("You have already joined this class");
-        }
-
-        classroom.getStudents().add(student);
-        classRepository.save(classroom);
+        
+        classToJoin.addStudent(student);
+        classToJoin.setUpdatedAt(LocalDateTime.now());
+        
+        return classRepository.save(classToJoin);
     }
 
-    public Class getClassById(Long classId) {
-        return classRepository.findByIdWithStudents(classId)
-                .orElseThrow(() -> new ResourceNotFoundException("Class not found with id: " + classId));
+    @Transactional
+    public Class removeStudentFromClass(Long classId, Long studentId, Long teacherId) {
+        Class classObj = classRepository.findById(classId)
+                .orElseThrow(() -> new EntityNotFoundException("Class not found"));
+        
+        // Verify the teacher owns this class
+        if (!classObj.getTeacher().getId().equals(teacherId)) {
+            throw new AccessDeniedException("You don't have permission to modify this class");
+        }
+        
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+        
+        if (!classObj.getStudents().contains(student)) {
+            throw new IllegalStateException("Student is not in this class");
+        }
+        
+        classObj.removeStudent(student);
+        classObj.setUpdatedAt(LocalDateTime.now());
+        
+        return classRepository.save(classObj);
+    }
+
+    @Transactional
+    public Class regenerateJoinCode(Long classId, Long teacherId) {
+        Class classObj = classRepository.findById(classId)
+                .orElseThrow(() -> new EntityNotFoundException("Class not found"));
+        
+        // Verify the teacher owns this class
+        if (!classObj.getTeacher().getId().equals(teacherId)) {
+            throw new AccessDeniedException("You don't have permission to modify this class");
+        }
+        
+        classObj.regenerateJoinCode();
+        
+        return classRepository.save(classObj);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isValidJoinCode(String joinCode) {
+        return classRepository.existsByJoinCode(joinCode);
     }
 }

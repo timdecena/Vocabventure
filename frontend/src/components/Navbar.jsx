@@ -353,22 +353,27 @@ const Navbar = () => {
                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                   >
-                    {/* Only show Profile option if not already on Profile page */}
-                    {!isActive('/profile') && (
-                      <MenuItem component={Link} to="/profile" onClick={handleUserMenuClose}>
-                        <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} />
-                        Profile
+                    {/* Use array of menu items instead of conditional fragments */}
+                    {[
+                      // Profile menu item (only if not on profile page)
+                      !isActive('/profile') && (
+                        <MenuItem key="profile" component={Link} to="/profile" onClick={handleUserMenuClose}>
+                          <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} />
+                          Profile
+                        </MenuItem>
+                      ),
+                      
+                      // Divider (only if not on profile page)
+                      !isActive('/profile') && (
+                        <Divider key="divider" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+                      ),
+                      
+                      // Logout menu item (always shown)
+                      <MenuItem key="logout" onClick={handleLogout}>
+                        <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
+                        Exit Adventure
                       </MenuItem>
-                    )}
-                    
-                    {!isActive('/profile') && (
-                      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-                    )}
-                    
-                    <MenuItem onClick={handleLogout}>
-                      <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
-                      Exit Adventure
-                    </MenuItem>
+                    ].filter(Boolean) /* Filter out false/null values */}
                   </Menu>
                 </>
               ) : (
@@ -447,10 +452,11 @@ const Navbar = () => {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
-            {isLoggedIn ? (
-              <>
-                {userData && (
-                  <Box sx={{ p: 2, textAlign: 'center' }}>
+            {isLoggedIn ? 
+              [
+                // User profile info (if userData exists)
+                userData && (
+                  <Box key="user-profile" sx={{ p: 2, textAlign: 'center' }}>
                     <UserAvatar sx={{ width: 60, height: 60, mx: 'auto', mb: 1 }}>
                       {profilePicture ? (
                         <Avatar 
@@ -472,9 +478,14 @@ const Navbar = () => {
                       {userData.email}
                     </Typography>
                   </Box>
-                )}
-                <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+                ),
+                
+                // First divider
+                <Divider key="divider-1" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />,
+                
+                // Home menu item
                 <MenuItem 
+                  key="home"
                   component={Link} 
                   to="/" 
                   onClick={handleMobileMenuClose}
@@ -482,8 +493,11 @@ const Navbar = () => {
                 >
                   <HomeIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/') ? 'secondary.main' : 'inherit' }} />
                   Home
-                </MenuItem>
+                </MenuItem>,
+                
+                // Missions menu item
                 <MenuItem 
+                  key="missions"
                   component={Link} 
                   to="/missions" 
                   onClick={handleMobileMenuClose}
@@ -491,8 +505,11 @@ const Navbar = () => {
                 >
                   <ExploreIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/missions') ? 'secondary.main' : 'inherit' }} />
                   Missions
-                </MenuItem>
+                </MenuItem>,
+                
+                // Dashboard menu item
                 <MenuItem 
+                  key="dashboard"
                   component={Link} 
                   to={dashboardPath} 
                   onClick={handleMobileMenuClose}
@@ -500,8 +517,11 @@ const Navbar = () => {
                 >
                   <RocketLaunchIcon sx={{ mr: 1.5, fontSize: 20, color: isActive(dashboardPath) ? 'secondary.main' : 'inherit' }} />
                   Dashboard
-                </MenuItem>
+                </MenuItem>,
+                
+                // My Quest menu item
                 <MenuItem 
+                  key="my-quest"
                   component={Link} 
                   to="/profile" 
                   onClick={handleMobileMenuClose}
@@ -509,10 +529,12 @@ const Navbar = () => {
                 >
                   <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/profile') ? 'secondary.main' : 'inherit' }} />
                   My Quest
-                </MenuItem>
-                {/* Only show Profile option in mobile menu if not already on Profile page */}
-                {!isActive('/profile') && (
+                </MenuItem>,
+                
+                // Conditional My Quest menu item (only if not on profile page)
+                !isActive('/profile') && (
                   <MenuItem 
+                    key="my-quest-2"
                     component={Link} 
                     to="/profile" 
                     onClick={handleMobileMenuClose}
@@ -521,16 +543,22 @@ const Navbar = () => {
                     <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/profile') ? 'secondary.main' : 'inherit' }} />
                     My Quest
                   </MenuItem>
-                )}
-                <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-                <MenuItem onClick={handleLogout}>
+                ),
+                
+                // Second divider
+                <Divider key="divider-2" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />,
+                
+                // Logout menu item
+                <MenuItem key="logout" onClick={handleLogout}>
                   <LogoutIcon sx={{ mr: 1.5, fontSize: 20 }} />
                   Exit Adventure
                 </MenuItem>
-              </>
-            ) : (
-              <>
+              ].filter(Boolean) // Filter out any false/null values
+            : 
+              [
+                // Login menu item
                 <MenuItem 
+                  key="login"
                   component={Link} 
                   to="/login" 
                   onClick={handleMobileMenuClose}
@@ -538,8 +566,11 @@ const Navbar = () => {
                 >
                   <RocketLaunchIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/login') ? 'secondary.main' : 'inherit' }} />
                   Begin Quest
-                </MenuItem>
+                </MenuItem>,
+                
+                // Register menu item
                 <MenuItem 
+                  key="register"
                   component={Link} 
                   to="/register" 
                   onClick={handleMobileMenuClose}
@@ -548,8 +579,8 @@ const Navbar = () => {
                   <PersonAddIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/register') ? 'secondary.main' : 'inherit' }} />
                   Join Adventure
                 </MenuItem>
-              </>
-            )}
+              ]
+            }
           </Menu>
         </Toolbar>
       </Container>

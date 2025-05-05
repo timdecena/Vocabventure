@@ -42,9 +42,13 @@ public class WebSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/users/me", "/users/me/profile-picture").hasAnyAuthority("TEACHER", "STUDENT")
-                        .requestMatchers("/api/teacher/class/**").hasAuthority("TEACHER") // Matches the endpoint
-                        .requestMatchers("/api/teacher/class/join").hasAuthority("STUDENT")
+                        // Fix authorization for user endpoints - allow both with and without ROLE_ prefix for backward compatibility
+                        .requestMatchers("/users/me").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
+                        .requestMatchers("/users/me/profile-picture").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/teacher/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
+                        .requestMatchers("/api/student/**").hasAnyAuthority("ROLE_STUDENT", "STUDENT")
+                        .requestMatchers("/api/class/validate-code").permitAll()
+                        .requestMatchers("/api/class/**").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
