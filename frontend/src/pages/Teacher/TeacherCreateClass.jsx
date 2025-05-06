@@ -11,7 +11,7 @@ const TeacherCreateClass = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:8080/api/teacher/class', // Ensure this matches
+        'http://localhost:8081/api/teacher/class', // Ensure this matches
         { className, description },
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -145,7 +145,7 @@ const Profile = () => {
         return;
       }
       
-      const response = await axios.get('http://localhost:8080/users/me/profile-picture', {
+      const response = await axios.get('http://localhost:8081/users/me/profile-picture', {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Accept': 'image/*'
@@ -204,7 +204,7 @@ const Profile = () => {
       // Log the token format to help debug
       console.log('Token format check:', token.substring(0, 10) + '...');
       
-      const response = await axios.post('http://localhost:8080/users/me/profile-picture', 
+      const response = await axios.post('http://localhost:8081/users/me/profile-picture', 
         formData, 
         {
           headers: { 
@@ -217,7 +217,7 @@ const Profile = () => {
       
       if (response.data) {
         // Fetch the newly uploaded image
-        const profilePicResponse = await axios.get('http://localhost:8080/users/me/profile-picture', {
+        const profilePicResponse = await axios.get('http://localhost:8081/users/me/profile-picture', {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Accept': 'image/*'

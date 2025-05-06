@@ -10,7 +10,7 @@ const StudentJoinClass = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:8080/api/teacher/class/join',
+        'http://localhost:8081/api/teacher/class/join',
         null,
         {
           params: { joinCode },

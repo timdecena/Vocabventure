@@ -15,7 +15,7 @@
 	<groupId>com.backend</groupId>
 	<artifactId>VocabVenture</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Vocab Venture</name>
+	<name>VocabVenture</name>
 	<description>Vocabulary Learning Application</description>
 
 	<properties>

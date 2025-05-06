@@ -27,6 +27,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import GamesIcon from '@mui/icons-material/Games';
 
 // Styled components
 const NavbarContainer = styled(AppBar)(({ theme }) => ({
@@ -254,6 +255,26 @@ const Navbar = () => {
                       color="inherit"
                     >
                       Home
+                    </NavButton>
+                  )}
+                  
+                  {isActive('/game') ? (
+                    <ActiveNavButton 
+                      startIcon={<GamesIcon />} 
+                      component={Link} 
+                      to="/game"
+                      color="inherit"
+                    >
+                      Word Game
+                    </ActiveNavButton>
+                  ) : (
+                    <NavButton 
+                      startIcon={<GamesIcon />} 
+                      component={Link} 
+                      to="/game"
+                      color="inherit"
+                    >
+                      Word Game
                     </NavButton>
                   )}
 
@@ -505,6 +526,17 @@ const Navbar = () => {
                 >
                   <ExploreIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/missions') ? 'secondary.main' : 'inherit' }} />
                   Missions
+                </MenuItem>,
+                
+                <MenuItem 
+                  key="word-game"
+                  component={Link} 
+                  to="/game" 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive('/game') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+                >
+                  <GamesIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/game') ? 'secondary.main' : 'inherit' }} />
+                  Word Game
                 </MenuItem>,
                 
                 // Dashboard menu item

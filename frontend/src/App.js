@@ -8,6 +8,11 @@ import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import TeacherCreateClass from "./pages/Teacher/TeacherCreateClass";
 
+// Import Game components
+import GameCategories from "./pages/Game/GameCategories";
+import GameLevels from "./pages/Game/GameLevels";
+import GamePlay from "./pages/Game/GamePlay";
+
 function App() {
   return (
     <Router>
@@ -19,8 +24,11 @@ function App() {
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/create-class" element={<TeacherCreateClass />} />
-
-        {/* Add other routes like /profile later */}
+        
+        {/* 4 Pics 1 Word Game Routes */}
+        <Route path="/game" element={<GameCategories />} />
+        <Route path="/game/levels/:category" element={<GameLevels />} />
+        <Route path="/game/play/:category/:levelNumber" element={<GamePlay />} />
       </Routes>
     </Router>
   );

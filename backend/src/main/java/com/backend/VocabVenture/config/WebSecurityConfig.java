@@ -42,6 +42,8 @@ public class WebSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Allow access to static resources
+                        .requestMatchers("/images/**").permitAll()
                         // Fix authorization for user endpoints - allow both with and without ROLE_ prefix for backward compatibility
                         .requestMatchers("/users/me").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
                         .requestMatchers("/users/me/profile-picture").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
@@ -49,6 +51,13 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/student/**").hasAnyAuthority("ROLE_STUDENT", "STUDENT")
                         .requestMatchers("/api/class/validate-code").permitAll()
                         .requestMatchers("/api/class/**").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
+                        // Game API endpoints
+                        .requestMatchers("/api/game/categories").permitAll()
+                        .requestMatchers("/api/game/categories/**").permitAll()
+                        .requestMatchers("/api/game/public/**").permitAll()
+                        .requestMatchers("/api/game/progress/**").authenticated()
+                        .requestMatchers("/api/game/levels").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
+                        .requestMatchers("/api/game/levels/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -75,9 +84,11 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:3000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Disposition"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
