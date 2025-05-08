@@ -1,6 +1,5 @@
 package com.backend.VocabVenture.service;
 
-import com.backend.VocabVenture.exception.ResourceNotFoundException;
 import com.backend.VocabVenture.model.GameLevel;
 import com.backend.VocabVenture.model.LevelProgress;
 import com.backend.VocabVenture.model.User;
@@ -9,6 +8,7 @@ import com.backend.VocabVenture.repository.LevelProgressRepository;
 import com.backend.VocabVenture.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -22,32 +22,37 @@ public class LevelProgressService {
     private final LevelProgressRepository levelProgressRepository;
     private final GameLevelRepository gameLevelRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
     public LevelProgressService(
             LevelProgressRepository levelProgressRepository,
             GameLevelRepository gameLevelRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            UserService userService) {
         this.levelProgressRepository = levelProgressRepository;
         this.gameLevelRepository = gameLevelRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     /**
-     * Record a completed level for a user
+     * Record a completed level for a user and award XP
      */
-    public LevelProgress recordLevelCompletion(Long userId, Long levelId, Integer attempts, Integer timeTaken, Integer hintsUsed) {
+    @Transactional
+    public Map<String, Object> recordLevelCompletion(Long userId, Long levelId, Integer attempts, Integer timeTaken, Integer hintsUsed) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("User not found with id: " + userId));
         
         GameLevel gameLevel = gameLevelRepository.findById(levelId)
-                .orElseThrow(() -> new ResourceNotFoundException("Level not found with id: " + levelId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("Level not found with id: " + levelId));
         
         // Check if the user has already completed this level
         if (levelProgressRepository.existsByUserAndGameLevel(user, gameLevel)) {
             throw new IllegalStateException("User has already completed this level");
         }
         
+        // Create and save progress record
         LevelProgress progress = new LevelProgress();
         progress.setUser(user);
         progress.setGameLevel(gameLevel);
@@ -56,7 +61,43 @@ public class LevelProgressService {
         progress.setTimeTaken(timeTaken);
         progress.setHintsUsed(hintsUsed != null ? hintsUsed : 0);
         
-        return levelProgressRepository.save(progress);
+        LevelProgress savedProgress = levelProgressRepository.save(progress);
+        
+        // Calculate XP to award based on level difficulty, attempts, and hints used
+        int baseXp = 10; // Base XP for completing a level
+        
+        // Adjust XP based on difficulty
+        switch (gameLevel.getDifficulty()) {
+            case EASY:
+                baseXp = 5;
+                break;
+            case MEDIUM:
+                baseXp = 10;
+                break;
+            case HARD:
+                baseXp = 15;
+                break;
+        }
+        
+        // Reduce XP for multiple attempts (but ensure at least 50% of base XP)
+        int attemptPenalty = Math.min((attempts != null ? attempts : 1) - 1, baseXp / 2);
+        
+        // Reduce XP for hints used (but ensure at least 50% of base XP)
+        int hintPenalty = Math.min((hintsUsed != null ? hintsUsed : 0), baseXp / 2);
+        
+        // Calculate final XP (minimum 1 XP)
+        int awardedXp = Math.max(baseXp - attemptPenalty - hintPenalty, 1);
+        
+        // Award XP to the user
+        Map<String, Object> xpResult = userService.addExperiencePoints(userId, awardedXp);
+        
+        // Combine progress and XP information in the response
+        Map<String, Object> result = new HashMap<>();
+        result.put("progress", savedProgress);
+        result.put("xpAwarded", awardedXp);
+        result.put("xpInfo", xpResult);
+        
+        return result;
     }
 
     /**
@@ -64,7 +105,7 @@ public class LevelProgressService {
      */
     public List<LevelProgress> getUserProgress(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("User not found with id: " + userId));
         
         return levelProgressRepository.findByUserOrderByCompletedAtDesc(user);
     }
@@ -74,7 +115,7 @@ public class LevelProgressService {
      */
     public List<LevelProgress> getUserProgressByCategory(Long userId, String category) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("User not found with id: " + userId));
         
         return levelProgressRepository.findByUserAndCategory(user, category);
     }
@@ -84,10 +125,10 @@ public class LevelProgressService {
      */
     public boolean hasUserCompletedLevel(Long userId, Long levelId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("User not found with id: " + userId));
         
         GameLevel gameLevel = gameLevelRepository.findById(levelId)
-                .orElseThrow(() -> new ResourceNotFoundException("Level not found with id: " + levelId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("Level not found with id: " + levelId));
         
         return levelProgressRepository.existsByUserAndGameLevel(user, gameLevel);
     }
@@ -97,7 +138,7 @@ public class LevelProgressService {
      */
     public Map<String, Object> getUserProgressSummary(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("User not found with id: " + userId));
         
         // Get all categories
         List<String> allCategories = gameLevelRepository.findDistinctCategory();
@@ -146,13 +187,13 @@ public class LevelProgressService {
      */
     public GameLevel getNextAvailableLevel(Long userId, String category) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("User not found with id: " + userId));
         
         // Get all levels in the category
         List<GameLevel> levelsInCategory = gameLevelRepository.findByCategoryAndActiveTrueOrderByLevelNumber(category);
         
         if (levelsInCategory.isEmpty()) {
-            throw new ResourceNotFoundException("No levels found in category: " + category);
+            throw new com.backend.VocabVenture.exception.ResourceNotFoundException("No levels found in category: " + category);
         }
         
         // Get all completed levels in this category

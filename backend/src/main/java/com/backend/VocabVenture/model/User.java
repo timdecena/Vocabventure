@@ -43,6 +43,13 @@ public class User implements UserDetails {
 
     @Column(name = "profile_picture_content_type")
     private String profilePictureContentType;
+    
+    // XP and level for gamification
+    @Column(name = "experience_points", columnDefinition = "INT DEFAULT 0")
+    private Integer experiencePoints = 0;
+    
+    @Column(name = "user_level", columnDefinition = "INT DEFAULT 1")
+    private Integer userLevel = 1;
 
     // UserDetails interface methods
     @Override
@@ -128,6 +135,22 @@ public class User implements UserDetails {
     public void setProfilePictureContentType(String profilePictureContentType) {
         this.profilePictureContentType = profilePictureContentType;
     }
+    
+    public Integer getExperiencePoints() {
+        return experiencePoints;
+    }
+    
+    public void setExperiencePoints(Integer experiencePoints) {
+        this.experiencePoints = experiencePoints;
+    }
+    
+    public Integer getUserLevel() {
+        return userLevel;
+    }
+    
+    public void setUserLevel(Integer userLevel) {
+        this.userLevel = userLevel;
+    }
 
     // Builder pattern
     public static UserBuilder builder() {
@@ -140,7 +163,8 @@ public class User implements UserDetails {
 
     // AllArgsConstructor
     public User(Long id, String username, String email, String password, Role role,
-                byte[] profilePicture, String profilePictureContentType) {
+                byte[] profilePicture, String profilePictureContentType,
+                Integer experiencePoints, Integer userLevel) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -148,6 +172,8 @@ public class User implements UserDetails {
         this.role = role;
         this.profilePicture = profilePicture;
         this.profilePictureContentType = profilePictureContentType;
+        this.experiencePoints = experiencePoints != null ? experiencePoints : 0;
+        this.userLevel = userLevel != null ? userLevel : 1;
     }
 
     // Builder class
@@ -159,6 +185,8 @@ public class User implements UserDetails {
         private Role role;
         private byte[] profilePicture;
         private String profilePictureContentType;
+        private Integer experiencePoints;
+        private Integer userLevel;
 
         UserBuilder() {
         }
@@ -197,9 +225,19 @@ public class User implements UserDetails {
             this.profilePictureContentType = profilePictureContentType;
             return this;
         }
+        
+        public UserBuilder experiencePoints(Integer experiencePoints) {
+            this.experiencePoints = experiencePoints;
+            return this;
+        }
+        
+        public UserBuilder userLevel(Integer userLevel) {
+            this.userLevel = userLevel;
+            return this;
+        }
 
         public User build() {
-            return new User(id, username, email, password, role, profilePicture, profilePictureContentType);
+            return new User(id, username, email, password, role, profilePicture, profilePictureContentType, experiencePoints, userLevel);
         }
     }
 }

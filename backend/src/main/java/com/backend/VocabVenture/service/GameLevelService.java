@@ -1,6 +1,5 @@
 package com.backend.VocabVenture.service;
 
-import com.backend.VocabVenture.exception.ResourceNotFoundException;
 import com.backend.VocabVenture.model.GameLevel;
 import com.backend.VocabVenture.repository.GameLevelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 public class GameLevelService {
 
     private final GameLevelRepository gameLevelRepository;
+    
+
 
     @Autowired
     public GameLevelService(GameLevelRepository gameLevelRepository) {
@@ -32,9 +34,9 @@ public class GameLevelService {
     @PostConstruct
     public void init() {
         try {
-            loadLevelsFromFilesystem();
+            loadLevelsFromInternalResources();
         } catch (IOException e) {
-            System.err.println("Failed to load game levels from filesystem: " + e.getMessage());
+            System.err.println("Failed to load game levels from internal resources: " + e.getMessage());
         }
     }
 
@@ -48,7 +50,7 @@ public class GameLevelService {
 
     public GameLevel getLevel(String category, Integer levelNumber) {
         return gameLevelRepository.findByCategoryAndLevelNumber(category, levelNumber)
-                .orElseThrow(() -> new ResourceNotFoundException("Level not found for category: " + category + " and level: " + levelNumber));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("Level not found for category: " + category + " and level: " + levelNumber));
     }
 
     public Map<String, Object> getLevelData(String category, Integer levelNumber) {
@@ -100,7 +102,7 @@ public class GameLevelService {
 
     public GameLevel updateLevel(Long id, GameLevel levelDetails) {
         GameLevel level = gameLevelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Level not found with id: " + id));
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("Level not found with id: " + id));
 
         level.setCategory(levelDetails.getCategory());
         level.setLevelNumber(levelDetails.getLevelNumber());
@@ -115,42 +117,76 @@ public class GameLevelService {
 
     public void deleteLevel(Long id) {
         GameLevel level = gameLevelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Level not found with id: " + id));
-
+                .orElseThrow(() -> new com.backend.VocabVenture.exception.ResourceNotFoundException("Level not found with id: " + id));
         gameLevelRepository.delete(level);
     }
 
     public List<GameLevel> loadLevelsFromFilesystem() throws IOException {
+        // This method now only loads from internal resources
+        return loadLevelsFromInternalResources();
+    }
+    
+    private List<GameLevel> loadLevelsFromInternalResources() throws IOException {
         List<GameLevel> loadedLevels = new ArrayList<>();
-
-        String[] categories = {"animals", "fruits"};
-
+        
+        // Scan for categories and levels in the internal resources
+        String[] categories = {"animals", "fruits", "vehicles"}; // Add your categories here
+        
         for (String category : categories) {
-            try {
-                String basePath = "static/images/" + category + "/level1/";
-                Resource answerRes = new ClassPathResource(basePath + "answer.txt");
-
-                if (answerRes.exists()) {
-                    String answer = new String(answerRes.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
-
-                    if (gameLevelRepository.findByCategoryAndLevelNumber(category, 1).isEmpty()) {
-                        GameLevel level = new GameLevel();
-                        level.setCategory(category);
-                        level.setLevelNumber(1);
-                        level.setAnswer(answer);
-                        level.setImagesPath(category + "/level1");
-                        level.setDifficulty(GameLevel.Difficulty.values()[1]);
-                        level.setActive(true);
-
-                        GameLevel savedLevel = gameLevelRepository.save(level);
-                        loadedLevels.add(savedLevel);
+            // Scan for multiple levels in each category
+            for (int levelNumber = 1; levelNumber <= 10; levelNumber++) {
+                try {
+                    String basePath = "static/images/" + category + "/level" + levelNumber + "/";
+                    Resource answerRes = new ClassPathResource(basePath + "answer.txt");
+                    
+                    if (answerRes.exists()) {
+                        String answer = new String(answerRes.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+                        
+                        // Check if this level already exists in the database
+                        if (gameLevelRepository.findByCategoryAndLevelNumber(category, levelNumber).isEmpty()) {
+                            GameLevel level = new GameLevel();
+                            level.setCategory(category);
+                            level.setLevelNumber(levelNumber);
+                            level.setAnswer(answer);
+                            level.setImagesPath(category + "/level" + levelNumber);
+                            
+                            // Try to load hint if it exists
+                            try {
+                                Resource hintRes = new ClassPathResource(basePath + "hint.txt");
+                                if (hintRes.exists()) {
+                                    String hint = new String(hintRes.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+                                    level.setHint(hint);
+                                }
+                            } catch (Exception e) {
+                                // Hint file is optional, so continue if it doesn't exist
+                                System.out.println("No hint file found for " + category + "/level" + levelNumber);
+                            }
+                            
+                            // Set difficulty based on level number
+                            if (levelNumber <= 3) {
+                                level.setDifficulty(GameLevel.Difficulty.EASY);
+                            } else if (levelNumber <= 7) {
+                                level.setDifficulty(GameLevel.Difficulty.MEDIUM);
+                            } else {
+                                level.setDifficulty(GameLevel.Difficulty.HARD);
+                            }
+                            
+                            level.setActive(true);
+                            
+                            GameLevel savedLevel = gameLevelRepository.save(level);
+                            loadedLevels.add(savedLevel);
+                            System.out.println("Loaded internal level " + levelNumber + " for category: " + category);
+                        }
+                    }
+                } catch (Exception e) {
+                    // This is expected for levels that don't exist yet
+                    if (levelNumber == 1) {
+                        System.out.println("Could not load internal level 1 for category: " + category + ", error: " + e.getMessage());
                     }
                 }
-            } catch (Exception e) {
-                System.out.println("Could not load level for category: " + category + ", error: " + e.getMessage());
             }
         }
-
+        
         return loadedLevels;
     }
 }

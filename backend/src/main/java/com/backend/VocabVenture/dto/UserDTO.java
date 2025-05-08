@@ -19,6 +19,12 @@ public class UserDTO {
 
     @Schema(description = "Indicates if user has a profile picture", example = "true")
     private boolean hasProfilePicture;
+    
+    @Schema(description = "User experience points", example = "150")
+    private Integer experiencePoints;
+    
+    @Schema(description = "User level", example = "5")
+    private Integer userLevel;
 
     // Getters and Setters
     public Long getId() {
@@ -60,17 +66,36 @@ public class UserDTO {
     public void setHasProfilePicture(boolean hasProfilePicture) {
         this.hasProfilePicture = hasProfilePicture;
     }
+    
+    public Integer getExperiencePoints() {
+        return experiencePoints;
+    }
+    
+    public void setExperiencePoints(Integer experiencePoints) {
+        this.experiencePoints = experiencePoints;
+    }
+    
+    public Integer getUserLevel() {
+        return userLevel;
+    }
+    
+    public void setUserLevel(Integer userLevel) {
+        this.userLevel = userLevel;
+    }
 
     // Constructors
     public UserDTO() {
     }
 
-    public UserDTO(Long id, String username, String email, Role role, boolean hasProfilePicture) {
+    public UserDTO(Long id, String username, String email, Role role, boolean hasProfilePicture,
+                 Integer experiencePoints, Integer userLevel) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.role = role;
         this.hasProfilePicture = hasProfilePicture;
+        this.experiencePoints = experiencePoints;
+        this.userLevel = userLevel;
     }
 
     // Builder pattern
@@ -85,6 +110,8 @@ public class UserDTO {
         private String email;
         private Role role;
         private boolean hasProfilePicture;
+        private Integer experiencePoints;
+        private Integer userLevel;
 
         UserDTOBuilder() {
         }
@@ -113,9 +140,19 @@ public class UserDTO {
             this.hasProfilePicture = hasProfilePicture;
             return this;
         }
+        
+        public UserDTOBuilder experiencePoints(Integer experiencePoints) {
+            this.experiencePoints = experiencePoints;
+            return this;
+        }
+        
+        public UserDTOBuilder userLevel(Integer userLevel) {
+            this.userLevel = userLevel;
+            return this;
+        }
 
         public UserDTO build() {
-            return new UserDTO(id, username, email, role, hasProfilePicture);
+            return new UserDTO(id, username, email, role, hasProfilePicture, experiencePoints, userLevel);
         }
     }
 }

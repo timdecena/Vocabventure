@@ -2,7 +2,6 @@ package com.backend.VocabVenture.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 @Table(name = "level_progress", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"user_id", "game_level_id"})
 })
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class LevelProgress {
@@ -39,4 +37,61 @@ public class LevelProgress {
 
     // Optional hints used (0 if no hints were used)
     private Integer hintsUsed = 0;
+    
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public User getUser() {
+        return user;
+    }
+    
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    public GameLevel getGameLevel() {
+        return gameLevel;
+    }
+    
+    public void setGameLevel(GameLevel gameLevel) {
+        this.gameLevel = gameLevel;
+    }
+    
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+    
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+    
+    public Integer getAttempts() {
+        return attempts;
+    }
+    
+    public void setAttempts(Integer attempts) {
+        this.attempts = attempts;
+    }
+    
+    public Integer getTimeTaken() {
+        return timeTaken;
+    }
+    
+    public void setTimeTaken(Integer timeTaken) {
+        this.timeTaken = timeTaken;
+    }
+    
+    public Integer getHintsUsed() {
+        return hintsUsed;
+    }
+    
+    public void setHintsUsed(Integer hintsUsed) {
+        this.hintsUsed = hintsUsed;
+    }
 }

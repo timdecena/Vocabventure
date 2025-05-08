@@ -25,11 +25,11 @@ public class LevelProgressController {
     }
 
     /**
-     * Record a completed level for the current user
+     * Record a completed level for the current user and award XP
      */
     @PostMapping("/complete")
     @PreAuthorize("hasAnyAuthority('ROLE_TEACHER', 'ROLE_STUDENT', 'TEACHER', 'STUDENT')")
-    public ResponseEntity<LevelProgress> recordLevelCompletion(
+    public ResponseEntity<Map<String, Object>> recordLevelCompletion(
             @RequestBody Map<String, Object> completionData) {
         
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -46,10 +46,10 @@ public class LevelProgressController {
                 ? Integer.parseInt(completionData.get("hintsUsed").toString()) 
                 : 0;
         
-        LevelProgress progress = levelProgressService.recordLevelCompletion(
+        Map<String, Object> result = levelProgressService.recordLevelCompletion(
                 userId, levelId, attempts, timeTaken, hintsUsed);
         
-        return ResponseEntity.ok(progress);
+        return ResponseEntity.ok(result);
     }
 
     /**
