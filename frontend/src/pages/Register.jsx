@@ -209,7 +209,6 @@ const Register = () => {
    * Handles the registration form submission
    * Validates user input, creates new account via API
    * Stores authentication data and redirects on success
-   * 
    * @param {Event} e - The form submission event
    */
   const handleSubmit = async (e) => {

@@ -34,10 +34,6 @@ export default function MainContent() {
         </div>
       </div>
 
-      <ProgressStats label="Levels Passed"     value="27"   />
-      <ProgressStats label="Fastest Time"      value="23min"/>
-      <ProgressStats label="Correct Answers"   value="200"  />
-
       <h3 className="game-modes-title">Game Modes:</h3>
       <div className="game-modes-grid">
         <GameModeCard
