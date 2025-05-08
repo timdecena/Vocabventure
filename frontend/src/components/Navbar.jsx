@@ -1,8 +1,7 @@
-// File: src/components/Navbar.jsx
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { styled } from '@mui/material/styles';
+import axios from 'axios';
 import {
   AppBar,
   Toolbar,
@@ -27,6 +26,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import GamesIcon from '@mui/icons-material/Games';
 
 // ─── Styled Components ─────────────────────────────────────────────────────────
 
@@ -117,22 +117,32 @@ export default function Navbar() {
   const [userData, setUserData] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
 
-  // fetch profile picture blob if available
+  // Fetch user profile picture
   const fetchProfilePicture = async () => {
     if (!isLoggedIn) return;
+    
     try {
       const token = localStorage.getItem('token');
-      const resp = await axios.get(
-        'http://localhost:8081/users/me/profile-picture',
-        { headers: { Authorization: 'Bearer ' + token }, responseType: 'blob' }
-      );
-      if (resp.status === 200) {
-        setProfilePicture(URL.createObjectURL(resp.data));
+      const response = await axios.get('http://localhost:8080/users/me/profile-picture', {
+        headers: { Authorization: 'Bearer ' + token },
+        responseType: 'blob',
+        withCredentials: true
+      });
+      
+      if (response.status === 200) {
+        const imageUrl = URL.createObjectURL(response.data);
+        setProfilePicture(imageUrl);
       }
-    } catch (e) {
-      console.warn('No profile picture or error fetching it');
+    } catch (error) {
+      console.log('No profile picture available or error fetching it');
     }
   };
+
+  // Determine dashboard path based on user role
+  console.log(userData); // Check the content of userData
+  const dashboardPath = userData?.role?.toLowerCase() === 'teacher' 
+  ? '/teacher-dashboard' 
+  : '/student-dashboard';
 
   // on route change or login state change, refresh user info & menus
   useEffect(() => {
@@ -140,17 +150,33 @@ export default function Navbar() {
     setMobileMenuAnchor(null);
 
     if (isLoggedIn) {
-      const u = localStorage.getItem('user');
-      if (u) setUserData(JSON.parse(u));
-      fetchProfilePicture();
+      
+      try {
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          setUserData(JSON.parse(userStr));
+          fetchProfilePicture();
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
     } else {
+      // Clear profile picture when logged out
       if (profilePicture) {
         URL.revokeObjectURL(profilePicture);
         setProfilePicture(null);
       }
-      setUserData(null);
     }
   }, [location.pathname, isLoggedIn]);
+  
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (profilePicture) {
+        URL.revokeObjectURL(profilePicture);
+      }
+    };
+  }, [profilePicture]);
 
   // clean up object URL on unmount
   useEffect(() => () => {
@@ -167,18 +193,22 @@ export default function Navbar() {
 
   return (
     <NavbarContainer position="fixed" sx={{ width: '100%', zIndex: 1100 }}>
-      {/* full-bleed container, no side gutters */}
-      <Container maxWidth={false} disableGutters>
-        <Toolbar
-          disableGutters
-          sx={{ height: 70, display: 'flex', alignItems: 'center', px: { xs: 2, sm: 4 } }}
-        >
-          {/* ─── Left: Logo ─────────────────────────────────────────────── */}
-          <Box
-            component={Link}
-            to="/"
-            sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
-          >
+
+      <Container maxWidth="lg">
+        <Toolbar sx={{ 
+          height: 70,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          px: { xs: 2, sm: 4 }
+        }}>
+          {/* Left side - Logo */}
+          <Box component={Link} to="/" sx={{ 
+            textDecoration: 'none', 
+            display: 'flex', 
+            alignItems: 'center'
+          }}>
+
             <LogoText variant="h5">
               Vocab<span>Venture</span>
             </LogoText>
@@ -189,7 +219,11 @@ export default function Navbar() {
 
           {/* ─── Desktop Nav ───────────────────────────────────────────── */}
           {!isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pr: { xs: 2, sm: 4 } }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 2
+            }}>
               {isLoggedIn ? (
                 <>
                   {isActive('/') ? (
@@ -204,6 +238,26 @@ export default function Navbar() {
                   ) : (
                     <NavButton startIcon={<HomeIcon />} component={Link} to="/" color="inherit">
                       Home
+                    </NavButton>
+                  )}
+                  
+                  {isActive('/game') ? (
+                    <ActiveNavButton 
+                      startIcon={<GamesIcon />} 
+                      component={Link} 
+                      to="/game"
+                      color="inherit"
+                    >
+                      Word Game
+                    </ActiveNavButton>
+                  ) : (
+                    <NavButton 
+                      startIcon={<GamesIcon />} 
+                      component={Link} 
+                      to="/game"
+                      color="inherit"
+                    >
+                      Word Game
                     </NavButton>
                   )}
 
@@ -224,6 +278,27 @@ export default function Navbar() {
                       color="inherit"
                     >
                       Missions
+                    </NavButton>
+                    
+                  )}
+
+                  {isActive(dashboardPath) ? (
+                    <ActiveNavButton 
+                      startIcon={<RocketLaunchIcon />} 
+                      component={Link} 
+                      to={dashboardPath}
+                      color="inherit"
+                    >
+                      Dashboard
+                    </ActiveNavButton>
+                  ) : (
+                    <NavButton 
+                      startIcon={<RocketLaunchIcon />} 
+                      component={Link} 
+                      to={dashboardPath}
+                      color="inherit"
+                    >
+                      Dashboard
                     </NavButton>
                   )}
 
@@ -248,15 +323,19 @@ export default function Navbar() {
                   )}
 
                   <Tooltip title={userData?.username || 'Profile'}>
-                    <UserAvatar onClick={(e) => setUserMenuAnchor(e.currentTarget)}>
+
+                    <UserAvatar onClick={handleUserMenuOpen}>
                       {profilePicture ? (
-                        <img
-                          src={profilePicture}
-                          alt="avatar"
-                          style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                        <Avatar 
+                          src={profilePicture} 
+                          alt={userData?.username}
+                          sx={{ 
+                            width: '100%', 
+                            height: '100%'
+                          }}
                         />
                       ) : (
-                        userData?.username?.charAt(0).toUpperCase() || 'U'
+                        userData?.username?.charAt(0).toUpperCase() || "U"
                       )}
                     </UserAvatar>
                   </Tooltip>
@@ -278,15 +357,29 @@ export default function Navbar() {
                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                   >
-                    <MenuItem component={Link} to="/profile" onClick={() => setUserMenuAnchor(null)}>
-                      <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} />
-                      Profile
-                    </MenuItem>
-                    <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-                    <MenuItem onClick={handleLogout}>
-                      <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
-                      Exit Adventure
-                    </MenuItem>
+
+                    {/* Use array of menu items instead of conditional fragments */}
+                    {[
+                      // Profile menu item (only if not on profile page)
+                      !isActive('/profile') && (
+                        <MenuItem key="profile" component={Link} to="/profile" onClick={handleUserMenuClose}>
+                          <AccountCircleIcon sx={{ mr: 1, fontSize: 20 }} />
+                          Profile
+                        </MenuItem>
+                      ),
+                      
+                      // Divider (only if not on profile page)
+                      !isActive('/profile') && (
+                        <Divider key="divider" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+                      ),
+                      
+                      // Logout menu item (always shown)
+                      <MenuItem key="logout" onClick={handleLogout}>
+                        <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
+                        Exit Adventure
+                      </MenuItem>
+                    ].filter(Boolean) /* Filter out false/null values */}
+
                   </Menu>
                 </>
               ) : (
@@ -361,12 +454,25 @@ export default function Navbar() {
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
-            {isLoggedIn ? (
-              <>
-                {userData && (
-                  <Box sx={{ p: 2, textAlign: 'center' }}>
+            {isLoggedIn ? 
+              [
+                // User profile info (if userData exists)
+                userData && (
+                  <Box key="user-profile" sx={{ p: 2, textAlign: 'center' }}>
                     <UserAvatar sx={{ width: 60, height: 60, mx: 'auto', mb: 1 }}>
-                      {userData.username.charAt(0).toUpperCase()}
+                      {profilePicture ? (
+                        <Avatar 
+                          src={profilePicture} 
+                          alt={userData?.username}
+                          sx={{ 
+                            width: '100%', 
+                            height: '100%'
+                          }}
+                        />
+                      ) : (
+                        userData?.username?.charAt(0).toUpperCase() || "U"
+                      )}
+
                     </UserAvatar>
                     <Typography variant="subtitle1" sx={{ color: 'secondary.main', fontWeight: 600 }}>
                       {userData.username}
@@ -375,15 +481,18 @@ export default function Navbar() {
                       {userData.email}
                     </Typography>
                   </Box>
-                )}
-                <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-                <MenuItem
-                  component={Link}
-                  to="/"
-                  onClick={() => setMobileMenuAnchor(null)}
-                  sx={{
-                    backgroundColor: isActive('/') ? 'rgba(0,255,170,0.1)' : 'transparent',
-                  }}
+                ),
+                
+                // First divider
+                <Divider key="divider-1" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />,
+                
+                // Home menu item
+                <MenuItem 
+                  key="home"
+                  component={Link} 
+                  to="/" 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive('/') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
                 >
                   <HomeIcon
                     sx={{
@@ -393,14 +502,16 @@ export default function Navbar() {
                     }}
                   />
                   Home
-                </MenuItem>
-                <MenuItem
-                  component={Link}
-                  to="/missions"
-                  onClick={() => setMobileMenuAnchor(null)}
-                  sx={{
-                    backgroundColor: isActive('/missions') ? 'rgba(0,255,170,0.1)' : 'transparent',
-                  }}
+                </MenuItem>,
+                
+                // Missions menu item
+                <MenuItem 
+                  key="missions"
+                  component={Link} 
+                  to="/missions" 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive('/missions') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+
                 >
                   <ExploreIcon
                     sx={{
@@ -410,14 +521,38 @@ export default function Navbar() {
                     }}
                   />
                   Missions
-                </MenuItem>
-                <MenuItem
-                  component={Link}
-                  to="/profile"
-                  onClick={() => setMobileMenuAnchor(null)}
-                  sx={{
-                    backgroundColor: isActive('/profile') ? 'rgba(0,255,170,0.1)' : 'transparent',
-                  }}
+                </MenuItem>,
+                
+                <MenuItem 
+                  key="word-game"
+                  component={Link} 
+                  to="/game" 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive('/game') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+                >
+                  <GamesIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/game') ? 'secondary.main' : 'inherit' }} />
+                  Word Game
+                </MenuItem>,
+                
+                // Dashboard menu item
+                <MenuItem 
+                  key="dashboard"
+                  component={Link} 
+                  to={dashboardPath} 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive(dashboardPath) ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+                >
+                  <RocketLaunchIcon sx={{ mr: 1.5, fontSize: 20, color: isActive(dashboardPath) ? 'secondary.main' : 'inherit' }} />
+                  Dashboard
+                </MenuItem>,
+                
+                // My Quest menu item
+                <MenuItem 
+                  key="my-quest"
+                  component={Link} 
+                  to="/profile" 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive('/profile') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
                 >
                   <AccountCircleIcon
                     sx={{
@@ -427,21 +562,41 @@ export default function Navbar() {
                     }}
                   />
                   My Quest
+                </MenuItem>,
+                
+                // Conditional My Quest menu item (only if not on profile page)
+                !isActive('/profile') && (
+                  <MenuItem 
+                    key="my-quest-2"
+                    component={Link} 
+                    to="/profile" 
+                    onClick={handleMobileMenuClose}
+                    sx={{ backgroundColor: isActive('/profile') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+                  >
+                    <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/profile') ? 'secondary.main' : 'inherit' }} />
+                    My Quest
+                  </MenuItem>
+                ),
+                
+                // Second divider
+                <Divider key="divider-2" sx={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />,
+                
+                // Logout menu item
+                <MenuItem key="logout" onClick={handleLogout}>
+                  <LogoutIcon sx={{ mr: 1.5, fontSize: 20 }} />
+                  Exit Adventure
                 </MenuItem>
-                <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-                <MenuItem onClick={handleLogout}>
-                  <LogoutIcon sx={{ mr: 1.5, fontSize: 20 }} /> Exit Adventure
-                </MenuItem>
-              </>
-            ) : (
-              <>
-                <MenuItem
-                  component={Link}
-                  to="/login"
-                  onClick={() => setMobileMenuAnchor(null)}
-                  sx={{
-                    backgroundColor: isActive('/login') ? 'rgba(0,255,170,0.1)' : 'transparent',
-                  }}
+              ].filter(Boolean) // Filter out any false/null values
+            : 
+              [
+                // Login menu item
+                <MenuItem 
+                  key="login"
+                  component={Link} 
+                  to="/login" 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive('/login') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+
                 >
                   <RocketLaunchIcon
                     sx={{
@@ -451,14 +606,16 @@ export default function Navbar() {
                     }}
                   />
                   Begin Quest
-                </MenuItem>
-                <MenuItem
-                  component={Link}
-                  to="/register"
-                  onClick={() => setMobileMenuAnchor(null)}
-                  sx={{
-                    backgroundColor: isActive('/register') ? 'rgba(0,255,170,0.1)' : 'transparent',
-                  }}
+                </MenuItem>,
+                
+                // Register menu item
+                <MenuItem 
+                  key="register"
+                  component={Link} 
+                  to="/register" 
+                  onClick={handleMobileMenuClose}
+                  sx={{ backgroundColor: isActive('/register') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+
                 >
                   <PersonAddIcon
                     sx={{
@@ -469,11 +626,13 @@ export default function Navbar() {
                   />
                   Join Adventure
                 </MenuItem>
-              </>
-            )}
+              ]
+            }
           </Menu>
         </Toolbar>
       </Container>
     </NavbarContainer>
   );
-}
+};
+
+export default Navbar;

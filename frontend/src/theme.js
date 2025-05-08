@@ -1,7 +1,7 @@
 // File: src/theme.js
 import { createTheme } from '@mui/material/styles';
 
-// Create a custom theme based on the space-themed adventure aesthetic
+// Create a custom theme based on a gamified space-themed adventure
 const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -32,18 +32,20 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+    fontFamily: '"Orbitron", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
     h1: {
-      fontSize: '1.8rem',
-      fontWeight: 600,
+      fontSize: '2rem',
+      fontWeight: 700,
       color: '#00ffaa',
       marginBottom: '0.5rem',
+      letterSpacing: '1px',
     },
     h2: {
-      fontSize: '1.5rem',
+      fontSize: '1.7rem',
       fontWeight: 600,
       color: '#00ffaa',
       marginBottom: '0.5rem',
+      letterSpacing: '0.8px',
     },
     subtitle1: {
       fontSize: '1rem',
@@ -55,15 +57,15 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 10,
   },
   shadows: [
     'none',
     '0 1px 3px rgba(0, 0, 0, 0.1)',
     '0 4px 6px rgba(0, 0, 0, 0.1)',
     '0 10px 15px rgba(0, 0, 0, 0.1)',
-    '0 0 8px rgba(0, 255, 170, 0.3)',
-    // ... rest of the shadows array
+    '0 0 10px rgba(0, 255, 170, 0.4)',
+    // Add more if needed
   ],
   components: {
     MuiButton: {
@@ -75,6 +77,7 @@ const theme = createTheme({
           padding: '8px 24px',
           position: 'relative',
           overflow: 'hidden',
+          letterSpacing: '0.8px',
           '&:before': {
             content: '""',
             position: 'absolute',
@@ -87,8 +90,8 @@ const theme = createTheme({
             transition: 'all 0.75s ease',
           },
           '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: '0 0 15px rgba(0, 255, 170, 0.5)',
+            transform: 'translateY(-3px)',
+            boxShadow: '0 0 20px rgba(0, 255, 170, 0.5)',
             '&:before': {
               left: '100%',
               transition: 'all 0.75s ease',
@@ -97,6 +100,14 @@ const theme = createTheme({
         },
         containedPrimary: {
           background: 'linear-gradient(45deg, #00aa7f 0%, #00cc99 100%)',
+          color: '#ffffff',
+        },
+        containedSecondary: {
+          background: 'linear-gradient(45deg, #00ffaa 0%, #66ffcc 100%)',
+          color: '#000000',
+        },
+        containedMission: {
+          background: 'linear-gradient(45deg, #00c3ff 0%, #0075ff 100%)',
           color: '#ffffff',
         },
       },
@@ -133,9 +144,9 @@ const theme = createTheme({
           backgroundImage: 'none',
           backgroundColor: 'rgba(10, 15, 30, 0.7)',
           backdropFilter: 'blur(5px)',
-          borderRadius: 12,
+          borderRadius: 14,
           border: '1px solid rgba(255, 255, 255, 0.05)',
-          boxShadow: '0 0 15px rgba(51, 255, 119, 0.2), 0 0 20px rgba(0, 128, 255, 0.1)',
+          boxShadow: '0 0 20px rgba(51, 255, 119, 0.2), 0 0 25px rgba(0, 128, 255, 0.15)',
         },
       },
     },
@@ -144,9 +155,9 @@ const theme = createTheme({
         root: {
           backgroundColor: 'rgba(10, 10, 46, 0.8)',
           backdropFilter: 'blur(5px)',
-          borderRadius: 12,
+          borderRadius: 14,
           border: '1px solid rgba(255, 255, 255, 0.05)',
-          boxShadow: '0 0 15px rgba(51, 255, 119, 0.2), 0 0 20px rgba(0, 128, 255, 0.1)',
+          boxShadow: '0 0 20px rgba(51, 255, 119, 0.2), 0 0 25px rgba(0, 128, 255, 0.15)',
           animation: 'cardGlow 3s ease-in-out infinite alternate',
         },
       },
@@ -164,22 +175,47 @@ const theme = createTheme({
         },
       },
     },
+    MuiBadge: {
+      styleOverrides: {
+        badge: {
+          backgroundColor: '#00ffaa',
+          color: '#000',
+          boxShadow: '0 0 10px #00ffaa',
+          animation: 'twinkle 2s infinite ease-in-out',
+        },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: '#1a1a40',
+        },
+        bar: {
+          borderRadius: 4,
+          background: 'linear-gradient(90deg, #00ffaa, #00cc99)',
+          animation: 'progressGlow 2s infinite ease-in-out',
+        },
+      },
+    },
   },
 });
 
-// Add custom keyframes for animations
+// Custom keyframes for animations
 const globalStyles = {
   '@keyframes cardGlow': {
-    '0%': { boxShadow: '0 0 15px rgba(51, 255, 119, 0.2), 0 0 20px rgba(0, 128, 255, 0.1)' },
-    '100%': { boxShadow: '0 0 20px rgba(51, 255, 119, 0.3), 0 0 30px rgba(0, 128, 255, 0.15)' },
+    '0%': { boxShadow: '0 0 20px rgba(51, 255, 119, 0.2), 0 0 25px rgba(0, 128, 255, 0.1)' },
+    '100%': { boxShadow: '0 0 25px rgba(51, 255, 119, 0.3), 0 0 30px rgba(0, 128, 255, 0.15)' },
   },
   '@keyframes twinkle': {
-    '0%, 100%': { opacity: 0.15, transform: 'scale(0.9)' },
-    '50%': { opacity: 0.6, transform: 'scale(1.05)' },
+    '0%, 100%': { opacity: 0.3, transform: 'scale(0.9)' },
+    '50%': { opacity: 0.7, transform: 'scale(1.05)' },
   },
-  '@keyframes hover': {
-    '0%': { transform: 'translateY(0)' },
-    '100%': { transform: 'translateY(-5px)' },
+  '@keyframes progressGlow': {
+    '0%': { boxShadow: '0 0 10px #00ffaa' },
+    '50%': { boxShadow: '0 0 20px #00ffaa' },
+    '100%': { boxShadow: '0 0 10px #00ffaa' },
   },
   '@keyframes meteor': {
     '0%': { transform: 'translate(calc(-100vw), calc(-100vh)) rotate(45deg)', opacity: 0 },
@@ -188,8 +224,11 @@ const globalStyles = {
     '20%': { opacity: 0 },
     '100%': { transform: 'translate(calc(100vw), calc(100vh)) rotate(45deg)', opacity: 0 },
   },
+  '@keyframes hover': {
+    '0%': { transform: 'translateY(0)' },
+    '100%': { transform: 'translateY(-5px)' },
+  },
 };
 
-// Make sure to export the theme as default for easier importing
 export default theme;
 export { theme, globalStyles };
