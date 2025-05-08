@@ -239,8 +239,8 @@ const Login = () => {
         setPassword("");
         setIsLoading(false);
         
-        // Redirect user to profile/dashboard page
-        navigate("/profile");
+        // Redirect user to the homepage after login
+        navigate("/home");
       } else {
         // Handle unexpected response format
         setIsLoading(false);

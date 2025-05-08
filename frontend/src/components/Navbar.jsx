@@ -19,7 +19,6 @@ import {
   useTheme
 } from '@mui/material';
 
-// Import icons
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import ExploreIcon from '@mui/icons-material/Explore';
@@ -29,15 +28,13 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import GamesIcon from '@mui/icons-material/Games';
 
-// Styled components
+// ─── Styled Components ─────────────────────────────────────────────────────────
+
 const NavbarContainer = styled(AppBar)(({ theme }) => ({
   background: 'rgba(10, 10, 46, 0.95)',
   backdropFilter: 'blur(10px)',
   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
   borderBottom: '1px solid rgba(0, 255, 170, 0.3)',
-  '& .MuiToolbar-root': {
-    transition: 'all 0.3s ease',
-  }
 }));
 
 const LogoText = styled(Typography)(({ theme }) => ({
@@ -55,7 +52,7 @@ const LogoText = styled(Typography)(({ theme }) => ({
   '&:hover': {
     transform: 'scale(1.02)',
     textShadow: '0 0 15px rgba(0, 255, 170, 0.7)',
-  }
+  },
 }));
 
 const NavButton = styled(Button)(({ theme }) => ({
@@ -76,7 +73,6 @@ const NavButton = styled(Button)(({ theme }) => ({
 
 const ActiveNavButton = styled(NavButton)(({ theme }) => ({
   color: theme.palette.secondary.main,
-  fontWeight: 600,
   position: 'relative',
   '&::after': {
     content: '""',
@@ -105,17 +101,19 @@ const UserAvatar = styled(Avatar)(({ theme }) => ({
   },
 }));
 
-const Navbar = () => {
+// ─── Navbar Component ─────────────────────────────────────────────────────────
+
+export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
-  const [menuOpen, setMenuOpen] = useState(false);
+
+  // anchors for the two menus
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
-  
-  const isLoggedIn = localStorage.getItem("token") !== null;
+
+  const isLoggedIn = Boolean(localStorage.getItem('token'));
   const [userData, setUserData] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
 
@@ -146,15 +144,13 @@ const Navbar = () => {
   ? '/teacher-dashboard' 
   : '/student-dashboard';
 
-
+  // on route change or login state change, refresh user info & menus
   useEffect(() => {
-    // Close menus when route changes
-    setMenuOpen(false);
     setUserMenuAnchor(null);
     setMobileMenuAnchor(null);
-    
-    // Get user data from localStorage if logged in
+
     if (isLoggedIn) {
+      
       try {
         const userStr = localStorage.getItem("user");
         if (userStr) {
@@ -182,34 +178,22 @@ const Navbar = () => {
     };
   }, [profilePicture]);
 
+  // clean up object URL on unmount
+  useEffect(() => () => {
+    if (profilePicture) URL.revokeObjectURL(profilePicture);
+  }, [profilePicture]);
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUserData(null);
-    setUserMenuAnchor(null);
-    navigate("/login");
-  };
-
-  const handleUserMenuOpen = (event) => {
-    setUserMenuAnchor(event.currentTarget);
-  };
-
-  const handleUserMenuClose = () => {
-    setUserMenuAnchor(null);
-  };
-
-  const handleMobileMenuOpen = (event) => {
-    setMobileMenuAnchor(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMenuAnchor(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
   const isActive = (path) => location.pathname === path;
 
   return (
     <NavbarContainer position="fixed" sx={{ width: '100%', zIndex: 1100 }}>
+
       <Container maxWidth="lg">
         <Toolbar sx={{ 
           height: 70,
@@ -224,12 +208,16 @@ const Navbar = () => {
             display: 'flex', 
             alignItems: 'center'
           }}>
+
             <LogoText variant="h5">
               Vocab<span>Venture</span>
             </LogoText>
           </Box>
 
-          {/* Right side - Navigation */}
+          {/* flex spacer pushes everything else to the right */}
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* ─── Desktop Nav ───────────────────────────────────────────── */}
           {!isMobile && (
             <Box sx={{ 
               display: 'flex', 
@@ -239,21 +227,16 @@ const Navbar = () => {
               {isLoggedIn ? (
                 <>
                   {isActive('/') ? (
-                    <ActiveNavButton 
-                      startIcon={<HomeIcon />} 
-                      component={Link} 
+                    <ActiveNavButton
+                      startIcon={<HomeIcon />}
+                      component={Link}
                       to="/"
                       color="inherit"
                     >
                       Home
                     </ActiveNavButton>
                   ) : (
-                    <NavButton 
-                      startIcon={<HomeIcon />} 
-                      component={Link} 
-                      to="/"
-                      color="inherit"
-                    >
+                    <NavButton startIcon={<HomeIcon />} component={Link} to="/" color="inherit">
                       Home
                     </NavButton>
                   )}
@@ -279,18 +262,18 @@ const Navbar = () => {
                   )}
 
                   {isActive('/missions') ? (
-                    <ActiveNavButton 
-                      startIcon={<ExploreIcon />} 
-                      component={Link} 
+                    <ActiveNavButton
+                      startIcon={<ExploreIcon />}
+                      component={Link}
                       to="/missions"
                       color="inherit"
                     >
                       Missions
                     </ActiveNavButton>
                   ) : (
-                    <NavButton 
-                      startIcon={<ExploreIcon />} 
-                      component={Link} 
+                    <NavButton
+                      startIcon={<ExploreIcon />}
+                      component={Link}
                       to="/missions"
                       color="inherit"
                     >
@@ -320,18 +303,18 @@ const Navbar = () => {
                   )}
 
                   {isActive('/profile') ? (
-                    <ActiveNavButton 
-                      startIcon={<AccountCircleIcon />} 
-                      component={Link} 
+                    <ActiveNavButton
+                      startIcon={<AccountCircleIcon />}
+                      component={Link}
                       to="/profile"
                       color="inherit"
                     >
                       My Quest
                     </ActiveNavButton>
                   ) : (
-                    <NavButton 
-                      startIcon={<AccountCircleIcon />} 
-                      component={Link} 
+                    <NavButton
+                      startIcon={<AccountCircleIcon />}
+                      component={Link}
                       to="/profile"
                       color="inherit"
                     >
@@ -340,6 +323,7 @@ const Navbar = () => {
                   )}
 
                   <Tooltip title={userData?.username || 'Profile'}>
+
                     <UserAvatar onClick={handleUserMenuOpen}>
                       {profilePicture ? (
                         <Avatar 
@@ -355,25 +339,25 @@ const Navbar = () => {
                       )}
                     </UserAvatar>
                   </Tooltip>
+
                   <Menu
                     anchorEl={userMenuAnchor}
                     open={Boolean(userMenuAnchor)}
-                    onClose={handleUserMenuClose}
+                    onClose={() => setUserMenuAnchor(null)}
                     PaperProps={{
                       sx: {
-                        backgroundColor: 'rgba(10, 10, 46, 0.95)',
+                        backgroundColor: 'rgba(10,10,46,0.95)',
                         backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
                         mt: 1.5,
-                        '& .MuiMenuItem-root': {
-                          color: 'white',
-                        },
+                        '& .MuiMenuItem-root': { color: 'white' },
                       },
                     }}
                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                   >
+
                     {/* Use array of menu items instead of conditional fragments */}
                     {[
                       // Profile menu item (only if not on profile page)
@@ -395,38 +379,38 @@ const Navbar = () => {
                         Exit Adventure
                       </MenuItem>
                     ].filter(Boolean) /* Filter out false/null values */}
+
                   </Menu>
                 </>
               ) : (
                 <>
-                  <NavButton 
-                    variant="outlined" 
-                    color="secondary" 
+                  <NavButton
+                    variant="outlined"
+                    color="secondary"
                     startIcon={<RocketLaunchIcon />}
-                    component={Link} 
+                    component={Link}
                     to="/login"
-                    sx={{ 
-                      borderRadius: 8,
-                      borderColor: 'rgba(0, 255, 170, 0.5)',
+                    sx={{
+                      borderColor: 'rgba(0,255,170,0.5)',
                       '&:hover': {
                         borderColor: 'secondary.main',
-                        backgroundColor: 'rgba(0, 255, 170, 0.1)',
+                        backgroundColor: 'rgba(0,255,170,0.1)',
                       },
                     }}
                   >
                     Begin Quest
                   </NavButton>
-                  <NavButton 
-                    variant="contained" 
-                    color="primary" 
+
+                  <NavButton
+                    variant="contained"
+                    color="primary"
                     startIcon={<PersonAddIcon />}
-                    component={Link} 
+                    component={Link}
                     to="/register"
-                    sx={{ 
-                      borderRadius: 8,
-                      boxShadow: '0 0 10px rgba(0, 255, 170, 0.3)',
+                    sx={{
+                      boxShadow: '0 0 10px rgba(0,255,170,0.3)',
                       '&:hover': {
-                        boxShadow: '0 0 15px rgba(0, 255, 170, 0.5)',
+                        boxShadow: '0 0 15px rgba(0,255,170,0.5)',
                       },
                     }}
                   >
@@ -437,37 +421,34 @@ const Navbar = () => {
             </Box>
           )}
 
-          {/* Mobile Menu Button */}
+          {/* ─── Mobile Menu Icon ──────────────────────────────────────── */}
           {isMobile && (
-            <IconButton 
-              edge="end" 
-              color="inherit" 
+            <IconButton
+              edge="end"
+              color="inherit"
               aria-label="menu"
-              onClick={handleMobileMenuOpen}
+              onClick={(e) => setMobileMenuAnchor(e.currentTarget)}
               sx={{ color: 'secondary.main' }}
             >
               <MenuIcon />
             </IconButton>
           )}
 
-          {/* Mobile Menu */}
+          {/* ─── Mobile Menu Drawer ───────────────────────────────────── */}
           <Menu
             anchorEl={mobileMenuAnchor}
             open={Boolean(mobileMenuAnchor)}
-            onClose={handleMobileMenuClose}
+            onClose={() => setMobileMenuAnchor(null)}
             PaperProps={{
               sx: {
                 width: '100%',
                 maxWidth: '300px',
-                backgroundColor: 'rgba(10, 10, 46, 0.95)',
+                backgroundColor: 'rgba(10,10,46,0.95)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
                 mt: 1.5,
-                '& .MuiMenuItem-root': {
-                  color: 'white',
-                  py: 1.5,
-                },
+                '& .MuiMenuItem-root': { color: 'white', py: 1.5 },
               },
             }}
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -491,6 +472,7 @@ const Navbar = () => {
                       ) : (
                         userData?.username?.charAt(0).toUpperCase() || "U"
                       )}
+
                     </UserAvatar>
                     <Typography variant="subtitle1" sx={{ color: 'secondary.main', fontWeight: 600 }}>
                       {userData.username}
@@ -512,7 +494,13 @@ const Navbar = () => {
                   onClick={handleMobileMenuClose}
                   sx={{ backgroundColor: isActive('/') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
                 >
-                  <HomeIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/') ? 'secondary.main' : 'inherit' }} />
+                  <HomeIcon
+                    sx={{
+                      mr: 1.5,
+                      fontSize: 20,
+                      color: isActive('/') ? 'secondary.main' : 'inherit',
+                    }}
+                  />
                   Home
                 </MenuItem>,
                 
@@ -523,8 +511,15 @@ const Navbar = () => {
                   to="/missions" 
                   onClick={handleMobileMenuClose}
                   sx={{ backgroundColor: isActive('/missions') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+
                 >
-                  <ExploreIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/missions') ? 'secondary.main' : 'inherit' }} />
+                  <ExploreIcon
+                    sx={{
+                      mr: 1.5,
+                      fontSize: 20,
+                      color: isActive('/missions') ? 'secondary.main' : 'inherit',
+                    }}
+                  />
                   Missions
                 </MenuItem>,
                 
@@ -559,7 +554,13 @@ const Navbar = () => {
                   onClick={handleMobileMenuClose}
                   sx={{ backgroundColor: isActive('/profile') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
                 >
-                  <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/profile') ? 'secondary.main' : 'inherit' }} />
+                  <AccountCircleIcon
+                    sx={{
+                      mr: 1.5,
+                      fontSize: 20,
+                      color: isActive('/profile') ? 'secondary.main' : 'inherit',
+                    }}
+                  />
                   My Quest
                 </MenuItem>,
                 
@@ -595,8 +596,15 @@ const Navbar = () => {
                   to="/login" 
                   onClick={handleMobileMenuClose}
                   sx={{ backgroundColor: isActive('/login') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+
                 >
-                  <RocketLaunchIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/login') ? 'secondary.main' : 'inherit' }} />
+                  <RocketLaunchIcon
+                    sx={{
+                      mr: 1.5,
+                      fontSize: 20,
+                      color: isActive('/login') ? 'secondary.main' : 'inherit',
+                    }}
+                  />
                   Begin Quest
                 </MenuItem>,
                 
@@ -607,8 +615,15 @@ const Navbar = () => {
                   to="/register" 
                   onClick={handleMobileMenuClose}
                   sx={{ backgroundColor: isActive('/register') ? 'rgba(0, 255, 170, 0.1)' : 'transparent' }}
+
                 >
-                  <PersonAddIcon sx={{ mr: 1.5, fontSize: 20, color: isActive('/register') ? 'secondary.main' : 'inherit' }} />
+                  <PersonAddIcon
+                    sx={{
+                      mr: 1.5,
+                      fontSize: 20,
+                      color: isActive('/register') ? 'secondary.main' : 'inherit',
+                    }}
+                  />
                   Join Adventure
                 </MenuItem>
               ]
