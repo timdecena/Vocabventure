@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,28 +19,31 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Authentication API endpoints for user registration and login")
+@Tag(name = "Authentication", description = "Authentication API endpoints")
 public class AuthController {
 
     private final AuthenticationService authenticationService;
 
-    @Operation(summary = "Register a new user", description = "Creates a new user account with the provided credentials and returns a JWT token")
+    public AuthController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
+    @Operation(summary = "Register new user")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "User registered successfully",
-                content = @Content(schema = @Schema(implementation = AuthResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Bad request - validation error or duplicate username/email")
+            @ApiResponse(responseCode = "200", description = "User registered",
+                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
     })
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
-    @Operation(summary = "Authenticate user", description = "Authenticates a user with username and password and returns a JWT token")
+    @Operation(summary = "Authenticate user")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Authentication successful",
-                content = @Content(schema = @Schema(implementation = AuthResponse.class))),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - invalid credentials")
+            @ApiResponse(responseCode = "200", description = "Login successful",
+                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {

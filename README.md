@@ -1,8 +1,14 @@
 # VocabVenture
 
+VocabVenture is a gamified vocabulary learning application with an adventure theme. The application helps users improve their vocabulary through interactive quests and challenges.
+
+The project consists of two main components:
+1. A Spring Boot backend API
+2. A React frontend application
+
 ## Backend Setup and Running Instructions
 
-This document provides instructions on how to set up and run the VocabVenture backend application.
+This section provides instructions on how to set up and run the VocabVenture backend application.
 
 ### Prerequisites
 
@@ -49,6 +55,49 @@ mvn spring-boot:run
    ```bash
    java -jar target/VocabVenture-0.0.1-SNAPSHOT.jar
    ```
+
+## Frontend Setup and Running Instructions
+
+This section provides instructions on how to set up and run the VocabVenture frontend application.
+
+### Prerequisites
+
+- Node.js 14 or higher
+- npm 6 or higher
+
+### Application Setup
+
+1. Navigate to the frontend directory:
+   ```
+   cd VocabVenture/frontend
+   ```
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+### Running the Application
+
+```bash
+npm start
+```
+
+The application will be available at http://localhost:3000
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+This will create a production-ready build in the `build` directory.
+
+## Features
+
+- User authentication with JWT
+- Profile management with customizable profile pictures
+- Gamified learning experience with levels and achievements
+- Responsive design for both desktop and mobile devices
 
 ### Verifying the Application
 

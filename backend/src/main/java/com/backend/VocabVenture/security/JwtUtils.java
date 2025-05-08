@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,12 @@ public class JwtUtils {
 
     @Value("${jwt.expiration.ms}")
     private long jwtExpirationMs;
+
+    public JwtUtils(@Value("${jwt.secret}") String secret,
+                   @Value("${jwt.expiration.ms}") long jwtExpirationMs) {
+        this.secret = secret;
+        this.jwtExpirationMs = jwtExpirationMs;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -74,4 +82,14 @@ public class JwtUtils {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
+    public Long extractUserIdFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        String token = authHeader != null && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
+        if (token != null) {
+            return Long.parseLong(extractClaim(token, Claims::getSubject)); // assuming subject = userId
+        }
+        throw new RuntimeException("Invalid token");
+    }
 }
+

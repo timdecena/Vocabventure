@@ -52,6 +52,9 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- Spring Boot 3.x already includes Jakarta validation -->
+		<!-- No need for separate validation dependencies -->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
