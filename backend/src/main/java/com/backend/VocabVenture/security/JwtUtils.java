@@ -1,21 +1,21 @@
 package com.backend.VocabVenture.security;
 
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
 public class JwtUtils {
@@ -42,8 +42,15 @@ public class JwtUtils {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    Map<String, Object> claims = new HashMap<>();
+    
+    // This assumes userDetails is your User entity that has a getRole() method
+    if (userDetails instanceof com.backend.VocabVenture.model.User user) {
+        claims.put("role", "ROLE_" + user.getRole().name()); // Ex: ROLE_TEACHER
     }
+
+    return generateToken(claims, userDetails);
+}
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts

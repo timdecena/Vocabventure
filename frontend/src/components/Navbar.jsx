@@ -191,25 +191,38 @@ export default function Navbar() {
           {!isMobile ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {isLoggedIn ? (
-                <>
-                  {[{ label: "Home", icon: <HomeIcon />, path: "/home" },
-                    { label: "Word Game", icon: <GamesIcon />, path: "/game" },
-                    { label: "Missions", icon: <ExploreIcon />, path: "/missions" },
-                    { label: "Dashboard", icon: <RocketLaunchIcon />, path: dashboardPath },
-                    { label: "My Quest", icon: <AccountCircleIcon />, path: "/profile" }]
-                    .map(({ label, icon, path }) =>
-                      isActive(path) ? (
-                        <ActiveNavButton key={label} startIcon={icon} component={Link} to={path}>{label}</ActiveNavButton>
-                      ) : (
-                        <NavButton key={label} startIcon={icon} component={Link} to={path}>{label}</NavButton>
-                      )
-                    )}
-                  <Tooltip title={userData?.username || 'Profile'}>
-                    <UserAvatar onClick={handleUserMenuOpen}>
-                      {profilePicture ? <Avatar src={profilePicture} sx={{ width: '100%', height: '100%' }} /> :
-                        userData?.username?.charAt(0).toUpperCase() || "U"}
-                    </UserAvatar>
-                  </Tooltip>
+  <>
+    {[
+      { label: "Home", icon: <HomeIcon />, path: "/home" },
+      // Only include Word Game and Missions if NOT a teacher
+      ...(userData?.role?.toLowerCase() !== 'teacher' 
+        ? [
+            { label: "Word Game", icon: <GamesIcon />, path: "/game" },
+            { label: "Missions", icon: <ExploreIcon />, path: "/missions" },
+          ]
+        : []),
+      { label: "Dashboard", icon: <RocketLaunchIcon />, path: dashboardPath },
+      { label: "My Quest", icon: <AccountCircleIcon />, path: "/profile" },
+    ].map(({ label, icon, path }) =>
+      isActive(path) ? (
+        <ActiveNavButton key={label} startIcon={icon} component={Link} to={path}>
+          {label}
+        </ActiveNavButton>
+      ) : (
+        <NavButton key={label} startIcon={icon} component={Link} to={path}>
+          {label}
+        </NavButton>
+      )
+    )}
+    <Tooltip title={userData?.username || 'Profile'}>
+      <UserAvatar onClick={handleUserMenuOpen}>
+        {profilePicture ? (
+          <Avatar src={profilePicture} sx={{ width: '100%', height: '100%' }} />
+        ) : (
+          userData?.username?.charAt(0).toUpperCase() || "U"
+        )}
+      </UserAvatar>
+    </Tooltip>
                   <Menu
                     anchorEl={userMenuAnchor}
                     open={Boolean(userMenuAnchor)}

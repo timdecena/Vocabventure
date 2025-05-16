@@ -3,26 +3,22 @@ import {
   Box,
   Typography,
   Grid,
-  Button,
-  Avatar,
-  IconButton,
-  Paper
+  Paper,
+  CardContent,
+  Card,
+  CircularProgress,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import AddIcon from '@mui/icons-material/Add';
 import Navbar from '../../components/Navbar';
 import TeacherCreateClass from './TeacherCreateClass';
+import axios from 'axios';
 
-// Cosmic theme components
 const DashboardBackground = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
-  width: '100%',
   background: theme.palette.background.default,
   color: theme.palette.text.primary,
   fontFamily: theme.typography.fontFamily,
-  position: 'relative',
-  overflow: 'hidden',
   paddingTop: '80px',
   paddingBottom: '40px',
 }));
@@ -34,11 +30,6 @@ const StyledCard = styled(Paper)(({ theme }) => ({
   border: '1px solid rgba(0, 255, 170, 0.15)',
   boxShadow: '0 0 20px rgba(51, 255, 119, 0.2), 0 0 25px rgba(0, 128, 255, 0.15)',
   padding: theme.spacing(3),
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   '&:hover': {
     transform: 'translateY(-5px)',
@@ -48,42 +39,115 @@ const StyledCard = styled(Paper)(({ theme }) => ({
 
 const TeacherDashboard = () => {
   const [teacherName, setTeacherName] = useState('');
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
-    if (!storedUser || !token) {
-      navigate('/login');
-      return;
-    }
+    if (!token || !storedUser) return navigate('/login');
 
     const user = JSON.parse(storedUser);
-
-    if (user.role.toLowerCase() !== 'teacher') {
-      navigate('/login');
-      return;
-    }
+    if (user.role.toLowerCase() !== 'teacher') return navigate('/login');
 
     setTeacherName(user.name || 'Teacher');
+    fetchClasses(token);
   }, [navigate]);
+
+  const fetchClasses = async (token) => {
+    try {
+      const response = await axios.get('http://localhost:8081/api/teacher/classes', {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+      setClasses(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch classes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClassCreated = (newClass) => {
+    setClasses((prev) => [...prev, newClass]);
+  };
 
   return (
     <DashboardBackground>
       <Navbar />
-      <Grid container spacing={3} sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 3 }, position: 'relative', zIndex: 1 }}>
-        <Grid item xs={12} md={4}>
+
+      <Grid container spacing={3} sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 3 } }}>
+        {/* Left Panel: Create Class */}
+        <Grid item xs={12} md={6}>
           <StyledCard>
             <Typography variant="h5" color="secondary.main" fontWeight={700} gutterBottom>
               Welcome, {teacherName}!
             </Typography>
             <Typography variant="body1" sx={{ mb: 3, textAlign: 'center' }}>
-              Manage your classes and track student progress.
+              Create and manage your classes here.
             </Typography>
-            <Button variant="contained" color="primary" onClick={() => navigate('/create-class')} startIcon={<AddIcon />} sx={{ mb: 2 }}>
-              Create Class
-            </Button>
+            <TeacherCreateClass onClassCreated={handleClassCreated} />
+          </StyledCard>
+        </Grid>
+
+        {/* Right Panel: Class List */}
+        <Grid item xs={12} md={6}>
+          <StyledCard>
+            <Typography variant="h6" color="secondary.main" gutterBottom>
+              Your Classes
+            </Typography>
+
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : classes.length === 0 ? (
+              <Typography sx={{ mt: 2, fontStyle: 'italic', color: 'text.secondary' }}>
+                You haven't created any classes yet.
+              </Typography>
+            ) : (
+              classes.map((cls, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    width: '100%',
+                    mb: 2,
+                    backgroundColor: '#121212',
+                    color: '#fff',
+                    border: '1px solid #00ffaa44',
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {cls.className}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      {cls.description}
+                    </Typography>
+                    {cls.classCode && (
+                      <Box
+                        sx={{
+                          mt: 1,
+                          p: 1,
+                          backgroundColor: '#003c3c',
+                          borderRadius: 1,
+                          display: 'inline-block',
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{ color: '#00ffaa', fontWeight: 600 }}
+                        >
+                          Class Code: {cls.classCode}
+                        </Typography>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </StyledCard>
         </Grid>
       </Grid>

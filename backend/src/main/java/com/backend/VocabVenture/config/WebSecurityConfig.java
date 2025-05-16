@@ -1,12 +1,11 @@
 package com.backend.VocabVenture.config;
 
-import com.backend.VocabVenture.security.JwtAuthFilter;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,7 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import com.backend.VocabVenture.security.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -38,31 +37,33 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // Allow access to static resources
-                        .requestMatchers("/images/**").permitAll()
-                        // Fix authorization for user endpoints - allow both with and without ROLE_ prefix for backward compatibility
-                        .requestMatchers("/users/me").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
-                        .requestMatchers("/users/me/profile-picture").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
-                        .requestMatchers("/api/teacher/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
-                        .requestMatchers("/api/student/**").hasAnyAuthority("ROLE_STUDENT", "STUDENT")
-                        .requestMatchers("/api/class/validate-code").permitAll()
-                        .requestMatchers("/api/class/**").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
-                        // Game API endpoints
-                        .requestMatchers("/api/game/categories").permitAll()
-                        .requestMatchers("/api/game/categories/**").permitAll()
-                        .requestMatchers("/api/game/public/**").permitAll()
-                        .requestMatchers("/api/game/progress/**").authenticated()
-                        .requestMatchers("/api/game/levels").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
-                        .requestMatchers("/api/game/levels/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                // Public Endpoints
+                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/images/**").permitAll()
+                .requestMatchers("/api/class/validate-code").permitAll()
+                .requestMatchers("/api/game/categories", "/api/game/categories/**", "/api/game/public/**").permitAll()
+
+                // Authenticated endpoints (any user)
+                .requestMatchers("/users/me", "/users/me/profile-picture").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
+                .requestMatchers("/api/class/**").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
+                .requestMatchers("/api/game/progress/**").authenticated()
+
+                // Teacher-only endpoints
+                .requestMatchers("/api/teacher/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
+                .requestMatchers("/api/game/levels", "/api/game/levels/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
+
+                // Student-only endpoints
+                .requestMatchers("/api/student/**").hasAnyAuthority("ROLE_STUDENT", "STUDENT")
+
+                // Everything else requires authentication
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -79,6 +80,8 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

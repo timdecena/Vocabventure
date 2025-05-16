@@ -10,7 +10,7 @@ const StudentJoinClass = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:8081/api/teacher/class/join',
+        'http://localhost:8081/api/student/class/join',
         null,
         {
           params: { joinCode },
@@ -18,9 +18,14 @@ const StudentJoinClass = () => {
           withCredentials: true,
         }
       );
+      setJoinCode('');
       setSnackbar({ open: true, message: 'Successfully joined the class!', severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: 'Failed to join class.', severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: error?.response?.data?.error || 'Failed to join class.',
+        severity: 'error',
+      });
     }
   };
 

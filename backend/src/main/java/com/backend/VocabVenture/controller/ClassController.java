@@ -1,6 +1,7 @@
 package com.backend.VocabVenture.controller;
 
 import com.backend.VocabVenture.model.Class;
+import com.backend.VocabVenture.model.ClassJoinRequest;
 import com.backend.VocabVenture.model.User;
 import com.backend.VocabVenture.service.ClassService;
 import com.backend.VocabVenture.service.UserService;
@@ -14,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
+import com.backend.VocabVenture.service.ClassJoinRequestService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,23 +115,27 @@ public class ClassController {
         return ResponseEntity.ok(classes);
     }
 
-    @PostMapping("/student/class/join")
-    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
-    @Operation(summary = "Join a class using a join code", description = "Only students can join classes")
-    public ResponseEntity<?> joinClass(
-            @RequestParam String joinCode,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User student = userService.findByUsername(userDetails.getUsername());
-        
-        try {
-            Class joinedClass = classService.joinClass(joinCode, student.getId());
-            return ResponseEntity.ok(joinedClass);
-        } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
+    @Autowired
+private ClassJoinRequestService classJoinRequestService;
+
+@PostMapping("/student/class/join")
+@PreAuthorize("hasAuthority('ROLE_STUDENT')")
+@Operation(summary = "Join a class using a join code", description = "Only students can join classes")
+public ResponseEntity<?> joinClass(
+        @RequestParam String joinCode,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+    User student = userService.findByUsername(userDetails.getUsername());
+
+    try {
+        ClassJoinRequest request = classJoinRequestService.submitJoinRequest(joinCode, student.getId());
+        return ResponseEntity.ok(request); // or a custom DTO/response
+    } catch (Exception e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", e.getMessage());
+        return ResponseEntity.badRequest().body(response);
     }
+}
 
     // Common endpoints
     @GetMapping("/class/{classId}")
