@@ -1,0 +1,129 @@
+.space-background {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a0a2e, #050524);
+  position: relative;
+  overflow: hidden;
+  color: white;
+}
+
+.star {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: twinkle ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.8; }
+}
+
+.planet {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0.6;
+  transition: opacity 0.5s ease;
+}
+
+.planet1 {
+  width: 80px;
+  height: 80px;
+  top: 5%;
+  right: 3%;
+  background: radial-gradient(circle at 30% 30%, #33ffbb, #0c4a7c);
+  box-shadow: 0 0 20px rgba(51, 255, 187, 0.4);
+}
+
+.planet2 {
+  width: 40px;
+  height: 40px;
+  bottom: 10%;
+  left: 5%;
+  background: radial-gradient(circle at 40% 40%, #66ff99, #006633);
+  box-shadow: 0 0 15px rgba(102, 255, 153, 0.3);
+}
+
+.meteor {
+  position: absolute;
+  background-color: white;
+  opacity: 0;
+  border-radius: 50%;
+  filter: blur(1px);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  animation: meteor linear infinite;
+}
+
+@keyframes meteor {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-1000px, 1000px);
+    opacity: 0;
+  }
+}
+
+.login-box {
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.space-card {
+  display: flex;
+  flex-direction: row;
+  min-height: 420px;
+  width: 95%;
+  background: rgba(10, 10, 46, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(51, 255, 119, 0.2), 0 0 20px rgba(0, 128, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.form-side {
+  flex: 1.2;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(10, 15, 30, 0.7);
+}
+
+.welcome-side {
+  flex: 0.8;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 30, 0.9);
+}
+
+@media (max-width: 768px) {
+  .space-card {
+    flex-direction: column;
+  }
+  .welcome-side {
+    display: none;
+  }
+}
+
+.login-title {
+  color: #66ffcc;
+  margin-bottom: 8px;
+}

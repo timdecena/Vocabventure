@@ -192,7 +192,7 @@ export default function Navbar() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               {isLoggedIn ? (
                 <>
-                  {[{ label: "Home", icon: <HomeIcon />, path: "/" },
+                  {[{ label: "Home", icon: <HomeIcon />, path: "/home" },
                     { label: "Word Game", icon: <GamesIcon />, path: "/game" },
                     { label: "Missions", icon: <ExploreIcon />, path: "/missions" },
                     { label: "Dashboard", icon: <RocketLaunchIcon />, path: dashboardPath },
