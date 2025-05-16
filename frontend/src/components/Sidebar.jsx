@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import SupportCard from './SupportCard';
-import './Sidebar.css';
+import '../styles/Sidebar.css';
 
 export default function Sidebar() {
   const navigate = useNavigate();
