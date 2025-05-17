@@ -126,7 +126,7 @@ const TeacherDashboard = () => {
                     <Typography variant="body2" color="text.secondary" gutterBottom>
                       {cls.description}
                     </Typography>
-                    {cls.classCode && (
+                    {cls.joinCode  && (
                       <Box
                         sx={{
                           mt: 1,
@@ -140,7 +140,7 @@ const TeacherDashboard = () => {
                           variant="caption"
                           sx={{ color: '#00ffaa', fontWeight: 600 }}
                         >
-                          Class Code: {cls.classCode}
+                          Class Code: {cls.joinCode }
                         </Typography>
                       </Box>
                     )}
