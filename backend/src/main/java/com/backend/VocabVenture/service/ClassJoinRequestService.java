@@ -29,22 +29,25 @@ public class ClassJoinRequestService {
     }
 
     public ClassJoinRequest submitJoinRequest(String joinCode, Long studentId) {
-        User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+    User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new EntityNotFoundException("Student not found"));
 
-        Class classObj = classRepository.findByJoinCode(joinCode)
-                .orElseThrow(() -> new EntityNotFoundException("Invalid join code"));
+    Class classObj = classRepository.findByJoinCode(joinCode)
+            .orElseThrow(() -> new EntityNotFoundException("Invalid join code"));
+            System.out.println("Checking if student exists: " + studentId);
+System.out.println("Checking if joinCode is valid: " + joinCode);
 
-        if (requestRepository.existsByStudentAndClassObj(student, classObj)) {
-            throw new IllegalStateException("Join request already submitted");
-        }
-
-        ClassJoinRequest request = new ClassJoinRequest();
-        request.setClassObj(classObj);
-        request.setApproved(false);
-
-        return requestRepository.save(request);
+    if (requestRepository.existsByStudentAndClassObj(student, classObj)) {
+        throw new IllegalStateException("Join request already submitted");
     }
+
+    ClassJoinRequest request = new ClassJoinRequest();
+    request.setClassObj(classObj);
+    request.setStudent(student); // ✅ Fix: assign the student
+    request.setApproved(false);
+
+    return requestRepository.save(request);
+}
 
     // Add more methods later for approve/reject
 }

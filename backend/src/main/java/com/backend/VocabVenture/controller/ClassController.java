@@ -129,7 +129,7 @@ public ResponseEntity<?> joinClass(
 
     try {
         ClassJoinRequest request = classJoinRequestService.submitJoinRequest(joinCode, student.getId());
-        return ResponseEntity.ok(request); // or a custom DTO/response
+        return ResponseEntity.ok(request); // or return a DTO
     } catch (Exception e) {
         Map<String, String> response = new HashMap<>();
         response.put("error", e.getMessage());
