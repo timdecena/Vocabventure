@@ -1,6 +1,7 @@
 package com.backend.VocabVenture.controller;
 
 import com.backend.VocabVenture.dto.JoinRequestResponseDTO;
+import com.backend.VocabVenture.dto.PendingJoinRequestDTO;
 import com.backend.VocabVenture.model.Class;
 import com.backend.VocabVenture.model.ClassJoinRequest;
 import com.backend.VocabVenture.model.User;
@@ -157,4 +158,21 @@ public class ClassController {
         response.put("valid", isValid);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/api/teacher/classes/{classId}/join-requests")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
+    public ResponseEntity<List<PendingJoinRequestDTO>> getPendingJoinRequests(
+            @PathVariable Long classId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User teacher = userService.findByUsername(userDetails.getUsername());
+        List<ClassJoinRequest> requests = classService.getPendingJoinRequests(classId, teacher.getId());
+
+        List<PendingJoinRequestDTO> response = requests.stream()
+                .map(PendingJoinRequestDTO::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
 }

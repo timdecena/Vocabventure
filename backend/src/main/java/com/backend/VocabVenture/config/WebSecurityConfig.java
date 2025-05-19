@@ -37,33 +37,37 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // Public Endpoints
-                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/images/**").permitAll()
-                .requestMatchers("/api/class/validate-code").permitAll()
-                .requestMatchers("/api/game/categories", "/api/game/categories/**", "/api/game/public/**").permitAll()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // Public Endpoints
+                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/api/class/validate-code").permitAll()
+                        .requestMatchers("/api/game/categories", "/api/game/categories/**", "/api/game/public/**")
+                        .permitAll()
 
-                // Authenticated endpoints (any user)
-                .requestMatchers("/users/me", "/users/me/profile-picture").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
-                .requestMatchers("/api/class/**").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
-                .requestMatchers("/api/game/progress/**").authenticated()
+                        // Authenticated endpoints (any user)
+                        .requestMatchers("/users/me", "/users/me/profile-picture")
+                        .hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/class/**")
+                        .hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
+                        .requestMatchers("/api/game/progress/**").authenticated()
 
-                // Teacher-only endpoints
-                .requestMatchers("/api/teacher/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
-                .requestMatchers("/api/game/levels", "/api/game/levels/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
+                        // Teacher-only endpoints
+                        .requestMatchers("/api/teacher/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
+                        .requestMatchers("/api/game/levels", "/api/game/levels/**")
+                        .hasAnyAuthority("ROLE_TEACHER", "TEACHER")
 
-                // Student-only endpoints
-                .requestMatchers("/api/student/**").hasAnyAuthority("ROLE_STUDENT", "STUDENT")
+                        // Student-only endpoints
+                        .requestMatchers("/api/student/**").hasAnyAuthority("ROLE_STUDENT", "STUDENT")
+                        .requestMatchers("/api/teacher/**").hasAuthority("ROLE_TEACHER") // ✅ this line is REQUIRED
 
-                // Everything else requires authentication
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        // Everything else requires authentication
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -81,14 +85,13 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin",
+                "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         config.setExposedHeaders(List.of("Authorization", "Content-Disposition"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);

@@ -54,6 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtUtils.isTokenValid(jwt, userDetails)) {
                 // Extract role claim from the token (e.g., "ROLE_TEACHER")
                 String role = jwtUtils.extractClaim(jwt, claims -> claims.get("role", String.class));
+
                 GrantedAuthority authority = new SimpleGrantedAuthority(role);
 
                 // ✅ Debug print statements

@@ -26,46 +26,46 @@ public class ClassService {
 
     @Autowired
     public ClassService(ClassRepository classRepository, UserRepository userRepository,
-                        ClassJoinRequestRepository joinRequestRepository) {
+            ClassJoinRequestRepository joinRequestRepository) {
         this.classRepository = classRepository;
         this.userRepository = userRepository;
         this.joinRequestRepository = joinRequestRepository;
     }
 
-@Transactional
-public Class createClass(Class classObj, Long teacherId) {
-    User teacher = getTeacher(teacherId);
-    classObj.setTeacher(teacher);
-    classObj.setCreatedAt(LocalDateTime.now());
-    classObj.setUpdatedAt(LocalDateTime.now());
+    @Transactional
+    public Class createClass(Class classObj, Long teacherId) {
+        User teacher = getTeacher(teacherId);
+        classObj.setTeacher(teacher);
+        classObj.setCreatedAt(LocalDateTime.now());
+        classObj.setUpdatedAt(LocalDateTime.now());
 
-    // Ensure unique join code
-    String joinCode;
-    do {
-        joinCode = generateUniqueJoinCode();
-    } while (classRepository.existsByJoinCode(joinCode));
-    classObj.setJoinCode(joinCode);
+        // Ensure unique join code
+        String joinCode;
+        do {
+            joinCode = generateUniqueJoinCode();
+        } while (classRepository.existsByJoinCode(joinCode));
+        classObj.setJoinCode(joinCode);
 
-    return classRepository.save(classObj);
-}
+        return classRepository.save(classObj);
+    }
 
-@Transactional
-public Class regenerateJoinCode(Long classId, Long teacherId) {
-    Class classObj = getClassOwnedByTeacher(classId, teacherId);
+    @Transactional
+    public Class regenerateJoinCode(Long classId, Long teacherId) {
+        Class classObj = getClassOwnedByTeacher(classId, teacherId);
 
-    String newJoinCode;
-    do {
-        newJoinCode = generateUniqueJoinCode();
-    } while (classRepository.existsByJoinCode(newJoinCode));
+        String newJoinCode;
+        do {
+            newJoinCode = generateUniqueJoinCode();
+        } while (classRepository.existsByJoinCode(newJoinCode));
 
-    classObj.setJoinCode(newJoinCode);
-    classObj.setUpdatedAt(LocalDateTime.now());
-    return classRepository.save(classObj);
-}
+        classObj.setJoinCode(newJoinCode);
+        classObj.setUpdatedAt(LocalDateTime.now());
+        return classRepository.save(classObj);
+    }
 
-private String generateUniqueJoinCode() {
-    return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-}
+    private String generateUniqueJoinCode() {
+        return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
 
     @Transactional(readOnly = true)
     public List<Class> getTeacherClasses(Long teacherId) {
@@ -177,7 +177,6 @@ private String generateUniqueJoinCode() {
         return classRepository.save(classObj);
     }
 
-
     @Transactional(readOnly = true)
     public boolean isValidJoinCode(String joinCode) {
         return classRepository.existsByJoinCode(joinCode);
@@ -210,7 +209,9 @@ private String generateUniqueJoinCode() {
         if (!classObj.getTeacher().getId().equals(teacherId)) {
             throw new AccessDeniedException("You don’t have permission to access this class");
         }
-
+        System.out.println("Checking ownership of class ID " + classId);
+        System.out.println("Expected teacher ID: " + teacherId);
+        System.out.println("Actual teacher ID: " + classObj.getTeacher().getId());
         return classObj;
     }
 }

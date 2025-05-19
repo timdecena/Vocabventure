@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class JwtUtils {
     private long jwtExpirationMs;
 
     public JwtUtils(@Value("${jwt.secret}") String secret,
-                   @Value("${jwt.expiration.ms}") long jwtExpirationMs) {
+            @Value("${jwt.expiration.ms}") long jwtExpirationMs) {
         this.secret = secret;
         this.jwtExpirationMs = jwtExpirationMs;
     }
@@ -42,15 +43,19 @@ public class JwtUtils {
     }
 
     public String generateToken(UserDetails userDetails) {
-    Map<String, Object> claims = new HashMap<>();
-    
-    // This assumes userDetails is your User entity that has a getRole() method
-    if (userDetails instanceof com.backend.VocabVenture.model.User user) {
-        claims.put("role", "ROLE_" + user.getRole().name()); // Ex: ROLE_TEACHER
-    }
+        Map<String, Object> claims = new HashMap<>();
 
-    return generateToken(claims, userDetails);
-}
+        // Extract first authority (assumes single role like ROLE_TEACHER or
+        // ROLE_STUDENT)
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse("ROLE_USER"); // Default fallback
+
+        claims.put("role", role);
+
+        return generateToken(claims, userDetails);
+    }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts
@@ -99,4 +104,3 @@ public class JwtUtils {
         throw new RuntimeException("Invalid token");
     }
 }
-
