@@ -107,17 +107,7 @@ const Profile = () => {
     message: '',
     severity: 'info'
   });
-  const [stats, setStats] = useState({
-    achievements: [],
-    streak: 7,
-    completedLessons: 12,
-    wordsLearned: 120,
-    quizzesTaken: 8,
-    experience: 450,
-    nextLevelExp: 500,
-    level: 3,
-    recentActivity: []
-  });
+ 
 
   useEffect(() => {
     // Fetch user data from localStorage
@@ -297,15 +287,7 @@ const Profile = () => {
       </StarBackground>
       
       <Container maxWidth="lg" sx={{ mt: 2, pb: 4 }}>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(8, 1fr)',
-            gridTemplateRows: 'repeat(8, 1fr)',
-            gap: 2,
-            minHeight: '80vh'
-          }}
-        >
+       
           {/* Box 1 - Profile */}
           <Box
             sx={{
@@ -359,112 +341,18 @@ const Profile = () => {
             <Typography variant="body2" color="white" sx={{ mb: 2 }}>
               {userData?.email || 'user@example.com'}
             </Typography>
-            <Button
-              variant="contained"
-              startIcon={<EditIcon />}
-              sx={{ mt: 2, bgcolor: 'secondary.main', '&:hover': { bgcolor: 'secondary.dark' } }}
-            >
-              Edit Profile
-            </Button>
+            
           </Box>
 
-          {/* Box 2 - Achievements */}
-          <Box
-            sx={{
-              gridColumn: '5 / span 3',
-              gridRow: '2 / span 3',
-              bgcolor: 'secondary.main',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 4,
-              p: 4,
-              boxShadow: 3
-            }}
-          >
-            <EmojiEventsIcon sx={{ fontSize: 48, mb: 2, color: 'white' }} />
-            <Typography variant="h6" color="white" fontWeight={700} sx={{ mb: 1 }}>
-              Achievements
-            </Typography>
-            {stats.achievements.length > 0 ? (
-              stats.achievements.map((ach, index) => (
-                <Typography key={index} variant="body2" color="white">
-                  {ach.title}
-                </Typography>
-              ))
-            ) : (
-              <Typography variant="body2" color="white">
-                No achievements yet
-              </Typography>
-            )}
-          </Box>
 
           {/* Box 3 - Creative Area */}
-          <Box
-            sx={{
-              gridColumn: '4 / span 4',
-              gridRow: '5 / span 3',
-              bgcolor: 'success.main',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 4,
-              p: 4,
-              boxShadow: 3
-            }}
-          >
-            <LightbulbIcon sx={{ fontSize: 48, mb: 2, color: 'white' }} />
-            <Typography variant="h6" color="white" fontWeight={700} sx={{ mb: 1 }}>
-              Today's Tip
-            </Typography>
-            <Typography variant="body2" color="white" textAlign="center">
-              "Consistency beats motivation. Keep showing up!"
-            </Typography>
-          </Box>
 
-          {/* Box 4 - Notifications / Games */}
-          <Box
-            sx={{
-              gridColumn: '2 / span 2',
-              gridRow: '5 / span 3',
-              bgcolor: 'error.main',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 4,
-              p: 4,
-              boxShadow: 3
-            }}
-          >
-            <NotificationsIcon sx={{ fontSize: 48, mb: 2, color: 'white' }} />
-            <Typography variant="h6" color="white" fontWeight={700} sx={{ mb: 1 }}>
-              Notifications
-            </Typography>
-            <Typography variant="body2" color="white" textAlign="center">
-              New game available! Join now 🎮
-            </Typography>
-          </Box>
-        </Box>
+
+          
       </Container>
       
-      {/* Snackbar for notifications */}
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity} 
-          sx={{ width: '100%' }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+
+    
     </Box>
   );
 };
