@@ -45,6 +45,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/images/**").permitAll()
                 .requestMatchers("/api/class/validate-code").permitAll()
                 .requestMatchers("/api/game/categories", "/api/game/categories/**", "/api/game/public/**").permitAll()
+                .requestMatchers("/api/adventure-profile/**", "/api/adventure-level-stats/**").permitAll()
 
                 // Authenticated endpoints (any user)
                 .requestMatchers("/users/me", "/users/me/profile-picture").hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
@@ -80,8 +81,6 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-    
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

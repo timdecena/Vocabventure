@@ -13,6 +13,9 @@ import Profile from "./pages/Profile";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import TeacherCreateClass from "./pages/Teacher/TeacherCreateClass";
+import TutorialBattle from "./components/TutorialBattle";
+import MapView from "./pages/MapView";
+import IslandLevels from "./pages/IslandLevels";
 
 // Import Game components
 import GameCategories from "./pages/Game/GameCategories";
@@ -26,10 +29,13 @@ function App() {
 
         <Route path="/"          element={<Navigate to="/login" replace />} />
 
-        {/* after logging in we’ll land here */}
+        {/* after logging in we'll land here */}
         <Route path="/home"      element={<Homepage />} />
         <Route path="/support"   element={<Support    />} />
-        <Route path="/game/adventure"    element={<Adventure />} />
+        <Route path="/adventure" element={<Adventure />} />
+        <Route path="/tutorial-battle" element={<TutorialBattle />} />
+        <Route path="/map" element={<MapView />} />
+        <Route path="/island/:islandId" element={<IslandLevels />} />
         <Route path="/game/time-attack"  element={<TimeAttack />} />
         <Route path="/game/4pics1word"   element={<FourPics  />} />
 
