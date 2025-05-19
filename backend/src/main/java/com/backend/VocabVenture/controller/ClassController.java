@@ -1,5 +1,6 @@
 package com.backend.VocabVenture.controller;
 
+import com.backend.VocabVenture.dto.JoinRequestResponseDTO;
 import com.backend.VocabVenture.model.Class;
 import com.backend.VocabVenture.model.ClassJoinRequest;
 import com.backend.VocabVenture.model.User;
@@ -38,7 +39,8 @@ public class ClassController {
     @PostMapping("/teacher/class")
     @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     @Operation(summary = "Create a new class", description = "Only teachers can create classes")
-    public ResponseEntity<Class> createClass(@Valid @RequestBody Class classObj, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Class> createClass(@Valid @RequestBody Class classObj,
+            @AuthenticationPrincipal UserDetails userDetails) {
         User teacher = userService.findByUsername(userDetails.getUsername());
         Class createdClass = classService.createClass(classObj, teacher.getId());
         return new ResponseEntity<>(createdClass, HttpStatus.CREATED);
@@ -73,7 +75,7 @@ public class ClassController {
             @AuthenticationPrincipal UserDetails userDetails) {
         User teacher = userService.findByUsername(userDetails.getUsername());
         classService.deleteClass(classId, teacher.getId());
-        
+
         Map<String, String> response = new HashMap<>();
         response.put("message", "Class deleted successfully");
         return ResponseEntity.ok(response);
@@ -99,7 +101,7 @@ public class ClassController {
             @AuthenticationPrincipal UserDetails userDetails) {
         User teacher = userService.findByUsername(userDetails.getUsername());
         Class result = classService.regenerateJoinCode(classId, teacher.getId());
-        
+
         Map<String, String> response = new HashMap<>();
         response.put("joinCode", result.getJoinCode());
         return ResponseEntity.ok(response);
@@ -116,26 +118,27 @@ public class ClassController {
     }
 
     @Autowired
-private ClassJoinRequestService classJoinRequestService;
+    private ClassJoinRequestService classJoinRequestService;
 
-@PostMapping("/student/class/join")
-@PreAuthorize("hasAuthority('ROLE_STUDENT')")
-@Operation(summary = "Join a class using a join code", description = "Only students can join classes")
-public ResponseEntity<?> joinClass(
-        @RequestParam String joinCode,
-        @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping("/student/class/join")
+    @PreAuthorize("hasAuthority('ROLE_STUDENT')")
+    @Operation(summary = "Join a class using a join code", description = "Only students can join classes")
+    public ResponseEntity<?> joinClass(
+            @RequestParam String joinCode,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-    User student = userService.findByUsername(userDetails.getUsername());
+        User student = userService.findByUsername(userDetails.getUsername());
 
-    try {
-        ClassJoinRequest request = classJoinRequestService.submitJoinRequest(joinCode, student.getId());
-        return ResponseEntity.ok(request); // or return a DTO
-    } catch (Exception e) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", e.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        try {
+            ClassJoinRequest request = classJoinRequestService.submitJoinRequest(joinCode, student.getId());
+            JoinRequestResponseDTO dto = JoinRequestResponseDTO.fromEntity(request);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
-}
 
     // Common endpoints
     @GetMapping("/class/{classId}")
@@ -149,7 +152,7 @@ public ResponseEntity<?> joinClass(
     @Operation(summary = "Validate a join code", description = "Check if a join code is valid")
     public ResponseEntity<Map<String, Boolean>> validateJoinCode(@RequestParam String joinCode) {
         boolean isValid = classService.isValidJoinCode(joinCode);
-        
+
         Map<String, Boolean> response = new HashMap<>();
         response.put("valid", isValid);
         return ResponseEntity.ok(response);

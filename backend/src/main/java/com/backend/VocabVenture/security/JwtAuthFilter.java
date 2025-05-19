@@ -34,8 +34,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
@@ -55,14 +54,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtUtils.isTokenValid(jwt, userDetails)) {
                 // Extract role claim from the token (e.g., "ROLE_TEACHER")
                 String role = jwtUtils.extractClaim(jwt, claims -> claims.get("role", String.class));
-
                 GrantedAuthority authority = new SimpleGrantedAuthority(role);
+
+                // ✅ Debug print statements
+                System.out.println("JWT for: " + username);
+                System.out.println("Extracted role: " + role);
+                System.out.println("Granted authority: " + authority.getAuthority());
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        Collections.singleton(authority)
-                );
+                        Collections.singleton(authority));
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -71,4 +73,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }

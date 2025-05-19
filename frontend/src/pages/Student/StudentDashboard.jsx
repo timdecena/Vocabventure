@@ -89,6 +89,7 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [openJoinClassDialog, setOpenJoinClassDialog] = useState(false);
   const navigate = useNavigate();
+  const [studentClasses, setStudentClasses] = useState([]);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -97,6 +98,32 @@ const StudentDashboard = () => {
     document.head.appendChild(style);
     return () => style.remove();
   }, []);
+
+  useEffect(() => {
+    const loadClasses = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:8081/api/student/classes', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch classes');
+        }
+  
+        const data = await response.json();
+        setStudentClasses(data);  // ✅ set to state
+      } catch (err) {
+        console.error('Error loading student classes:', err);
+      }
+    };
+  
+    if (studentData) {
+      loadClasses();
+    }
+  }, [studentData]);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -201,15 +228,43 @@ const StudentDashboard = () => {
             </StyledCard>
           </Grid>
 
+          <Grid item xs={12} md={8}>
+  <StyledCard>
+    <Typography variant="h6" sx={{ mb: 2 }}>
+      Your Joined Classes
+    </Typography>
+    {studentClasses.length === 0 ? (
+      <Typography>No classes joined yet.</Typography>
+    ) : (
+      studentClasses.map((cls) => (
+        <Box key={cls.id} sx={{ mb: 2 }}>
+          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+            {cls.className}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {cls.description || 'No description'}
+          </Typography>
+        </Box>
+      ))
+    )}
+  </StyledCard>
+</Grid>
+
+
+
           {/* Additional content here */}
         </Grid>
       </Box>
 
       <JoinClassDialog
-        open={openJoinClassDialog}
-        onClose={() => setOpenJoinClassDialog(false)}
-        onJoined={() => console.log("Class joined")}
-      />
+  open={openJoinClassDialog}
+  onClose={() => setOpenJoinClassDialog(false)}
+  onJoined={() => {
+    console.log("Class joined");
+    // refresh class list after joining
+    setTimeout(() => window.location.reload(), 1000); // or reloadClasses() if you isolate it
+  }}
+/>
     </DashboardBackground>
   );
 };
