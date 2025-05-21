@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 import StudentHome from './Student/StudentHome';
@@ -7,7 +7,7 @@ import TeacherHome from './Teacher/TeacherHome';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-  const [role, setRole] = useState(localStorage.getItem('role')); // role stored after login
+  const [role, setRole] = useState(localStorage.getItem('role'));
 
   const updateAuthStatus = () => {
     setIsAuthenticated(!!localStorage.getItem('token'));
@@ -40,12 +40,20 @@ function App() {
 
         <Route
           path="/student-home"
-          element={isAuthenticated && role === 'STUDENT' ? <StudentHome /> : <Navigate to="/" replace />}
+          element={
+            isAuthenticated && role === 'STUDENT'
+              ? <StudentHome setIsAuthenticated={setIsAuthenticated} />
+              : <Navigate to="/" replace />
+          }
         />
 
         <Route
           path="/teacher-home"
-          element={isAuthenticated && role === 'TEACHER' ? <TeacherHome /> : <Navigate to="/" replace />}
+          element={
+            isAuthenticated && role === 'TEACHER'
+              ? <TeacherHome setIsAuthenticated={setIsAuthenticated} />
+              : <Navigate to="/" replace />
+          }
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
