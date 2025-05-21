@@ -22,14 +22,12 @@ export default function Login({ setIsAuthenticated, setRole }) {
       const res = await axios.post('http://localhost:8080/api/auth/login', form, { withCredentials: true });
       const user = res.data;
 
-      // Store token (if you generate it later), and store role
-      localStorage.setItem('token', 'session'); // placeholder since you use session, not JWT
+      localStorage.setItem('token', 'session'); // session-based placeholder
       localStorage.setItem('role', user.role);
 
       setIsAuthenticated(true);
       setRole(user.role);
 
-      // Redirect based on role
       if (user.role === 'STUDENT') {
         navigate('/student-home');
       } else if (user.role === 'TEACHER') {
@@ -41,6 +39,10 @@ export default function Login({ setIsAuthenticated, setRole }) {
       console.error(err);
       setMessage('Login failed. Please check your credentials.');
     }
+  };
+
+  const goToRegister = () => {
+    navigate('/register');
   };
 
   return (
@@ -65,6 +67,11 @@ export default function Login({ setIsAuthenticated, setRole }) {
         /><br /><br />
         <button type="submit">Login</button>
       </form>
+
+      <br />
+
+      <button onClick={goToRegister}>Register</button>
+
       {message && <p>{message}</p>}
     </div>
   );
