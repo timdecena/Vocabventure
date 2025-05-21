@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.Vocabia.entity.UserEntity;
 import com.example.Vocabia.service.UserService;
+import com.example.Vocabia.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -15,16 +15,18 @@ import jakarta.servlet.http.HttpSession;
 public class AuthController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UserService service) {
-        this.userService = service;
+    public AuthController(UserService userService, JwtUtil jwtUtil) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserEntity user) {
         try {
             UserEntity saved = userService.registerUser(user);
-            saved.setPassword(null);
+            saved.setPassword(null); // don't return password
             return ResponseEntity.ok(saved);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -32,38 +34,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpReq) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         UserEntity user = userService.findByEmail(request.getEmail());
-        if (user == null) return ResponseEntity.status(401).body("Invalid email or password");
-
-        if (!userService.getPasswordEncoder().matches(request.getPassword(), user.getPassword())) {
+        if (user == null || !userService.getPasswordEncoder().matches(request.getPassword(), user.getPassword())) {
             return ResponseEntity.status(401).body("Invalid email or password");
         }
 
-        // Save user info in session for simplicity
-        HttpSession session = httpReq.getSession(true);
-        session.setAttribute("USER", user);
-        user.setPassword(null);
-        return ResponseEntity.ok(user);
+        String token = jwtUtil.generateToken(user.getEmail());
+        return ResponseEntity.ok(new LoginResponse(token, user.getRole()));
     }
 
+    // Note: logout has no effect in JWT-based auth (no session), but you can still provide a route
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest req) {
-        HttpSession session = req.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-        return ResponseEntity.ok("Logged out");
+        return ResponseEntity.ok("Logout successful (client must delete token)");
     }
-}
-
-class LoginRequest {
-    private String email;
-    private String password;
-
-    // Getters and setters
-    public String getEmail() {return email;}
-    public void setEmail(String email) {this.email = email;}
-    public String getPassword() {return password;}
-    public void setPassword(String password) {this.password = password;}
 }
