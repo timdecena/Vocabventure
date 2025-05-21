@@ -234,7 +234,7 @@ const Register = () => {
           )}
 
           <TextField
-            label="Username"
+            label="Full Name"
             name="username"
             value={form.username}
             onChange={handleChange}
