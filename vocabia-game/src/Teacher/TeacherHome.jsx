@@ -1,19 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function TeacherHome() {
+export default function TeacherHome({ setIsAuthenticated }) {
   const navigate = useNavigate();
-//test
+
   const handleLogout = () => {
-    // Just clear local storage and redirect
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    setIsAuthenticated(false); // Update auth state in App
     navigate('/login');
   };
 
   return (
     <div>
-      <h1>Teacherasdasd Home</h1>
+      <h1>Teacher Home</h1>
       <p>Welcome, teacher!</p>
       <button onClick={handleLogout}>Logout</button>
     </div>
