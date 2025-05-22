@@ -53,15 +53,16 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/class/**")
                         .hasAnyAuthority("ROLE_TEACHER", "ROLE_STUDENT", "TEACHER", "STUDENT")
                         .requestMatchers("/api/game/progress/**").authenticated()
-
+                        .requestMatchers("/api/teacher/classes/**").hasAuthority("ROLE_TEACHER")
                         // Teacher-only endpoints
                         .requestMatchers("/api/teacher/**").hasAnyAuthority("ROLE_TEACHER", "TEACHER")
                         .requestMatchers("/api/game/levels", "/api/game/levels/**")
+
                         .hasAnyAuthority("ROLE_TEACHER", "TEACHER")
 
                         // Student-only endpoints
                         .requestMatchers("/api/student/**").hasAnyAuthority("ROLE_STUDENT", "STUDENT")
-                        .requestMatchers("/api/teacher/**").hasAuthority("ROLE_TEACHER") // ✅ this line is REQUIRED
+                        .requestMatchers("/api/teacher/classes/**").hasAuthority("ROLE_TEACHER")
 
                         // Everything else requires authentication
                         .anyRequest().authenticated())

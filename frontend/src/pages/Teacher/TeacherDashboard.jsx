@@ -4,11 +4,14 @@ import {
   Typography,
   Grid,
   Paper,
-  CardContent,
   Card,
+  CardContent,
   CircularProgress,
   Button,
-  Collapse,
+  TextField,
+  Snackbar,
+  Alert,
+  Collapse 
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
@@ -38,9 +41,14 @@ const TeacherDashboard = () => {
   const [teacherName, setTeacherName] = useState('');
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [joinRequestsMap, setJoinRequestsMap] = useState({});
-  const [expandedClassId, setExpandedClassId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
+  const [viewedStudents, setViewedStudents] = useState({});
+  const [expandedStudentsClassId, setExpandedStudentsClassId] = useState(null);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -55,11 +63,32 @@ const TeacherDashboard = () => {
     fetchClasses(token);
   }, [navigate]);
 
+
+  const handleViewStudents = async (classId) => {
+  const token = localStorage.getItem('token');
+
+  if (expandedStudentsClassId === classId) {
+    setExpandedStudentsClassId(null); // toggle off
+    return;
+  }
+
+  try {
+    const res = await axios.get(`http://localhost:8081/api/teacher/classes/${classId}/students`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setViewedStudents((prev) => ({ ...prev, [classId]: res.data }));
+    setExpandedStudentsClassId(classId);
+  } catch (err) {
+    console.error('Failed to fetch students:', err);
+    setSnackbar({ open: true, message: 'Failed to load students.', severity: 'error' });
+  }
+};
+
   const fetchClasses = async (token) => {
     try {
       const response = await axios.get('http://localhost:8081/api/teacher/classes', {
         headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
       });
       setClasses(response.data || []);
     } catch (error) {
@@ -69,27 +98,50 @@ const TeacherDashboard = () => {
     }
   };
 
-  const handleViewJoinRequests = async (classId) => {
-    const token = localStorage.getItem('token');
+  const handleClassCreated = (newClass) => {
+    setClasses((prev) => [...prev, newClass]);
+  };
 
-    if (expandedClassId === classId) {
-      setExpandedClassId(null); // collapse if already open
-      return;
-    }
+  const startEditing = (cls) => {
+    setEditingId(cls.id);
+    setEditName(cls.className);
+    setEditDescription(cls.description);
+  };
 
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditName('');
+    setEditDescription('');
+  };
+
+  const saveUpdate = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:8081/api/teacher/classes/${classId}/join-requests`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      setJoinRequestsMap((prev) => ({ ...prev, [classId]: response.data }));
-      setExpandedClassId(classId);
-    } catch (error) {
-      console.error('Failed to fetch join requests:', error);
+      const token = localStorage.getItem('token');
+      const res = await axios.put(
+        `http://localhost:8081/api/teacher/classes/${id}`,
+        { className: editName, description: editDescription },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setClasses((prev) => prev.map((cls) => (cls.id === id ? res.data : cls)));
+      setSnackbar({ open: true, message: 'Class updated.', severity: 'success' });
+      cancelEditing();
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Failed to update.', severity: 'error' });
     }
   };
 
-  const handleClassCreated = (newClass) => {
-    setClasses((prev) => [...prev, newClass]);
+  const deleteClass = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this class?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:8081/api/teacher/classes/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setClasses((prev) => prev.filter((cls) => cls.id !== id));
+      setSnackbar({ open: true, message: 'Class deleted.', severity: 'success' });
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Failed to delete.', severity: 'error' });
+    }
   };
 
   return (
@@ -138,70 +190,89 @@ const TeacherDashboard = () => {
                   }}
                 >
                   <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {cls.className}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                      {cls.description}
-                    </Typography>
-
-                    {cls.joinCode && (
-                      <Box
-                        sx={{
-                          mt: 1,
-                          p: 1,
-                          backgroundColor: '#003c3c',
-                          borderRadius: 1,
-                          display: 'inline-block',
-                          mb: 1
-                        }}
-                      >
-                        <Typography
-                          variant="caption"
-                          sx={{ color: '#00ffaa', fontWeight: 600 }}
-                        >
-                          Class Code: {cls.joinCode}
+                    {editingId === cls.id ? (
+                      <>
+                        <TextField
+                          fullWidth
+                          label="Class Name"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          sx={{ mb: 1 }}
+                        />
+                        <TextField
+                          fullWidth
+                          label="Description"
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          sx={{ mb: 1 }}
+                        />
+                        <Button size="small" onClick={() => saveUpdate(cls.id)} sx={{ mr: 1 }}>
+                          Save
+                        </Button>
+                        <Button size="small" color="secondary" onClick={cancelEditing}>
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Typography variant="h6" gutterBottom>{cls.className}</Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          {cls.description}
                         </Typography>
-                      </Box>
+
+                        {cls.joinCode && (
+                          <Box
+                            sx={{
+                              mt: 1,
+                              p: 1,
+                              backgroundColor: '#003c3c',
+                              borderRadius: 1,
+                              display: 'inline-block',
+                              mb: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ color: '#00ffaa', fontWeight: 600 }}
+                            >
+                              Class Code: {cls.joinCode}
+                            </Typography>
+                          </Box>
+                        )}
+
+                        <Box sx={{ mt: 2 }}>
+                          <Button size="small" onClick={() => startEditing(cls)} sx={{ mr: 1 }}>
+                            Edit
+                          </Button>
+                          <Button size="small" color="error" onClick={() => deleteClass(cls.id)} sx={{ mr: 1 }}>
+                            Delete
+                          </Button>
+                          <Button size="small" variant="outlined" onClick={() => handleViewStudents(cls.id)}>
+                            {expandedStudentsClassId === cls.id ? 'Hide' : 'View'} Students
+                          </Button>
+                        </Box>
+
+                        <Collapse in={expandedStudentsClassId === cls.id}>
+                          <Box sx={{ mt: 2 }}>
+                            {(viewedStudents[cls.id] || []).length === 0 ? (
+                              <Typography variant="body2" color="text.secondary">
+                                No students enrolled in this class.
+                              </Typography>
+                            ) : (
+                              (viewedStudents[cls.id] || []).map((student) => (
+                                <Typography
+                                  key={student.id}
+                                  variant="body2"
+                                  sx={{ pl: 1, color: '#00ffaa' }}
+                                >
+                                  • {student.username}
+                                </Typography>
+                              ))
+                            )}
+                          </Box>
+                        </Collapse>
+                      </>
                     )}
-
-                    <Box sx={{ mt: 2 }}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleViewJoinRequests(cls.id)}
-                      >
-                        {expandedClassId === cls.id ? 'Hide' : 'View'} Join Requests
-                      </Button>
-                    </Box>
-
-                    <Collapse in={expandedClassId === cls.id}>
-  <Box sx={{ mt: 2 }}>
-    {(joinRequestsMap[cls.id] || []).length === 0 ? (
-      <Typography variant="body2" color="text.secondary">
-        No join requests for this class.
-      </Typography>
-    ) : (
-      (joinRequestsMap[cls.id] || []).map((req) => (
-        <Box
-          key={req.requestId}
-          sx={{
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            py: 1,
-            px: 1,
-          }}
-        >
-          <Typography variant="body2" sx={{ color: '#fff' }}>
-            {req.studentUsername} ({req.studentEmail}) —{' '}
-            <span style={{ color: req.approved ? '#00ffaa' : '#ffaa00' }}>
-              {req.approved ? 'Approved' : 'Pending'}
-            </span>
-          </Typography>
-        </Box>
-      ))
-    )}
-  </Box>
-</Collapse>
                   </CardContent>
                 </Card>
               ))
@@ -209,6 +280,19 @@ const TeacherDashboard = () => {
           </StyledCard>
         </Grid>
       </Grid>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </DashboardBackground>
   );
 };

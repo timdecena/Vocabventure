@@ -113,6 +113,9 @@ public class UserDTO {
         private Integer experiencePoints;
         private Integer userLevel;
 
+
+        
+
         UserDTOBuilder() {
         }
 

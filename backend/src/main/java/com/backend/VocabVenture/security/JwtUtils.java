@@ -44,9 +44,6 @@ public class JwtUtils {
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-
-        // Extract first authority (assumes single role like ROLE_TEACHER or
-        // ROLE_STUDENT)
         String role = userDetails.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
@@ -99,7 +96,7 @@ public class JwtUtils {
         String authHeader = request.getHeader("Authorization");
         String token = authHeader != null && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
         if (token != null) {
-            return Long.parseLong(extractClaim(token, Claims::getSubject)); // assuming subject = userId
+            return Long.parseLong(extractClaim(token, Claims::getSubject)); 
         }
         throw new RuntimeException("Invalid token");
     }

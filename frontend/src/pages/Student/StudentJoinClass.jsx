@@ -1,52 +1,60 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Snackbar, Alert } from '@mui/material';
 import axios from 'axios';
+import JoinClassDialog from './JoinClassDialog';
 
-const StudentJoinClass = () => {
-  const [joinCode, setJoinCode] = useState('');
+const StudentJoinClass = ({ onJoined }) => {
+  const [code, setCode] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [joinedClass, setJoinedClass] = useState(null);
 
-  const handleJoinClass = async () => {
+  const handleJoin = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
+      const res = await axios.post(
         'http://localhost:8081/api/student/class/join',
-        null,
-        {
-          params: { joinCode },
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+        { joinCode: code },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setJoinCode('');
-      setSnackbar({ open: true, message: 'Successfully joined the class!', severity: 'success' });
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: error?.response?.data?.error || 'Failed to join class.',
-        severity: 'error',
-      });
+      setJoinedClass(res.data);
+      setCode('');
+      if (onJoined) onJoined(res.data);
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Failed to join class.';
+      setSnackbar({ open: true, message: msg, severity: 'error' });
     }
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>Join a Class</Typography>
+    <Box>
       <TextField
-        label="Join Code"
+        label="Enter Join Code"
         fullWidth
-        variant="outlined"
-        value={joinCode}
-        onChange={(e) => setJoinCode(e.target.value)}
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
         sx={{ mb: 2 }}
       />
-      <Button variant="contained" color="primary" onClick={handleJoinClass}>
+      <Button
+        variant="contained"
+        fullWidth
+        disabled={!code.trim()}
+        onClick={handleJoin}
+      >
         Join Class
       </Button>
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
+
+      <JoinClassDialog
+        open={!!joinedClass}
+        onClose={() => setJoinedClass(null)}
+        classData={joinedClass || {}}
+      />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
       </Snackbar>
     </Box>
   );

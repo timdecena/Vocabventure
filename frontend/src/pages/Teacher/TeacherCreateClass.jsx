@@ -5,53 +5,37 @@ import axios from 'axios';
 const TeacherCreateClass = ({ onClassCreated }) => {
   const [className, setClassName] = useState('');
   const [description, setDescription] = useState('');
-  const [createdClassCode, setCreatedClassCode] = useState('');
+  const [joinCode, setJoinCode] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  const handleCreateClass = async () => {
+  const handleCreate = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        'http://localhost:8081/api/teacher/class',
+      const res = await axios.post(
+        'http://localhost:8081/api/teacher/classes',
         { className, description },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      setJoinCode(res.data.joinCode);
+      setSnackbar({ open: true, message: 'Class created successfully!', severity: 'success' });
       setClassName('');
       setDescription('');
-      setCreatedClassCode(response.data.classCode); // store new class code
-
+      if (onClassCreated) onClassCreated(res.data);
+    } catch (err) {
       setSnackbar({
         open: true,
-        message: 'Class created successfully!',
-        severity: 'success',
-      });
-
-      if (onClassCreated) {
-        onClassCreated(response.data); // include full class object
-      }
-    } catch (error) {
-      const errorMessage =
-        error?.response?.data?.error ||
-        error?.response?.data?.message ||
-        'Failed to create class.';
-      setSnackbar({
-        open: true,
-        message: errorMessage,
+        message: err?.response?.data?.message || 'Failed to create class.',
         severity: 'error',
       });
     }
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box>
       <TextField
         label="Class Name"
         fullWidth
-        variant="outlined"
         value={className}
         onChange={(e) => setClassName(e.target.value)}
         sx={{ mb: 2 }}
@@ -59,36 +43,29 @@ const TeacherCreateClass = ({ onClassCreated }) => {
       <TextField
         label="Description"
         fullWidth
-        variant="outlined"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         sx={{ mb: 2 }}
       />
       <Button
         variant="contained"
-        color="primary"
-        onClick={handleCreateClass}
-        disabled={!className.trim() || !description.trim()}
         fullWidth
+        onClick={handleCreate}
+        disabled={!className || !description}
       >
         Create Class
       </Button>
-
-      {createdClassCode && (
+      {joinCode && (
         <Typography sx={{ mt: 2, fontWeight: 'bold', color: 'lime' }}>
-          Class Code: {createdClassCode}
+          Class Code: {joinCode}
         </Typography>
       )}
-
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-        >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity}>
           {snackbar.message}
         </Alert>
       </Snackbar>

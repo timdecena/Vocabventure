@@ -1,270 +1,141 @@
-// File: src/pages/StudentDashboard.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Grid,
-  Divider,
-  Button,
-  Avatar,
-  LinearProgress,
-  Badge,
-  IconButton,
-  Chip,
   Paper,
-  CircularProgress
+  Button,
+  CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import JoinClassDialog from './JoinClassDialog';
+import axios from 'axios';
+import StudentJoinClass from './StudentJoinClass';
+import Navbar from '../../components/Navbar'; // ✅ Add your existing navbar
 
-const DashboardBackground = styled(Box)({
+const DashboardBackground = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
-  background: 'linear-gradient(to bottom, #0f2027, #203a43, #2c5364)',
-  color: 'white',
-  position: 'relative',
-  overflow: 'hidden',
-});
-
-const StarBackground = styled(Box)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  zIndex: 0,
-  overflow: 'hidden',
-});
-
-const ConstellationPoint = styled(Box)({
-  position: 'absolute',
-  borderRadius: '50%',
-  background: '#fff',
-  opacity: 0.8,
-});
+  background: theme.palette.background.default,
+  color: theme.palette.text.primary,
+  fontFamily: theme.typography.fontFamily,
+  paddingTop: '80px', // space for fixed Navbar
+  paddingBottom: '40px',
+}));
 
 const StyledCard = styled(Paper)(({ theme }) => ({
-  background: 'rgba(255, 255, 255, 0.08)',
+  backgroundColor: '#12232e',
   padding: theme.spacing(3),
-  borderRadius: theme.spacing(2),
-  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
-  backdropFilter: 'blur(10px)',
-  color: 'white',
-}));
-
-const ProgressBar = styled(LinearProgress)(({ theme }) => ({
-  height: 10,
-  borderRadius: 5,
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  '& .MuiLinearProgress-bar': {
-    backgroundColor: '#00ffaa',
-  },
-}));
-
-const Meteor = styled(Box)(({ delay = 0 }) => ({
-  position: 'absolute',
-  width: '2px',
-  height: '2px',
-  background: '#fff',
-  opacity: 0,
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    width: '50px',
-    height: '1px',
-    background: 'linear-gradient(90deg, #fff, transparent)',
-    transform: 'translateX(-100%)',
-  },
-  animation: 'meteor 3s ease-in infinite',
-  animationDelay: delay + 's',
-  top: Math.random() * 50 + '%',
-  left: Math.random() * 100 + '%',
+  color: '#fff',
+  marginBottom: theme.spacing(2),
 }));
 
 const StudentDashboard = () => {
-  const [studentData, setStudentData] = useState(null);
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [openJoinClassDialog, setOpenJoinClassDialog] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
-  const [studentClasses, setStudentClasses] = useState([]);
 
   useEffect(() => {
-    const style = document.createElement('style');
-    const positions = Array.from({ length: 4 }, () => `${Math.random() * 100}% ${Math.random() * 100}%`);
-    style.textContent = `:root { --star-x: ${positions[0]}; --star-y: ${positions[1]}; --star-x2: ${positions[2]}; --star-y2: ${positions[3]}; }`;
-    document.head.appendChild(style);
-    return () => style.remove();
-  }, []);
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
 
-  useEffect(() => {
-    const loadClasses = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:8081/api/student/classes', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-  
-        if (!response.ok) {
-          throw new Error('Failed to fetch classes');
-        }
-  
-        const data = await response.json();
-        setStudentClasses(data);  // ✅ set to state
-      } catch (err) {
-        console.error('Error loading student classes:', err);
-      }
-    };
-  
-    if (studentData) {
-      loadClasses();
-    }
-  }, [studentData]);
+    if (!token || !user || user.role.toLowerCase() !== 'student') return navigate('/login');
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const userData = JSON.parse(localStorage.getItem('user'));
-        const token = localStorage.getItem('token');
-
-        if (!userData || !token) {
-          navigate('/login');
-          return;
-        }
-
-        setStudentData(userData);
-        setTimeout(() => setLoading(false), 1000);
-      } catch (err) {
-        console.error('Error loading student data:', err);
-        setLoading(false);
-      }
-    };
-
-    loadUserData();
+    fetchJoinedClasses(token);
   }, [navigate]);
 
-  if (loading) {
-    return (
-      <DashboardBackground>
-        <StarBackground>
-          {[...Array(20)].map((_, index) => (
-            <ConstellationPoint 
-              key={index} 
-              sx={{ 
-                left: Math.random() * 100 + '%', 
-                top: Math.random() * 100 + '%',
-                width: (Math.random() * 3 + 1) + 'px',
-                height: (Math.random() * 3 + 1) + 'px',
-                boxShadow: Math.random() > 0.7 ? '0 0 10px rgba(0, 255, 170, 0.8)' : 'none',
-              }} 
-            />
-          ))}
-          {[...Array(3)].map((_, i) => <Meteor key={i} delay={i * 2} />)}
-        </StarBackground>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: 3 }}>
-          <CircularProgress size={60} sx={{ color: 'secondary.main' }} />
-          <Typography variant="h5" color="secondary.main" sx={{ textShadow: '0 0 10px rgba(0, 255, 170, 0.5)' }}>
-            Preparing your cosmic journey...
-          </Typography>
-        </Box>
-      </DashboardBackground>
-    );
-  }
+  const fetchJoinedClasses = async (token) => {
+    try {
+      const res = await axios.get('http://localhost:8081/api/student/class/my', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setClasses(res.data || []);
+    } catch (err) {
+      console.error('Error fetching joined classes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoinedClass = (newClass) => {
+    setClasses((prev) => [...prev, newClass]);
+  };
+
+  const handleLeaveClass = async (classId) => {
+    if (!window.confirm('Leave this class?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:8081/api/student/class/${classId}/leave`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setClasses((prev) => prev.filter((cls) => cls.id !== classId));
+      setSnackbar({ open: true, message: 'Left class successfully.', severity: 'success' });
+    } catch (err) {
+      setSnackbar({ open: true, message: 'Failed to leave class.', severity: 'error' });
+    }
+  };
 
   return (
     <DashboardBackground>
-      <Navbar />
-      <StarBackground>
-        {[...Array(20)].map((_, index) => (
-          <ConstellationPoint 
-            key={index} 
-            sx={{ 
-              left: Math.random() * 100 + '%', 
-              top: Math.random() * 100 + '%',
-              width: (Math.random() * 3 + 1) + 'px',
-              height: (Math.random() * 3 + 1) + 'px',
-              boxShadow: Math.random() > 0.7 ? '0 0 10px rgba(0, 255, 170, 0.8)' : 'none',
-            }} 
-          />
-        ))}
-        {[...Array(3)].map((_, i) => <Meteor key={i} delay={i * 2} />)}
-      </StarBackground>
+      <Navbar /> {/* ✅ Added Navbar */}
 
-      <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 3 }, position: 'relative', zIndex: 1 }}>
-        <Box sx={{ mb: 4, textAlign: 'center' }}>
-          <Typography variant="h3" color="secondary.main" sx={{ fontWeight: 700, textShadow: '0 0 15px rgba(0, 255, 170, 0.5)' }}>
-            VOCAB VENTURE
-          </Typography>
-          <Typography variant="h5" sx={{ mb: 3 }}>
-            Welcome back, <span style={{ color: '#00ffaa' }}>{studentData?.username || 'Explorer'}</span>!
-          </Typography>
-        </Box>
-
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <StyledCard>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-                <Avatar sx={{ width: 100, height: 100, mb: 2, border: '3px solid #00ffaa', boxShadow: '0 0 15px rgba(0, 255, 170, 0.5)' }}>
-                  {studentData?.username?.charAt(0).toUpperCase() || "E"}
-                </Avatar>
-                <Typography variant="h5" color="white" fontWeight={700}>
-                  {studentData?.username || 'Explorer'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {studentData?.email || 'explorer@vocabventure.com'}
-                </Typography>
-              </Box>
-
-              <Button variant="contained" color="secondary" fullWidth onClick={() => navigate('/profile')} sx={{ mb: 2 }}>
-                View Full Profile
-              </Button>
-              <Button variant="outlined" color="secondary" fullWidth onClick={() => setOpenJoinClassDialog(true)}>
-                Join a Class
-              </Button>
-            </StyledCard>
-          </Grid>
-
-          <Grid item xs={12} md={8}>
-  <StyledCard>
-    <Typography variant="h6" sx={{ mb: 2 }}>
-      Your Joined Classes
-    </Typography>
-    {studentClasses.length === 0 ? (
-      <Typography>No classes joined yet.</Typography>
-    ) : (
-      studentClasses.map((cls) => (
-        <Box key={cls.id} sx={{ mb: 2 }}>
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-            {cls.className}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {cls.description || 'No description'}
-          </Typography>
-        </Box>
-      ))
-    )}
-  </StyledCard>
-</Grid>
-
-
-
-          {/* Additional content here */}
+      <Grid container spacing={3} sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 3 } }}>
+        {/* Left Panel: Join Class */}
+        <Grid item xs={12} md={6}>
+          <StyledCard>
+            <Typography variant="h6" gutterBottom>
+              Join a Class
+            </Typography>
+            <StudentJoinClass onJoined={handleJoinedClass} />
+          </StyledCard>
         </Grid>
-      </Box>
 
-      <JoinClassDialog
-  open={openJoinClassDialog}
-  onClose={() => setOpenJoinClassDialog(false)}
-  onJoined={() => {
-    console.log("Class joined");
-    // refresh class list after joining
-    setTimeout(() => window.location.reload(), 1000); // or reloadClasses() if you isolate it
-  }}
-/>
+        {/* Right Panel: My Classes */}
+        <Grid item xs={12} md={6}>
+          <StyledCard>
+            <Typography variant="h6" gutterBottom>
+              My Classes
+            </Typography>
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                <CircularProgress />
+              </Box>
+            ) : classes.length === 0 ? (
+              <Typography>No joined classes yet.</Typography>
+            ) : (
+              classes.map((cls) => (
+                <Box key={cls.id} sx={{ mb: 2, borderBottom: '1px solid #00ffaa55', pb: 2 }}>
+                  <Typography variant="subtitle1">{cls.className}</Typography>
+                  <Typography variant="body2" sx={{ color: '#aaa' }}>
+                    {cls.description}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#00ffaa', display: 'block', mt: 1 }}>
+                    Code: {cls.joinCode}
+                  </Typography>
+                  <Button
+                    size="small"
+                    color="error"
+                    onClick={() => handleLeaveClass(cls.id)}
+                    sx={{ mt: 1 }}
+                  >
+                    Leave Class
+                  </Button>
+                </Box>
+              ))
+            )}
+          </StyledCard>
+        </Grid>
+      </Grid>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </DashboardBackground>
   );
 };
