@@ -46,6 +46,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/class/validate-code").permitAll()
                         .requestMatchers("/api/game/categories", "/api/game/categories/**", "/api/game/public/**")
                         .permitAll()
+                        .requestMatchers("/api/teacher/classes/**").permitAll()
+
 
                         // Authenticated endpoints (any user)
                         .requestMatchers("/users/me", "/users/me/profile-picture")

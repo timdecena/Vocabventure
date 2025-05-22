@@ -1,5 +1,6 @@
 package com.backend.VocabVenture.service;
 
+import com.backend.VocabVenture.dto.StudentBasicDTO;
 import com.backend.VocabVenture.dto.UserDTO;
 import com.backend.VocabVenture.model.ClassEntity;
 import com.backend.VocabVenture.model.User;
@@ -56,22 +57,26 @@ public class ClassService {
         if (!classEntity.getTeacher().getId().equals(getCurrentTeacher().getId())) {
             throw new RuntimeException("Unauthorized");
         }
-
+        classEntity.getStudents().clear(); // clear join table entries
+        classRepository.save(classEntity);
         classRepository.delete(classEntity);
     }
 
-    public List<UserDTO> getStudentsInClass(Long classId, String teacherUsername) {
+    public List<StudentBasicDTO> getStudentsInClass(Long classId, String teacherUsername) {
     ClassEntity classEntity = classRepository.findById(classId)
             .orElseThrow(() -> new RuntimeException("Class not found"));
 
-    if (!classEntity.getTeacher().getUsername().equals(teacherUsername)) {
+    String classOwner = classEntity.getTeacher().getUsername();
+    System.out.println("Class owned by: " + classOwner);
+    System.out.println("Authenticated teacher: " + teacherUsername);
+
+    if (!classOwner.equals(teacherUsername)) {
         throw new RuntimeException("Access denied: Not your class");
     }
 
     return classEntity.getStudents().stream()
-            .map(user -> UserDTO.builder()
-                    .username(user.getUsername())
-                    .build())
+            .map(student -> new StudentBasicDTO(student.getUsername()))
             .toList();
 }
+
 }

@@ -1,10 +1,12 @@
 package com.backend.VocabVenture.controller;
 
+import com.backend.VocabVenture.dto.StudentBasicDTO;
 import com.backend.VocabVenture.dto.UserDTO;
 import com.backend.VocabVenture.model.ClassEntity;
 import com.backend.VocabVenture.service.ClassService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,9 +48,11 @@ public class ClassController {
     }
 
     @GetMapping("/classes/{classId}/students")
-public ResponseEntity<List<UserDTO>> getStudentsInClass(@PathVariable Long classId) {
-    String teacherUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-    List<UserDTO> students = classService.getStudentsInClass(classId, teacherUsername);
-    return ResponseEntity.ok(students);
+public ResponseEntity<List<StudentBasicDTO>> getStudentsInClass(@PathVariable Long classId) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    System.out.println("Authenticated user: " + auth.getName());
+    System.out.println("Authorities: " + auth.getAuthorities());
+
+    return ResponseEntity.ok(classService.getStudentsInClass(classId, auth.getName()));
 }
 }
