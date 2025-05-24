@@ -30,6 +30,20 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        
+        String requestPath = request.getRequestURI();
+        String method = request.getMethod();
+        
+        // Debug logging
+        System.out.println("JwtFilter - Processing: " + method + " " + requestPath);
+        
+        // Skip JWT processing for auth endpoints and OPTIONS requests
+        if (requestPath.startsWith("/api/auth/") || "OPTIONS".equalsIgnoreCase(method)) {
+            System.out.println("JwtFilter - Skipping JWT validation for: " + requestPath);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
         String email = null;
         String jwt = null;
@@ -38,20 +52,28 @@ public class JwtFilter extends OncePerRequestFilter {
             jwt = authHeader.substring(7);
             try {
                 email = jwtUtil.extractEmail(jwt);
+                System.out.println("JwtFilter - Extracted email: " + email);
             } catch (Exception e) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("Invalid or expired token");
+                System.out.println("JwtFilter - Failed to extract email from token: " + e.getMessage());
+                filterChain.doFilter(request, response);
                 return;
             }
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            if (jwtUtil.validateToken(jwt)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                if (jwtUtil.validateToken(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    System.out.println("JwtFilter - Successfully authenticated user: " + email);
+                } else {
+                    System.out.println("JwtFilter - Token validation failed for user: " + email);
+                }
+            } catch (Exception e) {
+                System.out.println("JwtFilter - Error loading user details: " + e.getMessage());
             }
         }
 

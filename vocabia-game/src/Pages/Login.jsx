@@ -1,3 +1,4 @@
+// src/Pages/Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -11,40 +12,65 @@ export default function Login({ setIsAuthenticated, setRole }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async e => {
-  e.preventDefault();
-  try {
-    const res = await axios.post('http://localhost:8080/api/auth/login', form);
-    const { token, role } = res.data;
+  const handleSubmit = async e => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        'http://localhost:8080/api/auth/login',
+        form,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('role', role);
+      const { token, role } = res.data;
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // 🛠 Important line
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
 
-    setIsAuthenticated(true);
-    setRole(role);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    if (role === 'STUDENT') {
-      navigate('/student-home');
-    } else if (role === 'TEACHER') {
-      navigate('/teacher-home');
-    } else {
-      setMessage('Unknown user role.');
+      setIsAuthenticated(true);
+      setRole(role);
+
+      if (role === 'STUDENT') {
+        navigate('/student-home');
+      } else if (role === 'TEACHER') {
+        navigate('/teacher-home');
+      } else {
+        setMessage('Unknown user role.');
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage('Login failed. Please check your credentials.');
     }
-  } catch (err) {
-    console.error(err);
-    setMessage('Login failed. Please check your credentials.');
-  }
-};
-
+  };
 
   return (
     <div style={{ padding: 20 }}>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required /><br /><br />
-        <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required /><br /><br />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+        <br /><br />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <br /><br />
         <button type="submit">Login</button>
       </form>
       <br />
