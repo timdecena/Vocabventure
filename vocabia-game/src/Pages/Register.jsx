@@ -1,65 +1,62 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
-export default function Register() {
+const Register = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
-    section: '',
     email: '',
     password: '',
     role: 'STUDENT'
   });
+  const [error, setError] = useState('');
 
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();  // <-- here
-
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
+    setError('');
     try {
-      const response = await fetch('http://localhost:8080/api/auth/register', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  // Remove credentials here for registration (since user isn't logged in yet)
-  body: JSON.stringify(form)
-});
-
-
-      if (!response.ok) {
-        const errMsg = await response.text();
-        setError(errMsg || 'Registration failed');
-        return;
+      const res = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
+      if (res.ok) {
+        alert('Registration successful. Please log in!');
+        navigate('/');
+      } else {
+        const msg = await res.text();
+        setError(msg);
       }
-
-      // Successful registration - redirect to login
-      navigate('/login');  // <-- redirect here
     } catch (err) {
-      setError('Network error: ' + err.message);
+      setError('Network error');
     }
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: 400, margin: "2rem auto" }}>
       <h2>Register</h2>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
       <form onSubmit={handleSubmit}>
-        <input name="firstName" placeholder="First Name" value={form.firstName} onChange={handleChange} required />
-        <input name="lastName" placeholder="Last Name" value={form.lastName} onChange={handleChange} required />
-        <input name="section" placeholder="Section" value={form.section} onChange={handleChange} />
-        <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+        <input name="firstName" type="text" placeholder="First Name" required value={form.firstName} onChange={handleChange} />
+        <input name="lastName" type="text" placeholder="Last Name" required value={form.lastName} onChange={handleChange} />
+        <input name="email" type="email" placeholder="Email" required value={form.email} onChange={handleChange} />
+        <input name="password" type="password" placeholder="Password" required value={form.password} onChange={handleChange} />
         <select name="role" value={form.role} onChange={handleChange}>
           <option value="STUDENT">Student</option>
           <option value="TEACHER">Teacher</option>
         </select>
         <button type="submit">Register</button>
+        {error && <div style={{ color: "red" }}>{error}</div>}
       </form>
+      <div style={{ marginTop: 10 }}>
+        Already have an account? <Link to="/">Login here</Link>
+      </div>
     </div>
   );
-}
+};
+
+export default Register;

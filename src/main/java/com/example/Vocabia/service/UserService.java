@@ -2,8 +2,7 @@ package com.example.Vocabia.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.example.Vocabia.entity.UserEntity;
+import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.UserRepository;
 
 @Service
@@ -17,7 +16,7 @@ public class UserService {
         this.passwordEncoder = encoder;
     }
 
-    public UserEntity registerUser(UserEntity user) {
+    public User registerUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Email already in use");
         }
@@ -25,7 +24,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserEntity findByEmail(String email) {
+    public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
 

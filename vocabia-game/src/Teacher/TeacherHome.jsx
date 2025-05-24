@@ -1,21 +1,26 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function TeacherHome({ setIsAuthenticated }) {
+const TeacherHome = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    setIsAuthenticated(false); // Update auth state in App
-    navigate('/login');
+    setIsAuthenticated(false);
+    navigate('/');
   };
 
   return (
-    <div>
-      <h1>Teacher Home</h1>
-      <p>Welcome, teacher!</p>
+    <div style={{ maxWidth: 600, margin: "2rem auto" }}>
+      <h2>Welcome, Teacher!</h2>
+      <p>This is your dashboard.</p>
+      <button onClick={() => navigate('/teacher/classes')}>My Classes</button>
+      <button onClick={() => navigate('/teacher/classes/create')} style={{ marginLeft: 8 }}>Create Class</button>
+      <br /><br />
       <button onClick={handleLogout}>Logout</button>
     </div>
   );
-}
+};
+
+export default TeacherHome;
