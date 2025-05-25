@@ -22,6 +22,13 @@ import StudentClassmatesPage from './Student/StudentClassmatesPage';
 import StudentJoinClassPage from './Student/StudentJoinClassPage';
 import StudentViewClassPage from './Student/StudentViewClassPage';
 
+import StudentGameGlobal from './FourPicsOneWord/StudentGameGlobal';
+import StudentGameClass from './FourPicsOneWord/StudentGameClass';
+import TeacherLevelCreate from './FourPicsOneWord/TeacherLevelCreate';
+import LeaderboardGlobal from './FourPicsOneWord/LeaderboardGlobal';
+import LeaderboardClass from './FourPicsOneWord/LeaderboardClass';
+
+
 import './App.css';
 
 function App() {
@@ -117,7 +124,14 @@ function App() {
             <Route path="/student/classes/:id/classmates" element={
               isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />
             } />
+            <Route path="/game/4pics1word/global" element={
+  isAuthenticated && role === 'STUDENT' ? <StudentGameGlobal /> : <Navigate to="/" replace />
+} />
 
+            <Route path="/game/4pics1word/class/:classId" element={<StudentGameClass />} />
+            <Route path="/teacher/game/4pics1word/create" element={<TeacherLevelCreate />} />
+            <Route path="/game/4pics1word/leaderboard/global" element={<LeaderboardGlobal />} />
+            <Route path="/game/4pics1word/leaderboard/class/:classId" element={<LeaderboardClass />} />
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

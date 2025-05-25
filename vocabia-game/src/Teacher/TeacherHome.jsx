@@ -18,6 +18,9 @@ const TeacherHome = ({ setIsAuthenticated }) => {
       <button onClick={() => navigate('/teacher/classes')}>My Classes</button>
       <button onClick={() => navigate('/teacher/classes/create')} style={{ marginLeft: 8 }}>Create Class</button>
       <br /><br />
+      {/* Added Button to Create 4 Pics 1 Word Level */}
+      <button onClick={() => navigate('/teacher/game/4pics1word/create')}>Create 4 Pics 1 Word Level</button>
+      <br /><br />
       <button onClick={handleLogout}>Logout</button>
     </div>
   );
