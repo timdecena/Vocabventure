@@ -39,7 +39,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-<<<<<<< HEAD
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
@@ -58,25 +57,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-=======
-        return http
-            .csrf().disable()
-            .cors().and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/register").permitAll()
-                .requestMatchers("/api/auth/logout").permitAll()
-                .requestMatchers("/api/classroom/**").authenticated()
-                .requestMatchers("/api/student/**").hasRole("STUDENT")
-                .requestMatchers("/api/teacher/**").hasRole("TEACHER")
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
->>>>>>> 9c235d03163cc3f9d8a9c7738f6667321e880070
     }
 
     @Bean
