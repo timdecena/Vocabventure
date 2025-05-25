@@ -10,19 +10,16 @@ import com.example.Vocabia.service.UserService;
 import com.example.Vocabia.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor; // <-- Lombok import
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@RequiredArgsConstructor // <-- Lombok annotation for constructor
 public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
-
-    public AuthController(UserService userService, JwtUtil jwtUtil) {
-        this.userService = userService;
-        this.jwtUtil = jwtUtil;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {

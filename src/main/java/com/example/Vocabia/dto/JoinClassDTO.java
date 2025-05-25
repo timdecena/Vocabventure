@@ -1,10 +1,10 @@
 package com.example.Vocabia.dto;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class JoinClassDTO {
     private String joinCode;
-
-    public JoinClassDTO() {}
-
-    public String getJoinCode() { return joinCode; }
-    public void setJoinCode(String joinCode) { this.joinCode = joinCode; }
 }

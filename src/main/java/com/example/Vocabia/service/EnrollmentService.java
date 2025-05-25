@@ -5,6 +5,7 @@ import com.example.Vocabia.entity.Enrollment;
 import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.ClassroomRepository;
 import com.example.Vocabia.repository.EnrollmentRepository;
+import lombok.RequiredArgsConstructor; // <-- Lombok import
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,14 +13,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor // <-- Lombok will generate the constructor!
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final ClassroomRepository classroomRepository;
-
-    public EnrollmentService(EnrollmentRepository enrollmentRepository, ClassroomRepository classroomRepository) {
-        this.enrollmentRepository = enrollmentRepository;
-        this.classroomRepository = classroomRepository;
-    }
 
     public Enrollment joinClassroom(User student, String joinCode) {
         Classroom classroom = classroomRepository.findByJoinCode(joinCode)

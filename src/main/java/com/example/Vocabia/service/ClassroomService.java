@@ -3,6 +3,7 @@ package com.example.Vocabia.service;
 import com.example.Vocabia.entity.Classroom;
 import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.ClassroomRepository;
+import lombok.RequiredArgsConstructor; // <- Add this import
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,12 +11,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor // <- Add this annotation
 public class ClassroomService {
     private final ClassroomRepository classroomRepository;
-
-    public ClassroomService(ClassroomRepository classroomRepository) {
-        this.classroomRepository = classroomRepository;
-    }
 
     public String generateJoinCode() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 8);

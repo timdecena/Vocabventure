@@ -4,17 +4,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.UserRepository;
+import lombok.RequiredArgsConstructor; // <-- Lombok import
 
 @Service
+@RequiredArgsConstructor // <-- Lombok will generate the constructor!
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(UserRepository repo, PasswordEncoder encoder) {
-        this.userRepository = repo;
-        this.passwordEncoder = encoder;
-    }
 
     public User registerUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {

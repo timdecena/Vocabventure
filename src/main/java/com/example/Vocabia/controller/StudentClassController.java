@@ -6,6 +6,8 @@ import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.UserRepository;
 import com.example.Vocabia.service.ClassroomService;
 import com.example.Vocabia.service.EnrollmentService;
+import lombok.RequiredArgsConstructor; // <-- Lombok import
+
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -14,17 +16,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/student/classes")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@RequiredArgsConstructor // <-- Lombok annotation to generate the constructor!
 public class StudentClassController {
 
     private final EnrollmentService enrollmentService;
     private final ClassroomService classroomService;
     private final UserRepository userRepository;
-
-    public StudentClassController(EnrollmentService enrollmentService, ClassroomService classroomService, UserRepository userRepository) {
-        this.enrollmentService = enrollmentService;
-        this.classroomService = classroomService;
-        this.userRepository = userRepository;
-    }
 
     private User getCurrentUser(Principal principal) {
         return userRepository.findByEmail(principal.getName())
