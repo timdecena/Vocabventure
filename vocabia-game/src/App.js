@@ -23,7 +23,7 @@ import StudentJoinClassPage from './Student/StudentJoinClassPage';
 import StudentViewClassPage from './Student/StudentViewClassPage';
 
 //WordOfTheDay
-
+import StudentWordOfTheDay from './WordOfTheDay/StudentWordOfTheDay';
 
 import './App.css';
 
@@ -120,6 +120,11 @@ function App() {
             <Route path="/student/classes/:id/classmates" element={
               isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />
             } />
+
+            <Route path="/student/word-of-the-day" element={
+             isAuthenticated && role === 'STUDENT' ? <StudentWordOfTheDay /> : <Navigate to="/" replace />
+            } />
+
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />
