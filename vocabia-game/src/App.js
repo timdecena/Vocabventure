@@ -22,6 +22,9 @@ import StudentClassmatesPage from './Student/StudentClassmatesPage';
 import StudentJoinClassPage from './Student/StudentJoinClassPage';
 import StudentViewClassPage from './Student/StudentViewClassPage';
 
+//WordOfTheDay
+import WordOfTheDayGame from './WordOfTheDay/WordOfTheDayGame'; // ⬅️ Add import at the top
+
 import './App.css';
 
 function App() {
@@ -117,6 +120,15 @@ function App() {
             <Route path="/student/classes/:id/classmates" element={
               isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />
             } />
+
+            <Route
+  path="/student/word-of-the-day"
+  element={
+    isAuthenticated && role === 'STUDENT'
+      ? <WordOfTheDayGame />
+      : <Navigate to="/" replace />
+  }
+/>
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />

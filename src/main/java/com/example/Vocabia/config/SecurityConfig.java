@@ -51,6 +51,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/student/**").hasRole("STUDENT")
                         // Teacher-only endpoints
                         .requestMatchers("/api/teacher/**").hasRole("TEACHER")
+                        .requestMatchers("/api/game/word-of-the-day/**").permitAll()
+
+
                         // Any other endpoint requires authentication
                         .anyRequest().authenticated()
                 )
