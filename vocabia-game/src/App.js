@@ -30,6 +30,7 @@ import StudentDailyChallengePage from './Student/StudentDailyChallengePage';
 // --- Custom Word List Game Mode END ---
 
 
+import StudentWordOfTheDay from './WordOfTheDay/StudentWordOfTheDay';
 
 import './App.css';
 
@@ -146,6 +147,10 @@ function App() {
             {/* --- Custom Word List Game Mode END --- */}
 
 
+
+            <Route path="/student/word-of-the-day" element={
+             isAuthenticated && role === 'STUDENT' ? <StudentWordOfTheDay /> : <Navigate to="/" replace />
+            } />
 
 
             {/* Catch all */}

@@ -40,32 +40,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        // Public endpoints
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
-
-                        // --- Custom Word List Game Mode: Add this block ---
-                        // Allow TEACHERs to manage wordlists (POST/GET)
-                        .requestMatchers(HttpMethod.POST, "/api/wordlist/**").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.GET, "/api/wordlist/**").hasAnyRole("TEACHER", "STUDENT")
-                        // If you want PUT/DELETE, add similar lines as needed:
-                        .requestMatchers(HttpMethod.PUT, "/api/wordlist/**").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/wordlist/**").hasRole("TEACHER")
-                        // --- Custom Word List Game Mode: End add ---
-
-                        // Student-only endpoints
-                        .requestMatchers("/api/student/**").hasRole("STUDENT")
-                        // Teacher-only endpoints
-                        .requestMatchers("/api/teacher/**").hasRole("TEACHER")
-
-                        // Any other endpoint requires authentication
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        System.out.println("SECURITY CONFIG LOADED - permitAll for /api/wordlist/**");
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/images/**").permitAll() 
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                .requestMatchers("/api/student/**").hasRole("STUDENT")
+                .requestMatchers("/api/teacher/**").hasRole("TEACHER")
+                .requestMatchers("/api/game/**").hasRole("STUDENT") 
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
