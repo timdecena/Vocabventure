@@ -23,6 +23,8 @@ import StudentJoinClassPage from './Student/StudentJoinClassPage';
 import StudentViewClassPage from './Student/StudentViewClassPage';
 
 //WordOfTheDay
+import WOTDLeaderboardPage from './WordOfTheDay/WOTDLeaderboardPage';
+import StudentWordOfTheDay from './WordOfTheDay/StudentWordOfTheDay';
 
 // --- Custom Word List Game Mode START ---
 import TeacherWordListPage from './Teacher/TeacherWordListPage';
@@ -30,7 +32,7 @@ import StudentDailyChallengePage from './Student/StudentDailyChallengePage';
 // --- Custom Word List Game Mode END ---
 
 
-import StudentWordOfTheDay from './WordOfTheDay/StudentWordOfTheDay';
+
 
 import './App.css';
 
@@ -147,11 +149,12 @@ function App() {
             {/* --- Custom Word List Game Mode END --- */}
 
 
-
+            {/* --- WOTD --- */}
             <Route path="/student/word-of-the-day" element={
              isAuthenticated && role === 'STUDENT' ? <StudentWordOfTheDay /> : <Navigate to="/" replace />
             } />
-
+             <Route path="/leaderboard/wotd" element={<WOTDLeaderboardPage />} />
+            {/* --- WOTD--- */}
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />

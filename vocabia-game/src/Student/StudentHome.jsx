@@ -19,6 +19,7 @@ const StudentHome = ({ setIsAuthenticated }) => {
       <button onClick={() => navigate('/student/classes')}>My Classes</button>
       <button onClick={() => navigate('/student/classes/join')} style={{ marginLeft: 8 }}>Join Class</button>
       <button onClick={() => navigate('/student/word-of-the-day')} style={{ marginLeft: 8 }}>Word of The Day</button>
+      <button onClick={() => navigate('/leaderboard/wotd')} style={{ marginLeft: 8 }}>Word of The Day Leaderboard</button>
       <br /><br />
       <button onClick={handleLogout}>Logout</button>
     </div>
