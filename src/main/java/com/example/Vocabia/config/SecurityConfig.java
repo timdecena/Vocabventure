@@ -47,16 +47,25 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+
+                        // --- Custom Word List Game Mode: Add this block ---
+                        // Allow TEACHERs to manage wordlists (POST/GET)
+                        .requestMatchers(HttpMethod.POST, "/api/wordlist/**").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.GET, "/api/wordlist/**").hasAnyRole("TEACHER", "STUDENT")
+                        // If you want PUT/DELETE, add similar lines as needed:
+                        .requestMatchers(HttpMethod.PUT, "/api/wordlist/**").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/wordlist/**").hasRole("TEACHER")
+                        // --- Custom Word List Game Mode: End add ---
+
                         // Student-only endpoints
                         .requestMatchers("/api/student/**").hasRole("STUDENT")
                         // Teacher-only endpoints
                         .requestMatchers("/api/teacher/**").hasRole("TEACHER")
 
-
                         // Any other endpoint requires authentication
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        System.out.println("SECURITY CONFIG LOADED - permitAll for /api/wordlist/**");
 
         return http.build();
     }

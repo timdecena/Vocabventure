@@ -1,16 +1,53 @@
 // components/Navbar.js
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 const Navbar = ({ role, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // --- Custom Word List Game Mode: Class Picker START ---
+  const [showClassPicker, setShowClassPicker] = useState(false);
+  const [classes, setClasses] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+
+  // Helper to get current classId
+  const classId = localStorage.getItem("currentClassId");
+
+  const handleCustomWordListClick = async () => {
+    if (!classId) {
+      setShowClassPicker(true);
+      setLoadingClasses(true);
+      // Fetch teacher's classes (adjust endpoint if needed)
+      try {
+        const res = await axios.get("http://localhost:8080/api/teacher/classes", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setClasses(res.data);
+      } catch (err) {
+        alert("Failed to load your classes.");
+      }
+      setLoadingClasses(false);
+      return;
+    }
+    navigate(`/teacher/classes/${classId}/wordlists`);
+  };
+
+  const handleClassSelect = (selectedId) => {
+    localStorage.setItem("currentClassId", selectedId);
+    setShowClassPicker(false);
+    navigate(`/teacher/classes/${selectedId}/wordlists`);
+  };
+
+  const handleChangeClass = () => {
+    localStorage.removeItem("currentClassId");
+    setShowClassPicker(true);
+  };
+  // --- Custom Word List Game Mode: Class Picker END ---
+
   // Hide Navbar on login and register pages
-  if (
-    location.pathname === "/" ||
-    location.pathname === "/register"
-  ) {
+  if (location.pathname === "/" || location.pathname === "/register") {
     return null;
   }
 
@@ -33,25 +70,36 @@ const Navbar = ({ role, onLogout }) => {
     >
       {role === "STUDENT" && (
         <>
-          <button onClick={() => navigate("/student-home")} style={navBtnStyle}>
-            Home
-          </button>
-          <button onClick={() => navigate("/student/classes")} style={navBtnStyle}>
-            Classes
-          </button>
-          <button onClick={() => navigate("/student/classes/join")} style={navBtnStyle}>
-            Join Class
+          <button onClick={() => navigate("/student-home")} style={navBtnStyle}>Home</button>
+          <button onClick={() => navigate("/student/classes")} style={navBtnStyle}>Classes</button>
+          <button onClick={() => navigate("/student/classes/join")} style={navBtnStyle}>Join Class</button>
+          <button
+            onClick={() => {
+              if (classId) {
+                navigate(`/student/classes/${classId}/daily-challenge`);
+              } else {
+                alert("Please select a class first.");
+              }
+            }}
+            style={navBtnStyle}
+          >
+            Daily Challenge
           </button>
         </>
       )}
       {role === "TEACHER" && (
         <>
-          <button onClick={() => navigate("/teacher-home")} style={navBtnStyle}>
-            Home
+          <button onClick={() => navigate("/teacher-home")} style={navBtnStyle}>Home</button>
+          <button onClick={() => navigate("/teacher/classes")} style={navBtnStyle}>Classes</button>
+          <button onClick={handleCustomWordListClick} style={navBtnStyle}>
+            Custom Word Lists
           </button>
-          <button onClick={() => navigate("/teacher/classes")} style={navBtnStyle}>
-            Classes
-          </button>
+          {/* Optional: Show current class and allow change */}
+          {classId && (
+            <span style={{ marginLeft: 10, color: "#00ffaa" }}>
+              | Current Class: <b>{classId}</b> <button style={navBtnStyle} onClick={handleChangeClass}>Change</button>
+            </span>
+          )}
         </>
       )}
       {(role === "STUDENT" || role === "TEACHER") && (
@@ -62,6 +110,31 @@ const Navbar = ({ role, onLogout }) => {
           Logout
         </button>
       )}
+
+      {/* --- Custom Word List Game Mode: Class Picker Modal START --- */}
+      {showClassPicker && (
+        <div
+          style={{
+            position: "fixed", top: 80, left: 0, right: 0, margin: "auto",
+            background: "#fff", color: "#000", padding: 24, borderRadius: 12, maxWidth: 400, zIndex: 1100, boxShadow: "0 2px 12px #0002"
+          }}
+        >
+          <h3>Select a Class</h3>
+          {loadingClasses ? <div>Loading classes...</div> : (
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {classes.map((cls) => (
+                <li key={cls.id} style={{ margin: "8px 0" }}>
+                  <button onClick={() => handleClassSelect(cls.id)} style={{ width: "100%", padding: 8 }}>
+                    {cls.name || cls.className || `Class ${cls.id}`}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <button onClick={() => setShowClassPicker(false)} style={{ marginTop: 12 }}>Cancel</button>
+        </div>
+      )}
+      {/* --- Custom Word List Game Mode: Class Picker Modal END --- */}
     </nav>
   );
 };

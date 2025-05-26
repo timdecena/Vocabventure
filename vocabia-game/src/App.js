@@ -24,6 +24,12 @@ import StudentViewClassPage from './Student/StudentViewClassPage';
 
 //WordOfTheDay
 
+// --- Custom Word List Game Mode START ---
+import TeacherWordListPage from './Teacher/TeacherWordListPage';
+import StudentDailyChallengePage from './Student/StudentDailyChallengePage';
+// --- Custom Word List Game Mode END ---
+
+
 
 import './App.css';
 
@@ -120,6 +126,27 @@ function App() {
             <Route path="/student/classes/:id/classmates" element={
               isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />
             } />
+
+            {/* --- Custom Word List Game Mode START --- */}
+
+            {/* Teacher Word List Creation */}
+            <Route path="/teacher/classes/:classId/wordlists" element={
+              isAuthenticated && role === 'TEACHER'
+                ? <TeacherWordListPage />
+                : <Navigate to="/" replace />
+            } />
+
+            {/* Student Daily Challenge */}
+            <Route path="/student/classes/:classId/daily-challenge" element={
+              isAuthenticated && role === 'STUDENT'
+                ? <StudentDailyChallengePage />
+                : <Navigate to="/" replace />
+            } />
+
+            {/* --- Custom Word List Game Mode END --- */}
+
+
+
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />
