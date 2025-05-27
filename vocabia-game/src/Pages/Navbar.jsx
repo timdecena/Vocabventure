@@ -110,31 +110,6 @@ const Navbar = ({ role, onLogout }) => {
           Logout
         </button>
       )}
-
-      {/* --- Custom Word List Game Mode: Class Picker Modal START --- */}
-      {showClassPicker && (
-        <div
-          style={{
-            position: "fixed", top: 80, left: 0, right: 0, margin: "auto",
-            background: "#fff", color: "#000", padding: 24, borderRadius: 12, maxWidth: 400, zIndex: 1100, boxShadow: "0 2px 12px #0002"
-          }}
-        >
-          <h3>Select a Class</h3>
-          {loadingClasses ? <div>Loading classes...</div> : (
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {classes.map((cls) => (
-                <li key={cls.id} style={{ margin: "8px 0" }}>
-                  <button onClick={() => handleClassSelect(cls.id)} style={{ width: "100%", padding: 8 }}>
-                    {cls.name || cls.className || `Class ${cls.id}`}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <button onClick={() => setShowClassPicker(false)} style={{ marginTop: 12 }}>Cancel</button>
-        </div>
-      )}
-      {/* --- Custom Word List Game Mode: Class Picker Modal END --- */}
     </nav>
   );
 };
