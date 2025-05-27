@@ -50,7 +50,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/student/**").hasRole("STUDENT")
                 .requestMatchers("/api/teacher/**").hasRole("TEACHER")
                 .requestMatchers("/api/game/**").hasRole("STUDENT") 
-                .requestMatchers("/api/leaderboard/**").hasRole("STUDENT") 
+                .requestMatchers("/api/leaderboard/**").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -26,8 +26,9 @@ import StudentViewClassPage from './Student/StudentViewClassPage';
 import WOTDLeaderboardPage from './WordOfTheDay/WOTDLeaderboardPage';
 import StudentWordOfTheDay from './WordOfTheDay/StudentWordOfTheDay';
 
-// --- Custom Word List Game Mode START ---
-// --- Custom Word List Game Mode END ---
+// --- Spelling List Game Mode START ---
+import TeacherCreateSpellingChallenge from "./SpellingGame/TeacherCreateSpellingChallenge";
+// --- Spelling List Game Mode END ---
 
 
 
@@ -127,6 +128,11 @@ function App() {
             <Route path="/student/classes/:id/classmates" element={
               isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />
             } />
+
+            <Route path="/teacher/spelling/create" element={
+              isAuthenticated && role === 'TEACHER' ? <TeacherCreateSpellingChallenge /> : <Navigate to="/" replace />
+            } />
+
             {/* --- WOTD --- */}
             <Route path="/student/word-of-the-day" element={
              isAuthenticated && role === 'STUDENT' ? <StudentWordOfTheDay /> : <Navigate to="/" replace />

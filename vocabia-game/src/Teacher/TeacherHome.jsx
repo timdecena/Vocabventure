@@ -17,6 +17,7 @@ const TeacherHome = ({ setIsAuthenticated }) => {
       <p>This is your dashboard.</p>
       <button onClick={() => navigate('/teacher/classes')}>My Classes</button>
       <button onClick={() => navigate('/teacher/classes/create')} style={{ marginLeft: 8 }}>Create Class</button>
+      <button onClick={() => navigate('/teacher/spelling/create')} style={{ marginLeft: 8 }}>Create Custom Spelling Level</button>
       <br /><br />
       <button onClick={handleLogout}>Logout</button>
     </div>
