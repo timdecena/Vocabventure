@@ -28,8 +28,4 @@ public class Classroom {
     @JoinColumn(name = "teacher_id")
     private User teacher;
 
-    // --- Prevent infinite loop for JSON serialization ---
-    @OneToMany(mappedBy = "classroom", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<WordList> wordLists;
 }
