@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "../api/api";
 import { useParams } from "react-router-dom";
 
@@ -10,8 +10,11 @@ export default function StudentSpellingChallenge() {
   const [feedback, setFeedback] = useState("");
   const [timer, setTimer] = useState(15);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const audioRef = useRef(null);
 
   useEffect(() => {
     const fetchChallenges = async () => {
@@ -30,14 +33,21 @@ export default function StudentSpellingChallenge() {
   }, [classId]);
 
   useEffect(() => {
-    if (!isSubmitted && timer > 0) {
+    if (timerStarted && !isSubmitted && timer > 0) {
       const t = setTimeout(() => setTimer(timer - 1), 1000);
       return () => clearTimeout(t);
     }
     if (timer === 0 && !isSubmitted) {
       handleSubmit(); // auto-submit on timer end
     }
-  }, [timer, isSubmitted]);
+  }, [timerStarted, timer, isSubmitted]);
+
+  const handlePlayAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.play();
+      setTimerStarted(true);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -57,6 +67,7 @@ export default function StudentSpellingChallenge() {
     setAnswer("");
     setFeedback("");
     setTimer(15);
+    setTimerStarted(false);
     setIsSubmitted(false);
     setCurrent((prev) => prev + 1);
   };
@@ -73,10 +84,10 @@ export default function StudentSpellingChallenge() {
       <h2>📝 Spelling Challenge</h2>
       <p><b>Challenge {current + 1} of {challenges.length}</b></p>
 
+      <audio ref={audioRef} src={`http://localhost:8080${currentChallenge.audioUrl}`} preload="auto" />
+      <button onClick={handlePlayAudio} disabled={timerStarted}>▶️ Play Audio</button>
 
-      <audio controls autoPlay src={`http://localhost:8080${currentChallenge.audioUrl}`}></audio>
-
-      <p><b>⏱️ Time Left:</b> {timer}s</p>
+      <p><b>⏱️ Time Left:</b> {timerStarted ? `${timer}s` : "Not started"}</p>
 
       {!isSubmitted ? (
         <div>
@@ -85,9 +96,10 @@ export default function StudentSpellingChallenge() {
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             placeholder="Type the word"
+            disabled={!timerStarted}
             autoFocus
           />
-          <button onClick={handleSubmit} disabled={isSubmitted || !answer.trim()}>
+          <button onClick={handleSubmit} disabled={!timerStarted || !answer.trim()}>
             Submit
           </button>
         </div>
