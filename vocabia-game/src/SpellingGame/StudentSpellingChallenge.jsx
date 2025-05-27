@@ -72,8 +72,7 @@ export default function StudentSpellingChallenge() {
     <div style={{ maxWidth: 600, margin: "auto", padding: 32 }}>
       <h2>📝 Spelling Challenge</h2>
       <p><b>Challenge {current + 1} of {challenges.length}</b></p>
-      <p><b>Definition:</b> {currentChallenge.definition}</p>
-      <p><b>Sentence:</b> {currentChallenge.exampleSentence}</p>
+
 
       <audio controls autoPlay src={`http://localhost:8080${currentChallenge.audioUrl}`}></audio>
 
