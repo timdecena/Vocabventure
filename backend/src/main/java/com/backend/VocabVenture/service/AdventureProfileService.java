@@ -50,4 +50,9 @@ public class AdventureProfileService {
     public Optional<AdventureProfile> getProfileByUserId(Long userId) {
         return adventureProfileRepository.findByUserId(userId);
     }
+
+    @Transactional
+    public AdventureProfile updateProfile(AdventureProfile profile) {
+        return adventureProfileRepository.save(profile);
+    }
 } 

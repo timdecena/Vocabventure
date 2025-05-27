@@ -92,7 +92,7 @@ export default function StoryIntro() {
             Are you ready to begin your training?"
           </div>
           <button
-            onClick={() => navigate('/tutorial-battle')}
+            onClick={() => navigate('/tutorial')}
             style={{
               padding: '12px 24px',
               fontSize: '1.1rem',

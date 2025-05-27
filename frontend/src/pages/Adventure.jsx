@@ -46,7 +46,12 @@ export default function Adventure() {
         });
         
         if (response.data) {
-          navigate('/map');
+          // Check if tutorial is completed
+          if (!response.data.tutorialCompleted) {
+            navigate('/tutorial');
+          } else {
+            navigate('/map');
+          }
         }
       } catch (err) {
         if (err.response?.status !== 404) {
@@ -92,7 +97,7 @@ export default function Adventure() {
       );
 
       if (response.data) {
-        setShowStory(true);
+        navigate('/tutorial');
       }
     } catch (err) {
       setError('Error creating profile: ' + (err.response?.data || err.message));

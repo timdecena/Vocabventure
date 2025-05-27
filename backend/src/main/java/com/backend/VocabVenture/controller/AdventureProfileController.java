@@ -55,4 +55,18 @@ public class AdventureProfileController {
             return ResponseEntity.badRequest().body("Error fetching profile: " + e.getMessage());
         }
     }
+
+    @PutMapping("/complete-tutorial")
+    public ResponseEntity<?> completeTutorial(@RequestParam Long userId) {
+        try {
+            AdventureProfile profile = adventureProfileService.getProfileByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Profile not found"));
+            
+            profile.setTutorialCompleted(true);
+            AdventureProfile updatedProfile = adventureProfileService.updateProfile(profile);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error completing tutorial: " + e.getMessage());
+        }
+    }
 } 

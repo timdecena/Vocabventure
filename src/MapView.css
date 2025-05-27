@@ -1,0 +1,221 @@
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 16px 4px rgba(255,255,255,0.2); }
+  50% { box-shadow: 0 0 32px 8px rgba(255,255,255,0.4); }
+}
+
+.map-view {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #3ec6ff 60%, #1e90ff 100%);
+  overflow: hidden;
+}
+
+.island {
+  position: absolute;
+  width: 120px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.3s, opacity 0.3s;
+  user-select: none;
+  animation: float 3s ease-in-out infinite;
+}
+
+.island:not(.locked):hover {
+  transform: scale(1.08);
+  z-index: 2;
+  animation: float 1.5s ease-in-out infinite;
+}
+
+.island:not(.locked) {
+  animation: float 3s ease-in-out infinite, pulse 2.5s infinite;
+}
+
+.locked {
+  filter: grayscale(1) brightness(0.7);
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.lock-icon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 1.5em;
+  z-index: 3;
+}
+
+/* Tooltip for locked islands */
+.tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+.island.locked:hover .tooltip {
+  opacity: 1;
+}
+
+/* Jungle Island: add a waterfall using ::after */
+.island-jungle {
+  background: radial-gradient(circle at 60% 40%, #4caf50 70%, #2e7d32 100%);
+  border-radius: 60% 40% 60% 40% / 50% 60% 40% 60%;
+  box-shadow: 0 4px 16px #1b5e20;
+  position: relative;
+}
+.island-jungle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 18px;
+  height: 40px;
+  background: linear-gradient(to bottom, #b3e5fc 60%, #0288d1 100%);
+  border-radius: 0 0 12px 12px;
+  transform: translateX(-50%);
+  z-index: 1;
+  opacity: 0.8;
+}
+
+/* Volcano Island: add lava and smoke */
+.island-volcano {
+  background: linear-gradient(135deg, #ff7043 40%, #d84315 100%);
+  border-radius: 50% 60% 50% 60% / 60% 50% 60% 50%;
+  box-shadow: 0 4px 16px #bf360c;
+  position: relative;
+}
+.island-volcano::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 24px;
+  height: 24px;
+  background: radial-gradient(circle, #ffcc80 40%, #ff5722 80%);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  opacity: 0.7;
+}
+.island-volcano::after {
+  content: "";
+  position: absolute;
+  left: 60%;
+  top: -18px;
+  width: 18px;
+  height: 32px;
+  background: radial-gradient(circle, #bdbdbd 60%, transparent 100%);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  opacity: 0.5;
+}
+
+/* Forest Island: add trees */
+.island-forest {
+  background: radial-gradient(circle at 50% 50%, #388e3c 70%, #1b5e20 100%);
+  border-radius: 60% 50% 60% 50% / 50% 60% 50% 60%;
+  box-shadow: 0 4px 16px #2e7d32;
+  position: relative;
+}
+.island-forest::before,
+.island-forest::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle, #43a047 70%, #2e7d32 100%);
+  border-radius: 50%;
+  z-index: 2;
+}
+.island-forest::before {
+  left: 30%;
+  top: 20%;
+}
+.island-forest::after {
+  right: 30%;
+  top: 30%;
+}
+
+/* Mountain Island: add a cave */
+.island-mountain {
+  background: linear-gradient(135deg, #8d6e63 60%, #4e342e 100%);
+  border-radius: 50% 60% 50% 60% / 60% 50% 60% 50%;
+  box-shadow: 0 4px 16px #3e2723;
+  position: relative;
+}
+.island-mountain::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: 24px;
+  height: 18px;
+  background: radial-gradient(ellipse at center, #3e2723 80%, transparent 100%);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Snow Island: add snowcaps */
+.island-snow {
+  background: linear-gradient(135deg, #e3f2fd 60%, #90caf9 100%);
+  border-radius: 60% 50% 60% 50% / 50% 60% 50% 60%;
+  box-shadow: 0 4px 16px #1565c0;
+  color: #1565c0;
+  position: relative;
+}
+.island-snow::before {
+  content: "";
+  position: absolute;
+  left: 40%;
+  top: 18px;
+  width: 32px;
+  height: 18px;
+  background: linear-gradient(to bottom, #fff 80%, transparent 100%);
+  border-radius: 50%;
+  z-index: 2;
+  opacity: 0.8;
+}
+
+/* Desert Island: add dunes */
+.island-desert {
+  background: linear-gradient(135deg, #ffe082 60%, #ffb300 100%);
+  border-radius: 50% 60% 50% 60% / 60% 50% 60% 50%;
+  box-shadow: 0 4px 16px #ff8f00;
+  color: #6d4c00;
+  position: relative;
+}
+.island-desert::before {
+  content: "";
+  position: absolute;
+  left: 30%;
+  top: 40%;
+  width: 40px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, #ffe082 80%, transparent 100%);
+  border-radius: 50%;
+  z-index: 2;
+  opacity: 0.7;
+} 

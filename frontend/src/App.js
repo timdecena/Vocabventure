@@ -13,7 +13,7 @@ import Profile from "./pages/Profile";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import TeacherCreateClass from "./pages/Teacher/TeacherCreateClass";
-import TutorialBattle from "./components/TutorialBattle";
+import TutorialSequence from "./components/tutorial/TutorialSequence";
 import MapView from "./pages/MapView";
 import IslandLevels from "./pages/IslandLevels";
 
@@ -33,7 +33,7 @@ function App() {
         <Route path="/home"      element={<Homepage />} />
         <Route path="/support"   element={<Support    />} />
         <Route path="/adventure" element={<Adventure />} />
-        <Route path="/tutorial-battle" element={<TutorialBattle />} />
+        <Route path="/tutorial" element={<TutorialSequence />} />
         <Route path="/map" element={<MapView />} />
         <Route path="/island/:islandId" element={<IslandLevels />} />
         <Route path="/game/time-attack"  element={<TimeAttack />} />

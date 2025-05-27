@@ -39,6 +39,9 @@ public class AdventureProfile {
     @Column(name = "hearts", columnDefinition = "INT DEFAULT 3")
     private Integer hearts = 3;
 
+    @Column(name = "tutorial_completed", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean tutorialCompleted = false;
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 } 
