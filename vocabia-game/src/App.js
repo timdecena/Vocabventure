@@ -27,7 +27,10 @@ import WOTDLeaderboardPage from './WordOfTheDay/WOTDLeaderboardPage';
 import StudentWordOfTheDay from './WordOfTheDay/StudentWordOfTheDay';
 
 
-
+// Arena Challenge
+import ArenaChallengePage from './Arena/ArenaChallengePage';
+import ArenaLeaderboard from './Arena/ArenaLeaderboard';
+import TeacherArenaManager from './Arena/TeacherArenaManager';
 
 
 import './App.css';
@@ -125,6 +128,19 @@ function App() {
             <Route path="/student/classes/:id/classmates" element={
               isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />
             } />
+
+
+            {/* --- Spelling Arena Challenge --- */}
+            <Route path="/student/arena/:wordListId" element={
+              isAuthenticated && role === 'STUDENT' ? <ArenaChallengePage /> : <Navigate to="/" replace />
+            } />
+            <Route path="/student/arena/:wordListId/leaderboard" element={
+              isAuthenticated && role === 'STUDENT' ? <ArenaLeaderboard /> : <Navigate to="/" replace />
+            } />
+
+            <Route path="/teacher/arena" element={
+  isAuthenticated && role === 'TEACHER' ? <TeacherArenaManager /> : <Navigate to="/" replace />
+} />
 
 
 

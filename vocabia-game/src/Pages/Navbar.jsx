@@ -34,7 +34,8 @@ const Navbar = ({ role, onLogout }) => {
           <button onClick={() => navigate("/student-home")} style={navBtnStyle}>Home</button>
           <button onClick={() => navigate("/student/classes")} style={navBtnStyle}>Classes</button>
           <button onClick={() => navigate("/student/classes/join")} style={navBtnStyle}>Join Class</button>
-
+          <button onClick={() => navigate("/student/arena/1")} style={navBtnStyle}>Arena Challenge</button>
+          <button onClick={() => navigate("/student/arena/1/leaderboard")} style={navBtnStyle}>Arena Leaderboard</button>
         </>
       )}
 
@@ -42,6 +43,7 @@ const Navbar = ({ role, onLogout }) => {
         <>
           <button onClick={() => navigate("/teacher-home")} style={navBtnStyle}>Home</button>
           <button onClick={() => navigate("/teacher/classes")} style={navBtnStyle}>Classes</button>
+          <button onClick={() => navigate("/teacher/arena")} style={navBtnStyle}>Arena Manager</button> {/* ✅ New */}
         </>
       )}
 
