@@ -6,6 +6,9 @@ import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from '@mui/material/styles';
 import theme, { globalStyles } from './theme';
 import { GlobalStyles, CssBaseline } from '@mui/material';
+import axios from 'axios';
+
+axios.defaults.baseURL = 'http://localhost:8081';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

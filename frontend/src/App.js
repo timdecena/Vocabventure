@@ -21,6 +21,12 @@ import IslandLevels from "./pages/IslandLevels";
 import GameCategories from "./pages/Game/GameCategories";
 import GameLevels from "./pages/Game/GameLevels";
 import GamePlay from "./pages/Game/GamePlay";
+import CommawidowLevel from "./pages/Game/CommawidowLevel";
+
+import JungleLush from "./pages/JungleLush";
+import JungleLushLevel1 from "./pages/Game/JungleLushLevel1";
+import JungleLushLevel2 from "./pages/Game/JungleLushLevel2";
+import JungleLushLevel3 from "./pages/Game/JungleLushLevel3";
 
 function App() {
   return (
@@ -51,6 +57,12 @@ function App() {
         <Route path="/game" element={<GameCategories />} />
         <Route path="/game/levels/:category" element={<GameLevels />} />
         <Route path="/game/play/:category/:levelNumber" element={<GamePlay />} />
+
+        {/* Jungle Lush Routes */}
+        <Route path="/jungle-lush" element={<JungleLush />} />
+        <Route path="/jungle-lush/level1" element={<JungleLushLevel1 />} />
+        <Route path="/jungle-lush/level2" element={<JungleLushLevel2 />} />
+        <Route path="/jungle-lush/level3" element={<JungleLushLevel3 />} />
 
       </Routes>
     </Router>

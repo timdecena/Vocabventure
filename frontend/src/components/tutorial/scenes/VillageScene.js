@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Typography, Button, Paper } from '@mui/material';
+import React, { useState, useRef, useEffect } from 'react';
+import { Box, Typography, Paper } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 
 const forestBg = "https://wallpapers.com/images/hd/cartoon-forest-background-1920-x-1080-3si03xbjuob5zkdp.jpg";
@@ -41,24 +41,35 @@ const Ground = styled(Box)(({ theme }) => ({
 }));
 
 const SpritesRow = styled(Box)(({ theme }) => ({
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  justifyContent: 'space-between',
+  width: '900px',
+  maxWidth: '90vw',
   position: 'absolute',
+  left: '50%',
+  transform: 'translateX(-50%)',
   bottom: '130px',
-  left: 0,
+  height: '160px',
   zIndex: 3,
   pointerEvents: 'none',
-  padding: '0 4vw',
 }));
 
 const WizardUserGroup = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  left: 0,
+  bottom: 0,
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'flex-end',
   gap: '24px',
+}));
+
+const MonsterHouseGroup = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  right: 0,
+  bottom: 0,
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'flex-end',
+  gap: '32px',
 }));
 
 const WizardSprite = styled('img')({
@@ -75,13 +86,6 @@ const UserSprite = styled('img')({
   animation: `${bounce} 2s infinite`,
 });
 
-const MonsterHouseGroup = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: '32px',
-}));
-
 const MonsterSprite = styled('img')({
   width: '140px',
   height: 'auto',
@@ -95,30 +99,59 @@ const BurningHouse = styled('img')({
   filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))',
 });
 
+const FLESH_BROWN = '#e6c7b2';
+const NAME_BG = '#d1a97a';
+
 const DialogueBox = styled(Paper)(({ theme }) => ({
   position: 'absolute',
   left: '50%',
   bottom: 0,
   transform: 'translateX(-50%)',
+  width: '900px',
+  maxWidth: '90vw',
+  minWidth: '320px',
   padding: theme.spacing(3, 4),
-  backgroundColor: 'rgba(0, 0, 0, 0.92)',
-  color: 'white',
-  width: '90%',
-  maxWidth: '700px',
-  textAlign: 'center',
+  backgroundColor: FLESH_BROWN,
+  color: '#3a2a1a',
+  textAlign: 'left',
   borderRadius: '18px 18px 0 0',
   zIndex: 10,
-  minWidth: '320px',
-  boxShadow: '0 -2px 16px 2px rgba(0,0,0,0.28)',
+  boxShadow: '0 -2px 16px 2px rgba(0,0,0,0.18)',
+  border: '3px solid #b48a6e',
+  fontFamily: 'monospace',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+  boxSizing: 'border-box',
 }));
 
-const BattleButton = styled(Button)(({ theme }) => ({
-  marginTop: theme.spacing(2),
-  backgroundColor: '#f44336',
-  color: 'white',
-  '&:hover': {
-    backgroundColor: '#d32f2f',
-  },
+const NameTag = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '-22px',
+  left: '18px',
+  background: NAME_BG,
+  color: '#3a2a1a',
+  borderRadius: '16px',
+  padding: '4px 18px',
+  fontWeight: 700,
+  fontSize: '1.1rem',
+  boxShadow: '0 2px 8px #b48a6e44',
+  border: '2px solid #b48a6e',
+  fontFamily: 'monospace',
+  zIndex: 2,
+}));
+
+const ClickPrompt = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  bottom: '16px',
+  right: '32px',
+  color: '#00996b',
+  fontSize: '1.1rem',
+  fontWeight: 700,
+  opacity: 0.85,
+  pointerEvents: 'none',
+  zIndex: 5,
+  fontFamily: 'monospace',
 }));
 
 const messages = [
@@ -127,12 +160,33 @@ const messages = [
   "Wizard: Be brave! Use your knowledge to defeat the monster and save the village!"
 ];
 
+const parseMessage = (msg) => {
+  const idx = msg.indexOf(':');
+  if (idx !== -1) {
+    return [msg.slice(0, idx), msg.slice(idx + 1).trim()];
+  }
+  return ["", msg];
+};
+
 const VillageScene = ({ onComplete }) => {
   const [currentMessage, setCurrentMessage] = useState(0);
+  const [showClickPrompt, setShowClickPrompt] = useState(false);
+  const idleTimeout = useRef(null);
+
+  useEffect(() => {
+    setShowClickPrompt(false);
+    if (idleTimeout.current) clearTimeout(idleTimeout.current);
+    idleTimeout.current = setTimeout(() => setShowClickPrompt(true), 2000);
+    return () => clearTimeout(idleTimeout.current);
+  }, [currentMessage]);
 
   const handleNext = () => {
+    setShowClickPrompt(false);
+    if (idleTimeout.current) clearTimeout(idleTimeout.current);
     if (currentMessage < messages.length - 1) {
       setCurrentMessage(currentMessage + 1);
+    } else {
+      onComplete();
     }
   };
 
@@ -149,22 +203,19 @@ const VillageScene = ({ onComplete }) => {
           <BurningHouse src={burningHouse} alt="Burning House" />
         </MonsterHouseGroup>
       </SpritesRow>
-      <DialogueBox elevation={3}>
-        <Typography variant="h6" gutterBottom>
-          {messages[currentMessage]}
-        </Typography>
-        {currentMessage < messages.length - 1 ? (
-          <Button variant="outlined" color="primary" onClick={handleNext}>
-            Continue
-          </Button>
-        ) : (
-          <BattleButton
-            variant="contained"
-            onClick={onComplete}
-          >
-            Enter Battle
-          </BattleButton>
-        )}
+      <DialogueBox elevation={3} onClick={handleNext} style={{ cursor: 'pointer', userSelect: 'none' }}>
+        {(() => {
+          const [name, text] = parseMessage(messages[currentMessage]);
+          return (
+            <>
+              {name && <NameTag>{name}</NameTag>}
+              <Typography variant="h6" gutterBottom style={{ marginTop: name ? 18 : 0, fontFamily: 'monospace' }}>
+                {text}
+              </Typography>
+            </>
+          );
+        })()}
+        {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
       </DialogueBox>
     </SceneContainer>
   );

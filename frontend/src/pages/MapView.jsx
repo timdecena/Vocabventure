@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/MapView.css";
 
-const oceanBg = "https://as1.ftcdn.net/v2/jpg/11/72/38/60/1000_F_1172386063_CdTA75tIO6uxwcqa88GogYH5ipeyWttH.jpg";
+const oceanBg = "https://cdna.artstation.com/p/assets/images/images/061/904/456/large/milan-vasek-worldmap-wip.jpg?1681900161";
 const islands = [
   { id: 1, name: "Jungle Lush", img: "https://img.freepik.com/free-vector/empty-background-nature-scenery_1308-34521.jpg?ga=GA1.1.1216205749.1747720148&semt=ais_items_boosted&w=740", style: { top: "8%", left: "8%" }, unlocked: true },
   { id: 2, name: "Spelling Shores", img: "https://img.freepik.com/premium-vector/cartoon-illustration-beach-scene-with-palm-trees-beach-scene_937058-206.jpg?ga=GA1.1.1216205749.1747720148&semt=ais_items_boosted&w=740", style: { top: "38%", left: "18%" }, unlocked: false },
@@ -58,12 +58,13 @@ export default function MapView() {
             src={island.img}
             alt={island.name}
             className={`island-img${island.unlocked ? "" : " locked"}`}
-            style={island.style}
             title={island.name}
+            onClick={island.id === 1 ? () => navigate('/jungle-lush') : undefined}
+            style={{ ...island.style, cursor: island.id === 1 ? 'pointer' : 'not-allowed' }}
           />
           <div
             className="island-label"
-            style={{
+                style={{
               position: "absolute",
               top: `calc(${island.style.top} + 9%)`,
               left: island.style.left,
@@ -74,8 +75,8 @@ export default function MapView() {
               textShadow: "0 2px 8px #000, 0 0 2px #000",
               zIndex: 3,
               pointerEvents: "none"
-            }}
-          >
+                }}
+              >
             {island.name}
           </div>
         </React.Fragment>
