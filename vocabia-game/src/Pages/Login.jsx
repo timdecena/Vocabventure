@@ -11,85 +11,86 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 
-// Wrapper with layered space background
-const GalacticWrapper = styled(Box)({
+// Wrapper with gradient nature background
+const NatureWrapper = styled(Box)({
   minHeight: '100vh',
   width: '100%',
-  position: 'relative',
+  margin: 0,
+  padding: 0,
   overflow: 'hidden',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: '#000',
+  background: 'linear-gradient(to bottom, #e6ffe6, #b3ffcc)',
+  position: 'relative',
   zIndex: 0,
-
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    inset: 0,
-    background: 'radial-gradient(circle at center, rgba(0,255,100,0.08), transparent 70%)',
-    zIndex: 0,
-  },
 });
 
-// Brightened rotating galaxy
-const RotatingGalaxy = styled(Box)({
+// Animated falling leaf
+const Leaf = styled('div')(({ x, size, duration, delay }) => ({
   position: 'absolute',
-  inset: 0,
-  backgroundImage: 'url("/galaxy.png")',
-  backgroundSize: '120% 120%',
+  top: '-10%',
+  left: `${x}%`,
+  width: `${size}px`,
+  height: `${size}px`,
+  backgroundImage: 'url("/leaf.png")',
+  backgroundSize: 'contain',
   backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  opacity: 0.25,
-  animation: 'spin 90s linear infinite',
-  filter: 'brightness(1.4) saturate(1.3) blur(1px)',
-  zIndex: 0,
-  pointerEvents: 'none',
-});
+  animation: `fallLeaf ${duration}s linear ${delay}s infinite`,
+  opacity: 0.6,
+  zIndex: 1
+}));
 
-// Falling stars
-const Star = styled('div')(({ x, y, size, duration, delay }) => ({
+// Floating fireflies
+const Firefly = styled('div')(({ x, y, size, duration, delay }) => ({
   position: 'absolute',
   left: `${x}%`,
   top: `${y}%`,
   width: `${size}px`,
   height: `${size}px`,
-  backgroundColor: 'white',
+  backgroundColor: 'rgba(255, 255, 153, 0.8)',
   borderRadius: '50%',
-  opacity: 0.5,
-  animation: `moveStar ${duration}s linear ${delay}s infinite`,
+  filter: 'blur(1px)',
+  animation: `float ${duration}s ease-in-out ${delay}s infinite alternate`,
   zIndex: 1,
 }));
 
-const GalacticPaper = styled(Paper)(({ theme }) => ({
+const NaturePaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(5),
   borderRadius: '20px',
-  background: 'linear-gradient(160deg, rgba(10,20,10,0.95), rgba(20,40,20,0.95))',
-  boxShadow: '0 0 30px rgba(0,255,100,0.3), 0 0 60px rgba(0,200,80,0.2)',
-  backdropFilter: 'blur(10px)',
+  background: 'rgba(255, 255, 255, 0.85)',
+  boxShadow: '0 0 20px rgba(0,100,0,0.2)',
+  backdropFilter: 'blur(8px)',
   zIndex: 2,
   position: 'relative',
 }));
 
-const GlowButton = styled(Button)({
-  background: 'linear-gradient(90deg, #00ff88, #33ff33)',
-  color: '#000',
-  boxShadow: '0 0 15px #00ff88',
-  borderRadius: '12px',
+const NatureButton = styled(Button)({
+  background: 'linear-gradient(90deg, #66cc66, #33aa33)',
+  color: '#fff',
   fontWeight: 'bold',
+  borderRadius: '12px',
   '&:hover': {
-    background: 'linear-gradient(90deg, #33ff33, #00ff88)',
-    boxShadow: '0 0 25px #33ff33',
+    background: 'linear-gradient(90deg, #33aa33, #66cc66)',
+    boxShadow: '0 0 12px #33aa33',
   },
 });
 
-const starsData = Array.from({ length: 100 }).map((_, i) => ({
+const leaves = Array.from({ length: 20 }).map((_, i) => ({
+  id: i,
+  x: Math.random() * 100,
+  size: Math.random() * 30 + 20,
+  duration: 8 + Math.random() * 5,
+  delay: Math.random() * 5
+}));
+
+const fireflies = Array.from({ length: 15 }).map((_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
-  size: Math.random() * 2 + 0.5,
-  duration: 10 + Math.random() * 10,
-  delay: Math.random() * 10
+  size: Math.random() * 5 + 2,
+  duration: 4 + Math.random() * 4,
+  delay: Math.random() * 4
 }));
 
 const Login = ({ setIsAuthenticated, setRole }) => {
@@ -127,28 +128,17 @@ const Login = ({ setIsAuthenticated, setRole }) => {
   };
 
   return (
-    <GalacticWrapper>
-      <RotatingGalaxy />
+    <NatureWrapper>
+      {leaves.map(leaf => <Leaf key={leaf.id} {...leaf} />)}
+      {fireflies.map(firefly => <Firefly key={firefly.id} {...firefly} />)}
 
-      {starsData.map(star => (
-        <Star
-          key={star.id}
-          x={star.x}
-          y={star.y}
-          size={star.size}
-          duration={star.duration}
-          delay={star.delay}
-        />
-      ))}
-
-      <GalacticPaper>
+      <NaturePaper>
         <Typography variant="h3" align="center" sx={{
-          color: '#00ff88',
-          fontFamily: 'Orbitron, sans-serif',
-          textShadow: '0 0 10px #00ff88',
+          color: '#2e7d32',
+          fontFamily: 'Georgia, serif',
           mb: 3
         }}>
-          🪐 VocabVenture
+          🌿 VocabVenture
         </Typography>
 
         <form onSubmit={handleSubmit}>
@@ -162,9 +152,9 @@ const Login = ({ setIsAuthenticated, setRole }) => {
               required
               value={form.email}
               onChange={handleChange}
-              InputProps={{ style: { color: '#fff' } }}
-              InputLabelProps={{ style: { color: '#ccc' } }}
-              sx={{ backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 1 }}
+              InputProps={{ style: { color: '#2e7d32' } }}
+              InputLabelProps={{ style: { color: '#4caf50' } }}
+              sx={{ backgroundColor: '#f0fff0', borderRadius: 1 }}
             />
             <TextField
               name="password"
@@ -175,36 +165,52 @@ const Login = ({ setIsAuthenticated, setRole }) => {
               required
               value={form.password}
               onChange={handleChange}
-              InputProps={{ style: { color: '#fff' } }}
-              InputLabelProps={{ style: { color: '#ccc' } }}
-              sx={{ backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 1 }}
+              InputProps={{ style: { color: '#2e7d32' } }}
+              InputLabelProps={{ style: { color: '#4caf50' } }}
+              sx={{ backgroundColor: '#f0fff0', borderRadius: 1 }}
             />
-            <GlowButton type="submit" fullWidth>
+            <NatureButton type="submit" fullWidth>
               LOGIN
-            </GlowButton>
+            </NatureButton>
             {error && <Alert severity="error">{error}</Alert>}
-            <Typography variant="body2" align="center" sx={{ color: '#ccc' }}>
+            <Typography variant="body2" align="center" sx={{ color: '#2e7d32' }}>
               Don’t have an account?&nbsp;
-              <Link to="/register" style={{ color: '#00ff88', textDecoration: 'none' }}>
+              <Link to="/register" style={{ color: '#4caf50', textDecoration: 'none' }}>
                 Register here
               </Link>
             </Typography>
           </Stack>
         </form>
-      </GalacticPaper>
+      </NaturePaper>
 
       <style>{`
-        @keyframes moveStar {
-          0% { transform: translateY(-100vh) scale(1); opacity: 1; }
-          100% { transform: translateY(100vh) scale(0.3); opacity: 0; }
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
         }
 
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @keyframes fallLeaf {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateY(120vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+
+        @keyframes float {
+          0% {
+            transform: translate(0, 0) scale(1);
+          }
+          100% {
+            transform: translate(20px, -20px) scale(1.2);
+          }
         }
       `}</style>
-    </GalacticWrapper>
+    </NatureWrapper>
   );
 };
 
