@@ -37,4 +37,10 @@ public class SpellingChallengeGameController {
         private Long challengeId;
         private String guess;
     }
+
+    @GetMapping("/completed")
+public List<Long> getCompletedChallengeIds(Principal principal) {
+    User student = userService.findByEmail(principal.getName());
+    return gameService.getCompletedChallengeIds(student);
+}
 }

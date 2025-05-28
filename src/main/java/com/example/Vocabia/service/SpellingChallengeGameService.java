@@ -41,4 +41,13 @@ public class SpellingChallengeGameService {
         score.setScore(correct ? 1 : 0);
         return scoreRepo.save(score);
     }
+
+    public List<Long> getCompletedChallengeIds(User student) {
+    return scoreRepo.findAllByStudent(student)
+            .stream()
+            .map(score -> score.getChallenge().getId())
+            .toList();
+}
+
+
 }
