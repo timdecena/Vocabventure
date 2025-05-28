@@ -49,7 +49,7 @@ export default function TeacherCreateSpellingLevel() {
         word, definition, sentence, audioUrl,
       }));
 
-      await api.post("/teacher/spelling/level/create", {
+      await api.post("/spelling-level/create", {
         title,
         classroomId,
         words: formattedWords,
