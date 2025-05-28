@@ -11,17 +11,43 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 
+// Wrapper with layered space background
 const GalacticWrapper = styled(Box)({
   minHeight: '100vh',
-  background: 'radial-gradient(ellipse at center, #071a12 0%, #000000 100%)',
-  backgroundSize: 'cover',
+  width: '100%',
+  position: 'relative',
+  overflow: 'hidden',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  overflow: 'hidden',
-  position: 'relative'
+  backgroundColor: '#000',
+  zIndex: 0,
+
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    inset: 0,
+    background: 'radial-gradient(circle at center, rgba(0,255,100,0.08), transparent 70%)',
+    zIndex: 0,
+  },
 });
 
+// Brightened rotating galaxy
+const RotatingGalaxy = styled(Box)({
+  position: 'absolute',
+  inset: 0,
+  backgroundImage: 'url("/galaxy.png")',
+  backgroundSize: '120% 120%',
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center',
+  opacity: 0.25,
+  animation: 'spin 90s linear infinite',
+  filter: 'brightness(1.4) saturate(1.3) blur(1px)',
+  zIndex: 0,
+  pointerEvents: 'none',
+});
+
+// Falling stars
 const Star = styled('div')(({ x, y, size, duration, delay }) => ({
   position: 'absolute',
   left: `${x}%`,
@@ -30,8 +56,9 @@ const Star = styled('div')(({ x, y, size, duration, delay }) => ({
   height: `${size}px`,
   backgroundColor: 'white',
   borderRadius: '50%',
-  animation: `twinkle ${duration}s ease-in-out ${delay}s infinite alternate`,
-  opacity: 0.4
+  opacity: 0.5,
+  animation: `moveStar ${duration}s linear ${delay}s infinite`,
+  zIndex: 1,
 }));
 
 const GalacticPaper = styled(Paper)(({ theme }) => ({
@@ -40,7 +67,8 @@ const GalacticPaper = styled(Paper)(({ theme }) => ({
   background: 'linear-gradient(160deg, rgba(10,20,10,0.95), rgba(20,40,20,0.95))',
   boxShadow: '0 0 30px rgba(0,255,100,0.3), 0 0 60px rgba(0,200,80,0.2)',
   backdropFilter: 'blur(10px)',
-  zIndex: 1,
+  zIndex: 2,
+  position: 'relative',
 }));
 
 const GlowButton = styled(Button)({
@@ -55,13 +83,13 @@ const GlowButton = styled(Button)({
   },
 });
 
-const starsData = Array.from({ length: 80 }).map((_, i) => ({
+const starsData = Array.from({ length: 100 }).map((_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
-  size: Math.random() * 2 + 1,
-  duration: 2 + Math.random() * 6,
-  delay: Math.random() * 5
+  size: Math.random() * 2 + 0.5,
+  duration: 10 + Math.random() * 10,
+  delay: Math.random() * 10
 }));
 
 const Login = ({ setIsAuthenticated, setRole }) => {
@@ -100,6 +128,8 @@ const Login = ({ setIsAuthenticated, setRole }) => {
 
   return (
     <GalacticWrapper>
+      <RotatingGalaxy />
+
       {starsData.map(star => (
         <Star
           key={star.id}
@@ -164,9 +194,14 @@ const Login = ({ setIsAuthenticated, setRole }) => {
       </GalacticPaper>
 
       <style>{`
-        @keyframes twinkle {
-          0% { opacity: 0.3; transform: scale(1); }
-          100% { opacity: 1; transform: scale(1.3); }
+        @keyframes moveStar {
+          0% { transform: translateY(-100vh) scale(1); opacity: 1; }
+          100% { transform: translateY(100vh) scale(0.3); opacity: 0; }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </GalacticWrapper>
