@@ -1,0 +1,11 @@
+{
+  "answer": "APPLE",
+  "hint": "Red or green fruit that keeps the doctor away",
+  "difficulty": 1,
+  "images": [
+    "/images/fruits/level1/pic1.jpg",
+    "/images/fruits/level1/pic2.jpg",
+    "/images/fruits/level1/pic3.jpg",
+    "/images/fruits/level1/pic4.jpg"
+  ]
+}

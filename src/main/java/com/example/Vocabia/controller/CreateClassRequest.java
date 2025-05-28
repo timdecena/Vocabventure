@@ -1,13 +1,13 @@
-package com.example.Vocabia.controller;
+    package com.example.Vocabia.controller;
 
-public class CreateClassRequest {
-    private String className;
+    public class CreateClassRequest {
+        private String className;
 
-    public String getClassName() {
-        return className;
+        public String getClassName() {
+            return className;
+        }
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
     }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-}

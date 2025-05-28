@@ -6,6 +6,7 @@ import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.UserRepository;
 import com.example.Vocabia.service.ClassroomService;
 import com.example.Vocabia.service.EnrollmentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -32,10 +33,22 @@ public class StudentClassController {
     }
 
     @PostMapping("/join")
-    public Classroom joinClass(@RequestBody JoinClassDTO dto, Principal principal) {
+    public ResponseEntity<?> joinClass(@RequestBody JoinClassDTO dto, Principal principal) {
         User student = getCurrentUser(principal);
-        enrollmentService.joinClassroom(student, dto.getJoinCode());
-        return classroomService.findByJoinCode(dto.getJoinCode()).orElseThrow();
+        try {
+            Classroom classroom = classroomService.findByJoinCode(dto.getJoinCode())
+                    .orElseThrow(() -> new RuntimeException("Invalid join code"));
+            // Check if already enrolled
+            boolean alreadyEnrolled = enrollmentService.getStudentClasses(student)
+                    .stream().anyMatch(c -> c.getId().equals(classroom.getId()));
+            if (alreadyEnrolled) {
+                return ResponseEntity.badRequest().body("You are already enrolled in this class.");
+            }
+            enrollmentService.joinClassroom(student, dto.getJoinCode());
+            return ResponseEntity.ok(classroom);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping
@@ -45,10 +58,18 @@ public class StudentClassController {
     }
 
     @GetMapping("/{id}/classmates")
-    public List<User> classmates(@PathVariable Long id, Principal principal) {
+    public ResponseEntity<?> classmates(@PathVariable Long id, Principal principal) {
         User student = getCurrentUser(principal);
-        Classroom c = classroomService.findById(id).orElseThrow();
-        // Optionally, only allow access if enrolled
-        return enrollmentService.getClassmates(c);
+        Classroom c = classroomService.findById(id).orElse(null);
+        if (c == null) {
+            return ResponseEntity.notFound().build();
+        }
+        // Only allow access if the student is enrolled
+        boolean enrolled = enrollmentService.getStudentClasses(student)
+                .stream().anyMatch(cl -> cl.getId().equals(id));
+        if (!enrolled) {
+            return ResponseEntity.status(403).body("You are not enrolled in this class.");
+        }
+        return ResponseEntity.ok(enrollmentService.getClassmates(c));
     }
 }

@@ -23,6 +23,7 @@ export default function StudentViewClassPage() {
       <p>{classroom.description}</p>
       <p>Teacher: {classroom.teacher?.firstName} {classroom.teacher?.lastName}</p>
       <br /><Link to={`/student/classes/${id}/classmates`}>View Classmates</Link>
+      <br /><Link to={`/student/classes/${id}/4pic1word`}>Play 4 Pics 1 Word Game</Link>
       <br /><Link to={`/student/classes`}>Back to My Classes</Link>
     </div>
   );

@@ -39,7 +39,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             User user = userService.findByEmail(request.getEmail());
-            if (user == null || !userService.getPasswordEncoder().matches(request.getPassword(), user.getPassword())) {
+            if (user == null || !userService.checkPassword(user, request.getPassword())) {
                 return ResponseEntity.status(401).body("Invalid email or password");
             }
             String token = jwtUtil.generateToken(user.getEmail());
@@ -48,6 +48,7 @@ public class AuthController {
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest req) {

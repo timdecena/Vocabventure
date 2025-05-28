@@ -44,14 +44,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // Public endpoints
+                        .requestMatchers("/images/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
-                        // Student-only endpoints
-                        .requestMatchers("/api/student/**").hasRole("STUDENT")
-                        // Teacher-only endpoints
-                        .requestMatchers("/api/teacher/**").hasRole("TEACHER")
-                        // Any other endpoint requires authentication
+                        .requestMatchers("/api/4pic1word-assets/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
