@@ -63,7 +63,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Navbar role={role} onLogout={handleLogout} />
-        <div style={{ paddingTop: 72 }}> {/* To prevent content hiding under fixed navbar */}
+        <div style={{ paddingTop: (role === 'STUDENT' || role === 'TEACHER') ? 72 : 0 }}>
           <Routes>
             {/* Auth and Home */}
             <Route
