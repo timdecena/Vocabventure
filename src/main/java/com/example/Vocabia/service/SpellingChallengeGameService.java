@@ -49,16 +49,6 @@ public class SpellingChallengeGameService {
             .toList();
 }
 
-public boolean hasCompletedLevel(User student, Long levelId) {
-    List<SpellingChallenge> levelChallenges = challengeRepo.findAll().stream()
-        .filter(c -> c.getLevel() != null && c.getLevel().getId().equals(levelId))
-        .toList();
-
-    List<Long> completed = getCompletedChallengeIds(student);
-
-    return levelChallenges.stream().allMatch(ch -> completed.contains(ch.getId()));
-}
-
 
 
 }

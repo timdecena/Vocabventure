@@ -38,7 +38,7 @@ public class SpellingChallengeController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    @PostMapping("/create")
+    @PostMapping("level/create")
     public SpellingChallenge create(@RequestBody CreateChallengeRequest dto, Principal principal) {
         User teacher = getCurrentUser(principal);
         return service.createChallenge(dto.getWord(), dto.getDefinition(), dto.getSentence(), dto.getAudioUrl(), teacher, dto.getClassroomId());
@@ -66,6 +66,7 @@ public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload audio");
     }
 }
+
 
 
 
