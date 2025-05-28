@@ -3,7 +3,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-color: #000; /* Matches galaxy theme */
+  background-color: #ffffff; /* Matches galaxy theme */
   overflow: hidden;       /* Prevents scrollbars and white gaps */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
