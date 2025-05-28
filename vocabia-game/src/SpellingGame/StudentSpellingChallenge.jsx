@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import api from "../api/api";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function StudentSpellingChallenge() {
-  const { classId } = useParams();
   const [challenges, setChallenges] = useState([]);
   const [current, setCurrent] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -14,23 +13,33 @@ export default function StudentSpellingChallenge() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const levelId = queryParams.get("levelId");
+
   const audioRef = useRef(null);
 
   useEffect(() => {
     const fetchChallenges = async () => {
       try {
-        const res = await api.get(`/game/spelling/${classId}`);
-        setChallenges(res.data);
-        setLoading(false);
+        const res = await api.get(`/spelling-level/${levelId}/challenges`);
+        console.log("✅ API response:", res.data);
+        if (Array.isArray(res.data)) {
+          setChallenges(res.data);
+        } else {
+          console.error("❌ Expected array but got:", res.data);
+          setChallenges([]);
+        }
       } catch (err) {
         console.error("Failed to load challenges", err);
         setError("❌ You are not authorized to view this or no challenges found.");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchChallenges();
-  }, [classId]);
+  }, [levelId]);
 
   useEffect(() => {
     if (timerStarted && !isSubmitted && timer > 0) {
@@ -38,14 +47,16 @@ export default function StudentSpellingChallenge() {
       return () => clearTimeout(t);
     }
     if (timer === 0 && !isSubmitted) {
-      handleSubmit(); // auto-submit on timer end
+      handleSubmit();
     }
   }, [timerStarted, timer, isSubmitted]);
 
   const handlePlayAudio = () => {
-    if (audioRef.current) {
+    if (audioRef.current && audioRef.current.src) {
       audioRef.current.play();
       setTimerStarted(true);
+    } else {
+      console.warn("Audio not available or unsupported");
     }
   };
 
@@ -74,7 +85,7 @@ export default function StudentSpellingChallenge() {
 
   if (loading) return <p>🔄 Loading spelling challenges...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (!challenges.length) return <p>⚠️ No challenges available for this class.</p>;
+  if (!challenges.length) return <p>⚠️ No challenges available for this level.</p>;
   if (current >= challenges.length) return <h3>🎉 All challenges completed!</h3>;
 
   const currentChallenge = challenges[current];
@@ -84,8 +95,14 @@ export default function StudentSpellingChallenge() {
       <h2>📝 Spelling Challenge</h2>
       <p><b>Challenge {current + 1} of {challenges.length}</b></p>
 
-      <audio ref={audioRef} src={`http://localhost:8080${currentChallenge.audioUrl}`} preload="auto" />
-      <button onClick={handlePlayAudio} disabled={timerStarted}>▶️ Play Audio</button>
+      {currentChallenge.audioUrl ? (
+        <>
+          <audio ref={audioRef} src={`http://localhost:8080${currentChallenge.audioUrl}`} preload="auto" />
+          <button onClick={handlePlayAudio} disabled={timerStarted}>▶️ Play Audio</button>
+        </>
+      ) : (
+        <p style={{ color: "red" }}>⚠️ No audio available for this challenge.</p>
+      )}
 
       <p><b>⏱️ Time Left:</b> {timerStarted ? `${timer}s` : "Not started"}</p>
 

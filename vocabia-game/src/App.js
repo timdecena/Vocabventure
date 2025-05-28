@@ -29,6 +29,7 @@ import StudentWordOfTheDay from './WordOfTheDay/StudentWordOfTheDay';
 // --- Spelling List Game Mode START ---
 import TeacherCreateSpellingChallenge from "./SpellingGame/TeacherCreateSpellingChallenge";
 import StudentSpellingChallenge from "./SpellingGame/StudentSpellingChallenge";
+import StudentSpellingLevelList from './SpellingGame/StudentSpellingLevelList';
 // --- Spelling List Game Mode END ---
 
 
@@ -139,6 +140,12 @@ function App() {
             ? <StudentSpellingChallenge />
             : <Navigate to="/" replace />
             } />
+
+            <Route path="/student/classes/:classId/spelling-levels" element={
+             isAuthenticated && role === 'STUDENT'
+             ? <StudentSpellingLevelList />
+             : <Navigate to="/" replace />
+             } />
 
             {/* --- WOTD --- */}
             <Route path="/student/word-of-the-day" element={

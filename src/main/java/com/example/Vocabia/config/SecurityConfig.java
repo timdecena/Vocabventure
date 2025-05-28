@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/leaderboard/**").hasRole("STUDENT")
                 .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
                 .requestMatchers("/api/game/spelling/**").hasRole("STUDENT")
+                .requestMatchers("/api/spelling-level/**").hasAnyRole("TEACHER", "STUDENT")
                 .requestMatchers("/audio/**").permitAll()
                 .anyRequest().authenticated()
             )
