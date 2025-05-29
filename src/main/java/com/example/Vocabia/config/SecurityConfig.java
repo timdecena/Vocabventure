@@ -48,10 +48,12 @@ public class SecurityConfig {
                 .requestMatchers("/images/**").permitAll()
                 .requestMatchers("/audio/**").permitAll()
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                .requestMatchers("/api/auth/**").permitAll() 
                 
                 // ✅ Allow Adventure mode for STUDENT
                 .requestMatchers("/api/adventure/**").hasRole("STUDENT")
-                
+                .requestMatchers(HttpMethod.GET, "/api/adventure-profile/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/adventure-profile/**").authenticated()
                 // Existing role-based rules
                 .requestMatchers("/api/student/**").hasRole("STUDENT")
                 .requestMatchers("/api/teacher/**").hasRole("TEACHER")

@@ -33,8 +33,11 @@ import StudentSpellingLevelList from './SpellingGame/StudentSpellingLevelList';
 
 // ✅ Adventure Mode
 import Adventure from "./Adventure/Adventure";
-import JungleLushLevel1 from "./Adventure/JungleLushLevel1";
-import JungleLushLevelPage from "./Adventure/JungleLushLevelPage";
+import JungleLush from "./Adventure/JungleLush";
+import MapView from "./Adventure/MapView";
+import JungleLushLevel1 from "./Game/JungleLushLevel1";
+import JungleLushLevel2 from "./Game/JungleLushLevel2";
+import JungleLushLevel3 from "./Game/JungleLushLevel3";
 
 
 import './App.css';
@@ -105,7 +108,16 @@ function App() {
 
             {/* ✅ Adventure Mode */}
             <Route path="/student/adventure" element={isAuthenticated && role === 'STUDENT' ? <Adventure /> : <Navigate to="/" replace />} />
-<Route path="/student/adventure/level/:id" element={isAuthenticated && role === 'STUDENT' ? <JungleLushLevelPage /> : <Navigate to="/" replace />} />
+            <Route path="/adventure" element={<Adventure />} />
+            <Route path="/map" element={<MapView />} />
+            <Route path="/jungle-lush" element={<JungleLush />} />
+            <Route path="/jungle-lush/level1" element={<JungleLushLevel1 />} />
+            <Route path="/jungle-lush/level2" element={<JungleLushLevel2 />} />
+            <Route path="/jungle-lush/level3" element={<JungleLushLevel3 />} />
+
+
+
+
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />
