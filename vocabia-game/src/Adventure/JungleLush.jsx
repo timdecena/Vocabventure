@@ -1,43 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import "../styles/MapView.css";
-import Tooltip from '@mui/material/Tooltip';
+import axios from "axios";
+import Tooltip from "@mui/material/Tooltip";
+import "../styles/JungleLush.css";
 
-const bossImg = "https://www.shutterstock.com/image-vector/river-mountains-top-view-landscape-260nw-2137764849.jpg";
-const commawidowImg = "https://img.freepik.com/premium-photo/3d-pixel-art-scary-black-spider-with-white-fang-halloween-decorative-ornament-theme-design_477250-292.jpg";
-const grammowlImg = "https://static.wikia.nocookie.net/hollowknight/images/e/e9/Sprintmaster.png/revision/latest/scale-to-width-down/72?cb=20171028131625";
-const tensephantImg = "https://static.wikia.nocookie.net/hollowknight/images/a/a5/Tensephant.png/revision/latest/scale-to-width-down/72?cb=20171028131625";
+const backgroundImage = "https://www.shutterstock.com/image-vector/river-mountains-top-view-landscape-260nw-2137764849.jpg";
 
 const levels = [
-  { 
-    id: 1, 
+  {
+    id: 1,
     name: "Commawidow's Web",
-    image: commawidowImg,
-    description: "Face the Commawidow and master the art of punctuation!"
+    image: "https://img.freepik.com/premium-photo/3d-pixel-art-scary-black-spider-with-white-fang-halloween-decorative-ornament-theme-design_477250-292.jpg",
+    description: "Face the Commawidow and master the art of punctuation!",
+    icon: "🕸️"
   },
-  { 
-    id: 2, 
+  {
+    id: 2,
     name: "Tensephant's Domain",
-    image: tensephantImg,
-    description: "Battle the time-warping Tensephant and master verb tenses!"
+    image: "https://static.wikia.nocookie.net/hollowknight/images/a/a5/Tensephant.png",
+    description: "Battle the time-warping Tensephant and master verb tenses!",
+    icon: "🌱"
   },
-  { id: 3, name: "Level 3" },
-  { id: 4, name: "Level 4" },
-  { 
-    id: 5, 
+  {
+    id: 3,
+    name: "Level 3",
+    icon: "🍃"
+  },
+  {
+    id: 4,
+    name: "Level 4",
+    icon: "🍂"
+  },
+  {
+    id: 5,
     name: "Grammowl",
-    image: grammowlImg,
-    description: "The final battle against the corrupted owl!"
-  },
-];
-
-const levelIcons = [
-  '🌿', // Level 1
-  '🌱', // Level 2
-  '🍃', // Level 3
-  '🍂', // Level 4
-  '🦉', // Grammowl
+    image: "https://static.wikia.nocookie.net/hollowknight/images/e/e9/Sprintmaster.png",
+    description: "The final battle against the corrupted owl!",
+    icon: "🦉"
+  }
 ];
 
 export default function JungleLush() {
@@ -48,84 +48,89 @@ export default function JungleLush() {
   useEffect(() => {
     async function loadProgress() {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('/api/progress/levels', {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("/api/progress/levels", {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true
+          withCredentials: true,
         });
-        // Set stars for each level (assuming levelId 1-5)
+
         const starsArr = [0, 0, 0, 0, 0];
         let maxUnlocked = 1;
+
         res.data.forEach(stat => {
-          if (stat.levelId >= 1 && stat.levelId <= 5) {
-            starsArr[stat.levelId - 1] = stat.starsEarned;
+          const index = stat.levelId - 1;
+          if (index >= 0 && index < 5) {
+            starsArr[index] = stat.starsEarned;
             if (stat.completed && stat.levelId + 1 > maxUnlocked) {
               maxUnlocked = stat.levelId + 1;
             }
           }
         });
+
         setStars(starsArr);
         setUnlocked(maxUnlocked);
-      } catch (e) {
+      } catch (err) {
+        console.error("Progress fetch failed", err);
         setUnlocked(1);
-        setStars([0,0,0,0,0]);
+        setStars([0, 0, 0, 0, 0]);
       }
     }
+
     loadProgress();
   }, []);
 
-  const handleLevelClick = (level) => {
-    if (level.id === 1) {
-      navigate('/jungle-lush/level1');
-    } else if (level.id === 2) {
-      navigate('/jungle-lush/level2');
-    } else if (level.id === 3) {
-      navigate('/jungle-lush/level3');
-    } else {
-      alert(`Level ${level.id} coming soon!`);
-    }
+  const handleLevelClick = (id) => {
+    navigate(`/jungle-lush/level${id}`);
   };
 
   return (
-    <div className="junglelush-bg" style={{ backgroundImage: `url(${bossImg})` }}>
+    <div className="junglelush-bg" style={{ backgroundImage: `url(${backgroundImage})` }}>
       <div className="jl-bg-overlay">
         <h1 className="jl-header">Grammowl's Territory</h1>
+
         <div className="jl-levels-row">
           {levels.map((level, idx) => {
-            const isLocked = idx + 1 > unlocked;
-            const icon = level.id === 1 ? '🕸️' : (level.id === 5 ? '🦉' : levelIcons[idx] || '🌿');
-            const showStars = stars[idx] > 0;
-            const btn = (
+            const locked = idx + 1 > unlocked;
+            const hasStars = stars[idx] > 0;
+            const isBoss = level.id === 5;
+
+            const content = (
               <button
                 key={level.id}
-                className={`jl-level-btn${isLocked ? ' locked' : ''}${level.id === 5 ? ' boss' : ''}`}
-                disabled={isLocked}
-                onClick={() => handleLevelClick(level)}
+                className={`jl-level-btn${locked ? " locked" : ""}${isBoss ? " boss" : ""}`}
+                disabled={locked}
+                onClick={() => handleLevelClick(level.id)}
                 style={level.image ? { backgroundImage: `url(${level.image})` } : {}}
                 title={level.description || level.name}
               >
                 <span className="jl-btn-overlay" />
-                <span className="jl-icon">{icon}</span>
-                {level.id === 5 ? (
+                <span className="jl-icon">{level.icon}</span>
+                {isBoss ? (
                   <span className="jl-boss-label jl-btn-text-shadow">👹<br />{level.name}</span>
                 ) : (
                   <span className="jl-btn-text jl-btn-text-shadow">{level.name}</span>
                 )}
-                {isLocked && <span className="jl-lock">🔒</span>}
-                {showStars && (
-                  <span className="jl-stars jl-btn-text-shadow">{'★'.repeat(stars[idx])}{'☆'.repeat(3 - stars[idx])}</span>
+                {locked && <span className="jl-lock">🔒</span>}
+                {hasStars && (
+                  <span className="jl-stars jl-btn-text-shadow">
+                    {"★".repeat(stars[idx])}{"☆".repeat(3 - stars[idx])}
+                  </span>
                 )}
               </button>
             );
-            return isLocked ? (
+
+            return locked ? (
               <Tooltip key={level.id} title="Complete previous level to unlock!" arrow>
-                <span>{btn}</span>
+                <span>{content}</span>
               </Tooltip>
-            ) : btn;
+            ) : content;
           })}
         </div>
-        <button className="jl-return-btn" onClick={() => navigate("/map")}>Return to Vocabia Map</button>
+
+        <button className="jl-return-btn" onClick={() => navigate("/map")}>
+          Return to Vocabia Map
+        </button>
       </div>
     </div>
   );
-} 
+}
