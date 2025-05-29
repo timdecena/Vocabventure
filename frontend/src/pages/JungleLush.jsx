@@ -81,6 +81,10 @@ export default function JungleLush() {
       navigate('/jungle-lush/level2');
     } else if (level.id === 3) {
       navigate('/jungle-lush/level3');
+    } else if (level.id === 4) {
+      navigate('/jungle-lush/level4');
+    } else if (level.id === 5) {
+      navigate('/jungle-lush/level5');
     } else {
       alert(`Level ${level.id} coming soon!`);
     }

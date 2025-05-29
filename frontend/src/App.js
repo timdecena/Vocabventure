@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import Login    from "./pages/Login";
@@ -27,6 +27,8 @@ import JungleLush from "./pages/JungleLush";
 import JungleLushLevel1 from "./pages/Game/JungleLushLevel1";
 import JungleLushLevel2 from "./pages/Game/JungleLushLevel2";
 import JungleLushLevel3 from "./pages/Game/JungleLushLevel3";
+import JungleLushLevel4 from "./pages/Game/JungleLushLevel4";
+import JungleLushLevel5 from "./pages/Game/JungleLushLevel5";
 
 function App() {
   return (
@@ -63,6 +65,8 @@ function App() {
         <Route path="/jungle-lush/level1" element={<JungleLushLevel1 />} />
         <Route path="/jungle-lush/level2" element={<JungleLushLevel2 />} />
         <Route path="/jungle-lush/level3" element={<JungleLushLevel3 />} />
+        <Route path="/jungle-lush/level4" element={<JungleLushLevel4 />} />
+        <Route path="/jungle-lush/level5" element={<JungleLushLevel5 />} />
 
       </Routes>
     </Router>
