@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/api'; // assumes you use a pre-configured axios instance
+import api from '../api/api';
 import StoryIntro from '../components/StoryIntro';
 import '../styles/Adventure.css';
 
@@ -18,64 +18,77 @@ export default function Adventure() {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
-
-      const res = await api.get("/auth/profile"); // adjust if different
+      const res = await api.get("/auth/profile");
       return res.data;
     } catch (err) {
-      console.error("Error accessing user data:", err);
+      console.error("❌ Failed to fetch user profile:", err);
       setError("User not found. Please login again.");
       return null;
     }
   };
 
-  useEffect(() => {
-    const checkProfile = async () => {
-      try {
-        const user = await getUserData();
-        if (!user || !user.id) {
-          setError("User not found. Please login again.");
-          setLoading(false);
-          return;
-        }
+useEffect(() => {
+  let isMounted = true;
 
-        const res = await api.get(`/adventure-profile?userId=${user.id}`);
-        if (res.data) {
-          if (!res.data.tutorialCompleted) {
-            navigate('/tutorial');
-          } else {
-            navigate('/map');
-          }
-        }
-      } catch (err) {
-        if (err.response?.status !== 404) {
-          setError('Error checking profile: ' + (err.response?.data || err.message));
-        }
-      } finally {
+  const checkProfile = async () => {
+    const user = await getUserData();
+    if (!user || !user.id) {
+      if (isMounted) {
+        setError("User not found. Please login again.");
         setLoading(false);
       }
-    };
+      return;
+    }
 
-    checkProfile();
-  }, [navigate]);
+    try {
+      const res = await api.get(`/adventure/profile`);
+      if (res.data && isMounted) {
+        console.log("✅ Profile loaded:", res.data);
+        console.log("🎯 tutorialCompleted =", res.data.tutorialCompleted);
+
+        if (res.data.tutorialCompleted === false) {
+          console.log("👉 Navigating to /tutorial");
+          navigate('/tutorial');
+        } else {
+          console.log("👉 Navigating to /map");
+          navigate('/map');
+        }
+      }
+    } catch (err) {
+      console.error("❌ Profile error:", err);
+      if (isMounted) {
+        if (err.response?.status === 403) {
+          setError("Access denied.");
+        } else {
+          setError("Error checking profile: " + (err.response?.data || err.message));
+        }
+        setLoading(false);
+      }
+    }
+  };
+
+  checkProfile();
+  return () => {
+    isMounted = false;
+  };
+}, [navigate]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    try {
-      const user = await getUserData();
-      if (!user || !user.id) {
-        setError("User not found.");
-        return;
-      }
+    const user = await getUserData();
+    if (!user || !user.id) {
+      setError("User not found. Please login again.");
+      return;
+    }
 
+    try {
       const res = await api.post("/adventure-profile", {
         adventurer_name: formData.adventurer_name,
         gender: formData.gender,
@@ -83,14 +96,16 @@ export default function Adventure() {
       });
 
       if (res.data) {
-        setShowStory(true); // play intro before map
+        console.log("✅ Profile created:", res.data);
+        setShowStory(true);
       }
     } catch (err) {
-      setError('Error creating profile: ' + (err.response?.data || err.message));
+      console.error("❌ Profile creation failed:", err);
+      setError("Error creating profile: " + (err.response?.data || err.message));
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading Adventure...</div>;
 
   if (error) {
     return (
