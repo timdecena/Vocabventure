@@ -45,16 +45,22 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/images/**").permitAll() 
+                .requestMatchers("/images/**").permitAll()
+                .requestMatchers("/audio/**").permitAll()
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                
+                // ✅ Allow Adventure mode for STUDENT
+                .requestMatchers("/api/adventure/**").hasRole("STUDENT")
+                
+                // Existing role-based rules
                 .requestMatchers("/api/student/**").hasRole("STUDENT")
                 .requestMatchers("/api/teacher/**").hasRole("TEACHER")
-                .requestMatchers("/api/game/**").hasRole("STUDENT") 
+                .requestMatchers("/api/game/**").hasRole("STUDENT")
                 .requestMatchers("/api/leaderboard/**").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
                 .requestMatchers("/api/game/spelling/**").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
                 .requestMatchers("/api/spelling-level/**").hasAnyRole("TEACHER", "STUDENT")
-                .requestMatchers("/audio/**").permitAll()
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
