@@ -16,6 +16,9 @@ public class Level {
     @Column(length = 100)
     private String name;
 
+    @Column(length = 100)
+    private String category;
+
     @Column(length = 255)
     private String description;
 
@@ -40,6 +43,9 @@ public class Level {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
@@ -51,4 +57,5 @@ public class Level {
 
     public List<FourPicOneWordPuzzle> getPuzzles() { return puzzles; }
     public void setPuzzles(List<FourPicOneWordPuzzle> puzzles) { this.puzzles = puzzles; }
+
 }

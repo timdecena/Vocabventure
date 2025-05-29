@@ -2,6 +2,7 @@ package com.example.Vocabia.service;
 
 import com.example.Vocabia.entity.FourPicOneWordPuzzle;
 import com.example.Vocabia.entity.Level;
+import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.FourPicOneWordPuzzleRepository;
 import org.springframework.stereotype.Service;
 
@@ -35,5 +36,9 @@ public class FourPicOneWordPuzzleService {
 
     public void deletePuzzle(Long id) {
         puzzleRepository.deleteById(id);
+    }
+
+    public List<FourPicOneWordPuzzle> getPuzzlesByTeacher(User teacher) {
+        return puzzleRepository.findByCreatedBy(teacher);
     }
 }

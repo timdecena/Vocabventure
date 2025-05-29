@@ -1,34 +1,43 @@
-    package com.example.Vocabia.service;
+package com.example.Vocabia.service;
 
-    import com.example.Vocabia.entity.Level;
-    import com.example.Vocabia.repository.LevelRepository;
-    import org.springframework.stereotype.Service;
+import com.example.Vocabia.entity.Level;
+import com.example.Vocabia.repository.LevelRepository;
+import org.springframework.stereotype.Service;
 
-    import java.util.List;
-    import java.util.Optional;
+import java.util.List;
+import java.util.Optional;
 
-    @Service
-    public class LevelService {
+@Service
+public class LevelService {
+    private final LevelRepository levelRepository;
 
-        private final LevelRepository levelRepository;
-
-        public LevelService(LevelRepository repo) {
-            this.levelRepository = repo;
-        }
-
-        public List<Level> getAllLevels() {
-            return levelRepository.findAll();
-        }
-
-        public Optional<Level> getLevelById(Long id) {
-            return levelRepository.findById(id);
-        }
-
-        public Level saveLevel(Level level) {
-            return levelRepository.save(level);
-        }
-
-        public void deleteLevel(Long id) {
-            levelRepository.deleteById(id);
-        }
+    public LevelService(LevelRepository repo) {
+        this.levelRepository = repo;
     }
+
+    public List<Level> getAllLevels() {
+        return levelRepository.findAll();
+    }
+
+    public Optional<Level> getLevelById(Long id) {
+        return levelRepository.findById(id);
+    }
+
+    public Level saveLevel(Level level) {
+        return levelRepository.save(level);
+    }
+
+    public void deleteLevel(Long id) {
+        levelRepository.deleteById(id);
+    }
+
+    public Level findOrCreateLevel(String category, String levelName) {
+        return levelRepository.findByCategoryAndName(category, levelName)
+            .orElseGet(() -> {
+                Level newLevel = new Level();
+                newLevel.setCategory(category);
+                newLevel.setName(levelName);
+                return levelRepository.save(newLevel);
+            });
+    }
+}

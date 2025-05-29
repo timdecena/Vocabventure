@@ -38,7 +38,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            User user = userService.findByEmail(request.getEmail());
+            // FIXED: unwrap Optional!
+            User user = userService.findByEmail(request.getEmail())
+                    .orElse(null);
             if (user == null || !userService.checkPassword(user, request.getPassword())) {
                 return ResponseEntity.status(401).body("Invalid email or password");
             }
@@ -48,7 +50,6 @@ public class AuthController {
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
-
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest req) {

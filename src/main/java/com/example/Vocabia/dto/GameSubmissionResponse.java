@@ -5,12 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class GameSubmissionResponse {
     private boolean correct;
     private int expEarned;
@@ -20,5 +18,4 @@ public class GameSubmissionResponse {
     private int streak;
     private int hintsRemaining;
     private boolean levelUp;
-    // Achievement field removed
 }

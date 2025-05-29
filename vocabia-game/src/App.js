@@ -5,6 +5,8 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 
+// Admin pages
+
 // Teacher pages
 import TeacherHome from './Teacher/TeacherHome';
 import TeacherClassListPage from './Teacher/TeacherClassListPage';
@@ -13,6 +15,8 @@ import TeacherCreateClassPage from './Teacher/TeacherCreateClassPage';
 import TeacherEditClassPage from './Teacher/TeacherEditClassPage';
 import TeacherViewClassPage from './Teacher/TeacherViewClassPage';
 import GameManagement from './Teacher/GameManagement';
+import LevelManagementPage from './Teacher/LevelManagementPage';
+import PuzzleManagementPage from './Teacher/PuzzleManagementPage';
 
 // Student pages
 import StudentHome from './Student/StudentHome';
@@ -20,6 +24,8 @@ import StudentClassListPage from './Student/StudentClassListPage';
 import StudentClassmatesPage from './Student/StudentClassmatesPage';
 import StudentJoinClassPage from './Student/StudentJoinClassPage';
 import StudentViewClassPage from './Student/StudentViewClassPage';
+import StudentProgressPage from './Student/StudentProgressPage';
+import LeaderboardPage from './Student/LeaderboardPage';
 
 // Game pages (split: Category > Level > Play)
 import CategoryList from './FourPicOneWordGame/CategoryList';
@@ -70,6 +76,7 @@ function App() {
             element={isAuthenticated ? <Navigate to="/" replace /> : <Register />}
           />
 
+
           {/* TEACHER ROUTES */}
           <Route path="/teacher-home" element={
             isAuthenticated && role === 'TEACHER'
@@ -82,6 +89,8 @@ function App() {
           <Route path="/teacher/classes/:id" element={isAuthenticated && role === 'TEACHER' ? <TeacherViewClassPage /> : <Navigate to="/" replace />} />
           <Route path="/teacher/classes/:id/students" element={isAuthenticated && role === 'TEACHER' ? <TeacherClassStudentsPage /> : <Navigate to="/" replace />} />
           <Route path="/teacher/game-management" element={isAuthenticated && role === 'TEACHER' ? <GameManagement /> : <Navigate to="/" replace />} />
+          <Route path="/teacher/levels" element={isAuthenticated && role === 'TEACHER' ? <LevelManagementPage /> : <Navigate to="/" replace />} />
+          <Route path="/teacher/puzzles" element={isAuthenticated && role === 'TEACHER' ? <PuzzleManagementPage /> : <Navigate to="/" replace />} />
 
           {/* STUDENT ROUTES */}
           <Route path="/student-home" element={
@@ -93,7 +102,9 @@ function App() {
           <Route path="/student/classes/join" element={isAuthenticated && role === 'STUDENT' ? <StudentJoinClassPage /> : <Navigate to="/" replace />} />
           <Route path="/student/classes/:id" element={isAuthenticated && role === 'STUDENT' ? <StudentViewClassPage /> : <Navigate to="/" replace />} />
           <Route path="/student/classes/:id/classmates" element={isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />} />
-
+          <Route path="/student/progress" element={isAuthenticated && role === 'STUDENT' ? <StudentProgressPage /> : <Navigate to="/" replace />} />
+          <Route path="/student/leaderboard" element={isAuthenticated && role === 'STUDENT' ? <LeaderboardPage /> : <Navigate to="/" replace />} />
+          
           {/* STUDENT: PLAY 4 PICS 1 WORD in Classroom */}
           <Route path="/student/classes/:classId/4pic1word" element={
             isAuthenticated && role === 'STUDENT'

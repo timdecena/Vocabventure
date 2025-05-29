@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,5 +19,4 @@ public class UserProgressDTO {
     private int currentStreak;
     private int bestStreak;
     private int hintsRemaining;
-    // Achievement field removed
 }

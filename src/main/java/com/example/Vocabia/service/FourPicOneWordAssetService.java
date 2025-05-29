@@ -2,7 +2,6 @@
 package com.example.Vocabia.service;
 
 import com.example.Vocabia.dto.FourPicOneWordPuzzleDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 

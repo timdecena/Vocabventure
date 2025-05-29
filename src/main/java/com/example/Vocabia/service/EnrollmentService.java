@@ -3,15 +3,15 @@ package com.example.Vocabia.service;
 import com.example.Vocabia.entity.Classroom;
 import com.example.Vocabia.entity.Enrollment;
 import com.example.Vocabia.entity.User;
-import com.example.Vocabia.repository.ClassroomRepository;
 import com.example.Vocabia.repository.EnrollmentRepository;
+import com.example.Vocabia.repository.ClassroomRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Service   // <-- THIS IS THE FIX!
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final ClassroomRepository classroomRepository;
@@ -21,6 +21,7 @@ public class EnrollmentService {
         this.classroomRepository = classroomRepository;
     }
 
+    @Transactional
     public Enrollment joinClassroom(User student, String joinCode) {
         Classroom classroom = classroomRepository.findByJoinCode(joinCode)
                 .orElseThrow(() -> new RuntimeException("Invalid join code"));

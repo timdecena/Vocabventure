@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
     Optional<Classroom> findByJoinCode(String joinCode);
     List<Classroom> findByTeacher(User teacher);
+    List<Classroom> findByName(String name);
+
 }
