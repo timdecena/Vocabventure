@@ -33,12 +33,10 @@ import StudentSpellingLevelList from './SpellingGame/StudentSpellingLevelList';
 
 // ✅ Adventure Mode
 import Adventure from "./Adventure/Adventure";
-import JungleLush from "./Adventure/JungleLush";
-import MapView from "./Adventure/MapView";
-import JungleLushLevel1 from "./Game/JungleLushLevel1";
-import JungleLushLevel2 from "./Game/JungleLushLevel2";
-import JungleLushLevel3 from "./Game/JungleLushLevel3";
-
+import JungleLushLevel1 from "./Adventure/JungleLushLevel1"; // Battle component
+import DreamIntro from "./Adventure/scenes/DreamIntro"; // Story scene
+import WizardScene from "./Adventure/scenes/WizardScene"; // Story scene
+import VictoryScene from "./Adventure/scenes/VictoryScene"; // Story scene
 
 import './App.css';
 
@@ -81,8 +79,8 @@ function App() {
             <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} />
 
             {/* Home */}
-            <Route path="/student-home" element={isAuthenticated && role === 'STUDENT' ? <StudentHome setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/" replace />} />
-            <Route path="/teacher-home" element={isAuthenticated && role === 'TEACHER' ? <TeacherHome setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/" replace />} />
+            <Route path="/student-home" element={isAuthenticated && role === 'STUDENT' ? <StudentHome /> : <Navigate to="/" replace />} />
+            <Route path="/teacher-home" element={isAuthenticated && role === 'TEACHER' ? <TeacherHome /> : <Navigate to="/" replace />} />
 
             {/* Teacher */}
             <Route path="/teacher/classes" element={isAuthenticated && role === 'TEACHER' ? <TeacherClassListPage /> : <Navigate to="/" replace />} />
@@ -109,15 +107,12 @@ function App() {
             {/* ✅ Adventure Mode */}
             <Route path="/student/adventure" element={isAuthenticated && role === 'STUDENT' ? <Adventure /> : <Navigate to="/" replace />} />
             <Route path="/adventure" element={<Adventure />} />
-            <Route path="/map" element={<MapView />} />
-            <Route path="/jungle-lush" element={<JungleLush />} />
-            <Route path="/jungle-lush/level1" element={<JungleLushLevel1 />} />
-            <Route path="/jungle-lush/level2" element={<JungleLushLevel2 />} />
-            <Route path="/jungle-lush/level3" element={<JungleLushLevel3 />} />
+            <Route path="/adventure/level/:levelId" element={<JungleLushLevel1 />} />
 
-
-
-
+            {/* ✅ Story Scenes */}
+            <Route path="/adventure/story/dream-intro" element={<DreamIntro />} />
+            <Route path="/adventure/story/wizard-scene" element={<WizardScene />} />
+            <Route path="/adventure/story/victory-scene" element={<VictoryScene />} />
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />

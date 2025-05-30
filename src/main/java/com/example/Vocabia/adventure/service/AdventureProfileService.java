@@ -22,7 +22,7 @@ public class AdventureProfileService {
         return profileRepo.findByUser(user).orElseGet(() -> {
             AdventureProfile newProfile = new AdventureProfile();
             newProfile.setUser(user);
-            newProfile.setXp(0);
+            newProfile.setExperiencePoints(0);  // 🛠️ FIX: Change setXp(0) to setExperiencePoints(0)
             newProfile.setLevel(1);
             return profileRepo.save(newProfile);
         });

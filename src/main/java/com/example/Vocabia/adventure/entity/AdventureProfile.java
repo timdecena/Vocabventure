@@ -4,6 +4,7 @@ import com.example.Vocabia.entity.User;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "adventure_profiles")
 public class AdventureProfile {
 
     @Id
@@ -13,7 +14,12 @@ public class AdventureProfile {
     @OneToOne
     private User user;
 
-    private int xp;
+    private String adventurerName; // 🆕 ADD
+
+    private String gender;         // 🆕 ADD
+
+    private int experiencePoints;  // ✅ Better name instead of xp
+
     private int level;
 
     // Getters and Setters
@@ -23,8 +29,14 @@ public class AdventureProfile {
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
-    public int getXp() { return xp; }
-    public void setXp(int xp) { this.xp = xp; }
+    public String getAdventurerName() { return adventurerName; }
+    public void setAdventurerName(String adventurerName) { this.adventurerName = adventurerName; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public int getExperiencePoints() { return experiencePoints; }
+    public void setExperiencePoints(int experiencePoints) { this.experiencePoints = experiencePoints; }
 
     public int getLevel() { return level; }
     public void setLevel(int level) { this.level = level; }
