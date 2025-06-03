@@ -1,0 +1,109 @@
+.nature-classlist-root {
+  min-height: 100vh;
+  position: relative;
+  background: transparent;
+  font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+  overflow-x: hidden;
+}
+.nature-classlist-bg {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #e8ffe7 0%, #bcf2e4 100%);
+
+}
+@keyframes classlistBgParallax {
+  0% { background-position: bottom, top; }
+  100% { background-position: 80% 90%, 22% 10%; }
+}
+
+.nature-classlist-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 3rem;
+  padding-bottom: 2.5rem;
+  min-height: 100vh;
+}
+
+.nature-classlist-header {
+  gap: 1.2rem;
+}
+
+.nature-classlist-mascot {
+  background: #fffef5;
+  border: 2.5px solid #bbd99c;
+  box-shadow: 0 2px 14px 3px rgba(80,160,100,0.18);
+  animation: mascotBounce 3s infinite ease-in-out;
+}
+@keyframes mascotBounce {
+  0%, 100% { transform: translateY(0);}
+  50% { transform: translateY(-8px);}
+}
+
+.nature-classlist-title {
+  color: #226832;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 7px #eafbf5c8;
+}
+
+.nature-classlist-chip {
+  border-radius: 18px !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.03em !important;
+  margin-top: 2px;
+}
+
+.nature-classlist-xpbar {
+  background: #e8fbe3 !important;
+}
+
+.nature-classlist-btn {
+  background: linear-gradient(90deg, #79c5ab 0%, #65c6bb 100%);
+  color: #22563c !important;
+  border-radius: 21px !important;
+  font-weight: 600 !important;
+  font-size: 1.05rem !important;
+  letter-spacing: 0.02em !important;
+  transition: background 0.2s, transform 0.15s;
+  border: 2px solid #b5f3c5;
+  outline: none !important;
+  box-shadow: 0 2px 6px 1px #8fe8ae5d;
+}
+.nature-classlist-btn:hover, .nature-classlist-btn:focus {
+  background: linear-gradient(98deg, #9ee29f 20%, #6dd9d7 100%);
+  transform: translateY(-2px) scale(1.04);
+  border-color: #89ecb4;
+}
+
+.nature-classlist-card {
+  background: rgba(247,255,250,0.98);
+  border-left: 7px solid #5ecb8d;
+  border-radius: 17px;
+  box-shadow: 0 3px 12px 0 #9ad7c170;
+  transition: box-shadow 0.23s, transform 0.15s;
+}
+
+.nature-classlist-card:hover {
+  box-shadow: 0 7px 18px 2px #47c67238;
+  border-color: #a4ffd5;
+}
+
+.nature-classlist-card-title {
+  color: #21734a;
+  letter-spacing: 0.01em;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  background: #c3f0e3;
+  border-radius: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: #98ddb9;
+  border-radius: 16px;
+  min-height: 40px;
+}
