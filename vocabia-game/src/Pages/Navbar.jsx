@@ -72,7 +72,6 @@ const Navbar = ({ role, onLogout }) => {
         <>
           <button onClick={() => navigate("/student-home")} style={navBtnStyle}>Home</button>
           <button onClick={() => navigate("/student/classes")} style={navBtnStyle}>Classes</button>
-          <button onClick={() => navigate("/student/classes/join")} style={navBtnStyle}>Join Class</button>
           <button onClick={() => navigate("/student/adventure")} style={navBtnStyle}>Adventure Mode</button>
 
         </>
