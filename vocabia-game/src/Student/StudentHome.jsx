@@ -12,6 +12,11 @@ import {
   Avatar,
   Tooltip,
   LinearProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField
 } from '@mui/material';
 import Home from '@mui/icons-material/Home';
 import ForestIcon from '@mui/icons-material/Forest';
@@ -34,18 +39,25 @@ const StudentHome = ({ setIsAuthenticated }) => {
   const [classes, setClasses] = useState([]);
   const [mascot, setMascot] = useState(animalMascots[0]); // Random mascot
 
+  // Modal state for Join Class
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
+  const [joinError, setJoinError] = useState("");
+
   useEffect(() => {
     setMascot(animalMascots[Math.floor(Math.random() * animalMascots.length)]);
-    const fetchData = async () => {
-      try {
-        const classRes = await api.get("/student/classes");
-        setClasses(classRes.data);
-      } catch (err) {
-        console.error("Failed to load classes", err);
-      }
-    };
-    fetchData();
+    fetchClasses();
+    // eslint-disable-next-line
   }, []);
+
+  const fetchClasses = async () => {
+    try {
+      const classRes = await api.get("/student/classes");
+      setClasses(classRes.data);
+    } catch (err) {
+      console.error("Failed to load classes", err);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -54,11 +66,24 @@ const StudentHome = ({ setIsAuthenticated }) => {
     navigate('/');
   };
 
+  // Join Class submission
+  const handleJoinClassSubmit = async (e) => {
+    e.preventDefault();
+    setJoinError("");
+    try {
+      await api.post("/student/classes/join", { joinCode });
+      setJoinModalOpen(false);
+      setJoinCode("");
+      await fetchClasses(); // refresh class list
+    } catch (err) {
+      setJoinError("Failed to join class: " + (err.response?.data || "Unknown error"));
+    }
+  };
+
   return (
     <Box className="nature-root">
       {/* Parallax Adventure Background */}
       <div className="nature-bg-parallax" />
-      {/* Animated overlays */}
       <div className="nature-bg-foreground" />
 
       {/* Page content */}
@@ -75,11 +100,10 @@ const StudentHome = ({ setIsAuthenticated }) => {
             <Typography className="welcome-text" variant="h4" fontWeight="bold" gutterBottom>
               Welcome, Explorer!
             </Typography>
-
           </Box>
         </Box>
 
-        {/* XP / Level (placeholder, connect to real progress system later) */}
+        {/* XP / Level */}
         <Box className="xp-bar" mb={2}>
           <Typography variant="subtitle1" fontWeight="bold" color="secondary" mb={0.5}>
             XP Progress
@@ -117,7 +141,7 @@ const StudentHome = ({ setIsAuthenticated }) => {
               variant="contained"
               fullWidth
               startIcon={<Home />}
-              onClick={() => navigate('/student/classes/join')}
+              onClick={() => setJoinModalOpen(true)}
             >
               Join Class
             </Button>
@@ -202,6 +226,30 @@ const StudentHome = ({ setIsAuthenticated }) => {
           </Button>
         </Box>
       </Box>
+
+      {/* Join Class Modal */}
+      <Dialog open={joinModalOpen} onClose={() => setJoinModalOpen(false)}>
+        <DialogTitle>Join Class</DialogTitle>
+        <DialogContent>
+          <Box component="form" onSubmit={handleJoinClassSubmit} sx={{ mt: 1 }}>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Join Code"
+              fullWidth
+              value={joinCode}
+              onChange={e => setJoinCode(e.target.value)}
+              required
+              variant="outlined"
+            />
+            {joinError && <Typography color="error" mt={1}>{joinError}</Typography>}
+            <DialogActions sx={{ px: 0 }}>
+              <Button onClick={() => setJoinModalOpen(false)}>Cancel</Button>
+              <Button type="submit" variant="contained">Join</Button>
+            </DialogActions>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
