@@ -72,6 +72,9 @@ export default function StudentSpellingChallenge() {
   const [animationPhase, setAnimationPhase] = useState("stand");
   const [spriteFrame, setSpriteFrame] = useState(1);
 
+  // --- Score state ---
+  const [score, setScore] = useState(0);
+
   const [attackResultText, setAttackResultText] = useState("");
   const [showResultText, setShowResultText] = useState(false);
   const [slimeHurt, setSlimeHurt] = useState(false);
@@ -112,6 +115,7 @@ export default function StudentSpellingChallenge() {
       return () => clearTimeout(t);
     }
     if (timer === 0 && !isSubmitted) handleSubmit();
+    // eslint-disable-next-line
   }, [timerStarted, timer, isSubmitted]);
 
   useEffect(() => {
@@ -139,6 +143,7 @@ export default function StudentSpellingChallenge() {
       }, 300); // slower animation
       return () => clearInterval(interval);
     }
+    // eslint-disable-next-line
   }, [animationPhase]);
 
   const handlePlayAudio = () => {
@@ -161,6 +166,9 @@ export default function StudentSpellingChallenge() {
       setShowResultText(true);
       setSlimeHurt(true);
       attackSoundRef.current?.play();
+
+      // --- Update score if correct ---
+      if (res.data.score === 1) setScore((s) => s + 1);
 
       setTimeout(() => setShowResultText(false), 1500);
       setTimeout(() => setSlimeHurt(false), 600);
@@ -191,7 +199,15 @@ export default function StudentSpellingChallenge() {
   if (loading) return <p>🔄 Loading spelling challenges...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!challenges.length) return <p>⚠️ No challenges available for this level.</p>;
-  if (current >= challenges.length) return <h3>🎉 All challenges completed!</h3>;
+  if (current >= challenges.length)
+    return (
+      <GameWrapper>
+        <h3>🎉 All challenges completed!</h3>
+        <Typography variant="h5" sx={{ mt: 2 }}>
+          Your Score: {score} / {challenges.length}
+        </Typography>
+      </GameWrapper>
+    );
 
   const currentChallenge = challenges[current];
 
@@ -226,6 +242,9 @@ export default function StudentSpellingChallenge() {
       <FloatingUI>
         <Typography variant="h6">
           Challenge {current + 1} / {challenges.length}
+        </Typography>
+        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+          Score: {score} / {challenges.length}
         </Typography>
 
         {currentChallenge.audioUrl && (

@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface SpellingChallengeScoreRepository extends JpaRepository<SpellingChallengeScore, Long> {
     Optional<SpellingChallengeScore> findByStudentAndChallenge(User student, SpellingChallenge challenge);
     List<SpellingChallengeScore> findAllByStudent(User student);
+        List<SpellingChallengeScore> findAllByStudentAndCorrect(User student, boolean correct);
 
 }
