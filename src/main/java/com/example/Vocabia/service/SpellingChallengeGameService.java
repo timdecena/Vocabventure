@@ -49,6 +49,15 @@ public class SpellingChallengeGameService {
             .toList();
 }
 
+public List<Long> getCorrectChallengeIds(User student) {
+    return scoreRepo.findAllByStudent(student)
+        .stream()
+        .filter(SpellingChallengeScore::isCorrect)
+        .map(score -> score.getChallenge().getId())
+        .toList();
+}
+
+
 
 
 }

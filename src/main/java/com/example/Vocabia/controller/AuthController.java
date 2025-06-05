@@ -50,4 +50,21 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletRequest req) {
         return ResponseEntity.ok("Logout successful (client must delete token)");
     }
+
+    @GetMapping("/profile")
+public ResponseEntity<?> getProfile(HttpServletRequest request) {
+    String email = jwtUtil.extractUsernameFromRequest(request);
+    if (email == null) {
+        return ResponseEntity.status(403).body("Invalid or missing token");
+    }
+
+    User user = userService.findByEmail(email);
+    if (user == null) {
+        return ResponseEntity.status(404).body("User not found");
+    }
+
+    user.setPassword(null); // Hide password
+    return ResponseEntity.ok(user);
+}
+
 }

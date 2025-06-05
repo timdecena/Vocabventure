@@ -20,7 +20,8 @@ public class SpellingChallengeGameController {
     private final SpellingChallengeGameService gameService;
     private final UserService userService;
 
-    @GetMapping("/{classroomId}")
+    // Use an explicit sub-path to prevent conflict with /correct and /completed
+    @GetMapping("/classroom/{classroomId}")
     public List<SpellingChallenge> getChallenges(@PathVariable Long classroomId) {
         return gameService.getAllForClassroom(classroomId);
     }
@@ -32,15 +33,21 @@ public class SpellingChallengeGameController {
         return Map.of("correct", score.isCorrect(), "score", score.getScore());
     }
 
+    @GetMapping("/completed")
+    public List<Long> getCompletedChallengeIds(Principal principal) {
+        User student = userService.findByEmail(principal.getName());
+        return gameService.getCompletedChallengeIds(student);
+    }
+
+    @GetMapping("/correct")
+    public List<Long> getCorrectChallengeIds(Principal principal) {
+        User student = userService.findByEmail(principal.getName());
+        return gameService.getCorrectChallengeIds(student);
+    }
+
     @Data
     public static class AnswerRequest {
         private Long challengeId;
         private String guess;
     }
-
-    @GetMapping("/completed")
-public List<Long> getCompletedChallengeIds(Principal principal) {
-    User student = userService.findByEmail(principal.getName());
-    return gameService.getCompletedChallengeIds(student);
-}
 }
