@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -48,5 +49,21 @@ public class JwtUtil {
                 .getBody()
                 .getExpiration();
         return expiration.before(new Date());
+    }
+
+    /**
+     * NEW: Extract email from Authorization header in the request.
+     */
+    public String extractUsernameFromRequest(HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            final String token = authHeader.substring(7);
+            try {
+                return extractEmail(token);
+            } catch (JwtException e) {
+                return null; // token invalid
+            }
+        }
+        return null;
     }
 }

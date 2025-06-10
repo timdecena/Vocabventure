@@ -10,19 +10,16 @@ import com.example.Vocabia.service.UserService;
 import com.example.Vocabia.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor; // <-- Lombok import
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@RequiredArgsConstructor // <-- Lombok annotation for constructor
 public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
-
-    public AuthController(UserService userService, JwtUtil jwtUtil) {
-        this.userService = userService;
-        this.jwtUtil = jwtUtil;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
@@ -55,4 +52,21 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletRequest req) {
         return ResponseEntity.ok("Logout successful (client must delete token)");
     }
+
+    @GetMapping("/profile")
+public ResponseEntity<?> getProfile(HttpServletRequest request) {
+    String email = jwtUtil.extractUsernameFromRequest(request);
+    if (email == null) {
+        return ResponseEntity.status(403).body("Invalid or missing token");
+    }
+
+    User user = userService.findByEmail(email);
+    if (user == null) {
+        return ResponseEntity.status(404).body("User not found");
+    }
+
+    user.setPassword(null); // Hide password
+    return ResponseEntity.ok(user);
+}
+
 }

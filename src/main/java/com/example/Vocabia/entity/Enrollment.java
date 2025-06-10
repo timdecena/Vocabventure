@@ -1,11 +1,17 @@
 package com.example.Vocabia.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "enrollments", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"student_id", "classroom_id"})
+        @UniqueConstraint(columnNames = { "student_id", "classroom_id" })
 })
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Enrollment {
 
     @Id
@@ -19,22 +25,4 @@ public class Enrollment {
     @ManyToOne
     @JoinColumn(name = "classroom_id")
     private Classroom classroom;
-
-    // Constructors
-    public Enrollment() {}
-
-    public Enrollment(User student, Classroom classroom) {
-        this.student = student;
-        this.classroom = classroom;
-    }
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public User getStudent() { return student; }
-    public void setStudent(User student) { this.student = student; }
-
-    public Classroom getClassroom() { return classroom; }
-    public void setClassroom(Classroom classroom) { this.classroom = classroom; }
 }

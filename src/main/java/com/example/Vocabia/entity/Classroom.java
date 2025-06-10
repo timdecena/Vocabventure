@@ -1,9 +1,15 @@
 package com.example.Vocabia.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "classrooms")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Classroom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

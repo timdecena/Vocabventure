@@ -40,24 +40,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz
-                        // Allow static resources and auth endpoints
-                        .requestMatchers("/images/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
-                        .requestMatchers("/api/4pic1word-assets/**").permitAll()
-                        // Public endpoints for category and level list
-                        .requestMatchers("/api/fpow/categories").permitAll()
-                        .requestMatchers("/api/fpow/levels").permitAll()
-                        // Protected endpoints: all gameplay and progress
-                        .requestMatchers("/api/fpow/**").authenticated()
-                        .requestMatchers("/api/user-progress/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/images/**").permitAll()
+                .requestMatchers("/audio/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                .requestMatchers("/api/auth/**").permitAll() 
+                
+                // ✅ Allow Adventure mode for STUDENT
+                .requestMatchers("/api/adventure/**").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.GET, "/api/adventure-profile/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/adventure-profile/**").authenticated()
+                // Existing role-based rules
+                .requestMatchers("/api/student/**").hasRole("STUDENT")
+                .requestMatchers("/api/teacher/**").hasRole("TEACHER")
+                .requestMatchers("/api/game/**").hasRole("STUDENT")
+                .requestMatchers("/api/leaderboard/**").hasRole("STUDENT")
+                .requestMatchers("/api/game/spelling/**").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
+                .requestMatchers("/api/spelling-level/**").hasAnyRole("TEACHER", "STUDENT")
+
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

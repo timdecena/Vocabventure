@@ -1,18 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Container, Typography, Box, Button, Paper, Grid, Card, 
-  CardContent, CardActions, Divider
+import {
+  Box,
+  Typography,
+  Button,
+  Avatar,
+  Grid,
+  Tooltip,
+  Card,
+  CardContent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
-import GamesIcon from '@mui/icons-material/Games';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EmojiNatureIcon from '@mui/icons-material/EmojiNature';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AddIcon from '@mui/icons-material/Add';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import api from '../api/api';
+import '../styles/TeacherHomeNature.css';
 
 const TeacherHome = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
-  const username = localStorage.getItem('username') || 'Teacher';
+
+  // Modal state
+  const [open, setOpen] = useState(false);
+  const [className, setClassName] = useState('');
+  const [classDescription, setClassDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -21,95 +43,189 @@ const TeacherHome = ({ setIsAuthenticated }) => {
     navigate('/');
   };
 
+  // Modal open/close
+  const handleOpen = () => {
+    setSuccessMsg('');
+    setErrorMsg('');
+    setClassName('');
+    setClassDescription('');
+    setOpen(true);
+  };
+  const handleClose = () => setOpen(false);
+
+  // Submit class creation
+  const handleCreateClass = async () => {
+    if (!className.trim()) {
+      setErrorMsg("Class name is required!");
+      return;
+    }
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      await api.post("/teacher/classes", {
+        name: className,
+        description: classDescription,
+      });
+      setSuccessMsg("Class created successfully!");
+      setLoading(false);
+      // Optionally, refresh class list here if shown on home page
+      setTimeout(() => {
+        setOpen(false);
+      }, 1000);
+    } catch (err) {
+      setErrorMsg("Failed to create class. Try again.");
+      setLoading(false);
+    }
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Paper sx={{ p: 4, borderRadius: 2, boxShadow: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ color: '#2c3e50', fontWeight: 'bold', mb: 3 }}>
-          <ManageAccountsIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-          Welcome, {username}!
-        </Typography>
-        <Typography variant="subtitle1" sx={{ mb: 4, color: '#7f8c8d' }}>
-          This is your teacher dashboard. Manage your classes and game content from here.
-        </Typography>
-        
-        <Divider sx={{ mb: 4 }} />
-        
-        <Grid container spacing={4}>
-          {/* Classes Management Card */}
-          <Grid item xs={12} md={6}>
-            <Card sx={{ height: '100%', boxShadow: 2, borderRadius: 2 }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom sx={{ color: '#3498db', display: 'flex', alignItems: 'center' }}>
-                  <SchoolIcon sx={{ mr: 1 }} />
-                  Class Management
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  Create and manage your classes, track student progress, and assign activities.
-                </Typography>
-              </CardContent>
-              <CardActions sx={{ p: 2, pt: 0 }}>
-                <Button 
-                  variant="contained" 
-                  onClick={() => navigate('/teacher/classes')}
-                  sx={{ 
-                    backgroundColor: '#3498db', 
-                    '&:hover': { backgroundColor: '#2980b9' } 
-                  }}
-                >
-                  My Classes
-                </Button>
-                <Button 
-                  variant="outlined" 
-                  startIcon={<AddIcon />}
-                  onClick={() => navigate('/teacher/classes/create')}
-                  sx={{ ml: 2, borderColor: '#3498db', color: '#3498db' }}
-                >
-                  Create Class
-                </Button>
-              </CardActions>
-            </Card>
+    <Box className="nature-teacher-root">
+      <div className="nature-teacher-bg" />
+      <Box className="nature-teacher-content" p={3}>
+        {/* Header with Avatar */}
+        <Box className="nature-teacher-header" display="flex" alignItems="center" mb={4}>
+          <Avatar
+            src="/nature/owl_teacher.png"
+            alt="Teacher Owl Mascot"
+            className="nature-teacher-avatar"
+            sx={{ width: 60, height: 60, mr: 2 }}
+          />
+          <Box>
+            <Typography variant="h4" className="nature-teacher-title" fontWeight="bold">
+              Welcome, Teacher!
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary">
+              Inspire, create, and guide adventurers.
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Main Actions */}
+        <Grid container spacing={3} mb={3} className="nature-teacher-btn-row">
+          <Grid item xs={12} md={4}>
+            <Tooltip title="View all your classes" arrow>
+              <Button
+                className="nature-teacher-btn"
+                variant="contained"
+                fullWidth
+                size="large"
+                startIcon={<SchoolIcon />}
+                onClick={() => navigate('/teacher/classes')}
+              >
+                My Classes
+              </Button>
+            </Tooltip>
           </Grid>
-          
-          {/* Game Content Management Card */}
-          <Grid item xs={12} md={6}>
-            <Card sx={{ height: '100%', boxShadow: 2, borderRadius: 2 }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom sx={{ color: '#27ae60', display: 'flex', alignItems: 'center' }}>
-                  <GamesIcon sx={{ mr: 1 }} />
-                  Game Content Management
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  Create and manage categories, levels, and puzzles for the 4 Pics 1 Word game.
-                </Typography>
-              </CardContent>
-              <CardActions sx={{ p: 2, pt: 0 }}>
-                <Button 
-                  variant="contained" 
-                  onClick={() => navigate('/teacher/game-management')}
-                  sx={{ 
-                    backgroundColor: '#27ae60', 
-                    '&:hover': { backgroundColor: '#219653' } 
-                  }}
-                >
-                  Manage Game Content
-                </Button>
-              </CardActions>
-            </Card>
+          <Grid item xs={12} md={4}>
+            <Tooltip title="Create a new class" arrow>
+              <Button
+                className="nature-teacher-btn"
+                variant="contained"
+                fullWidth
+                size="large"
+                startIcon={<AddCircleOutlineIcon />}
+                onClick={handleOpen}
+              >
+                Create Class
+              </Button>
+            </Tooltip>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Tooltip title="Design custom spelling adventures" arrow>
+              <Button
+                className="nature-teacher-btn"
+                variant="contained"
+                fullWidth
+                size="large"
+                startIcon={<EditNoteIcon />}
+                onClick={() => navigate('/teacher/spelling/create')}
+              >
+                Create Spelling Level
+              </Button>
+            </Tooltip>
           </Grid>
         </Grid>
-        
-        <Box sx={{ mt: 4, textAlign: 'right' }}>
-          <Button 
-            variant="outlined" 
-            color="error" 
-            startIcon={<LogoutIcon />} 
+
+        {/* Modular Class Creation Modal */}
+        <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+          <DialogTitle>
+            <EmojiNatureIcon sx={{ color: "#5cb675", mr: 1, mb: -0.6 }} />
+            Create a New Class
+          </DialogTitle>
+          <DialogContent>
+            {successMsg && <Alert severity="success">{successMsg}</Alert>}
+            {errorMsg && <Alert severity="error" sx={{ mb: 1 }}>{errorMsg}</Alert>}
+            <TextField
+              label="Class Name"
+              value={className}
+              onChange={e => setClassName(e.target.value)}
+              fullWidth
+              margin="normal"
+              required
+              variant="outlined"
+              autoFocus
+              className="nature-teacher-modal-input"
+              inputProps={{ maxLength: 50 }}
+            />
+            <TextField
+              label="Description (optional)"
+              value={classDescription}
+              onChange={e => setClassDescription(e.target.value)}
+              fullWidth
+              margin="normal"
+              multiline
+              minRows={2}
+              maxRows={4}
+              variant="outlined"
+              className="nature-teacher-modal-input"
+              inputProps={{ maxLength: 200 }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <Button onClick={handleClose} color="inherit" disabled={loading}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateClass}
+              className="nature-teacher-btn"
+              variant="contained"
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={22} /> : "Create"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Nature Themed Card / Message */}
+        <Card className="nature-teacher-card" elevation={6}>
+          <CardContent>
+            <Box display="flex" alignItems="center" gap={2}>
+              <EmojiNatureIcon sx={{ color: "#41824d", fontSize: 36 }} />
+              <Box>
+                <Typography variant="h6" fontWeight="bold" color="primary.dark">
+                  Tip: Your role shapes the journey!
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Every class you create is a new adventure—invite students, build spelling quests, and track their progress as they grow through the enchanted forest!
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Logout */}
+        <Box mt={5} textAlign="center">
+          <Button
+            className="nature-teacher-btn logout-btn"
+            variant="outlined"
+            startIcon={<LogoutIcon />}
             onClick={handleLogout}
           >
             Logout
           </Button>
         </Box>
-      </Paper>
-    </Container>
+      </Box>
+    </Box>
   );
 };
 

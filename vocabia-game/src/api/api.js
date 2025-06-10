@@ -48,4 +48,5 @@ api.interceptors.response.use(
 // Auth utility for checking if a token exists
 api.isAuthenticated = () => !!localStorage.getItem("token");
 
+
 export default api;

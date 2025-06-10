@@ -1,125 +1,126 @@
+// File: src/Student/StudentClassListPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
-import { Box, Typography, Button, List, ListItem, Paper, Divider, CircularProgress, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Avatar,
+  LinearProgress,
+  Grid,
+  Chip,
+  Tooltip,
+} from "@mui/material";
+import GroupIcon from "@mui/icons-material/Group";
+import Home from "@mui/icons-material/Home";
+import ForestIcon from "@mui/icons-material/Forest";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
+import api from "../api/api";
+import "../styles/StudentClassListNature.css";
 
-export default function StudentClassListPage() {
+const StudentClassListPage = () => {
   const [classes, setClasses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchClasses = async () => {
-      setLoading(true);
-      setError("");
-      
-      try {
-        // Create a configured axios instance with auth headers
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Authentication token not found. Please log in again.");
-          setLoading(false);
-          return;
-        }
-        
-        const response = await axios.get("http://localhost:8080/api/student/classes", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          withCredentials: true
-        });
-        
-        setClasses(response.data);
-      } catch (err) {
-        console.error("Error fetching classes:", err);
-        if (err.response) {
-          // Server responded with an error
-          if (err.response.status === 403) {
-            setError("You don't have permission to access this resource. Please log in again.");
-          } else if (err.response.status === 401) {
-            setError("Your session has expired. Please log in again.");
-          } else {
-            setError(`Error: ${err.response.data.message || "Failed to load classes"}`); 
-          }
-        } else if (err.request) {
-          // Request was made but no response received
-          setError("No response from server. Please check your connection.");
-        } else {
-          // Something happened in setting up the request
-          setError("Failed to load classes. Please try again later.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchClasses();
+    api.get("/student/classes")
+      .then(res => setClasses(res.data))
+      .catch(() => alert("Failed to load classes"));
   }, []);
 
   return (
-    <Box sx={{ maxWidth: 800, margin: "0 auto", padding: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          My Classes
-        </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={() => navigate("/student/classes/join")}
-        >
-          Join New Class
-        </Button>
-      </Box>
-      
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress />
+    <Box className="nature-classlist-root">
+      <div className="nature-classlist-bg" />
+      <Box className="nature-classlist-content" p={3}>
+        {/* Header and XP bar */}
+        <Box display="flex" alignItems="center" mb={3} className="nature-classlist-header">
+
+          <Box flexGrow={1}>
+            <Typography variant="h4" className="nature-classlist-title" fontWeight="bold">
+              My Classes
+            </Typography>
+            <Chip
+              icon={<ForestIcon />}
+              label="Enchanted Spelling Journey"
+              className="nature-classlist-chip"
+              sx={{ bgcolor: "#d4ffea", color: "#215a2b", fontWeight: "bold" }}
+            />
+          </Box>
+          <Tooltip title="Join New Class" arrow>
+            <Button
+              className="nature-classlist-btn"
+              variant="contained"
+              size="large"
+              startIcon={<AddCircleOutlineIcon />}
+              onClick={() => navigate("/student/classes/join")}
+            >
+              Join New Class
+            </Button>
+          </Tooltip>
         </Box>
-      ) : error ? (
-        <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>
-      ) : classes.length === 0 ? (
-        <Paper sx={{ p: 3, textAlign: "center" }}>
-          <Typography variant="body1">
-            You haven't joined any classes yet. Click "Join New Class" to get started.
-          </Typography>
-        </Paper>
-      ) : (
-        <List component={Paper} sx={{ p: 0 }}>
-          {classes.map((c, index) => (
-            <React.Fragment key={c.id}>
-              {index > 0 && <Divider />}
-              <ListItem sx={{ display: "block", p: 2 }}>
-                <Typography variant="h6" gutterBottom>{c.name}</Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {c.description}
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Teacher: {c.teacher?.firstName} {c.teacher?.lastName}
-                </Typography>
-                <Box>
-                  <Button 
-                    size="small" 
-                    variant="outlined" 
-                    onClick={() => navigate(`/student/classes/${c.id}`)}
-                    sx={{ mr: 1 }}
-                  >
-                    View Class
-                  </Button>
-                  <Button 
-                    size="small" 
-                    variant="outlined" 
-                    onClick={() => navigate(`/student/classes/${c.id}/classmates`)}
-                  >
-                    Classmates
-                  </Button>
-                </Box>
-              </ListItem>
-            </React.Fragment>
-          ))}
-        </List>
-      )}
+
+        {/* XP Progress Bar */}
+
+
+        {/* Class Cards */}
+        <Grid container spacing={3} className="nature-classlist-grid">
+          {classes.length === 0 ? (
+            <Grid item xs={12}>
+              <Typography color="text.secondary" fontStyle="italic">
+                (You have not joined any classes yet.)
+              </Typography>
+            </Grid>
+          ) : (
+            classes.map(c => (
+              <Grid item xs={12} md={6} key={c.id}>
+                <Card className="nature-classlist-card" elevation={5}>
+                  <CardContent>
+                    <Box display="flex" alignItems="center" mb={1}>
+                      <Home sx={{ color: "#4caf50", mr: 1 }} fontSize="large" />
+                      <Typography variant="h6" className="nature-classlist-card-title" fontWeight="bold">
+                        {c.name}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" mb={1}>
+                      {c.description}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      <b>Teacher:</b> {c.teacher?.firstName} {c.teacher?.lastName}
+                    </Typography>
+                    <Box mt={2} display="flex" gap={2}>
+                      <Button
+                        className="nature-classlist-btn"
+                        size="small"
+                        variant="contained"
+                        component={Link}
+                        to={`/student/classes/${c.id}`}
+                        startIcon={<ForestIcon />}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        className="nature-classlist-btn"
+                        size="small"
+                        variant="outlined"
+                        component={Link}
+                        to={`/student/classes/${c.id}/classmates`}
+                        startIcon={<GroupIcon />}
+                      >
+                        Classmates
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
+          )}
+        </Grid>
+      </Box>
     </Box>
   );
-}
+};
+
+export default StudentClassListPage;

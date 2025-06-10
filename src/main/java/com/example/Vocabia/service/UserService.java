@@ -5,10 +5,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.UserRepository;
+import lombok.RequiredArgsConstructor; // <-- Lombok import
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor // <-- Lombok will generate the constructor!
 public class UserService {
 
     private final UserRepository userRepository;
@@ -19,6 +21,7 @@ public class UserService {
     }
 
     @Transactional
+
     public User registerUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("Email already in use");
