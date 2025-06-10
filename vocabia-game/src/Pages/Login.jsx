@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import api from '../api/api';
 
 const Login = ({ setIsAuthenticated, setRole }) => {
   const navigate = useNavigate();
@@ -14,15 +15,15 @@ const Login = ({ setIsAuthenticated, setRole }) => {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (res.ok) {
+      // Remove the /api prefix since it's already in the baseURL
+      const res = await api.post('/auth/login', form);
+      const data = res.data;
+      if (res.status === 200) {
+        // Store the token and log it for debugging
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
+        console.log('Authentication successful. Token stored.');
+        
         setIsAuthenticated(true);
         setRole(data.role);
         if (data.role === 'STUDENT') navigate('/student-home');
@@ -31,7 +32,8 @@ const Login = ({ setIsAuthenticated, setRole }) => {
         setError(typeof data === 'string' ? data : (data.message || 'Login failed'));
       }
     } catch (err) {
-      setError('Network error');
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Authentication failed. Please try again.');
     }
   };
 

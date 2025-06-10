@@ -1,4 +1,4 @@
-    package com.example.Vocabia.controller;
+    package com.example.Vocabia.dto;
 
     public class CreateClassRequest {
         private String className;

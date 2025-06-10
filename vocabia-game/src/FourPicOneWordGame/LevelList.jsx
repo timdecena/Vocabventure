@@ -1,96 +1,154 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import api from "../api/api";
 import {
-  Container, Typography, Grid, Card, CardContent, CircularProgress, Box, Breadcrumbs, Link, Lock
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  Card,
+  CardContent,
+  Button,
+  Chip,
+  Container,
+  Alert,
+  CircularProgress,
+  Tooltip,
 } from "@mui/material";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ListAltIcon from "@mui/icons-material/ListAlt";
-import axios from "axios";
+import StarRateIcon from "@mui/icons-material/StarRate";
 
-const SERVER_URL = "http://localhost:8080";
+const LEVEL_BG = [
+  "#D0F8EF", "#F0E7FF", "#F9F3D2", "#FFDDE4", "#D6E4FF", "#FFEEBC"
+];
 
 export default function LevelList() {
-  const { category } = useParams();
+  const { id, category } = useParams(); // id = classroom id
   const [levels, setLevels] = useState([]);
+  const [unlocked, setUnlocked] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [unlockedLevel, setUnlockedLevel] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchLevelsAndProgress() {
-      setLoading(true);
-      setError("");
-      try {
-        const res = await axios.get(`${SERVER_URL}/api/4pic1word-assets/categories/${category}/levels`);
+    setLoading(true);
+    setError("");
+
+    api.get(`/fpow/levels`, { params: { category } })
+      .then(res => {
+        if (!Array.isArray(res.data)) throw new Error('Invalid response format for levels');
         setLevels(res.data);
-        const token = localStorage.getItem("token");
-        const progress = await axios.get(`${SERVER_URL}/api/4pic1word/progress/unlocked-level`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUnlockedLevel(progress.data.unlockedLevel || 1);
-      } catch (err) {
-        setError("Failed to load levels.");
-        console.error("Error loading levels or progress:", err);
-      } finally {
+
+        // Simulate unlock logic: only level 1 is unlocked for new user, rest are locked
+        // In production, request unlocked status for each level from backend
+        const unlockedStatus = {};
+        res.data.forEach(lvl => unlockedStatus[lvl] = false);
+        if (res.data.includes(1)) unlockedStatus[1] = true;
+        setUnlocked(unlockedStatus);
         setLoading(false);
-      }
-    }
-    fetchLevelsAndProgress();
-  }, [category]);
+      })
+      .catch(err => {
+        setError(err.response?.data?.message || err.message || 'Failed to load levels');
+        setLoading(false);
+      });
+  }, [category, id]);
 
   if (loading) return (
-    <Container sx={{ mt: 8, textAlign: "center" }}>
-      <CircularProgress color="secondary" />
-      <Typography sx={{ mt: 2 }}>Loading levels...</Typography>
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+      <CircularProgress />
+    </Box>
+  );
+  if (error) return (
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Alert severity="error">{error}</Alert>
     </Container>
   );
 
   return (
-    <Container maxWidth="md" sx={{ mt: 6 }}>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-        <Link underline="hover" color="inherit" onClick={() => navigate("/4pic1word")} style={{ cursor: "pointer" }}>
-          <ArrowBackIcon fontSize="small" sx={{ mr: 0.5 }} />
-          Categories
-        </Link>
-        <Typography color="text.primary">{category}</Typography>
-      </Breadcrumbs>
-      <Typography variant="h4" sx={{ mb: 4 }}>
-        <ListAltIcon sx={{ mr: 1, color: "#29b6f6" }} />
-        Levels
-      </Typography>
-      {error && <Typography color="error">{error}</Typography>}
-      <Grid container spacing={4}>
+    <Container maxWidth="md">
+      <Paper elevation={3} sx={{ p: 3, mt: 4, borderRadius: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography variant="h4" fontWeight={700}>
+            {category.charAt(0).toUpperCase() + category.slice(1)} Levels
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            sx={{ fontWeight: 600, borderRadius: 2 }}
+            onClick={() => navigate(`/student/classes/${id}/4pic1word`)}
+          >
+            Categories
+          </Button>
+        </Box>
         {levels.length === 0 ? (
-          <Grid item xs={12}><Typography>No levels found.</Typography></Grid>
-        ) : levels.map((level, idx) => {
-            const levelNum = Number(level.replace(/level/i, "")) || (idx+1);
-            const locked = levelNum > unlockedLevel + 1;
-            return (
-            <Grid item xs={12} sm={6} md={4} key={level}>
-              <Card
-                sx={{
-                  background: locked ? "rgba(70, 10, 10, 0.7)" : "rgba(10, 70, 20, 0.93)",
-                  borderRadius: 3,
-                  cursor: locked ? "not-allowed" : "pointer",
-                  border: locked ? "2px solid #e57373" : "2px solid #a5d6a7",
-                  opacity: locked ? 0.6 : 1,
-                  "&:hover": { borderColor: locked ? "#e57373" : "#43a047" }
-                }}
-                onClick={() => !locked && navigate(`/4pic1word/play/${category}/${level}`)}
-              >
-                <CardContent>
-                  <Typography variant="h5" sx={{ color: "#fff" }}>
-                    Level: {level.replace(/level/i, "")}
-                  </Typography>
-                  <Typography sx={{ color: locked ? "#ffcdd2" : "#c8e6c9" }}>
-                    {locked ? "Locked" : "Play this level"}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-        )})}
-      </Grid>
+          <Alert severity="info">No levels available for this category.</Alert>
+        ) : (
+          <Grid container spacing={3}>
+            {levels.map((level, i) => (
+              <Grid item xs={12} sm={6} md={4} key={level}>
+                <Card
+                  elevation={4}
+                  sx={{
+                    background: `linear-gradient(135deg, ${LEVEL_BG[i % LEVEL_BG.length]}, #fff)`,
+                    borderRadius: 4,
+                    transition: "transform 0.21s",
+                    boxShadow: "0 2px 14px rgba(0,0,0,0.10)",
+                    '&:hover': unlocked[level] ? { transform: "scale(1.04)", boxShadow: "0 6px 30px rgba(0,80,160,0.13)" } : {},
+                  }}
+                >
+                  <CardContent sx={{
+                    textAlign: "center",
+                    py: 5,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center"
+                  }}>
+                    {unlocked[level] ? (
+                      <>
+                        <LockOpenIcon color="success" sx={{ fontSize: 38, mb: 1 }} />
+                        <Typography variant="h6" fontWeight={600} color="#3b4361" gutterBottom>
+                          Level {level}
+                        </Typography>
+                        <Chip
+                          label={<><StarRateIcon sx={{ fontSize: 18, mr: 0.5 }} />Unlocked</>}
+                          color="success"
+                          sx={{ mb: 2, fontWeight: 500 }}
+                        />
+                        <Tooltip title="Play this level!">
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            startIcon={<VideogameAssetIcon />}
+                            sx={{ fontWeight: 600, borderRadius: 8, mt: 2 }}
+                            onClick={() => navigate(`/student/classes/${id}/4pic1word/${category}/level/${level}`)}
+                          >
+                            Play
+                          </Button>
+                        </Tooltip>
+                      </>
+                    ) : (
+                      <>
+                        <LockIcon color="disabled" sx={{ fontSize: 38, mb: 1 }} />
+                        <Typography variant="h6" color="text.secondary" fontWeight={600} gutterBottom>
+                          Level {level}
+                        </Typography>
+                        <Chip
+                          label="Locked"
+                          color="default"
+                          sx={{ fontWeight: 500, mt: 2 }}
+                        />
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Paper>
     </Container>
   );
 }

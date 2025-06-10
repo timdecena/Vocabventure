@@ -1,320 +1,118 @@
 package com.example.Vocabia.service;
 
 import com.example.Vocabia.dto.UserProgressDTO;
-import com.example.Vocabia.entity.FourPicOneWordPuzzle;
 import com.example.Vocabia.entity.User;
-import com.example.Vocabia.entity.GameProgress;
 import com.example.Vocabia.entity.UserProgress;
-import com.example.Vocabia.exception.ResourceNotFoundException;
 import com.example.Vocabia.repository.UserProgressRepository;
-import com.example.Vocabia.repository.GameProgressRepository;
-import com.example.Vocabia.repository.FourPicOneWordPuzzleRepository;
-import com.example.Vocabia.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Service for managing user progress and game-related operations.
- */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Service @RequiredArgsConstructor
 public class UserProgressService {
+    private final UserProgressRepository repo;
 
-    // Game constants
-    private static final int MAX_LEVEL = 100;
-    private static final int BASE_XP = 50;
-    private static final int MAX_DAILY_STREAK_DAYS = 30; // Cap streak bonus at 30 days
-    private static final int DAILY_STREAK_BONUS_PERCENT = 50; // Max 50% bonus XP for daily streak
-    private static final int TIME_BONUS_PERCENT = 30; // Max 30% bonus for fast completion
-    private static final int HINT_PENALTY = 10; // XP penalty per hint used
-    private static final int DAILY_LOGIN_BONUS = 25; // Bonus XP for daily login
-    
-    private final UserProgressRepository userProgressRepository;
-    private final GameProgressRepository userGameProgressRepository;
-    private final FourPicOneWordPuzzleRepository puzzleRepository;
-    private final UserRepository userRepository;
-    
-    // Achievement service would be autowired here when implemented
-    // private final AchievementService achievementService;
-
-    /**
-     * Creates a new progress record for a user.
-     * 
-     * @param user the user to create progress for
-     * @return the created UserProgress
-     * @throws IllegalArgumentException if user is null
-     */
-    /**
-     * Creates a new progress record for a user with default values
-     */
-    @Transactional
-    public UserProgress createProgressForUser(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null");
-        }
-        log.info("Creating progress for user: {}", user.getEmail());
-        
-        UserProgress progress = new UserProgress(user);
-        progress.setExp(0);
-        progress.setLevel(1);
-        progress.setDailyStreak(1);
-        progress.setLastLoginDate(LocalDate.now());
-        progress.setTotalExpEarned(0);
-        progress.setTotalPuzzlesSolved(0);
-        
-        return userProgressRepository.save(progress);
+    // XP curve
+    private int xpRequiredForNextLevel(int level) {
+        return 50 * level * (level + 1) / 2;
     }
 
-    /**
-     * Retrieves progress for a specific user.
-     * 
-     * @param user the user to find progress for
-     * @return Optional containing the UserProgress if found
-     */
-    public Optional<UserProgress> getByUser(User user) {
-        if (user == null) {
-            return Optional.empty();
-        }
-        return userProgressRepository.findByUser(user);
+    public UserProgress getOrCreateProgress(User user, String category) {
+        return repo.findByUserAndCategory(user, category).orElseGet(() -> {
+            LocalDateTime now = LocalDateTime.now();
+            UserProgress np = UserProgress.builder()
+                    .user(user)
+                    .category(category)
+                    .currentLevel(1)
+                    .level(1)
+                    .livesLeft(3)
+                    .createdAt(now)
+                    .lastActive(now)
+                    .lastPlayedCategory(category)
+                    .lastPlayedLevel(1)
+                    .build();
+            return repo.save(np);
+        });
     }
 
-    /**
-     * Adds experience points for completing a puzzle if not already completed.
-     * 
-     * @param user the user completing the puzzle
-     */
-    @Transactional
-    public int addExpForPuzzle(User user, FourPicOneWordPuzzle puzzle, int timeTaken, int hintsUsed) {
-        UserProgress progress = userProgressRepository.findByUser(user)
-                .orElseGet(() -> createProgressForUser(user));
-
-        log.debug("Adding exp for user {} on puzzle {}", user.getEmail(), puzzle.getId());
-        
-        // Check if already completed
-        GameProgress gameProgress = userGameProgressRepository.findByUserAndPuzzle(user, puzzle)
-            .orElseGet(() -> {
-                GameProgress newProgress = new GameProgress();
-                newProgress.setUser(user);
-                newProgress.setPuzzle(puzzle);
-                newProgress.setCompleted(false);
-                return newProgress;
-            });
-            
-        if (gameProgress.isCompleted()) {
-            log.debug("Puzzle already completed by user, no EXP awarded again.");
-            return 0;
+    public UserProgressDTO completeLevel(User user, String category, boolean usedHint) {
+        UserProgress p = getOrCreateProgress(user, category);
+        int xpGain = usedHint ? 5 : 10;
+        p.setCurrentXp(p.getCurrentXp() + xpGain);
+        p.setPuzzlesSolved(p.getPuzzlesSolved() + 1);
+        p.setCorrectAnswers(p.getCorrectAnswers() + 1);
+        p.setTotalAttempts(p.getTotalAttempts() + 1);
+        p.setStreakCount(p.getStreakCount() + 1);
+        if (p.getStreakCount() > p.getMaxStreak()) p.setMaxStreak(p.getStreakCount());
+        int requiredXp = xpRequiredForNextLevel(p.getLevel());
+        while (p.getCurrentXp() >= requiredXp) {
+            p.setLevel(p.getLevel() + 1);
+            requiredXp = xpRequiredForNextLevel(p.getLevel());
         }
-
-        // Calculate experience with bonuses and penalties
-        int baseXp = calculateBaseXp(puzzle);
-        int timeBonus = calculateTimeBonus(timeTaken, baseXp);
-        int dailyStreakBonus = calculateDailyStreakBonus(progress);
-        int hintPenalty = hintsUsed * HINT_PENALTY;
-        int totalXp = Math.max(10, baseXp + timeBonus + dailyStreakBonus - hintPenalty);
-        boolean perfectCompletion = hintsUsed == 0 && timeBonus > 0;
-        
-        // Update user progress
-        progress.setExp(progress.getExp() + totalXp);
-        progress.setTotalExpEarned(progress.getTotalExpEarned() + totalXp);
-        progress.setTotalPuzzlesSolved(progress.getTotalPuzzlesSolved() + 1);
-        
-        // Update game progress with detailed stats
-        gameProgress.setCompleted(true);
-        gameProgress.setCompletedAt(LocalDateTime.now());
-        gameProgress.setLastCompletedAt(LocalDateTime.now());
-        gameProgress.setExpEarned(totalXp);
-        gameProgress.setHintsUsed(hintsUsed);
-        gameProgress.setTimeTaken(timeTaken);
-        gameProgress.setPerfectCompletion(perfectCompletion);
-        gameProgress.setStreakBonus(dailyStreakBonus);
-        gameProgress.setTimeBonus(timeBonus);
-        
-        // Update fastest time if this is the first completion or faster than previous
-        if (gameProgress.getFastestTime() == null || timeTaken < gameProgress.getFastestTime()) {
-            gameProgress.setFastestTime(timeTaken);
-        }
-        
-        // Update hint used flag
-        if (hintsUsed > 0) {
-            gameProgress.setHintUsed(true);
-        }
-        
-        // Update daily streak
-        updateDailyStreak(progress);
-        
-        // Update level if needed
-        checkAndUpdateLevel(progress);
-        
-        // Save progress
-        userProgressRepository.save(progress);
-        userGameProgressRepository.save(gameProgress);
-        
-        log.info("Awarded {} XP to user {} for puzzle {} (base: {}, time bonus: {}, streak bonus: {}, hint penalty: {})", 
-                totalXp, user.getEmail(), puzzle.getId(), baseXp, timeBonus, dailyStreakBonus, hintPenalty);
-                
-        return totalXp;
+        p.setCurrentLevel(p.getCurrentLevel() + 1);
+        p.setLastActive(LocalDateTime.now());
+        p.setLastPlayedLevel(p.getCurrentLevel());
+        p.setLastPlayedCategory(category);
+        repo.save(p);
+        return toDto(p);
     }
 
-    /**
-     * Checks if the user should level up and updates their level if needed
-     * @return true if the user leveled up, false otherwise
-     */
-    private boolean checkAndUpdateLevel(UserProgress progress) {
-        if (progress.getLevel() >= MAX_LEVEL) {
-            return false; // Already at max level
-        }
-        
-        int currentLevel = progress.getLevel();
-        int newLevel = currentLevel;
-        
-        // Find the highest level the user qualifies for
-        while (newLevel < MAX_LEVEL && progress.getExp() >= progress.getExpForNextLevel()) {
-            newLevel++;
-        }
-        
-        if (newLevel > currentLevel) {
-            progress.setLevel(newLevel);
-            progress.setLastLevelUp(LocalDateTime.now());
-            log.info("User {} leveled up to level {}!", progress.getUser().getEmail(), newLevel);
-            
-            // Award level-up rewards if implemented
-            // awardLevelUpRewards(progress, currentLevel, newLevel);
-            
-            // Check for achievements
-            // achievementService.checkForAchievements(progress.getUser(), "LEVEL_UP");
-            
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Awards daily login bonus to the user
-     * @return The amount of XP awarded
-     */
-    @Transactional
-    public int awardDailyLoginBonus(User user) {
-        UserProgress progress = userProgressRepository.findByUser(user)
-                .orElseGet(() -> createProgressForUser(user));
-                
-        // Check if already received bonus today
-        if (progress.getLastLoginDate().isEqual(LocalDate.now())) {
-            return 0; // Already received bonus today
-        }
-        
-        // Update streak
-        updateDailyStreak(progress);
-        
-        // Award bonus XP based on streak
-        int bonusXp = DAILY_LOGIN_BONUS + (progress.getDailyStreak() * 2);
-        progress.setExp(progress.getExp() + bonusXp);
-        progress.setTotalExpEarned(progress.getTotalExpEarned() + bonusXp);
-        
-        // Check for level up
-        checkAndUpdateLevel(progress);
-        
-        userProgressRepository.save(progress);
-        
-        log.info("Awarded daily login bonus of {} XP to user {}", bonusXp, user.getEmail());
-        return bonusXp;
+    public boolean isLevelUnlocked(User user, String category, int level) {
+        UserProgress p = getOrCreateProgress(user, category);
+        return level == 1 || level <= p.getCurrentLevel();
     }
 
-    /**
-     * Calculates the base XP for completing a puzzle based on its difficulty
-     */
-    private int calculateBaseXp(FourPicOneWordPuzzle puzzle) {
-        // Base XP can be modified by puzzle difficulty in the future
-        // For now, we'll add some randomness to make it more interesting (80-120% of base)
-        double randomFactor = 0.8 + (0.4 * ThreadLocalRandom.current().nextDouble());
-        return (int)(BASE_XP * randomFactor);
-    }
-    
-    /**
-     * Calculates time bonus as a percentage of base XP
-     */
-    private int calculateTimeBonus(int timeTaken, int baseXp) {
-        // Max time is 5 minutes (300 seconds)
-        double timeFactor = Math.max(0, 1 - (timeTaken / 300.0));
-        return (int)(timeFactor * (baseXp * (TIME_BONUS_PERCENT / 100.0)));
-    }
-    
-    /**
-     * Calculates daily streak bonus as a percentage of base XP
-     */
-    private int calculateDailyStreakBonus(UserProgress progress) {
-        // Cap the streak bonus at MAX_DAILY_STREAK_DAYS
-        int streakBonus = Math.min(progress.getDailyStreak(), MAX_DAILY_STREAK_DAYS);
-        // Calculate bonus as a percentage of base XP
-        return (int)(BASE_XP * (streakBonus * (DAILY_STREAK_BONUS_PERCENT / 100.0) / MAX_DAILY_STREAK_DAYS));
-    }
-    
-    /**
-     * Updates the user's daily streak
-     */
-    private void updateDailyStreak(UserProgress progress) {
-        LocalDate today = LocalDate.now();
-        LocalDate lastLogin = progress.getLastLoginDate();
-        
-        if (lastLogin == null) {
-            progress.setDailyStreak(1);
-        } else if (lastLogin.isEqual(today.minusDays(1))) {
-            // Consecutive day
-            progress.setDailyStreak(progress.getDailyStreak() + 1);
-        } else if (lastLogin.isBefore(today.minusDays(1))) {
-            // Streak broken
-            progress.setDailyStreak(1);
-        }
-        // else: already logged in today, streak remains the same
-        
-        progress.setLastLoginDate(today);
+    public UserProgressDTO wrongAttempt(User user, String category) {
+        UserProgress p = getOrCreateProgress(user, category);
+        p.setWrongAnswers(p.getWrongAnswers() + 1);
+        p.setTotalAttempts(p.getTotalAttempts() + 1);
+        p.setStreakCount(0);
+        p.setLivesLeft(Math.max(p.getLivesLeft() - 1, 0));
+        p.setLastActive(LocalDateTime.now());
+        repo.save(p);
+        return toDto(p);
     }
 
-    /**
-     * Gets the user's progress DTO containing comprehensive progress information.
-     * 
-     * @param email the user's email
-     * @return UserProgressDTO with progress details
-     * @throws ResourceNotFoundException if user progress is not found
-     */
-    public UserProgressDTO getUserProgress(String email) {
-        log.debug("Fetching user progress for email: {}", email);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+    public UserProgressDTO useHint(User user, String category, int level) {
+        UserProgress p = getOrCreateProgress(user, category);
+        p.setHintsUsed(p.getHintsUsed() + 1);
+        p.setLastActive(LocalDateTime.now());
+        repo.save(p);
+        return toDto(p);
+    }
 
-        // Get or create user progress
-        UserProgress progress = userProgressRepository.findByUser(user)
-                .orElseGet(() -> createProgressForUser(user));
+    public List<UserProgressDTO> getLeaderboard(String category) {
+        return repo.findTop10ByCategoryOrderByCurrentXpDesc(category)
+                .stream().map(this::toDto).collect(Collectors.toList());
+    }
 
-        // Count completed puzzles for this user
-        long completedPuzzles = userGameProgressRepository.countByUserAndCompleted(user, true);
-        
-        // Count total available puzzles
-        long totalPuzzles = puzzleRepository.count();
-        
-        // Calculate experience and level
-        int exp = progress.getExp();
-        int level = progress.getLevel();
-        int expToNextLevel = progress.getExpForNextLevel() - exp;
-        
+    public List<UserProgressDTO> getGlobalLeaderboard() {
+        return repo.findTop10Global()
+                .stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    // Null-safe version
+    public UserProgressDTO getLastPlayed(User user) {
+        List<UserProgress> progresses = repo.findByUser(user);
+        return progresses.stream()
+                .filter(p -> p.getLastActive() != null)
+                .max((a, b) -> a.getLastActive().compareTo(b.getLastActive()))
+                .map(this::toDto)
+                .orElse(null);
+    }
+
+    private UserProgressDTO toDto(UserProgress e) {
         return UserProgressDTO.builder()
-                .exp(exp)
-                .level(level)
-                .expToNextLevel(expToNextLevel)
-                .completedLevels((int) completedPuzzles)
-                .totalLevels((int) totalPuzzles)
-                .currentStreak(progress.getDailyStreak())
-                .bestStreak(progress.getDailyStreak())
-                .hintsRemaining(0) // Not currently tracking hints
+                .id(e.getId()).category(e.getCategory()).currentLevel(e.getCurrentLevel())
+                .currentXp(e.getCurrentXp()).level(e.getLevel())
+                .puzzlesSolved(e.getPuzzlesSolved()).hintsUsed(e.getHintsUsed())
+                .streakCount(e.getStreakCount()).maxStreak(e.getMaxStreak())
+                .correctAnswers(e.getCorrectAnswers()).wrongAnswers(e.getWrongAnswers())
+                .totalAttempts(e.getTotalAttempts()).livesLeft(e.getLivesLeft())
+                .lastPlayedLevel(e.getLastPlayedLevel()).lastPlayedCategory(e.getLastPlayedCategory())
                 .build();
     }
 }

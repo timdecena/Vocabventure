@@ -1,119 +1,91 @@
 package com.example.Vocabia.controller;
 
-import com.example.Vocabia.dto.CompletePuzzleRequest;
 import com.example.Vocabia.dto.UserProgressDTO;
-import com.example.Vocabia.entity.FourPicOneWordPuzzle;
 import com.example.Vocabia.entity.User;
-import com.example.Vocabia.exception.ResourceNotFoundException;
-import com.example.Vocabia.repository.FourPicOneWordPuzzleRepository;
-import com.example.Vocabia.repository.UserRepository;
-import com.example.Vocabia.service.GameProgressionService;
 import com.example.Vocabia.service.UserProgressService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import com.example.Vocabia.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.security.Principal;
+import java.util.List;
 
-/**
- * Controller for managing user progress and game completion.
- */
-@Slf4j
-
-@Tag(name = "User Progress", description = "APIs for managing user progress and game completion")
 @RestController
-@RequestMapping("/api/user/progress")
-@CrossOrigin(origins = "${app.cors.allowed-origins:http://localhost:3000}", allowCredentials = "true")
+@RequestMapping("/api/user-progress")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserProgressController {
-
-    private final UserRepository userRepository;
-    private final FourPicOneWordPuzzleRepository puzzleRepository;
-    private final GameProgressionService gameProgressionService;
     private final UserProgressService userProgressService;
+    private final UserService userService;
 
-        /**
-     * Get the user's progress.
-     *
-     * @param principal the authenticated user
-     * @return UserProgressDTO containing progress information
-     */
-    @Operation(
-        summary = "Get user progress",
-        description = "Retrieves the progress of the authenticated user"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved user progress"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
-        @ApiResponse(responseCode = "404", description = "User progress not found")
-    })
-    @GetMapping
-    public ResponseEntity<UserProgressDTO> getProgress(Principal principal) {
-        log.info("Fetching progress for user: {}", principal.getName());
-        UserProgressDTO progress = gameProgressionService.getUserProgress(principal.getName());
-        return ResponseEntity.ok(progress);
+    @lombok.Data
+    public static class ProgressSubmissionRequest {
+        private String category;
+        private int level;
+        private String answer;
+        private boolean usedHint;
     }
 
-    /**
-     * Mark a puzzle as completed and add EXP, then return updated progress.
-     *
-     * @param principal the authenticated user
-     * @param request the completion request containing puzzle ID and EXP
-     * @return updated UserProgressDTO
-     */
-    @Operation(
-        summary = "Complete puzzle",
-        description = "Marks a puzzle as completed and updates user progress with earned EXP"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Puzzle completed successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid request"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
-        @ApiResponse(responseCode = "404", description = "User or puzzle not found")
-    })
-    @PostMapping("/complete-puzzle")
-    public ResponseEntity<UserProgressDTO> completePuzzle(
-            Principal principal,
-            @Valid @RequestBody CompletePuzzleRequest request) {
-        
-        log.info("Completing puzzle for user: {}, puzzleId: {}", 
-                principal.getName(), request.getPuzzleId());
-        
-        // Find user
-        User user = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", principal.getName()));
+    // Submit answer, return updated UserProgressDTO
+    @PostMapping("/submit")
+    public ResponseEntity<UserProgressDTO> submitAnswer(@RequestBody ProgressSubmissionRequest req, Principal principal) {
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserProgressDTO updatedProgress = userProgressService.completeLevel(user, req.getCategory(), req.isUsedHint());
+        return ResponseEntity.ok(updatedProgress);
+    }
 
-        // Find puzzle
-        FourPicOneWordPuzzle puzzle = puzzleRepository.findById(request.getPuzzleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Puzzle", "id", request.getPuzzleId()));
+    // Register hint use, return updated UserProgressDTO
+    @PostMapping("/use-hint")
+    public ResponseEntity<UserProgressDTO> useHint(@RequestParam String category, @RequestParam int level, Principal principal) {
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserProgressDTO updatedProgress = userProgressService.useHint(user, category, level);
+        return ResponseEntity.ok(updatedProgress);
+    }
 
-        try {
-            // Update user progress with puzzle completion
-            int expEarned = userProgressService.addExpForPuzzle(
-                user, 
-                puzzle, 
-                request.getTimeTaken(), 
-                request.getHintsUsed()
-            );
-            
-            // Return updated progress
-            UserProgressDTO updatedProgress = gameProgressionService.getUserProgress(
-                    principal.getName());
-                    
-            log.info("Successfully completed puzzle for user: {}, earned {} XP, new level: {}", 
-                    principal.getName(), expEarned, updatedProgress.getLevel());
-                    
-            return ResponseEntity.ok(updatedProgress);
-            
-        } catch (Exception e) {
-            log.error("Error completing puzzle for user: " + principal.getName(), e);
-            throw e; // Let the global exception handler handle it
+    // Register wrong attempt, return updated UserProgressDTO
+    @PostMapping("/wrong")
+    public ResponseEntity<UserProgressDTO> wrongAttempt(@RequestBody ProgressSubmissionRequest req, Principal principal) {
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserProgressDTO updatedProgress = userProgressService.wrongAttempt(user, req.getCategory());
+        return ResponseEntity.ok(updatedProgress);
+    }
+
+    // Check if level is unlocked (returns boolean)
+    @GetMapping("/is-unlocked")
+    public ResponseEntity<Boolean> isLevelUnlocked(@RequestParam String category, @RequestParam int level, Principal principal) {
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean unlocked = userProgressService.isLevelUnlocked(user, category, level);
+        return ResponseEntity.ok(unlocked);
+    }
+
+    // Leaderboard for category
+    @GetMapping("/leaderboard")
+    public ResponseEntity<List<UserProgressDTO>> getLeaderboard(@RequestParam String category) {
+        return ResponseEntity.ok(userProgressService.getLeaderboard(category));
+    }
+
+    // Global leaderboard
+    @GetMapping("/leaderboard/global")
+    public ResponseEntity<List<UserProgressDTO>> getGlobalLeaderboard() {
+        return ResponseEntity.ok(userProgressService.getGlobalLeaderboard());
+    }
+
+    // Get most recent progress for user
+    @GetMapping("/last-played")
+    public ResponseEntity<UserProgressDTO> getLastPlayed(Principal principal) {
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserProgressDTO dto = userProgressService.getLastPlayed(user);
+        if (dto == null) {
+            // No progress yet, return empty object to avoid frontend null errors
+            dto = new UserProgressDTO();
         }
+        return ResponseEntity.ok(dto);
     }
+
+    // Optionally, add more endpoints for analytics, game summary, etc.
 }

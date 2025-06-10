@@ -1,138 +1,83 @@
 package com.example.Vocabia.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_progress")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserProgress {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "user_id", unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private int exp = 0;
+    @Column(nullable = false)
+    private String category;
+
+    @Column(name = "current_level", nullable = false)
+    @Builder.Default
+    private int currentLevel = 1;
+
+    @Column(name = "current_xp", nullable = false)
+    @Builder.Default
+    private int currentXp = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
     private int level = 1;
-    private int totalPuzzlesSolved = 0;
-    private int dailyStreak = 0;
-    private LocalDate lastLoginDate = LocalDate.now();
-    private LocalDateTime lastLevelUp;
-    private int totalExpEarned = 0;
 
-    // --- XP thresholds for each level ---
-    @Transient
-    public static final int[] LEVEL_CAPS = {
-            0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500,
-            5500, 6600, 7800, 9100, 10500, 12000, 13600, 15300, 17100, 19000,
-            21000, 23100, 25300, 27600, 30000, 32500, 35100, 37800, 40600, 43500,
-            46500, 49600, 52800, 56100, 59500, 63000, 66600, 70300, 74100, 78000,
-            82000, 86100, 90300, 94600, 99000, 103500, 108100, 112800, 117600, 122500,
-            127500, 132600, 137800, 143100, 148500, 154000, 159600, 165300, 171100, 177000,
-            183000, 189100, 195300, 201600, 208000, 214500, 221100, 227800, 234600, 241500,
-            248500, 255600, 262800, 270100, 277500, 285000, 292600, 300300, 308100, 316000,
-            324000, 332100, 340300, 348600, 357000, 365500, 374100, 382800, 391600, 400500,
-            409500, 418600, 427800, 437100, 446500, 456000, 465600, 475300, 485100, 495000
-    };
+    @Column(name = "puzzles_solved", nullable = false)
+    @Builder.Default
+    private int puzzlesSolved = 0;
 
-    // --- Constructors ---
-    public UserProgress() {}
+    @Column(name = "hints_used", nullable = false)
+    @Builder.Default
+    private int hintsUsed = 0;
 
-    public UserProgress(User user) {
-        this.user = user;
-        this.exp = 0;
-        this.level = 1;
-        this.totalPuzzlesSolved = 0;
-        this.dailyStreak = 0;
-        this.lastLoginDate = LocalDate.now();
-        this.lastLevelUp = null;
-        this.totalExpEarned = 0;
-    }
+    @Column(name = "streak_count", nullable = false)
+    @Builder.Default
+    private int streakCount = 0;
 
-    // --- Getters and Setters ---
+    @Column(name = "max_streak", nullable = false)
+    @Builder.Default
+    private int maxStreak = 0;
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "correct_answers", nullable = false)
+    @Builder.Default
+    private int correctAnswers = 0;
 
-    public User getUser() {
-        return user;
-    }
-    public void setUser(User user) {
-        this.user = user;
-    }
+    @Column(name = "wrong_answers", nullable = false)
+    @Builder.Default
+    private int wrongAnswers = 0;
 
-    public int getExp() {
-        return exp;
-    }
-    public void setExp(int exp) {
-        this.exp = exp;
-    }
+    @Column(name = "total_attempts", nullable = false)
+    @Builder.Default
+    private int totalAttempts = 0;
 
-    public int getLevel() {
-        return level;
-    }
-    public void setLevel(int level) {
-        this.level = level;
-    }
+    @Column(name = "lives_left", nullable = false)
+    @Builder.Default
+    private int livesLeft = 3;
 
-    public int getTotalPuzzlesSolved() {
-        return totalPuzzlesSolved;
-    }
-    public void setTotalPuzzlesSolved(int totalPuzzlesSolved) {
-        this.totalPuzzlesSolved = totalPuzzlesSolved;
-    }
+    @Column(name = "last_played_level")
+    private Integer lastPlayedLevel;
 
-    public int getDailyStreak() {
-        return dailyStreak;
-    }
-    public void setDailyStreak(int dailyStreak) {
-        this.dailyStreak = dailyStreak;
-    }
+    @Column(name = "last_played_category")
+    private String lastPlayedCategory;
 
-    public LocalDate getLastLoginDate() {
-        return lastLoginDate;
-    }
-    public void setLastLoginDate(LocalDate lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
-    }
+    @Column(name = "last_active")
+    private LocalDateTime lastActive;
 
-    public LocalDateTime getLastLevelUp() {
-        return lastLevelUp;
-    }
-    public void setLastLevelUp(LocalDateTime lastLevelUp) {
-        this.lastLevelUp = lastLevelUp;
-    }
+    @Column(name = "created_at", updatable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    public int getTotalExpEarned() {
-        return totalExpEarned;
-    }
-    public void setTotalExpEarned(int totalExpEarned) {
-        this.totalExpEarned = totalExpEarned;
-    }
+    @Column(name = "updated_at")
+    @Builder.Default
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // --- Helper Methods ---
-
-    /** Returns the EXP needed to reach the next level. */
-    public int getExpForNextLevel() {
-        return (level < LEVEL_CAPS.length) ? LEVEL_CAPS[level] : LEVEL_CAPS[LEVEL_CAPS.length - 1];
-    }
-
-    /** Static helper: EXP required for a specific level (level 1-based). */
-    public static int getExpForLevel(int lvl) {
-        return (lvl <= 0) ? 0 : (lvl < LEVEL_CAPS.length ? LEVEL_CAPS[lvl] : LEVEL_CAPS[LEVEL_CAPS.length - 1]);
-    }
-
-    /** Returns the highest level possible (based on LEVEL_CAPS). */
-    public static int getMaxLevel() {
-        return LEVEL_CAPS.length - 1;
-    }
-
-    // --- Optional: level up logic can be placed in the service for atomicity ---
+    @PreUpdate public void preUpdate() { this.updatedAt = LocalDateTime.now(); }
 }

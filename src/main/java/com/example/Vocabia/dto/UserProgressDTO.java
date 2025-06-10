@@ -1,22 +1,22 @@
 package com.example.Vocabia.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserProgressDTO {
-    private String gameType;
-    private int exp;
+    private Long id;
+    private String category;
+    private int currentLevel;
+    private int currentXp;
     private int level;
-    private int expToNextLevel;
-    private int completedLevels;
-    private int totalLevels;
-    private int currentStreak;
-    private int bestStreak;
-    private int hintsRemaining;
+    private int puzzlesSolved;
+    private int hintsUsed;
+    private int streakCount;
+    private int maxStreak;
+    private int correctAnswers;
+    private int wrongAnswers;
+    private int totalAttempts;
+    private int livesLeft;
+    private Integer lastPlayedLevel;
+    private String lastPlayedCategory;
 }

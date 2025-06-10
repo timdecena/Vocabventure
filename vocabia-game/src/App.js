@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Auth
 import Login from './Pages/Login';
 import Register from './Pages/Register';
-
-// Admin pages
 
 // Teacher pages
 import TeacherHome from './Teacher/TeacherHome';
@@ -14,9 +12,6 @@ import TeacherClassStudentsPage from './Teacher/TeacherClassStudentsPage';
 import TeacherCreateClassPage from './Teacher/TeacherCreateClassPage';
 import TeacherEditClassPage from './Teacher/TeacherEditClassPage';
 import TeacherViewClassPage from './Teacher/TeacherViewClassPage';
-import GameManagement from './Teacher/GameManagement';
-import LevelManagementPage from './Teacher/LevelManagementPage';
-import PuzzleManagementPage from './Teacher/PuzzleManagementPage';
 
 // Student pages
 import StudentHome from './Student/StudentHome';
@@ -24,23 +19,13 @@ import StudentClassListPage from './Student/StudentClassListPage';
 import StudentClassmatesPage from './Student/StudentClassmatesPage';
 import StudentJoinClassPage from './Student/StudentJoinClassPage';
 import StudentViewClassPage from './Student/StudentViewClassPage';
-import StudentProgressPage from './Student/StudentProgressPage';
-import LeaderboardPage from './Student/LeaderboardPage';
 
-// Game pages (split: Category > Level > Play)
+// Four Pic One Word game - Dynamic (NEW)
 import CategoryList from './FourPicOneWordGame/CategoryList';
 import LevelList from './FourPicOneWordGame/LevelList';
 import GamePlay from './FourPicOneWordGame/GamePlay';
 
 import './App.css';
-
-// Classroom mode: You can use a prop to indicate classId, or redirect to game flow for now
-function FourPicOneWordGameWithClass() {
-  const { classId } = useParams();
-  // For now, just show the CategoryList with a classId prop if needed
-  // You can build a custom classroom flow later!
-  return <CategoryList classId={classId} />;
-}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -76,7 +61,6 @@ function App() {
             element={isAuthenticated ? <Navigate to="/" replace /> : <Register />}
           />
 
-
           {/* TEACHER ROUTES */}
           <Route path="/teacher-home" element={
             isAuthenticated && role === 'TEACHER'
@@ -88,10 +72,6 @@ function App() {
           <Route path="/teacher/classes/:id/edit" element={isAuthenticated && role === 'TEACHER' ? <TeacherEditClassPage /> : <Navigate to="/" replace />} />
           <Route path="/teacher/classes/:id" element={isAuthenticated && role === 'TEACHER' ? <TeacherViewClassPage /> : <Navigate to="/" replace />} />
           <Route path="/teacher/classes/:id/students" element={isAuthenticated && role === 'TEACHER' ? <TeacherClassStudentsPage /> : <Navigate to="/" replace />} />
-          <Route path="/teacher/game-management" element={isAuthenticated && role === 'TEACHER' ? <GameManagement /> : <Navigate to="/" replace />} />
-          <Route path="/teacher/levels" element={isAuthenticated && role === 'TEACHER' ? <LevelManagementPage /> : <Navigate to="/" replace />} />
-          <Route path="/teacher/puzzles" element={isAuthenticated && role === 'TEACHER' ? <PuzzleManagementPage /> : <Navigate to="/" replace />} />
-
           {/* STUDENT ROUTES */}
           <Route path="/student-home" element={
             isAuthenticated && role === 'STUDENT'
@@ -102,32 +82,20 @@ function App() {
           <Route path="/student/classes/join" element={isAuthenticated && role === 'STUDENT' ? <StudentJoinClassPage /> : <Navigate to="/" replace />} />
           <Route path="/student/classes/:id" element={isAuthenticated && role === 'STUDENT' ? <StudentViewClassPage /> : <Navigate to="/" replace />} />
           <Route path="/student/classes/:id/classmates" element={isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />} />
-          <Route path="/student/progress" element={isAuthenticated && role === 'STUDENT' ? <StudentProgressPage /> : <Navigate to="/" replace />} />
-          <Route path="/student/leaderboard" element={isAuthenticated && role === 'STUDENT' ? <LeaderboardPage /> : <Navigate to="/" replace />} />
-          
-          {/* STUDENT: PLAY 4 PICS 1 WORD in Classroom */}
-          <Route path="/student/classes/:classId/4pic1word" element={
-            isAuthenticated && role === 'STUDENT'
-              ? <FourPicOneWordGameWithClass />
-              : <Navigate to="/" replace />
-          } />
 
-          {/* GAME FLOW: PUBLIC CATEGORY/LEVEL/PAGE (for all students) */}
-          <Route path="/4pic1word" element={
-            isAuthenticated && role === 'STUDENT'
-              ? <CategoryList />
-              : <Navigate to="/" replace />
-          } />
-          <Route path="/4pic1word/levels/:category" element={
-            isAuthenticated && role === 'STUDENT'
-              ? <LevelList />
-              : <Navigate to="/" replace />
-          } />
-          <Route path="/4pic1word/play/:category/:level" element={
-            isAuthenticated && role === 'STUDENT'
-              ? <GamePlay />
-              : <Navigate to="/" replace />
-          } />
+          {/* FOUR PIC ONE WORD GAME ROUTES (NEW) */}
+          <Route
+            path="/student/classes/:id/4pic1word"
+            element={isAuthenticated && role === 'STUDENT' ? <CategoryList /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/student/classes/:id/4pic1word/:category"
+            element={isAuthenticated && role === 'STUDENT' ? <LevelList /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/student/classes/:id/4pic1word/:category/level/:level"
+            element={isAuthenticated && role === 'STUDENT' ? <GamePlay /> : <Navigate to="/" replace />}
+          />
 
           {/* CATCH ALL */}
           <Route path="*" element={<Navigate to="/" replace />} />

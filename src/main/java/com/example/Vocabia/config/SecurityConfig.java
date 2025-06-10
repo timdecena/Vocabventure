@@ -44,10 +44,17 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+                        // Allow static resources and auth endpoints
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
                         .requestMatchers("/api/4pic1word-assets/**").permitAll()
+                        // Public endpoints for category and level list
+                        .requestMatchers("/api/fpow/categories").permitAll()
+                        .requestMatchers("/api/fpow/levels").permitAll()
+                        // Protected endpoints: all gameplay and progress
+                        .requestMatchers("/api/fpow/**").authenticated()
+                        .requestMatchers("/api/user-progress/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
