@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+// Note: React Router warnings about future flags can be safely ignored
 
 // Auth
 import Login from './Pages/Login';

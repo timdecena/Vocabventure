@@ -1,0 +1,11 @@
+{
+  "answer": "CHAIR",
+  "hint": "Something you sit on",
+  "difficulty": 1,
+  "images": [
+    "/images/Objects/1/pic1.jpg",
+    "/images/Objects/1/pic2.jpg",
+    "/images/Objects/1/pic3.jpg",
+    "/images/Objects/1/pic4.jpg"
+  ]
+}

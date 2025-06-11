@@ -25,36 +25,164 @@ const LEVEL_BG = [
   "#D0F8EF", "#F0E7FF", "#F9F3D2", "#FFDDE4", "#D6E4FF", "#FFEEBC"
 ];
 
+// Capitalize
+function capitalize(str) {
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+}
+
 export default function LevelList() {
-  const { id, category } = useParams(); // id = classroom id
+  const { id, category } = useParams();
   const [levels, setLevels] = useState([]);
-  const [unlocked, setUnlocked] = useState({});
+  const [unlocked, setUnlocked] = useState(() => ({ 1: true })); // level 1 always unlocked
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userProgress, setUserProgress] = useState(null);
   const navigate = useNavigate();
 
+  // Load completed levels from localStorage or initialize empty object
+  const loadCompletedLevels = () => {
+    try {
+      const saved = localStorage.getItem(`vocabVenture_${category}_completed`);
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      console.error("Error loading completed levels:", e);
+      return {};
+    }
+  };
+
+  // Save completed level to localStorage
+  const saveCompletedLevel = (level) => {
+    try {
+      const completed = loadCompletedLevels();
+      completed[level] = true;
+      localStorage.setItem(`vocabVenture_${category}_completed`, JSON.stringify(completed));
+    } catch (e) {
+      console.error("Error saving completed level:", e);
+    }
+  };
+
   useEffect(() => {
-    setLoading(true);
-    setError("");
+    let isMounted = true;
 
-    api.get(`/fpow/levels`, { params: { category } })
-      .then(res => {
+    const loadLevels = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        // Fetch available levels for the category
+        const res = await api.get(`/fpow/levels`, { params: { category } });
         if (!Array.isArray(res.data)) throw new Error('Invalid response format for levels');
-        setLevels(res.data);
+        if (isMounted) setLevels(res.data);
 
-        // Simulate unlock logic: only level 1 is unlocked for new user, rest are locked
-        // In production, request unlocked status for each level from backend
-        const unlockedStatus = {};
-        res.data.forEach(lvl => unlockedStatus[lvl] = false);
-        if (res.data.includes(1)) unlockedStatus[1] = true;
-        setUnlocked(unlockedStatus);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.response?.data?.message || err.message || 'Failed to load levels');
-        setLoading(false);
-      });
+        // Initialize unlock map - level 1 is always unlocked
+        const unlockMap = { 1: true };
+        const completedLevels = loadCompletedLevels();
+        
+        // Sort levels numerically to ensure proper progression
+        const sortedLevels = [...res.data].sort((a, b) => Number(a) - Number(b));
+        
+        // First pass: mark completed levels as unlocked
+        sortedLevels.forEach(lvl => {
+          const levelNum = Number(lvl);
+          if (completedLevels[levelNum]) {
+            unlockMap[levelNum] = true;
+          }
+        });
+        
+        // Find the highest completed level
+        const completedLevelNumbers = Object.keys(completedLevels).map(Number);
+        const highestCompletedLevel = Math.max(...completedLevelNumbers, 0);
+        
+        // Second pass: only unlock the next level after the highest completed level
+        // This prevents skipping levels when returning to the level list
+        sortedLevels.forEach(lvl => {
+          const levelNum = Number(lvl);
+          
+          // Level 1 is always unlocked
+          if (levelNum === 1) {
+            unlockMap[levelNum] = true;
+          }
+          // Only unlock the next sequential level after the highest completed level
+          else if (levelNum === highestCompletedLevel + 1) {
+            unlockMap[levelNum] = true;
+          }
+        });
+        
+        // Try to get authenticated user progress if available
+        try {
+          const token = localStorage.getItem("token");
+          if (token) {
+            const progressRes = await api.get('/user-progress/last-played');
+            if (progressRes.data && progressRes.data.category === category) {
+              const serverHighestLevel = progressRes.data.currentLevel;
+              
+              // Compare server data with local data and use the higher value
+              const effectiveHighestLevel = Math.max(serverHighestLevel, highestCompletedLevel);
+              
+              // Mark all levels up to the highest completed as unlocked
+              for (let i = 1; i <= effectiveHighestLevel; i++) {
+                unlockMap[i] = true;
+              }
+              
+              // Only unlock the next level after the highest completed
+              if (effectiveHighestLevel > 0) {
+                unlockMap[effectiveHighestLevel + 1] = true;
+              }
+            }
+          }
+        } catch (e) {
+          // Continue with local unlock state if API call fails
+          console.warn("Could not fetch user progress, using local data", e);
+        }
+        
+        if (isMounted) setUnlocked(unlockMap);
+      } catch (err) {
+        if (isMounted) setError(err.response?.data?.message || err.message || 'Failed to load levels');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadLevels();
+    return () => { isMounted = false; };
   }, [category, id]);
+
+  const handlePlay = lvl => {
+    if (!unlocked[lvl]) return; // guard against playing locked levels
+    navigate(`/student/classes/${id}/4pic1word/${category}/level/${lvl}`);
+  };
+  
+  // This function would be called when a level is completed
+  // It should be passed to the GamePlay component
+  const handleLevelComplete = (level) => {
+    // Mark the current level as completed
+    saveCompletedLevel(level);
+    
+    // Get the numeric level
+    const currentLevel = Number(level);
+    
+    // Update local state for unlocking levels properly
+    setUnlocked(prev => {
+      // Create a copy of the current unlock state
+      const newUnlocked = { ...prev };
+      
+      // Always mark the current level as unlocked
+      newUnlocked[currentLevel] = true;
+      
+      // Only unlock the next level if the current level is the highest completed level
+      // This prevents skipping levels when replaying earlier levels
+      const completedLevels = loadCompletedLevels();
+      const completedLevelNumbers = Object.keys(completedLevels).map(Number);
+      const highestCompletedLevel = Math.max(...completedLevelNumbers, 0);
+      
+      // If this is the highest level completed so far, unlock the next level
+      if (currentLevel >= highestCompletedLevel) {
+        newUnlocked[currentLevel + 1] = true;
+      }
+      
+      return newUnlocked;
+    });
+  };
 
   if (loading) return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -72,7 +200,7 @@ export default function LevelList() {
       <Paper elevation={3} sx={{ p: 3, mt: 4, borderRadius: 3 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="h4" fontWeight={700}>
-            {category.charAt(0).toUpperCase() + category.slice(1)} Levels
+            {capitalize(category)} Levels
           </Typography>
           <Button
             variant="outlined"
@@ -88,7 +216,7 @@ export default function LevelList() {
         ) : (
           <Grid container spacing={3}>
             {levels.map((level, i) => (
-              <Grid item xs={12} sm={6} md={4} key={level}>
+              <Grid item xs={12} sm={6} md={2.4} key={level}>
                 <Card
                   elevation={4}
                   sx={{
@@ -108,24 +236,29 @@ export default function LevelList() {
                   }}>
                     {unlocked[level] ? (
                       <>
-                        <LockOpenIcon color="success" sx={{ fontSize: 38, mb: 1 }} />
+                        <LockOpenIcon sx={{ fontSize: 38, mb: 1, color: "#388e3c" }} />
                         <Typography variant="h6" fontWeight={600} color="#3b4361" gutterBottom>
                           Level {level}
                         </Typography>
                         <Chip
                           label={<><StarRateIcon sx={{ fontSize: 18, mr: 0.5 }} />Unlocked</>}
-                          color="success"
-                          sx={{ mb: 2, fontWeight: 500 }}
+                          sx={{ mb: 2, fontWeight: 500, bgcolor: "#388e3c", color: "#fff" }}
                         />
                         <Tooltip title="Play this level!">
                           <Button
                             variant="contained"
-                            color="secondary"
+                            style={{
+                              background: "#9900cc",
+                              color: "#fff",
+                              borderRadius: 20,
+                              fontWeight: 700,
+                              marginTop: 12,
+                              boxShadow: "0 3px 10px 0 #cacaca"
+                            }}
                             startIcon={<VideogameAssetIcon />}
-                            sx={{ fontWeight: 600, borderRadius: 8, mt: 2 }}
-                            onClick={() => navigate(`/student/classes/${id}/4pic1word/${category}/level/${level}`)}
+                            onClick={() => handlePlay(level)}
                           >
-                            Play
+                            PLAY
                           </Button>
                         </Tooltip>
                       </>

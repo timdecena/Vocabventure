@@ -8,7 +8,11 @@ import java.time.LocalDateTime;
 @Table(name = "four_pic_one_word", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"category", "level"})
 })
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter 
+@Setter 
+@NoArgsConstructor 
+@AllArgsConstructor 
+@Builder
 public class FourPicOneWord {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
