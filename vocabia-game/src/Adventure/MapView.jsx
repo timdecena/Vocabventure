@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/MapView.css";
+import TutorialSequence from "./tutorial/TutorialSequence";
 
 const oceanBg = "https://cdna.artstation.com/p/assets/images/images/061/904/456/large/milan-vasek-worldmap-wip.jpg?1681900161";
 const islands = [
@@ -29,6 +30,7 @@ function getIslandCenter(island) {
 
 export default function MapView() {
   const navigate = useNavigate();
+  const [showTutorial, setShowTutorial] = useState(false);
   // SVG lines between islands
   const lines = pathCoords.map(([fromIdx, toIdx], i) => {
     const from = getIslandCenter(islands[fromIdx]);
@@ -43,10 +45,10 @@ export default function MapView() {
   });
 
   return (
-    <div className="map-bg" style={{ backgroundImage: `url(${oceanBg})` }}>
+    <div className="map-bg" style={{ backgroundImage: `url(${oceanBg})`, height: '100vh', minHeight: '100vh' }}>
       <div className="map-heading">VOCABIA</div>
       <div className="map-buttons">
-        <button className="map-btn" onClick={() => navigate('/tutorial')}>Replay Tutorial</button>
+        <button className="map-btn" onClick={() => setShowTutorial(true)}>Replay Tutorial</button>
         <button className="map-btn" onClick={() => navigate('/home')}>Quit to Homepage</button>
       </div>
       <svg className="map-paths">
@@ -81,6 +83,19 @@ export default function MapView() {
           </div>
         </React.Fragment>
       ))}
+      {showTutorial && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          zIndex: 2000,
+          background: "rgba(0,0,0,0.85)"
+        }}>
+          <TutorialSequence onClose={() => setShowTutorial(false)} />
+        </div>
+      )}
     </div>
   );
 } 
