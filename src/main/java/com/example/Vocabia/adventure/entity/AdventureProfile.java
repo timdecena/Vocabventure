@@ -15,6 +15,12 @@ public class AdventureProfile {
 
     private int xp;
     private int level;
+    @Column(name = "tutorial_completed")
+    private boolean tutorialCompleted = false;
+
+
+    public boolean isTutorialCompleted() { return tutorialCompleted; }
+public void setTutorialCompleted(boolean tutorialCompleted) { this.tutorialCompleted = tutorialCompleted; }
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -28,4 +34,7 @@ public class AdventureProfile {
 
     public int getLevel() { return level; }
     public void setLevel(int level) { this.level = level; }
+
+
+
 }

@@ -7,7 +7,7 @@ import VillageScene from './scenes/VillageScene';
 import TutorialBattle from './battle/TutorialBattle';
 import VictoryScene from './scenes/VictoryScene';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/api';
 
 const FullScreenContainer = styled(Box)(({ theme }) => ({
   width: '100vw',
@@ -50,23 +50,13 @@ const TutorialSequence = ({ onClose }) => {
   useEffect(() => {
     const checkUserStatus = async () => {
       try {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) {
-          setIsNewUser(true);
-          setProfileDebug('No user in localStorage');
-          return;
-        }
-        const user = JSON.parse(userStr);
-        const res = await axios.get(`http://localhost:8081/api/adventure-profile?userId=${user.id}`, { withCredentials: true });
+        // Use the main API helper to get the adventure profile
+        const res = await api.get(`/adventure/profile`);
         setProfileDebug(res.data); // Save profile data for debug
-        
         if (res.data && typeof res.data === 'object') {
-          // If the user has any adventure profile, treat as returning user
-          setIsNewUser(false);
-          // Check if tutorial is completed
-          const tutorialCompleted = res.data.tutorialCompleted === true;
-          setHasCompletedTutorial(tutorialCompleted);
-          console.log('Tutorial completion status:', tutorialCompleted);
+          setIsNewUser(!res.data.tutorialCompleted);
+          setHasCompletedTutorial(res.data.tutorialCompleted === true);
+          console.log('Tutorial completion status:', res.data.tutorialCompleted);
         } else {
           setIsNewUser(true);
           setHasCompletedTutorial(false);
@@ -99,14 +89,9 @@ const TutorialSequence = ({ onClose }) => {
     // Mark tutorial as completed
     const markTutorialCompleted = async () => {
       try {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) return;
-        const user = JSON.parse(userStr);
-        const response = await axios.put(`http://localhost:8081/api/adventure-profile/complete-tutorial?userId=${user.id}`, {}, { withCredentials: true });
-        if (response.data) {
-          setHasCompletedTutorial(true);
-          setIsNewUser(false);
-        }
+        await api.post(`/adventure/profile/complete-tutorial`);
+        setHasCompletedTutorial(true);
+        setIsNewUser(false);
       } catch (err) {
         console.error('Failed to mark tutorial as completed:', err);
       }
@@ -181,18 +166,14 @@ const TutorialSequence = ({ onClose }) => {
           <Button onClick={handleQuitCancel} color="primary" variant="contained">
             Continue Tutorial
           </Button>
-          <Button onClick={() => { if (onClose) onClose(); navigate('/map'); }} color="secondary" variant="contained">
-            Return to Map
-          </Button>
-          {isNewUser ? (
-            <Button onClick={() => navigate('/home')} color="error" variant="contained">
-              Quit to Homepage
-            </Button>
-          ) : (
-            <Button onClick={() => navigate('/home')} color="error" variant="contained">
-              Return to Home
+          {hasCompletedTutorial && (
+            <Button onClick={() => { if (onClose) onClose(); navigate('/map'); }} color="secondary" variant="contained">
+              Return to Map
             </Button>
           )}
+          <Button onClick={() => navigate('/home')} color="error" variant="contained">
+            Quit to Homepage
+          </Button>
         </DialogActions>
       </Dialog>
     </FullScreenContainer>

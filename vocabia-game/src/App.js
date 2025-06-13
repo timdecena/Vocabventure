@@ -40,6 +40,7 @@ import JungleLushLevel2 from "./Adventure/island1(junglelush)/JungleLushLevel2";
 import JungleLushLevel3 from "./Adventure/island1(junglelush)/JungleLushLevel3";
 import JungleLushLevel4 from "./Adventure/island1(junglelush)/JungleLushLevel4";
 import JungleLushLevel5 from "./Adventure/island1(junglelush)/JungleLushLevel5";
+import Tutorial from "./Adventure/tutorial/Tutorial";
 
 import './App.css';
 
@@ -93,7 +94,8 @@ function AppContent({ isAuthenticated, setIsAuthenticated, role, setRole, needsN
     "/adventure",
     "/student/adventure",
     "/map",
-    "/jungle-lush"
+    "/jungle-lush",
+    "/tutorial"
   ];
   // Hide navbar if on any adventure prefix or its subpath
   const hideNavbar = adventurePrefixes.some(path =>
@@ -169,6 +171,7 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole }) {
       {/* ✅ Adventure Mode (NO NAVBAR) */}
       <Route path="/student/adventure" element={isAuthenticated && role === 'STUDENT' ? <Adventure /> : <Navigate to="/" replace />} />
       <Route path="/adventure" element={<Adventure />} />
+      <Route path="/tutorial" element={<Tutorial />} />
       <Route path="/map" element={<MapView />} />
       <Route path="/jungle-lush" element={<JungleLush />} />
       <Route path="/jungle-lush/level1" element={<JungleLushLevel1 />} />

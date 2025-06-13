@@ -667,9 +667,10 @@ const JungleLushLevel2 = () => {
       async function saveProgress() {
         try {
           const token = localStorage.getItem('token');
-          await axios.post('/api/progress/levels/2', {
-            starsEarned: hearts,
-            completed: true
+          await axios.post('/api/adventure/level-progress/save', {
+            levelName: "Tensephant's Domain",
+            completed: true,
+            starsEarned: hearts
           }, {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true

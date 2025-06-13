@@ -23,13 +23,17 @@ const levels = [
   },
   {
     id: 3,
-    name: "Level 3",
-    icon: "🍃"
+    name: "Pluribog's Pit",
+    image: "https://cdna.artstation.com/p/assets/images/images/072/803/668/large/blade-blackwood-frogmonster.jpg?1708254629",
+    description: "Defeat Pluribog, the Bog Beast of Broken Words!",
+    icon: "🐸"
   },
   {
     id: 4,
-    name: "Level 4",
-    icon: "🍂"
+    name: "Grammowl's Tower",
+    image: "https://static.wikia.nocookie.net/hollowknight/images/e/e9/Sprintmaster.png",
+    description: "Face the final challenge in Grammowl's Tower!",
+    icon: "🦉"
   },
   {
     id: 5,
@@ -49,24 +53,24 @@ export default function JungleLush() {
     async function loadProgress() {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("/api/progress/levels", {
+        const res = await axios.get("/api/adventure/level-progress", {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
 
-        const starsArr = [0, 0, 0, 0, 0];
-        let maxUnlocked = 1;
-
+        // Map progress by level name
+        const progressMap = {};
         res.data.forEach(stat => {
-          const index = stat.levelId - 1;
-          if (index >= 0 && index < 5) {
-            starsArr[index] = stat.starsEarned;
-            if (stat.completed && stat.levelId + 1 > maxUnlocked) {
-              maxUnlocked = stat.levelId + 1;
-            }
-          }
+          progressMap[stat.levelName] = stat;
         });
 
+        const starsArr = levels.map(lvl => progressMap[lvl.name]?.starsEarned || 0);
+        let maxUnlocked = 1;
+        levels.forEach((lvl, idx) => {
+          if (progressMap[lvl.name]?.completed && idx + 2 > maxUnlocked) {
+            maxUnlocked = idx + 2;
+          }
+        });
         setStars(starsArr);
         setUnlocked(maxUnlocked);
       } catch (err) {
@@ -91,6 +95,7 @@ export default function JungleLush() {
         <div className="jl-levels-row">
           {levels.map((level, idx) => {
             const locked = idx + 1 > unlocked;
+            const isUnlocked = idx + 1 <= unlocked;
             const hasStars = stars[idx] > 0;
             const isBoss = level.id === 5;
 
@@ -100,7 +105,11 @@ export default function JungleLush() {
                 className={`jl-level-btn${locked ? " locked" : ""}${isBoss ? " boss" : ""}`}
                 disabled={locked}
                 onClick={() => handleLevelClick(level.id)}
-                style={level.image ? { backgroundImage: `url(${level.image})` } : {}}
+                style={{
+                  ...(level.image ? { backgroundImage: `url(${level.image})` } : {}),
+                  position: 'relative',
+                  overflow: 'visible',
+                }}
                 title={level.description || level.name}
               >
                 <span className="jl-btn-overlay" />
@@ -111,9 +120,31 @@ export default function JungleLush() {
                   <span className="jl-btn-text jl-btn-text-shadow">{level.name}</span>
                 )}
                 {locked && <span className="jl-lock">🔒</span>}
-                {hasStars && (
-                  <span className="jl-stars jl-btn-text-shadow">
-                    {"★".repeat(stars[idx])}{"☆".repeat(3 - stars[idx])}
+                {isUnlocked && (
+                  <span className="jl-stars jl-btn-text-shadow" style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    fontSize: '2rem',
+                    marginTop: 8,
+                    marginBottom: 0,
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: 8,
+                  }}>
+                    {[0,1,2].map(i => (
+                      <span
+                        key={i}
+                        style={{
+                          color: i < stars[idx] ? '#FFD700' : '#bbb',
+                          textShadow: '0 2px 8px #222, 0 0 2px #fff',
+                          margin: '0 1px',
+                          fontWeight: 900,
+                        }}
+                      >
+                        {i < stars[idx] ? '★' : '☆'}
+                      </span>
+                    ))}
                   </span>
                 )}
               </button>

@@ -86,10 +86,12 @@ const VictoryScene = ({ results, onClose }) => {
     // Mark tutorial as completed in the backend
     const markTutorialCompleted = async () => {
       try {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) return;
-        const user = JSON.parse(userStr);
-        await axios.put(`http://localhost:8081/api/adventure-profile/complete-tutorial?userId=${user.id}`);
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        await axios.post('/api/adventure/profile/complete-tutorial', {}, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true
+        });
       } catch (err) {
         // Optionally log error
         // console.error('Failed to mark tutorial as completed:', err);

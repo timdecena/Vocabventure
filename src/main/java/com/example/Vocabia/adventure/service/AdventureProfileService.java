@@ -27,4 +27,10 @@ public class AdventureProfileService {
             return profileRepo.save(newProfile);
         });
     }
+
+    public void completeTutorial(String email) {
+        AdventureProfile profile = getOrCreateProfile(email);
+        profile.setTutorialCompleted(true);
+        profileRepo.save(profile);
+    }
 }

@@ -12,6 +12,7 @@ public class LevelProgress {
 
     private String levelName;
     private boolean completed;
+    private int starsEarned;
 
     @ManyToOne
     private User user;
@@ -25,6 +26,9 @@ public class LevelProgress {
 
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
+
+    public int getStarsEarned() { return starsEarned; }
+    public void setStarsEarned(int starsEarned) { this.starsEarned = starsEarned; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }

@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/images/**").permitAll()
                 .requestMatchers("/audio/**").permitAll()
+                .requestMatchers("/nature/**").permitAll()
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() 
                 
