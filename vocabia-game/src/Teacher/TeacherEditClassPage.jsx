@@ -9,7 +9,7 @@ export default function TeacherEditClassPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/teacher/classes")
+    api.get("/api/teacher/classes")
       .then(res => {
         const found = res.data.find(c => c.id === Number(id));
         if (found) {
@@ -18,13 +18,25 @@ export default function TeacherEditClassPage() {
         } else {
           alert("Class not found"); navigate("/teacher/classes");
         }
+      })
+      .catch(error => {
+        console.error("Error fetching class:", error);
+        if (error.response && error.response.status === 403) {
+          alert("You don't have permission to access this class");
+          navigate("/teacher/classes");
+        }
       });
   }, [id, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await api.put(`/teacher/classes/${id}`, { name, description });
-    navigate("/teacher/classes");
+    try {
+      await api.put(`/api/teacher/classes/${id}`, { name, description });
+      navigate("/teacher/classes");
+    } catch (error) {
+      console.error("Error updating class:", error);
+      alert("Failed to update class: " + (error.response?.data || error.message));
+    }
   };
 
   return (

@@ -7,11 +7,16 @@ export default function StudentViewClassPage() {
   const [classroom, setClassroom] = useState(null);
 
   useEffect(() => {
-    api.get("/student/classes")
+    // The backend expects requests at /api/student/classes based on SecurityConfig
+    api.get("/api/student/classes")
       .then(res => {
         const found = res.data.find(c => c.id === Number(id));
         if (found) setClassroom(found);
         else alert("Class not found");
+      })
+      .catch(err => {
+        console.error("Error fetching student classes:", err);
+        alert("Failed to load classes. Please make sure you're logged in as a student.");
       });
   }, [id]);
 

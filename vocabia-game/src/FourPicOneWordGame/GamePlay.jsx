@@ -151,14 +151,18 @@ function gameReducer(state, action) {
       return {
         ...state,
         selectedLetters: [...state.selectedLetters, action.letter],
-        availableLetters: state.availableLetters.filter(l => l.id !== action.letter.id),
+        availableLetters: state.availableLetters.map(l => 
+          l.id === action.letter.id ? { ...l, used: true } : l
+        ),
       };
     case 'REMOVE_LETTER': {
       const letter = state.selectedLetters[action.index];
       return {
         ...state,
         selectedLetters: state.selectedLetters.filter((_, i) => i !== action.index),
-        availableLetters: [...state.availableLetters, letter],
+        availableLetters: state.availableLetters.map(l => 
+          l.id === letter.id ? { ...l, used: false } : l
+        ),
       };
     }
     case 'SET_SUCCESS': 
@@ -193,7 +197,11 @@ const generateAvailableLetters = (answer) => {
     const l = alphabet[Math.floor(Math.random() * alphabet.length)];
     if (!answerArr.includes(l) || fillers.filter(f => f === l).length < 2) fillers.push(l);
   }
-  return [...answerArr, ...fillers].sort(() => Math.random() - 0.5).map((v, i) => ({ id: i + '-' + v, value: v }));
+  return [...answerArr, ...fillers].sort(() => Math.random() - 0.5).map((v, i) => ({ 
+    id: i + '-' + v, 
+    value: v,
+    used: false
+  }));
 };
 
 // ---- Local Storage Progress Functions ----
@@ -254,7 +262,8 @@ const GamePlay = () => {
           dispatch({ type: 'SET_STORED_ATTEMPTS', payload: storedAttempts });
         }
         
-        const res = await api.get('/fpow/puzzle', { params: { category, level } });
+        // The backend expects requests at /api/fpow/puzzle based on SecurityConfig
+    const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
         if (!res.data || !res.data.answer) throw new Error('No puzzle found');
         const imageUrls = [
           res.data.image1Url, res.data.image2Url, res.data.image3Url, res.data.image4Url
@@ -327,8 +336,8 @@ const GamePlay = () => {
         
         // First try to get the current progress to check if it exists
         try {
-          // Send the request with retry logic
-          await api.post('/user-progress/submit', payload);
+          // The backend expects requests at /api/user-progress/submit based on SecurityConfig
+          await api.post('/api/user-progress/submit', payload);
           console.log("Progress saved successfully");
         } catch (innerError) {
           // If we get a non-unique result error, try a different approach

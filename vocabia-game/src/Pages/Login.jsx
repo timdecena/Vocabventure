@@ -15,8 +15,8 @@ const Login = ({ setIsAuthenticated, setRole }) => {
     e.preventDefault();
     setError('');
     try {
-      // Remove the /api prefix since it's already in the baseURL
-      const res = await api.post('/auth/login', form);
+      // The backend expects requests at /api/auth/login based on SecurityConfig
+      const res = await api.post('/api/auth/login', form);
       const data = res.data;
       if (res.status === 200) {
         // Store the token and log it for debugging

@@ -7,9 +7,15 @@ export default function TeacherClassStudentsPage() {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    api.get(`/teacher/classes/${id}/students`)
-      .then(res => setStudents(res.data))
-      .catch(() => alert("Failed to load students"));
+    api.get(`/api/teacher/classes/${id}/students`)
+      .then(res => {
+        console.log('Students loaded successfully:', res.data);
+        setStudents(res.data);
+      })
+      .catch(error => {
+        console.error('Error loading students:', error);
+        alert("Failed to load students: " + (error.response?.data || error.message));
+      });
   }, [id]);
 
   return (

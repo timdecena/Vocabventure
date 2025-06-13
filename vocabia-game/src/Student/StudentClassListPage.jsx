@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api";
 import { Box, Typography, Button, List, ListItem, Paper, Divider, CircularProgress, Alert } from "@mui/material";
 
 export default function StudentClassListPage() {
@@ -15,22 +15,8 @@ export default function StudentClassListPage() {
       setError("");
       
       try {
-        // Create a configured axios instance with auth headers
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Authentication token not found. Please log in again.");
-          setLoading(false);
-          return;
-        }
-        
-        const response = await axios.get("http://localhost:8080/api/student/classes", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          withCredentials: true
-        });
-        
+        // Use the API instance which already handles authentication
+        const response = await api.get("/api/student/classes");
         setClasses(response.data);
       } catch (err) {
         console.error("Error fetching classes:", err);

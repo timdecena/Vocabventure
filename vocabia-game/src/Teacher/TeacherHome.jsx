@@ -9,14 +9,15 @@ import GamesIcon from '@mui/icons-material/Games';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import { clearAllGameData } from '../utils/localStorageUtils';
 
 const TeacherHome = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
   const username = localStorage.getItem('username') || 'Teacher';
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
+    // Clear all game data from localStorage including auth tokens and progress
+    clearAllGameData();
     setIsAuthenticated(false);
     navigate('/');
   };

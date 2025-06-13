@@ -7,15 +7,25 @@ export default function TeacherClassListPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/teacher/classes")
+    // The backend expects requests at /api/teacher/classes based on SecurityConfig
+    api.get("/api/teacher/classes")
       .then(res => setClasses(res.data))
-      .catch(() => alert("Failed to load classes"));
+      .catch((error) => {
+        console.error("Error loading classes:", error);
+        alert("Failed to load classes. Please make sure you're logged in as a teacher.");
+      });
   }, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this class?")) return;
-    await api.delete(`/teacher/classes/${id}`);
-    setClasses(prev => prev.filter(c => c.id !== id));
+    try {
+      // The backend expects requests at /api/teacher/classes/${id} based on SecurityConfig
+      await api.delete(`/api/teacher/classes/${id}`);
+      setClasses(prev => prev.filter(c => c.id !== id));
+    } catch (error) {
+      console.error("Error deleting class:", error);
+      alert("Failed to delete class. Please try again later.");
+    }
   };
 
   return (

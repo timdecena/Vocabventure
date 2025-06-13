@@ -31,6 +31,9 @@ public class JwtFilter extends OncePerRequestFilter {
             @org.springframework.lang.NonNull HttpServletRequest request,
             @org.springframework.lang.NonNull HttpServletResponse response,
             @org.springframework.lang.NonNull FilterChain filterChain) throws ServletException, IOException {
+        // Log the request path for debugging
+        String requestPath = request.getRequestURI();
+        System.out.println("JwtFilter processing request: " + requestPath);
         String authHeader = request.getHeader("Authorization");
         String email = null;
         String jwt = null;
@@ -39,7 +42,12 @@ public class JwtFilter extends OncePerRequestFilter {
             jwt = authHeader.substring(7);
             try {
                 email = jwtUtil.extractEmail(jwt);
+                // Log the token and extracted authority for debugging
+                String authority = jwtUtil.extractAuthority(jwt);
+                System.out.println("JWT Token - Email: " + email);
+                System.out.println("JWT Token - Authority: " + authority);
             } catch (Exception e) {
+                System.out.println("Error extracting JWT data: " + e.getMessage());
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -48,6 +56,10 @@ public class JwtFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             if (jwtUtil.validateToken(jwt, userDetails)) {
+                // Log authentication details for debugging
+                System.out.println("JWT Authentication - Email: " + email);
+                System.out.println("JWT Authentication - Authorities: " + userDetails.getAuthorities());
+                
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

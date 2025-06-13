@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearAllGameData } from '../utils/localStorageUtils';
 
 
 const StudentHome = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
+    // Clear all game data from localStorage including auth tokens and progress
+    clearAllGameData();
     setIsAuthenticated(false);
     navigate('/');
   };

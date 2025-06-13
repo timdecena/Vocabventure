@@ -28,8 +28,14 @@ export default function CategoryList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/fpow/categories")
+    // The backend expects requests at /api/fpow/categories based on SecurityConfig
+    api.get("/api/fpow/categories")
       .then(res => setCategories(res.data))
+      .catch(err => {
+        console.error("Error fetching categories:", err);
+        // If there's an error, set an empty array to avoid null reference errors
+        setCategories([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 

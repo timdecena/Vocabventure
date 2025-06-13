@@ -47,11 +47,15 @@ public class SecurityConfig {
                         // Allow static resources and auth endpoints
                         .requestMatchers("/images/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout", "/api/auth/validate", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/4pic1word-assets/**").permitAll()
                         // Public endpoints for category and level list
                         .requestMatchers("/api/fpow/categories").permitAll()
                         .requestMatchers("/api/fpow/levels").permitAll()
+                        // Teacher endpoints - require TEACHER role
+                        .requestMatchers("/api/teacher/**").hasRole("TEACHER")
+                        // Student endpoints - require STUDENT role
+                        .requestMatchers("/api/student/**").hasRole("STUDENT")
                         // Protected endpoints: all gameplay and progress
                         .requestMatchers("/api/fpow/**").authenticated()
                         .requestMatchers("/api/user-progress/**").authenticated()

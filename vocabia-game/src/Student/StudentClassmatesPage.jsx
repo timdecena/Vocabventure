@@ -7,9 +7,13 @@ export default function StudentClassmatesPage() {
   const [classmates, setClassmates] = useState([]);
 
   useEffect(() => {
-    api.get(`/student/classes/${id}/classmates`)
+    // The backend expects requests at /api/student/classes/${id}/classmates based on SecurityConfig
+    api.get(`/api/student/classes/${id}/classmates`)
       .then(res => setClassmates(res.data))
-      .catch(() => alert("Failed to load classmates"));
+      .catch(err => {
+        console.error("Error fetching classmates:", err);
+        alert("Failed to load classmates. Please make sure you're logged in as a student.");
+      });
   }, [id]);
 
   return (

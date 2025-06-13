@@ -104,6 +104,13 @@ public class UserProgressService {
                 .orElse(null);
     }
 
+    public List<UserProgressDTO> getAllUserProgress(User user) {
+        List<UserProgress> progresses = repo.findByUser(user);
+        return progresses.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+    
     private UserProgressDTO toDto(UserProgress e) {
         return UserProgressDTO.builder()
                 .id(e.getId()).category(e.getCategory()).currentLevel(e.getCurrentLevel())
@@ -113,6 +120,7 @@ public class UserProgressService {
                 .correctAnswers(e.getCorrectAnswers()).wrongAnswers(e.getWrongAnswers())
                 .totalAttempts(e.getTotalAttempts()).livesLeft(e.getLivesLeft())
                 .lastPlayedLevel(e.getLastPlayedLevel()).lastPlayedCategory(e.getLastPlayedCategory())
+                .lastActive(e.getLastActive())
                 .build();
     }
 }

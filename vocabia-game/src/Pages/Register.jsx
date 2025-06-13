@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import api from '../api/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -20,20 +21,17 @@ const Register = () => {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      if (res.ok) {
+      // Use the API instance for consistency
+      const res = await api.post('/api/auth/register', form);
+      if (res.status === 200 || res.status === 201) {
         alert('Registration successful. Please log in!');
         navigate('/');
       } else {
-        const msg = await res.text();
-        setError(msg);
+        setError(res.data?.message || 'Registration failed');
       }
     } catch (err) {
-      setError('Network error');
+      console.error('Registration error:', err);
+      setError(err.response?.data?.message || 'Network error. Please try again.');
     }
   };
 

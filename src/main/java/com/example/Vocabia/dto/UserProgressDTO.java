@@ -2,6 +2,8 @@ package com.example.Vocabia.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserProgressDTO {
     private Long id;
@@ -19,4 +21,5 @@ public class UserProgressDTO {
     private int livesLeft;
     private Integer lastPlayedLevel;
     private String lastPlayedCategory;
+    private LocalDateTime lastActive;
 }

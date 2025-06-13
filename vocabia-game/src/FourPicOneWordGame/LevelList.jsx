@@ -70,81 +70,113 @@ export default function LevelList() {
 
       try {
         // Fetch available levels for the category
-        const res = await api.get(`/fpow/levels`, { params: { category } });
+        // The backend expects requests at /api/fpow/levels based on SecurityConfig
+        const res = await api.get(`/api/fpow/levels`, { params: { category } });
         if (!Array.isArray(res.data)) throw new Error('Invalid response format for levels');
         if (isMounted) setLevels(res.data);
 
         // Initialize unlock map - level 1 is always unlocked
         const unlockMap = { 1: true };
-        const completedLevels = loadCompletedLevels();
         
         // Sort levels numerically to ensure proper progression
         const sortedLevels = [...res.data].sort((a, b) => Number(a) - Number(b));
         
-        // First pass: mark completed levels as unlocked
-        sortedLevels.forEach(lvl => {
-          const levelNum = Number(lvl);
-          if (completedLevels[levelNum]) {
-            unlockMap[levelNum] = true;
-          }
-        });
+        // First try to get authenticated user progress from server
+        let serverHighestLevel = 0;
+        let localHighestLevel = 0;
+        let serverCompletedLevels = {};
+        let localCompletedLevels = {};
+        let isAuthenticated = false;
         
-        // Find the highest completed level
-        const completedLevelNumbers = Object.keys(completedLevels).map(Number);
-        const highestCompletedLevel = Math.max(...completedLevelNumbers, 0);
+        // Always load local data as a backup
+        localCompletedLevels = loadCompletedLevels();
+        const localCompletedLevelNumbers = Object.keys(localCompletedLevels).map(Number);
+        localHighestLevel = localCompletedLevelNumbers.length > 0 ? 
+                           Math.max(...localCompletedLevelNumbers) : 0;
         
-        // Second pass: only unlock the next level after the highest completed level
-        // This prevents skipping levels when returning to the level list
-        sortedLevels.forEach(lvl => {
-          const levelNum = Number(lvl);
-          
-          // Level 1 is always unlocked
-          if (levelNum === 1) {
-            unlockMap[levelNum] = true;
-          }
-          // Only unlock the next sequential level after the highest completed level
-          else if (levelNum === highestCompletedLevel + 1) {
-            unlockMap[levelNum] = true;
-          }
-        });
-        
-        // Try to get authenticated user progress if available
+        // Try to get server data if user is authenticated
         try {
           const token = localStorage.getItem("token");
           if (token) {
-            const progressRes = await api.get('/user-progress/last-played');
-            if (progressRes.data && progressRes.data.category === category) {
-              const serverHighestLevel = progressRes.data.currentLevel;
+            isAuthenticated = true;
+            // Get user progress from server
+            // The backend expects requests at /api/user-progress/category based on SecurityConfig
+            const progressRes = await api.get(`/api/user-progress/category/${category}`);
+            
+            if (progressRes.data && Array.isArray(progressRes.data)) {
+              // Process server data to get completed levels
+              progressRes.data.forEach(progress => {
+                const levelNum = Number(progress.level);
+                if (levelNum > 0) {
+                  serverCompletedLevels[levelNum] = true;
+                  if (levelNum > serverHighestLevel) {
+                    serverHighestLevel = levelNum;
+                  }
+                }
+              });
               
-              // Compare server data with local data and use the higher value
-              const effectiveHighestLevel = Math.max(serverHighestLevel, highestCompletedLevel);
-              
-              // Mark all levels up to the highest completed as unlocked
-              for (let i = 1; i <= effectiveHighestLevel; i++) {
-                unlockMap[i] = true;
-              }
-              
-              // Only unlock the next level after the highest completed
-              if (effectiveHighestLevel > 0) {
-                unlockMap[effectiveHighestLevel + 1] = true;
-              }
+              console.log("Server completed levels:", serverCompletedLevels);
+              console.log("Server highest level:", serverHighestLevel);
             }
           }
-        } catch (e) {
-          // Continue with local unlock state if API call fails
-          console.warn("Could not fetch user progress, using local data", e);
+        } catch (progressError) {
+          console.warn("Error fetching user progress from server:", progressError);
+          // Continue with localStorage as fallback
         }
         
-        if (isMounted) setUnlocked(unlockMap);
+        // Determine which data source to use (server takes priority if available)
+        const useServerData = isAuthenticated && Object.keys(serverCompletedLevels).length > 0;
+        
+        // Calculate the effective highest level from either server or local data
+        const effectiveHighestLevel = useServerData ? 
+                                     Math.max(serverHighestLevel, localHighestLevel) : 
+                                     localHighestLevel;
+        
+        console.log("Using server data:", useServerData);
+        console.log("Local highest level:", localHighestLevel);
+        console.log("Effective highest level:", effectiveHighestLevel);
+        
+        // For new accounts with no progress, only level 1 should be unlocked
+        if (effectiveHighestLevel === 0) {
+          // Reset unlock map to only have level 1 unlocked
+          Object.keys(unlockMap).forEach(key => {
+            if (Number(key) !== 1) {
+              delete unlockMap[key];
+            }
+          });
+        } else {
+          // For accounts with progress, unlock completed levels and the next one
+          const completedLevels = useServerData ? serverCompletedLevels : localCompletedLevels;
+          
+          // Mark all completed levels as unlocked
+          Object.keys(completedLevels).forEach(lvl => {
+            unlockMap[Number(lvl)] = true;
+          });
+          
+          // Unlock the next level after the highest completed
+          unlockMap[effectiveHighestLevel + 1] = true;
+        }
+        
+        // Always ensure level 1 is unlocked
+        unlockMap[1] = true;
+        
+        if (isMounted) {
+          console.log("Final unlock map:", unlockMap);
+          setUnlocked(unlockMap);
+        }
       } catch (err) {
-        if (isMounted) setError(err.response?.data?.message || err.message || 'Failed to load levels');
+        console.error("Error loading levels:", err);
+        if (isMounted) setError("Failed to load levels. Please try again later.");
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
     loadLevels();
-    return () => { isMounted = false; };
+
+    return () => {
+      isMounted = false;
+    };
   }, [category, id]);
 
   const handlePlay = lvl => {

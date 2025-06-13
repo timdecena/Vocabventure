@@ -17,9 +17,10 @@ public class JwtUtil {
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
 
-    public String generateToken(String email) {
+    public String generateToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim("authorities", "ROLE_" + role.toUpperCase())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -48,5 +49,18 @@ public class JwtUtil {
                 .getBody()
                 .getExpiration();
         return expiration.before(new Date());
+    }
+    
+    public String extractAuthority(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("authorities", String.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
