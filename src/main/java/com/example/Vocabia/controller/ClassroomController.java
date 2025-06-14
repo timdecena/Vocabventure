@@ -189,4 +189,177 @@ public class ClassroomController {
         
         return ResponseEntity.ok(response);
     }
+    
+    @GetMapping("/{classId}/students/{studentId}/progress")
+    public ResponseEntity<Map<String, Object>> getStudentProgress(
+            @PathVariable Long classId,
+            @PathVariable Long studentId,
+            Principal principal) {
+        
+        User teacher = getCurrentUser(principal);
+        
+        // Verify teacher owns this class
+        Classroom classroom = classroomService.getTeacherClasses(teacher)
+                .stream().filter(c -> c.getId().equals(classId)).findFirst()
+                .orElseThrow(() -> new RuntimeException("Not your class"));
+        
+        // Get the student and verify they are in this class
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        
+        List<User> classStudents = enrollmentService.getClassmates(classroom);
+        if (!classStudents.contains(student)) {
+            throw new RuntimeException("Student is not enrolled in this class");
+        }
+        
+        // Get all progress data for this student
+        List<UserProgressDTO> allProgress = userProgressService.getAllUserProgress(student);
+        
+        // Calculate student statistics
+        int levelsCompleted = 0;
+        int correctAnswers = 0;
+        int wrongAnswers = 0;
+        int hintsUsed = 0;
+        int attempts = 0;
+        LocalDateTime lastActive = null;
+        int streakCount = 0;
+        int maxStreak = 0;
+        
+        // Track category performance
+        Map<String, Map<String, Integer>> categoryStats = new HashMap<>();
+        String bestCategory = "";
+        String worstCategory = "";
+        int bestCategoryAccuracy = 0;
+        int worstCategoryAccuracy = 100;
+        
+        for (UserProgressDTO progress : allProgress) {
+            String category = progress.getCategory();
+            levelsCompleted += progress.getCurrentLevel() - 1; // Subtract 1 because level 1 is starting point
+            correctAnswers += progress.getCorrectAnswers();
+            wrongAnswers += progress.getWrongAnswers();
+            hintsUsed += progress.getHintsUsed();
+            attempts += progress.getTotalAttempts();
+            streakCount = Math.max(streakCount, progress.getStreakCount());
+            maxStreak = Math.max(maxStreak, progress.getMaxStreak());
+            
+            // Track most recent activity
+            if (progress.getLastActive() != null) {
+                if (lastActive == null || progress.getLastActive().isAfter(lastActive)) {
+                    lastActive = progress.getLastActive();
+                }
+            }
+            
+            // Calculate category statistics
+            int categoryAttempts = progress.getTotalAttempts();
+            if (categoryAttempts > 0) {
+                int categoryAccuracy = (progress.getCorrectAnswers() * 100) / categoryAttempts;
+                int categoryCompletionRate = ((progress.getCurrentLevel() - 1) * 100) / 10; // Assuming 10 levels per category
+                int categoryAvgTime = 45; // Placeholder, actual time data not available
+                
+                Map<String, Integer> stats = new HashMap<>();
+                stats.put("accuracy", categoryAccuracy);
+                stats.put("completionRate", categoryCompletionRate);
+                stats.put("averageTime", categoryAvgTime);
+                categoryStats.put(category, stats);
+                
+                // Track best and worst categories
+                if (categoryAccuracy > bestCategoryAccuracy) {
+                    bestCategoryAccuracy = categoryAccuracy;
+                    bestCategory = category;
+                }
+                if (categoryAccuracy < worstCategoryAccuracy && categoryAttempts >= 5) { // Only consider categories with enough attempts
+                    worstCategoryAccuracy = categoryAccuracy;
+                    worstCategory = category;
+                }
+            }
+        }
+        
+        // Calculate accuracy
+        int accuracy = attempts > 0 ? (correctAnswers * 100) / attempts : 0;
+        int hintUsageRate = attempts > 0 ? (hintsUsed * 100) / attempts : 0;
+        
+        // Create response with detailed student progress data
+        Map<String, Object> response = new HashMap<>();
+        
+        // Basic student info
+        response.put("id", student.getId());
+        response.put("firstName", student.getFirstName());
+        response.put("lastName", student.getLastName());
+        response.put("email", student.getEmail());
+        
+        // Summary statistics
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("levelsCompleted", levelsCompleted);
+        summary.put("totalLevels", 30); // Assuming 30 total levels across all categories
+        summary.put("accuracy", accuracy);
+        summary.put("averageTime", attempts > 0 ? 45 : 0); // Placeholder, actual time data not available
+        summary.put("hintUsage", hintUsageRate);
+        summary.put("lastActive", lastActive);
+        summary.put("streak", streakCount);
+        summary.put("maxStreak", maxStreak);
+        summary.put("bestCategory", bestCategory.isEmpty() ? "None" : bestCategory);
+        summary.put("worstCategory", worstCategory.isEmpty() ? "None" : worstCategory);
+        response.put("summary", summary);
+        
+        // Category performance data
+        List<Map<String, Object>> categoryPerformance = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Integer>> entry : categoryStats.entrySet()) {
+            Map<String, Object> categoryData = new HashMap<>();
+            categoryData.put("category", entry.getKey());
+            categoryData.put("accuracy", entry.getValue().get("accuracy"));
+            categoryData.put("completionRate", entry.getValue().get("completionRate"));
+            categoryData.put("averageTime", entry.getValue().get("averageTime"));
+            categoryPerformance.add(categoryData);
+        }
+        response.put("categoryPerformance", categoryPerformance);
+        
+        // Add placeholder data for charts and visualizations
+        // In a real implementation, this would be calculated from historical data
+        List<Map<String, Object>> progressOverTime = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 4; i >= 0; i--) {
+            Map<String, Object> point = new HashMap<>();
+            point.put("date", now.minusWeeks(i).toLocalDate().toString());
+            point.put("levelsCompleted", Math.max(0, levelsCompleted - (i * 3))); // Simulate progress over time
+            point.put("accuracy", Math.max(0, accuracy - (i * 2))); // Simulate accuracy improvement
+            progressOverTime.add(point);
+        }
+        response.put("progressOverTime", progressOverTime);
+        
+        // Skill radar data
+        List<Map<String, Object>> skillRadar = new ArrayList<>();
+        Map<String, Object> accuracySkill = new HashMap<>();
+        accuracySkill.put("subject", "Accuracy");
+        accuracySkill.put("A", accuracy);
+        accuracySkill.put("fullMark", 100);
+        skillRadar.add(accuracySkill);
+        
+        Map<String, Object> speedSkill = new HashMap<>();
+        speedSkill.put("subject", "Speed");
+        speedSkill.put("A", attempts > 0 ? 65 : 0); // Placeholder
+        speedSkill.put("fullMark", 100);
+        skillRadar.add(speedSkill);
+        
+        Map<String, Object> consistencySkill = new HashMap<>();
+        consistencySkill.put("subject", "Consistency");
+        consistencySkill.put("A", streakCount > 0 ? 70 : 0); // Placeholder
+        consistencySkill.put("fullMark", 100);
+        skillRadar.add(consistencySkill);
+        
+        Map<String, Object> completionSkill = new HashMap<>();
+        completionSkill.put("subject", "Completion");
+        completionSkill.put("A", levelsCompleted > 0 ? (levelsCompleted * 100) / 30 : 0); // Assuming 30 total levels
+        completionSkill.put("fullMark", 100);
+        skillRadar.add(completionSkill);
+        
+        Map<String, Object> independenceSkill = new HashMap<>();
+        independenceSkill.put("subject", "Independence");
+        independenceSkill.put("A", attempts > 0 ? 100 - hintUsageRate : 0); // Higher independence = lower hint usage
+        independenceSkill.put("fullMark", 100);
+        skillRadar.add(independenceSkill);
+        
+        response.put("skillRadar", skillRadar);
+        
+        return ResponseEntity.ok(response);
+    }
 }

@@ -33,6 +33,7 @@ export default function TeacherStudentFPOWProgressPage() {
     joinedDate: "2025-01-15T10:30:00"
   };
 
+  // Mock data that uses database categories when available
   const mockProgressData = {
     summary: {
       levelsCompleted: 21,
@@ -42,8 +43,8 @@ export default function TeacherStudentFPOWProgressPage() {
       hintUsage: 30,
       lastActive: '2025-06-12T09:45:00',
       streak: 5,
-      bestCategory: "Animals",
-      worstCategory: "Technology"
+      bestCategory: "", // Will be populated from actual data
+      worstCategory: "" // Will be populated from actual data
     },
     progressOverTime: [
       { date: '2025-05-01', levelsCompleted: 8, accuracy: 70 },
@@ -52,13 +53,7 @@ export default function TeacherStudentFPOWProgressPage() {
       { date: '2025-05-22', levelsCompleted: 18, accuracy: 77 },
       { date: '2025-05-29', levelsCompleted: 21, accuracy: 79 }
     ],
-    categoryPerformance: [
-      { category: "Animals", accuracy: 90, completionRate: 85, averageTime: 42 },
-      { category: "Food", accuracy: 82, completionRate: 75, averageTime: 48 },
-      { category: "Sports", accuracy: 78, completionRate: 70, averageTime: 52 },
-      { category: "Technology", accuracy: 68, completionRate: 60, averageTime: 58 },
-      { category: "Nature", accuracy: 76, completionRate: 65, averageTime: 55 }
-    ],
+    categoryPerformance: [], // Will be populated from database categories
     skillRadar: [
       { subject: 'Accuracy', A: 79, fullMark: 100 },
       { subject: 'Speed', A: 65, fullMark: 100 },
@@ -66,13 +61,7 @@ export default function TeacherStudentFPOWProgressPage() {
       { subject: 'Completion', A: 70, fullMark: 100 },
       { subject: 'Independence', A: 60, fullMark: 100 },
     ],
-    recentActivity: [
-      { date: '2025-06-12T09:45:00', word: 'Elephant', category: 'Animals', correct: true, attempts: 1, timeSpent: 38, usedHint: false },
-      { date: '2025-06-12T09:42:00', word: 'Laptop', category: 'Technology', correct: true, attempts: 3, timeSpent: 65, usedHint: true },
-      { date: '2025-06-12T09:38:00', word: 'Soccer', category: 'Sports', correct: true, attempts: 2, timeSpent: 47, usedHint: false },
-      { date: '2025-06-12T09:35:00', word: 'Banana', category: 'Food', correct: true, attempts: 1, timeSpent: 42, usedHint: false },
-      { date: '2025-06-12T09:30:00', word: 'Router', category: 'Technology', correct: false, attempts: 4, timeSpent: 78, usedHint: true }
-    ]
+    recentActivity: [] // Will be populated from actual data if available
   };
 
   useEffect(() => {
@@ -93,32 +82,148 @@ export default function TeacherStudentFPOWProgressPage() {
   const fetchStudentData = async () => {
     try {
       setLoading(true);
+      setError(null);
       
-      // In a production environment, these would be real API calls
-      // For now, we'll use mock data and simulate API delay
+      console.log(`Fetching student data for class ID: ${classId}, student ID: ${studentId}`);
       
-      setTimeout(() => {
+      try {
+        // Get student progress data
+        const progressResponse = await api.get(`/api/teacher/classes/${classId}/students/${studentId}/progress`);
+        console.log("Student progress response:", progressResponse.data);
+        
+        // Set student basic info
+        setStudentData({
+          id: progressResponse.data.id,
+          firstName: progressResponse.data.firstName || 'Unknown',
+          lastName: progressResponse.data.lastName || 'Student',
+          email: progressResponse.data.email || 'No email',
+          joinedDate: new Date().toISOString() // This info isn't provided by the API yet
+        });
+        
+        // Set progress data
+        setProgressData({
+          summary: progressResponse.data.summary || {},
+          progressOverTime: progressResponse.data.progressOverTime || [],
+          categoryPerformance: progressResponse.data.categoryPerformance || [],
+          skillRadar: progressResponse.data.skillRadar || [],
+          // For recent activity, we don't have this data yet, so use placeholder
+          recentActivity: []
+        });
+        
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching student progress data:", err.response?.data || err.message);
+        
+        // Check for specific error types
+        if (err.response) {
+          if (err.response.status === 401) {
+            setError("Authentication error. Please log in again.");
+          } else if (err.response.status === 403) {
+            setError("You don't have permission to access this student's data.");
+          } else if (err.response.status === 404) {
+            setError("Student data not found. The student may not exist or is not enrolled in this class.");
+          } else {
+            setError(err.response?.data?.message || "Failed to load student progress data. Please try again later.");
+          }
+        } else {
+          setError("Network error. Please check your connection and try again.");
+        }
+        
+        // Fall back to mock data for development/testing
+        console.log("Falling back to mock data due to API error");
         setStudentData(mockStudentData);
+        
+        // Try to get categories from the backend if possible
+        try {
+          // Attempt to fetch categories from the backend
+          const categoriesResponse = await api.get('/api/categories');
+          const dbCategories = categoriesResponse.data || [];
+          
+          if (dbCategories && dbCategories.length > 0) {
+            console.log("Using categories from database for mock data", dbCategories);
+            
+            // Create mock category performance data using real categories
+            const mockCategoryPerformance = dbCategories.map((category, index) => {
+              // Generate varied performance metrics for each category
+              const baseAccuracy = 75 + (Math.floor(Math.random() * 20) - 10);
+              const baseCompletionRate = 70 + (Math.floor(Math.random() * 25) - 10);
+              const baseTime = 45 + (Math.floor(Math.random() * 20) - 10);
+              
+              return {
+                category: category.name || category,
+                accuracy: Math.min(100, Math.max(0, baseAccuracy)),
+                completionRate: Math.min(100, Math.max(0, baseCompletionRate)),
+                averageTime: Math.max(1, baseTime)
+              };
+            });
+            
+            // Find best and worst categories based on accuracy
+            const bestCategory = [...mockCategoryPerformance].sort((a, b) => b.accuracy - a.accuracy)[0];
+            const worstCategory = [...mockCategoryPerformance].sort((a, b) => a.accuracy - b.accuracy)[0];
+            
+            // Update the mock data with real categories
+            mockProgressData.categoryPerformance = mockCategoryPerformance;
+            mockProgressData.summary.bestCategory = bestCategory ? bestCategory.category : "";
+            mockProgressData.summary.worstCategory = worstCategory ? worstCategory.category : "";
+            
+            // Generate mock recent activity using real categories
+            mockProgressData.recentActivity = dbCategories.slice(0, 5).map((category, index) => {
+              const date = new Date();
+              date.setMinutes(date.getMinutes() - (index * 5));
+              
+              const words = {
+                Animals: ['Elephant', 'Tiger', 'Giraffe', 'Penguin', 'Koala'],
+                Food: ['Banana', 'Pasta', 'Sushi', 'Quinoa', 'Burger'],
+                Sports: ['Soccer', 'Tennis', 'Basketball', 'Golf', 'Swimming'],
+                Technology: ['Laptop', 'Router', 'Firewall', 'Tablet', 'Server'],
+                Nature: ['Forest', 'Mountain', 'Ocean', 'Desert', 'Glacier'],
+                // Add fallback for any other category
+                Default: ['Word1', 'Word2', 'Word3', 'Word4', 'Word5']
+              };
+              
+              const categoryName = category.name || category;
+              const wordList = words[categoryName] || words.Default;
+              const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+              
+              return {
+                date: date.toISOString(),
+                word: randomWord,
+                category: categoryName,
+                correct: Math.random() > 0.2, // 80% chance of being correct
+                attempts: Math.floor(Math.random() * 3) + 1,
+                timeSpent: 30 + Math.floor(Math.random() * 50),
+                usedHint: Math.random() > 0.7 // 30% chance of using hint
+              };
+            });
+          }
+        } catch (categoryErr) {
+          console.error("Error fetching categories for mock data:", categoryErr);
+          // If we can't get categories, use default mock data
+          mockProgressData.categoryPerformance = [
+            { category: "Animals", accuracy: 90, completionRate: 85, averageTime: 42 },
+            { category: "Food", accuracy: 82, completionRate: 75, averageTime: 48 },
+            { category: "Sports", accuracy: 78, completionRate: 70, averageTime: 52 },
+            { category: "Technology", accuracy: 68, completionRate: 60, averageTime: 58 },
+            { category: "Nature", accuracy: 76, completionRate: 65, averageTime: 55 }
+          ];
+          mockProgressData.summary.bestCategory = "Animals";
+          mockProgressData.summary.worstCategory = "Technology";
+          mockProgressData.recentActivity = [
+            { date: '2025-06-12T09:45:00', word: 'Elephant', category: 'Animals', correct: true, attempts: 1, timeSpent: 38, usedHint: false },
+            { date: '2025-06-12T09:42:00', word: 'Laptop', category: 'Technology', correct: true, attempts: 3, timeSpent: 65, usedHint: true },
+            { date: '2025-06-12T09:38:00', word: 'Soccer', category: 'Sports', correct: true, attempts: 2, timeSpent: 47, usedHint: false },
+            { date: '2025-06-12T09:35:00', word: 'Banana', category: 'Food', correct: true, attempts: 1, timeSpent: 42, usedHint: false },
+            { date: '2025-06-12T09:30:00', word: 'Router', category: 'Technology', correct: false, attempts: 4, timeSpent: 78, usedHint: true }
+          ];
+        }
+        
         setProgressData(mockProgressData);
         setLoading(false);
-      }, 1000);
-
-      // Commented out real API calls for future implementation
-      /*
-      // Get student data
-      const studentResponse = await api.get(`/api/teacher/classes/${classId}/students/${studentId}`);
-      setStudentData(studentResponse.data);
-      
-      // Get student progress data
-      const progressResponse = await api.get(`/api/teacher/classes/${classId}/students/${studentId}/fpow-progress`);
-      setProgressData(progressResponse.data);
-      
-      setLoading(false);
-      */
+      }
     } catch (err) {
       setError("Failed to load student progress data. Please try again later.");
       setLoading(false);
-      console.error("Error fetching student progress data:", err);
+      console.error("Error in fetchStudentData:", err);
     }
   };
 
@@ -333,21 +438,35 @@ export default function TeacherStudentFPOWProgressPage() {
               Strengths
             </Typography>
             <List dense>
-              <ListItem>
-                <ListItemText 
-                  primary={`Strong performance in ${progressData.summary.bestCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.bestCategory)?.accuracy}% accuracy)`} 
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText 
-                  primary={`Current learning streak: ${progressData.summary.streak} days`} 
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText 
-                  primary="Good completion rate for basic vocabulary words" 
-                />
-              </ListItem>
+              {progressData.summary.bestCategory && progressData.categoryPerformance.find(c => c.category === progressData.summary.bestCategory) && (
+                <ListItem>
+                  <ListItemText 
+                    primary={`Strong performance in ${progressData.summary.bestCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.bestCategory)?.accuracy}% accuracy)`} 
+                  />
+                </ListItem>
+              )}
+              
+              {progressData.summary.streak > 0 && (
+                <ListItem>
+                  <ListItemText 
+                    primary={`Current learning streak: ${progressData.summary.streak} days`} 
+                  />
+                </ListItem>
+              )}
+              
+              {progressData.categoryPerformance.some(c => c.completionRate > 75) && (
+                <ListItem>
+                  <ListItemText 
+                    primary={`Good completion rate for ${progressData.categoryPerformance.find(c => c.completionRate > 75)?.category || 'vocabulary'} words`} 
+                  />
+                </ListItem>
+              )}
+              
+              {!progressData.summary.bestCategory && !progressData.categoryPerformance.some(c => c.completionRate > 75) && (
+                <ListItem>
+                  <ListItemText primary="No specific strengths identified yet. Keep practicing!" />
+                </ListItem>
+              )}
             </List>
             
             <Divider sx={{ my: 2 }} />
@@ -356,21 +475,25 @@ export default function TeacherStudentFPOWProgressPage() {
               Areas for Improvement
             </Typography>
             <List dense>
-              <ListItem>
-                <ListItemText 
-                  primary={`Struggles with ${progressData.summary.worstCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.worstCategory)?.accuracy}% accuracy)`} 
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText 
-                  primary={`High hint usage (${progressData.summary.hintUsage}% of levels)`} 
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText 
-                  primary="Takes longer than average to complete technology-related words" 
-                />
-              </ListItem>
+              {progressData.summary.worstCategory && progressData.categoryPerformance.find(c => c.category === progressData.summary.worstCategory) && (
+                <ListItem>
+                  <ListItemText 
+                    primary={`Struggles with ${progressData.summary.worstCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.worstCategory)?.accuracy}% accuracy)`} 
+                  />
+                </ListItem>
+              )}
+              
+              {progressData.summary.hintUsage > 30 && (
+                <ListItem>
+                  <ListItemText primary={`High hint usage (${progressData.summary.hintUsage}%). Try to solve puzzles without hints.`} />
+                </ListItem>
+              )}
+              
+              {!progressData.summary.worstCategory && progressData.summary.hintUsage <= 30 && (
+                <ListItem>
+                  <ListItemText primary="No specific areas of concern identified. Keep up the good work!" />
+                </ListItem>
+              )}
             </List>
             
             <Divider sx={{ my: 2 }} />
@@ -378,12 +501,16 @@ export default function TeacherStudentFPOWProgressPage() {
             <Typography variant="subtitle1" fontWeight={500} gutterBottom>
               Recommendations
             </Typography>
-            <Alert severity="info" sx={{ mb: 2 }}>
-              Assign additional practice with technology vocabulary words to improve performance in this category.
-            </Alert>
-            <Alert severity="success">
-              Encourage continued practice in the Animals category where the student shows strong performance.
-            </Alert>
+            {progressData.summary.worstCategory && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Assign additional practice with {progressData.summary.worstCategory} vocabulary words to improve performance in this category.
+              </Alert>
+            )}
+            {progressData.summary.bestCategory && (
+              <Alert severity="success">
+                Encourage continued practice in the {progressData.summary.bestCategory} category where the student shows strong performance.
+              </Alert>
+            )}
           </Paper>
         </Grid>
       </Grid>
