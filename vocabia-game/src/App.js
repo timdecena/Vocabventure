@@ -42,6 +42,11 @@ import JungleLushLevel4 from "./Adventure/island1(junglelush)/JungleLushLevel4";
 import JungleLushLevel5 from "./Adventure/island1(junglelush)/JungleLushLevel5";
 import Tutorial from "./Adventure/tutorial/Tutorial";
 
+// Four Pic One Word Game
+import CategoryList from "./FourPicOneWordGame/CategoryList";
+import LevelList from "./FourPicOneWordGame/LevelList";
+import GamePlay from "./FourPicOneWordGame/GamePlay";
+
 import './App.css';
 
 function App() {
@@ -179,6 +184,11 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole }) {
       <Route path="/jungle-lush/level3" element={<JungleLushLevel3 />} />
       <Route path="/jungle-lush/level4" element={<JungleLushLevel4 />} />
       <Route path="/jungle-lush/level5" element={<JungleLushLevel5 />} />
+
+      {/* Four Pic One Word Game */}
+      <Route path="/student/classes/:classId/fpow" element={isAuthenticated && role === 'STUDENT' ? <CategoryList /> : <Navigate to="/" replace />} />
+      <Route path="/student/classes/:classId/fpow/:category" element={isAuthenticated && role === 'STUDENT' ? <LevelList /> : <Navigate to="/" replace />} />
+      <Route path="/student/classes/:classId/fpow/:category/:level" element={isAuthenticated && role === 'STUDENT' ? <GamePlay /> : <Navigate to="/" replace />} />
 
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
