@@ -66,4 +66,8 @@ public class JwtUtil {
         }
         return null;
     }
+
+    public String extractAuthority(String token) {
+    return "ROLE_USER"; // safe fallback
+}
 }
