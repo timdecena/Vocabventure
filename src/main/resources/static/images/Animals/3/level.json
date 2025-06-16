@@ -1,0 +1,12 @@
+{
+  "answer": "ELEPHANT",
+  "hint": "Large animal with a trunk",
+  "difficulty": 2,
+  "images":
+  [
+    "/images/Animals/3/pic1.jpg",
+    "/images/Animals/3/pic2.jpg",
+    "/images/Animals/3/pic3.jpg",
+    "/images/Animals/3/pic4.jpg"
+  ]
+}

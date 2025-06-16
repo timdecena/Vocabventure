@@ -1,0 +1,174 @@
+/* File: src/Student/StudentHomeNature.css */
+
+.nature-root {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+  background: transparent;
+}
+
+.nature-bg-parallax {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #d0f5e3 0%, #aee5c2 100%);
+  /* Parallax: soft layered forest/mountain silhouettes */
+  background-image:
+    url('./nature/river_layer.jpg'),
+    url('./nature/forest_layer.jpg'),
+    url('./nature/clouds_layer.jpg');
+
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: cover, cover, cover;
+  background-position: bottom, center, top;
+  animation: bgParallaxMove 30s linear infinite alternate;
+}
+
+@keyframes bgParallaxMove {
+  0% { background-position: bottom, center, top; }
+  100% { background-position: bottom, 53% 51%, top; }
+}
+
+.nature-bg-foreground {
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  /* e.g. light rays, sparkles, clouds */
+  background-image:
+    url('./nature/birds_anim.gif');
+  background-repeat: no-repeat, no-repeat;
+  background-position: top right, bottom left;
+  animation: cloudFloat 24s linear infinite alternate;
+  opacity: 0.8;
+}
+
+@keyframes cloudFloat {
+  0% { background-position: 90% 5%, 5% 80%; }
+  100% { background-position: 80% 8%, 12% 85%; }
+}
+
+.nature-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  margin: 0 auto;
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+  min-height: 100vh;
+}
+
+.mascot-row {
+  gap: 1.5rem;
+}
+
+.nature-mascot {
+  background: #fffef5;
+  border: 3px solid #bbd99c;
+  box-shadow: 0 2px 14px 3px rgba(80,160,100,0.22);
+  animation: mascotBounce 3s infinite ease-in-out;
+}
+
+@keyframes mascotBounce {
+  0%, 100% { transform: translateY(0);}
+  50% { transform: translateY(-7px);}
+}
+
+.welcome-text {
+  color: #25562a;
+  text-shadow: 0 2px 8px #eafbf5c0;
+  letter-spacing: 0.02em;
+}
+
+.adventure-chip {
+  border-radius: 16px !important;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.03em !important;
+}
+
+.nature-xp-progress {
+  background: #e8fbe3 !important;
+}
+.xp-bar {
+  background: rgba(230, 250, 236, 0.8);
+  border-radius: 12px;
+  padding: 12px 22px 8px 22px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px 1px #a4e6b970;
+}
+
+.nature-btn {
+  background: linear-gradient(92deg, #7cc885 0%, #65c6bb 100%);
+  color: #25562a !important;
+  border-radius: 22px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px 1px #75d6a56e;
+  font-size: 1.13rem !important;
+  letter-spacing: 0.02em !important;
+  transition: background 0.2s, transform 0.15s;
+  border: 2px solid #b5f3c5;
+  outline: none !important;
+}
+.nature-btn:hover, .nature-btn:focus {
+  background: linear-gradient(98deg, #9ee29f 20%, #6dd9d7 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 7px 14px 0 #60c78c4a;
+  border-color: #8ee79e;
+}
+
+.logout-btn {
+  background: linear-gradient(92deg, #ffe5ec 0%, #f5b0c2 100%) !important;
+  color: #a03847 !important;
+  border-color: #f7c5d8 !important;
+}
+.logout-btn:hover {
+  background: linear-gradient(98deg, #f5b0c2 0%, #ffe5ec 100%) !important;
+  color: #a03847 !important;
+  border-color: #e6859a !important;
+}
+
+.nature-card {
+  background: rgba(244,255,249,0.99);
+  border-left: 8px solid #81cba3;
+  border-radius: 20px;
+  box-shadow: 0 5px 16px 0 #9ad7c1a0;
+  transition: box-shadow 0.25s, transform 0.18s;
+  margin-bottom: 1.2rem;
+}
+
+.nature-card:hover {
+  box-shadow: 0 8px 26px 3px #52c67234;
+  border-color: #b2f8c9;
+}
+
+.section-title {
+  color: #22563c;
+  font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  text-shadow: 0 2px 9px #deffe9b0;
+}
+
+.class-icon {
+  background: #e9fce9;
+  border-radius: 9px;
+  padding: 2px;
+  margin-right: 14px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  background: #c3f0e3;
+  border-radius: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: #98ddb9;
+  border-radius: 16px;
+  min-height: 40px;
+}

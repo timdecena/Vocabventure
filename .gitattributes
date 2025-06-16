@@ -1,0 +1,6 @@
+/mvnw text eol=lf
+*.cmd text eol=crlf
+
+# Git LFS tracking for large files
+*.pack filter=lfs diff=lfs merge=lfs -text
+vocabia-game/node_modules/.cache/default-development/*.pack filter=lfs diff=lfs merge=lfs -text
