@@ -115,6 +115,8 @@ const Login = ({ setIsAuthenticated, setRole }) => {
       if (res.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
+        // Store the user ID for per-user progress tracking
+        localStorage.setItem('userId', data.userId || data.email || data.sub || 'user-' + Date.now());
         setIsAuthenticated(true);
         setRole(data.role);
         if (data.role === 'STUDENT') navigate('/student-home');

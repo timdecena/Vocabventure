@@ -110,7 +110,9 @@ const initialState = {
 // Load attempts from localStorage if available
 const getStoredAttempts = (category, level) => {
   try {
-    const key = `vocabVenture_${category}_${level}_attempts`;
+    // Get user ID from localStorage or use anonymous if not available
+    const userId = localStorage.getItem("userId") || "anonymous";
+    const key = `vocabVenture_${userId}_${category}_${level}_attempts`;
     const stored = localStorage.getItem(key);
     return stored ? parseInt(stored, 10) : 0;
   } catch (e) {
@@ -122,7 +124,9 @@ const getStoredAttempts = (category, level) => {
 // Save attempts to localStorage
 const saveAttempts = (category, level, attempts) => {
   try {
-    const key = `vocabVenture_${category}_${level}_attempts`;
+    // Get user ID from localStorage or use anonymous if not available
+    const userId = localStorage.getItem("userId") || "anonymous";
+    const key = `vocabVenture_${userId}_${category}_${level}_attempts`;
     localStorage.setItem(key, attempts.toString());
   } catch (e) {
     console.error('Error saving attempts:', e);
@@ -207,8 +211,11 @@ const generateAvailableLetters = (answer) => {
 // ---- Local Storage Progress Functions ----
 function saveCompletedLevel(category, level) {
   try {
-    // Get existing completed levels
-    const storageKey = `vocabVenture_${category}_completed`;
+    // Get user ID from localStorage or use anonymous if not available
+    const userId = localStorage.getItem("userId") || "anonymous";
+    
+    // Get existing completed levels with user-specific key
+    const storageKey = `vocabVenture_${userId}_${category}_completed`;
     const existingData = localStorage.getItem(storageKey);
     const completedLevels = existingData ? JSON.parse(existingData) : {};
     
@@ -230,7 +237,10 @@ function saveCompletedLevel(category, level) {
 
 function updateHighestLevel(category, level) {
   try {
-    const highestKey = `vocabVenture_${category}_highest`;
+    // Get user ID from localStorage or use anonymous if not available
+    const userId = localStorage.getItem("userId") || "anonymous";
+    
+    const highestKey = `vocabVenture_${userId}_${category}_highest`;
     const currentHighest = localStorage.getItem(highestKey) || 0;
     
     if (Number(level) > Number(currentHighest)) {
@@ -392,7 +402,9 @@ const GamePlay = () => {
   // Load attempts data from localStorage
   const loadAttempts = (category, level) => {
     try {
-      const key = `fpow_attempts_${category}_${level}`;
+      // Get user ID from localStorage or use anonymous if not available
+      const userId = localStorage.getItem("userId") || "anonymous";
+      const key = `fpow_attempts_${userId}_${category}_${level}`;
       const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : null;
     } catch (e) {
@@ -404,7 +416,9 @@ const GamePlay = () => {
   // Save attempts data to localStorage
   const saveAttempts = (category, level, attempts) => {
     try {
-      const key = `fpow_attempts_${category}_${level}`;
+      // Get user ID from localStorage or use anonymous if not available
+      const userId = localStorage.getItem("userId") || "anonymous";
+      const key = `fpow_attempts_${userId}_${category}_${level}`;
       localStorage.setItem(key, JSON.stringify(attempts));
     } catch (e) {
       console.warn('Could not save attempts to localStorage', e);

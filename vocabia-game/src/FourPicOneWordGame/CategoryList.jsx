@@ -1,107 +1,604 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import api from "../api/api";
+// src/FourPicOneWordGame/CategoryList.jsx
+
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-  Box,
-  Container,
   Typography,
+  Box,
+  Button,
   Grid,
   Card,
   CardContent,
-  Button,
-  Chip,
-  CircularProgress,
+  LinearProgress,
+  Badge,
   Tooltip,
+  CircularProgress,
   Alert,
+  Container,
+  Avatar,
+  Chip,
+  useMediaQuery,
+  IconButton,
 } from "@mui/material";
-import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
+import { useTheme } from "@mui/material/styles";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SchoolIcon from "@mui/icons-material/School";
+import PetsIcon from "@mui/icons-material/Pets";
+import LocalFloristIcon from "@mui/icons-material/LocalFlorist";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import BeachAccessIcon from "@mui/icons-material/BeachAccess";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import HomeIcon from "@mui/icons-material/Home";
+import api from "../api/api";
+import { Zoom } from "@mui/material";
 
-const CATEGORY_BG = [
-  "#FFE0B2", "#B2DFDB", "#E1BEE7", "#FFF59D", "#BBDEFB", "#FFCCBC", "#F8BBD0"
-];
+// Define XP thresholds for different levels
+const XP_LEVELS = {
+  BEGINNER: 1,
+  INTERMEDIATE: 5,
+  ADVANCED: 10,
+  EXPERT: 15,
+  MASTER: 20,
+};
+
+// Function to determine level rank based on level
+const getLevelRank = (level) => {
+  if (level >= XP_LEVELS.MASTER) return "Master";
+  if (level >= XP_LEVELS.EXPERT) return "Expert";
+  if (level >= XP_LEVELS.ADVANCED) return "Advanced";
+  if (level >= XP_LEVELS.INTERMEDIATE) return "Intermediate";
+  return "Beginner";
+};
+
+// Category theme mapping
+const categoryThemes = {
+  animals: {
+    gradient: 'linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%)',
+    secondaryColor: '#2E7D32',
+    color: '#fff',
+    icon: <PetsIcon sx={{ fontSize: 40 }} />
+  },
+  food: {
+    gradient: 'linear-gradient(135deg, #FF9800 0%, #FFEB3B 100%)',
+    secondaryColor: '#E65100',
+    color: '#fff',
+    icon: <RestaurantIcon sx={{ fontSize: 40 }} />
+  },
+  sports: {
+    gradient: 'linear-gradient(135deg, #2196F3 0%, #03A9F4 100%)',
+    secondaryColor: '#0D47A1',
+    color: '#fff',
+    icon: <SportsSoccerIcon sx={{ fontSize: 40 }} />
+  },
+  vehicles: {
+    gradient: 'linear-gradient(135deg, #F44336 0%, #FF5722 100%)',
+    secondaryColor: '#B71C1C',
+    color: '#fff',
+    icon: <DirectionsCarIcon sx={{ fontSize: 40 }} />
+  },
+  plants: {
+    gradient: 'linear-gradient(135deg, #009688 0%, #4CAF50 100%)',
+    secondaryColor: '#004D40',
+    color: '#fff',
+    icon: <LocalFloristIcon sx={{ fontSize: 40 }} />
+  },
+  travel: {
+    gradient: 'linear-gradient(135deg, #3F51B5 0%, #2196F3 100%)',
+    secondaryColor: '#1A237E',
+    color: '#fff',
+    icon: <BeachAccessIcon sx={{ fontSize: 40 }} />
+  },
+  school: {
+    gradient: 'linear-gradient(135deg, #9C27B0 0%, #E91E63 100%)',
+    secondaryColor: '#4A148C',
+    color: '#fff',
+    icon: <SchoolIcon sx={{ fontSize: 40 }} />
+  },
+  // Default theme for any other categories
+  default: {
+    gradient: 'linear-gradient(135deg, #607D8B 0%, #90A4AE 100%)',
+    secondaryColor: '#263238',
+    color: '#fff',
+    icon: <EmojiNatureIcon sx={{ fontSize: 40 }} />
+  }
+};
 
 export default function CategoryList() {
   const { id } = useParams(); // classroom id
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userProgress, setUserProgress] = useState({});
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState(null);
+  const [animationReady, setAnimationReady] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
+  
+  // Responsive breakpoints
+  const isXs = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSm = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMd = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLg = useMediaQuery(theme.breakpoints.up('lg'));
 
   useEffect(() => {
-    // Remove duplicate '/api' prefix since it's already in the baseURL
-    api.get("/fpow/categories")
-      .then(res => setCategories(res.data))
-      .catch(err => {
-        console.error("Error fetching categories:", err);
-        // If there's an error, set an empty array to avoid null reference errors
-        setCategories([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Check if user is authenticated
+        const token = localStorage.getItem("token");
+        setIsAuthenticated(!!token);
 
-  if (loading) return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-      <CircularProgress />
-    </Box>
-  );
+        // Fetch categories
+        const categoriesRes = await api.get("/fpow/categories");
+        const categoriesData = categoriesRes.data || [];
+        setCategories(categoriesData);
+
+        // Initialize progress object
+        const progressData = {};
+
+        // If authenticated, try to get progress from server
+        if (token) {
+          try {
+            // Fetch all user progress
+            const progressRes = await api.get("/user-progress/all");
+
+            // Process server data
+            if (progressRes.data && Array.isArray(progressRes.data)) {
+              progressRes.data.forEach(progress => {
+                const category = progress.category;
+                if (category) {
+                  progressData[category] = {
+                    completedLevels: progress.puzzlesSolved || 0,
+                    currentLevel: progress.currentLevel || 1,
+                    level: progress.level || 1,
+                    xp: progress.currentXp || 0,
+                    // Calculate XP required for next level
+                    xpRequired: 50 * progress.level * (progress.level + 1) / 2
+                  };
+                }
+              });
+            }
+          } catch (progressError) {
+            console.warn("Error fetching user progress:", progressError);
+            // Continue with local storage as fallback
+          }
+        }
+
+        // Only use localStorage as fallback when not authenticated
+        if (!token) {
+          categoriesData.forEach(category => {
+            if (!progressData[category]) {
+              // Add user ID to localStorage keys to ensure per-user progress
+              const userId = localStorage.getItem("userId") || "anonymous";
+              const completedKey = `vocabVenture_${userId}_${category}_completed`;
+              const highestKey = `vocabVenture_${userId}_${category}_highest`;
+              const xpKey = `vocabVenture_${userId}_${category}_xp`;
+
+              const completedLevels = localStorage.getItem(completedKey);
+              const highestLevel = localStorage.getItem(highestKey) || "1";
+              const xp = localStorage.getItem(xpKey) || "0";
+
+              progressData[category] = {
+                completedLevels: completedLevels ? JSON.parse(completedLevels) : [],
+                currentLevel: parseInt(highestLevel, 10),
+                level: 1,
+                xp: parseInt(xp, 10),
+                xpRequired: 50
+              };
+            }
+          });
+        } else {
+          // For authenticated users without progress, initialize empty progress
+          categoriesData.forEach(category => {
+            if (!progressData[category]) {
+              progressData[category] = {
+                completedLevels: [],
+                currentLevel: 1,
+                level: 1,
+                xp: 0,
+                xpRequired: 50
+              };
+            }
+          });
+        }
+
+        setUserProgress(progressData);
+        // Set animation ready after a short delay for staggered entrance
+        setTimeout(() => setAnimationReady(true), 100);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message || "Failed to load categories");
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
+  // Determine grid columns based on screen size
+  const getGridColumns = () => {
+    if (isXs) return 12; // 1 column on mobile
+    if (isSm) return 6;  // 2 columns on tablet
+    if (isMd) return 4;  // 3 columns on medium screens
+    return 3;            // 4 columns on large screens
+  };
+
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
+    );
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" fontWeight={700} color="#273244" mb={2}>
-        Choose a Category
-      </Typography>
-      {categories.length === 0 ? (
-        <Alert severity="info">No categories available.</Alert>
-      ) : (
-        <Grid container spacing={3} justifyContent="center">
-          {categories.map((cat, i) => (
-            <Grid item xs={12} sm={6} md={4} key={cat}>
-              <Card
-                elevation={4}
-                sx={{
-                  background: `linear-gradient(135deg, ${CATEGORY_BG[i % CATEGORY_BG.length]} 60%, #fff)`,
-                  borderRadius: 4,
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                  transition: "transform 0.22s",
-                  '&:hover': {
-                    transform: "scale(1.045)",
-                    boxShadow: "0 8px 36px rgba(0,40,60,0.11)",
+    <Box
+      sx={{
+        background: 'linear-gradient(135deg, #1A2980 0%, #26D0CE 100%)',
+        minHeight: '100vh',
+        pt: { xs: 2, sm: 3, md: 4 },
+        pb: { xs: 4, sm: 6, md: 8 },
+        px: { xs: 0, sm: 3 },
+        overflow: 'hidden',
+      }}
+    >
+      <Box sx={{
+        py: 4,
+        px: { xs: 2, sm: 3 },
+        maxWidth: "lg",
+        mx: "auto",
+        background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+        borderRadius: { xs: 0, sm: 4 },
+        mb: 4,
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+        position: "relative",
+        overflow: "hidden",
+        width: '100%',
+      }}>
+          {/* Decorative elements */}
+          <Box sx={{
+            position: "absolute",
+            top: -20,
+            right: -20,
+            width: 120,
+            height: 120,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.1)",
+          }} />
+          <Box sx={{
+            position: "absolute",
+            bottom: -30,
+            left: -30,
+            width: 150,
+            height: 150,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.1)",
+          }} />
+
+          <Box sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: 2,
+            flexDirection: { xs: "column", sm: "row" },
+            position: "relative",
+            zIndex: 2,
+          }}>
+            <SportsEsportsIcon sx={{
+              fontSize: { xs: 45, sm: 55, md: 65 },
+              color: "#fff",
+              mr: { xs: 0, sm: 2 },
+              mb: { xs: 1, sm: 0 },
+              filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.3))"
+            }} />
+            <Typography
+              variant="h4"
+              component="h1"
+              fontWeight={800}
+              color="#fff"
+              textAlign={{ xs: "center", sm: "left" }}
+              sx={{
+                textShadow: "0 2px 10px rgba(0, 0, 0, 0.3)",
+                fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
+                letterSpacing: "1px",
+                background: "linear-gradient(90deg, #ffffff, #e0e0e0, #ffffff)",
+                backgroundSize: "200% auto",
+                color: "transparent",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                animation: "shine 3s linear infinite",
+                "@keyframes shine": {
+                  "to": {
+                    backgroundPosition: "200% center"
                   }
-                }}
-              >
-                <CardContent sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  py: 5,
-                }}>
-                  <EmojiNatureIcon fontSize="large" color="success" sx={{ mb: 1 }} />
-                  <Typography variant="h6" fontWeight={600} gutterBottom>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </Typography>
-                  <Chip
-                    label="Category"
-                    color="primary"
-                    sx={{ mb: 2, fontWeight: 500 }}
-                  />
-                  <Tooltip title={`Play levels for ${cat.charAt(0).toUpperCase() + cat.slice(1)}`}>
-                    <Button
-                      variant="contained"
-                      endIcon={<ArrowForwardIosIcon />}
-                      color="secondary"
-                      size="large"
-                      sx={{ fontWeight: 600, borderRadius: 8, px: 4 }}
-                      onClick={() => navigate(`/student/classes/${id}/4pic1word/${cat}`)}
-                    >
-                      Play
-                    </Button>
-                  </Tooltip>
-                </CardContent>
-              </Card>
+                }
+              }}
+            >
+              VOCAB ADVENTURE
+            </Typography>
+          </Box>
+
+          {categories.length === 0 ? (
+            <Alert severity="info" sx={{ borderRadius: 3, boxShadow: 3 }}>No categories available.</Alert>
+          ) : (
+            <Grid container spacing={{ xs: 2, sm: 3 }} justifyContent="center" sx={{ mt: 0 }}>
+              {categories.map((cat, i) => {
+                const theme = categoryThemes[cat] || categoryThemes.default;
+                const level = userProgress[cat]?.level || 1;
+                const levelRank = getLevelRank(level);
+
+                return (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={cat}>
+                    <Zoom in={true} style={{ transitionDelay: `${i * 100}ms` }}>
+                      <Card sx={{
+                        height: "100%",
+                        borderRadius: 4,
+                        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                        "&:hover": {
+                          transform: "translateY(-8px)",
+                          boxShadow: "0 16px 32px rgba(0, 0, 0, 0.16)",
+                        },
+                        background: theme.gradient,
+                        color: theme.color,
+                        position: "relative",
+                        overflow: "visible",
+                      }}>
+                        {/* Level Badge - positioned absolutely */}
+                        <Avatar
+                          sx={{
+                            position: 'absolute',
+                            top: -15,
+                            right: -15,
+                            width: 60,
+                            height: 60,
+                            backgroundColor: theme.secondaryColor,
+                            outline: '3px solid rgba(255,255,255,0.7)',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            color: theme.color,
+                            fontWeight: 800,
+                            fontSize: '1.2rem',
+                            zIndex: 2,
+                          }}
+                        >
+                          {userProgress[cat]?.level || 1}
+                        </Avatar>
+
+                        {/* Rank Badge */}
+                        <Chip 
+                          label={levelRank} 
+                          sx={{
+                            position: 'absolute',
+                            top: 15,
+                            left: 15,
+                            fontWeight: 700,
+                            backgroundColor: 'rgba(255,255,255,0.85)',
+                            color: theme.secondaryColor,
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          }}
+                        />
+
+                        <CardContent sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          py: { xs: 3, sm: 4 },
+                          px: { xs: 2, sm: 3 },
+                          height: '100%',
+                          justifyContent: 'space-between',
+                        }}>
+
+                          {/* Category Icon with animation */}
+                          <Box
+                            sx={{
+                              mb: 2,
+                              mt: 1,
+                              position: 'relative',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {/* Animated background circle */}
+                            <Box
+                              sx={{
+                                width: 100,
+                                height: 100,
+                                borderRadius: '50%',
+                                background: 'rgba(255,255,255,0.25)',
+                                position: 'absolute',
+                                animation: 'pulse 2s infinite',
+                                '@keyframes pulse': {
+                                  '0%': {
+                                    transform: 'scale(0.95)',
+                                    boxShadow: '0 0 0 0 rgba(255,255,255,0.5)',
+                                  },
+                                  '70%': {
+                                    transform: 'scale(1)',
+                                    boxShadow: '0 0 0 10px rgba(255,255,255,0)',
+                                  },
+                                  '100%': {
+                                    transform: 'scale(0.95)',
+                                    boxShadow: '0 0 0 0 rgba(255,255,255,0)',
+                                  },
+                                },
+                              }}
+                            />
+
+                            {/* Category icon */}
+                            <Avatar
+                              sx={{
+                                width: 80,
+                                height: 80,
+                                backgroundColor: 'rgba(255,255,255,0.9)',
+                                color: theme.secondaryColor,
+                                boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                              }}
+                            >
+                              {theme.icon}
+                            </Avatar>
+
+                            {/* Completed levels badge */}
+                            <Badge
+                              badgeContent={userProgress[cat]?.completedLevels || 0}
+                              color="error"
+                              max={99}
+                              overlap="circular"
+                              sx={{
+                                position: 'absolute',
+                                bottom: -5,
+                                right: -5,
+                                '& .MuiBadge-badge': {
+                                  fontSize: '0.9rem',
+                                  height: 28,
+                                  minWidth: 28,
+                                  borderRadius: '50%',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                                }
+                              }}
+                            />
+                          </Box>
+
+                          {/* Category Name */}
+                          <Typography 
+                            variant="h5" 
+                            fontWeight={700} 
+                            gutterBottom
+                            fontSize={{ xs: '1.3rem', sm: '1.5rem' }}
+                            textAlign="center"
+                            sx={{
+                              textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              letterSpacing: '0.5px',
+                              mb: 2,
+                            }}
+                          >
+                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                          </Typography>
+
+                          {/* Stats Section */}
+                          <Box 
+                            sx={{
+                              width: '100%',
+                              mb: 3,
+                              p: 2,
+                              borderRadius: 3,
+                              backgroundColor: 'rgba(255,255,255,0.15)',
+                              backdropFilter: 'blur(5px)',
+                            }}
+                          >
+                            {/* XP Progress */}
+                            <Box sx={{ mb: 1.5 }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                <Typography 
+                                  variant="body2" 
+                                  fontWeight={700} 
+                                  sx={{ color: 'inherit', opacity: 0.9 }}
+                                >
+                                  XP PROGRESS
+                                </Typography>
+                                <Typography 
+                                  variant="body2" 
+                                  fontWeight={700} 
+                                  sx={{ color: 'inherit', opacity: 0.9 }}
+                                >
+                                  {userProgress[cat]?.xp || 0}/{userProgress[cat]?.xpRequired || 50}
+                                </Typography>
+                              </Box>
+                              <LinearProgress 
+                                variant="determinate" 
+                                value={((userProgress[cat]?.xp || 0) / (userProgress[cat]?.xpRequired || 50)) * 100}
+                                sx={{ 
+                                  height: 10, 
+                                  borderRadius: 5,
+                                  backgroundColor: 'rgba(255,255,255,0.3)',
+                                  '& .MuiLinearProgress-bar': {
+                                    backgroundColor: 'rgba(255,255,255,0.9)'
+                                  }
+                                }}
+                              />
+                            </Box>
+
+                            {/* Stats Grid */}
+                            <Box sx={{ 
+                              display: 'flex', 
+                              justifyContent: 'space-between',
+                              mt: 1.5,
+                            }}>
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
+                                  {userProgress[cat]?.completedLevels || 0}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
+                                  COMPLETED
+                                </Typography>
+                              </Box>
+                              
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
+                                  {userProgress[cat]?.currentLevel || 1}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
+                                  CURRENT
+                                </Typography>
+                              </Box>
+                              
+                              <Box sx={{ textAlign: 'center' }}>
+                                <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
+                                  {Math.floor((userProgress[cat]?.xp || 0) / 10)}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
+                                  STARS
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+
+                          {/* Play Button */}
+                          <Button
+                            variant="contained"
+                            endIcon={<ArrowForwardIosIcon />}
+                            size="large"
+                            fullWidth
+                            sx={{ 
+                              fontWeight: 700, 
+                              borderRadius: 8, 
+                              px: { xs: 2, sm: 3, md: 4 },
+                              py: { xs: 1.5, sm: 1.8 },
+                              fontSize: { xs: '1rem', sm: '1.1rem' },
+                              backgroundColor: 'rgba(255,255,255,0.9)',
+                              color: theme.secondaryColor,
+                              boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+                              textTransform: 'uppercase',
+                              letterSpacing: '1px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(255,255,255,1)',
+                                boxShadow: '0 12px 20px rgba(0,0,0,0.2)',
+                                transform: 'translateY(-3px)'
+                              },
+                              transition: 'all 0.3s ease'
+                            }}
+                            onClick={() => navigate(`/student/classes/${id}/4pic1word/${cat}`)}
+                          >
+                            Play Now
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </Zoom>
+                  </Grid>
+                );
+              })}
             </Grid>
-          ))}
-        </Grid>
-      )}
-    </Container>
+          )}
+        </Box>
+    </Box>
   );
 }

@@ -42,7 +42,9 @@ export default function LevelList() {
   // Load completed levels from localStorage or initialize empty object
   const loadCompletedLevels = () => {
     try {
-      const saved = localStorage.getItem(`vocabVenture_${category}_completed`);
+      // Get user ID from localStorage or use anonymous if not available
+      const userId = localStorage.getItem("userId") || "anonymous";
+      const saved = localStorage.getItem(`vocabVenture_${userId}_${category}_completed`);
       return saved ? JSON.parse(saved) : {};
     } catch (e) {
       console.error("Error loading completed levels:", e);
@@ -303,7 +305,8 @@ export default function LevelList() {
                         <Chip
                           label="Locked"
                           color="default"
-                          sx={{ fontWeight: 500, mt: 2 }}
+                          sx={{ fontWeight: 500, mt: 2, cursor: 'pointer' }}
+                          onClick={() => alert('This level is locked! Complete previous levels to unlock.')}
                         />
                       </>
                     )}

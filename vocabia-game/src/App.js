@@ -72,6 +72,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('userId');
     setIsAuthenticated(false);
     setRole(null);
     window.location.href = '/';

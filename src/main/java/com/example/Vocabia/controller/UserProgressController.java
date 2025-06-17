@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.stream.Collectors;
 import java.util.List;
 
 @RestController
@@ -78,5 +79,25 @@ public class UserProgressController {
             dto = new UserProgressDTO();
         }
         return ResponseEntity.ok(dto);
+    }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<UserProgressDTO>> getAllUserProgress(Principal principal) {
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<UserProgressDTO> progressList = userProgressService.getAllUserProgress(user);
+        return ResponseEntity.ok(progressList);
+    }
+    
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<UserProgressDTO>> getUserProgressByCategory(
+            @PathVariable String category, Principal principal) {
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<UserProgressDTO> progressList = userProgressService.getAllUserProgress(user)
+                .stream()
+                .filter(progress -> category.equals(progress.getCategory()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(progressList);
     }
 }

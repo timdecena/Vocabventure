@@ -61,7 +61,7 @@ const Navbar = ({ role, onLogout }) => {
         display: "flex",
         alignItems: "center",
         gap: 20,
-        position: "fixed",
+        position: "sticky",
         top: 0,
         left: 0,
         zIndex: 1000,
