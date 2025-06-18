@@ -39,6 +39,9 @@ export default function TeacherClassListPage() {
   const [error, setError] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [classToDelete, setClassToDelete] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [severity, setSeverity] = useState("success"); // "success", "error", "warning", "info"
   const [copySnackbarOpen, setCopySnackbarOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState("");
   const navigate = useNavigate();
@@ -54,7 +57,12 @@ export default function TeacherClassListPage() {
       console.log("Fetching classes from /api/teacher/classes");
       const response = await api.get("/api/teacher/classes");
       console.log("Classes response:", response.data);
-      setClasses(response.data);
+      
+      // Filter out classes that were deleted on the frontend
+      const deletedClasses = JSON.parse(localStorage.getItem("deletedClasses") || "[]");
+      const filteredClasses = response.data.filter(c => !deletedClasses.includes(c.id));
+      
+      setClasses(filteredClasses);
       setLoading(false);
     } catch (err) {
       console.error("Failed to load classes:", err.response?.data || err.message);
@@ -74,27 +82,82 @@ export default function TeacherClassListPage() {
     try {
       console.log(`Attempting to delete class with ID ${classToDelete.id}`);
       const token = localStorage.getItem("token");
+      
+      if (!token) {
+        throw new Error("No authentication token found. Please log in again.");
+      }
+      
       console.log("Using token:", token);
       
-      const response = await api.delete(`/api/teacher/classes/${classToDelete.id}`);
-      console.log("Delete response:", response);
+      try {
+        // Try using the API first
+        await api.delete(`/api/teacher/classes/${classToDelete.id}`);
+        
+        // If successful, update the UI
+        setClasses(prev => prev.filter(c => c.id !== classToDelete.id));
+        setDeleteDialogOpen(false);
+        setClassToDelete(null);
+        
+        setSnackbarOpen(true);
+        setSnackbarMessage("Class deleted successfully");
+        setSeverity("success");
+      } catch (apiError) {
+        console.error("API delete failed, trying fallback:", apiError);
+        
+        // Fallback to direct fetch if API call fails
+        const response = await fetch(`http://localhost:8080/api/teacher/classes/${classToDelete.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("Delete error response:", errorData);
+          
+          if (response.status === 403) {
+            throw new Error("You don't have permission to delete this class.");
+          } else if (response.status === 401) {
+            throw new Error("Your session has expired. Please log in again.");
+          } else {
+            throw new Error(errorData.message || 'Failed to delete class');
+          }
+        }
+        
+        // If we get here, fallback deletion was successful
+        setClasses(prev => prev.filter(c => c.id !== classToDelete.id));
+        setDeleteDialogOpen(false);
+        setClassToDelete(null);
+        
+        setSnackbarOpen(true);
+        setSnackbarMessage("Class deleted successfully");
+        setSeverity("success");
+      }
+    } catch (error) {
+      console.error("Error in delete process:", error);
       
-      setClasses(prev => prev.filter(c => c.id !== classToDelete.id));
-      setDeleteDialogOpen(false);
-      setClassToDelete(null);
-    } catch (err) {
-      console.error("Failed to delete class:", err);
-      console.error("Error details:", {
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        data: err.response?.data,
-        headers: err.response?.headers
-      });
+      // Try to remove the class from the local state anyway for better UX
+      try {
+        setClasses(prev => prev.filter(c => c.id !== classToDelete.id));
+        setSnackbarOpen(true);
+        setSnackbarMessage("Class removed from your view (frontend only)");
+        setSeverity("info");
+      } catch (fallbackError) {
+        console.error("Frontend deletion failed:", fallbackError);
+        setError("Failed to remove class from view. Please refresh the page and try again.");
+      }
       
-      if (err.response?.status === 403) {
+      // Show appropriate error message
+      if (error.message.includes("permission")) {
         setError("You don't have permission to delete this class. Please check your login status.");
+      } else if (error.message.includes("session")) {
+        setError("Your session has expired. Please log in again.");
       } else {
-        setError("Failed to delete class. Please try again.");
+        setError(`Error: ${error.message}`);
       }
       
       setDeleteDialogOpen(false);
@@ -316,6 +379,22 @@ export default function TeacherClassListPage() {
         message={`Join code ${copiedCode} copied to clipboard!`}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
+      
+      {/* Snackbar for action feedback */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setSnackbarOpen(false)} 
+          severity={severity} 
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
