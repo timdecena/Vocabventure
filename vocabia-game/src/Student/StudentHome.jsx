@@ -7,45 +7,34 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
-  Grid,
   Avatar,
-  Tooltip,
-  LinearProgress,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField
 } from '@mui/material';
-import Home from '@mui/icons-material/Home';
-import ForestIcon from '@mui/icons-material/Forest';
-import PetsIcon from '@mui/icons-material/Pets';
-import EmojiNatureIcon from '@mui/icons-material/EmojiNature';
-import StarRateIcon from '@mui/icons-material/StarRate';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import api from '../api/api';
 import '../styles/StudentHomeNature.css';
 
-const animalMascots = [
-  { name: "Owl", src: "/nature/owl_mascot.png" },
-  { name: "Fox", src: "/nature/fox_mascot.png" },
-  { name: "Squirrel", src: "/nature/squirrel_mascot.png" }
+const fantasyMascots = [
+  { name: "Wizard", src: "/fantasy/wizard_avatar.png" },
+  { name: "Elf", src: "/fantasy/elf_avatar.png" },
+  { name: "Fairy", src: "/fantasy/fairy_avatar.png" }
 ];
 
 const StudentHome = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
-  const [mascot, setMascot] = useState(animalMascots[0]); // Random mascot
-
-  // Modal state for Join Class
+  const [mascot, setMascot] = useState(fantasyMascots[0]);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
 
   useEffect(() => {
-    setMascot(animalMascots[Math.floor(Math.random() * animalMascots.length)]);
+    setMascot(fantasyMascots[Math.floor(Math.random() * fantasyMascots.length)]);
     fetchClasses();
     // eslint-disable-next-line
   }, []);
@@ -66,7 +55,6 @@ const StudentHome = ({ setIsAuthenticated }) => {
     navigate('/');
   };
 
-  // Join Class submission
   const handleJoinClassSubmit = async (e) => {
     e.preventDefault();
     setJoinError("");
@@ -74,116 +62,76 @@ const StudentHome = ({ setIsAuthenticated }) => {
       await api.post("/student/classes/join", { joinCode });
       setJoinModalOpen(false);
       setJoinCode("");
-      await fetchClasses(); // refresh class list
+      await fetchClasses();
     } catch (err) {
       setJoinError("Failed to join class: " + (err.response?.data || "Unknown error"));
     }
   };
 
   return (
-    <Box className="nature-root">
-      {/* Parallax Adventure Background */}
-      <div className="nature-bg-parallax" />
-      <div className="nature-bg-foreground" />
-
-      {/* Page content */}
-      <Box className="nature-content" p={2}>
+    <Box className="fantasy-root arcade-neon" style={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Left Sidebar */}
+      <Box className="arcade-sidebar">
+        <Box className="arcade-sidebar-btn-group">
+          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="castle">🏰</span>} onClick={() => navigate('/student/classes')}>My Classes</Button>
+          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="scroll">📜</span>} onClick={() => setJoinModalOpen(true)}>Join Class</Button>
+          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="spellbook">📖</span>} onClick={() => navigate('/student/word-of-the-day')}>Word of the Day</Button>
+          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="trophy">🏆</span>} onClick={() => navigate('/leaderboard/wotd')}>Leaderboard</Button>
+        </Box>
+        <Box className="arcade-sidebar-bottom">
+          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="feedback">💬</span>}>Comments and Feedback</Button>
+        </Box>
+      </Box>
+      {/* Main Content */}
+      <Box className="fantasy-content" p={2}>
+        {/* Arcade Neon Animated Grid Background */}
+        <div className="fantasy-bg" />
+        <div className="fantasy-sparkle" />
         {/* Mascot + Greeting */}
         <Box className="mascot-row" display="flex" alignItems="center" mb={2}>
           <Avatar
             src={mascot.src}
             alt={mascot.name}
-            className="nature-mascot"
+            className="fantasy-avatar"
             sx={{ width: 64, height: 64, marginRight: 2, boxShadow: 3 }}
           />
           <Box>
-            <Typography className="welcome-text" variant="h4" fontWeight="bold" gutterBottom>
-              Welcome, Explorer!
+            <Typography className="arcade-welcome" variant="h4" fontWeight="bold" gutterBottom>
+              Welcome, Apprentice!
             </Typography>
           </Box>
         </Box>
-
         {/* XP / Level */}
-        <Box className="xp-bar" mb={2}>
-          <Typography variant="subtitle1" fontWeight="bold" color="secondary" mb={0.5}>
-            XP Progress
+        <Box className="fantasy-xp-bar" mb={2}>
+          <Typography variant="subtitle1" fontWeight="bold" color="secondary" mb={0.5} style={{ fontFamily: 'Press Start 2P' }}>
+            XP PROGRESS
           </Typography>
-          <LinearProgress
-            variant="determinate"
-            value={60}
-            className="nature-xp-progress"
-            sx={{ height: 12, borderRadius: 6, background: "#bfe0c7" }}
-          />
+          <Box sx={{ width: '100%', mt: 1 }}>
+            <Box sx={{ height: 8, bgcolor: '#e0c3fc', borderRadius: 4, mb: 1 }}>
+              <Box sx={{ width: '60%', height: '100%', bgcolor: '#2563eb', borderRadius: 4 }} />
+            </Box>
+          </Box>
           <Box display="flex" alignItems="center" mt={0.5} gap={1}>
-            <StarRateIcon color="warning" fontSize="small" />
-            <Typography variant="body2" color="text.secondary">
-              Level 3 (120 / 200 XP)
+            <span role="img" aria-label="magic">🕹️</span>
+            <Typography variant="body2" color="text.secondary" style={{ fontFamily: 'Press Start 2P' }}>
+              Wizard Level 3 (120 / 200 XP)
             </Typography>
           </Box>
         </Box>
-
-        {/* Main navigation buttons */}
-        <Grid container spacing={2} className="nature-nav-btns" mb={2}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Button
-              className="nature-btn"
-              variant="contained"
-              fullWidth
-              startIcon={<ForestIcon />}
-              onClick={() => navigate('/student/classes')}
-            >
-              My Classes
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Button
-              className="nature-btn"
-              variant="contained"
-              fullWidth
-              startIcon={<Home />}
-              onClick={() => setJoinModalOpen(true)}
-            >
-              Join Class
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Button
-              className="nature-btn"
-              variant="contained"
-              fullWidth
-              startIcon={<EmojiNatureIcon />}
-              onClick={() => navigate('/student/word-of-the-day')}
-            >
-              Word of the Day
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Button
-              className="nature-btn"
-              variant="contained"
-              fullWidth
-              startIcon={<StarRateIcon />}
-              onClick={() => navigate('/leaderboard/wotd')}
-            >
-              WOTD Leaderboard
-            </Button>
-          </Grid>
-        </Grid>
-
         {/* Spelling Challenge Section */}
-        <Typography className="section-title" variant="h5" mt={2} mb={1} fontWeight="bold">
-          <EmojiNatureIcon sx={{ mr: 1, color: "#4caf50" }} /> Spelling Challenge Levels
+        <Typography className="arcade-section-title" variant="h5" mt={2} mb={1} fontWeight="bold">
+          <span role="img" aria-label="crystal">👾</span> Spelling Challenge Levels
         </Typography>
         <Box>
           {classes.length === 0 && (
-            <Typography color="text.secondary" fontStyle="italic">
+            <Typography color="text.secondary" fontStyle="italic" className="arcade-body">
               (You have not joined any classes yet.)
             </Typography>
           )}
           {classes.map(cls => (
             <Card
               key={cls.id}
-              className="nature-card"
+              className="arcade-card"
               sx={{
                 my: 1.5,
                 boxShadow: 4,
@@ -193,63 +141,57 @@ const StudentHome = ({ setIsAuthenticated }) => {
               }}
             >
               <CardContent sx={{ display: "flex", alignItems: "center" }}>
-                <PetsIcon className="class-icon" sx={{ mr: 2, fontSize: 32, color: "#78a06b" }} />
+                <span role="img" aria-label="treasure">🪙</span>
                 <Box flexGrow={1}>
-                  <Typography variant="h6" fontWeight="bold" color="primary.dark">
+                  <Typography variant="h6" fontWeight="bold" color="primary.dark" className="arcade-body">
                     {cls.name}
                   </Typography>
                 </Box>
-                <Tooltip title="Explore Levels!" arrow>
-                  <Button
-                    className="nature-btn"
-                    variant="contained"
-                    endIcon={<ArrowForwardIosIcon />}
-                    onClick={() => navigate(`/student/classes/${cls.id}/spelling-levels`)}
-                  >
-                    View Levels
-                  </Button>
-                </Tooltip>
+                <Button
+                  className="arcade-btn"
+                  variant="contained"
+                  endIcon={<ArrowForwardIosIcon />}
+                  onClick={() => navigate(`/student/classes/${cls.id}/spelling-levels`)}
+                >
+                  View Levels
+                </Button>
               </CardContent>
             </Card>
           ))}
         </Box>
-
-        {/* Logout */}
-        <Box mt={5} mb={2} textAlign="center">
+        {/* Logout Button */}
+        <Box mt={4} display="flex" justifyContent="center">
           <Button
-            className="nature-btn logout-btn"
-            variant="outlined"
+            className="arcade-btn logout-btn"
+            variant="contained"
             startIcon={<LogoutIcon />}
             onClick={handleLogout}
           >
             Logout
           </Button>
         </Box>
-      </Box>
-
-      {/* Join Class Modal */}
-      <Dialog open={joinModalOpen} onClose={() => setJoinModalOpen(false)}>
-        <DialogTitle>Join Class</DialogTitle>
-        <DialogContent>
-          <Box component="form" onSubmit={handleJoinClassSubmit} sx={{ mt: 1 }}>
+        {/* Join Class Modal */}
+        <Dialog open={joinModalOpen} onClose={() => setJoinModalOpen(false)}>
+          <DialogTitle>Join Class</DialogTitle>
+          <DialogContent>
             <TextField
               autoFocus
               margin="dense"
-              label="Join Code"
+              label="Class Code *"
+              type="text"
               fullWidth
               value={joinCode}
               onChange={e => setJoinCode(e.target.value)}
-              required
-              variant="outlined"
+              error={!!joinError}
+              helperText={joinError}
             />
-            {joinError && <Typography color="error" mt={1}>{joinError}</Typography>}
-            <DialogActions sx={{ px: 0 }}>
-              <Button onClick={() => setJoinModalOpen(false)}>Cancel</Button>
-              <Button type="submit" variant="contained">Join</Button>
-            </DialogActions>
-          </Box>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setJoinModalOpen(false)} color="secondary">Cancel</Button>
+            <Button onClick={handleJoinClassSubmit} className="arcade-btn" color="primary">Join</Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </Box>
   );
 };

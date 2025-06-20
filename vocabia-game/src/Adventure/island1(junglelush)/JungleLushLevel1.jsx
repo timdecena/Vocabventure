@@ -226,6 +226,7 @@ const TopBar = styled(Box)(({ theme }) => ({
   left: 0,
   zIndex: 30,
   padding: '18px 32px',
+  marginTop: '12px',
 }));
 
 const CenterBar = styled(Box)(({ theme }) => ({
@@ -651,7 +652,7 @@ const JungleLushLevel1 = () => {
             <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>{timeLeft}s</Typography>
           </TimerBox>
         ) : <div style={{ width: 90 }} />}
-        <Button variant="contained" color="error" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />} style={{ fontWeight: 700, fontFamily: 'monospace', borderRadius: 18, marginLeft: 16 }}>
+        <Button variant="contained" color="error" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />} style={{ fontWeight: 700, fontFamily: 'monospace', borderRadius: 18, marginRight: 48, marginTop: 12 }}>
           Quit
         </Button>
       </TopBar>
