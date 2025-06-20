@@ -16,8 +16,156 @@ import {
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import api from '../api/api';
 import '../styles/StudentHomeNature.css';
+import SchoolIcon from '@mui/icons-material/School';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import TodayIcon from '@mui/icons-material/Today';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+
+const GlobalSidebarStyles = () => (
+  <style>{`
+    .arcade-sidebar {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 200px;
+      height: calc(100vh - 64px);
+      background: rgba(24, 24, 27, 0.85);
+      border-right: 2px solid #00eaff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 100;
+      padding: 32px 0 0 0;
+      box-shadow: 0 0 32px #00eaff33;
+      transition: transform 0.4s ease-in-out;
+      transform: translateX(0);
+    }
+    .arcade-sidebar.hidden {
+      transform: translateX(-100%);
+    }
+
+    /* This group will stay at the top */
+    .arcade-sidebar-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      align-items: center;
+    }
+
+    /* This container will be pushed to the very bottom */
+    .arcade-sidebar-bottom {
+      margin-top: auto;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 36px;
+      padding-bottom: 0;
+    }
+    
+    .sidebar-toggle-btn {
+      position: fixed;
+      top: calc(64px + (100vh - 64px) / 2);
+      left: 200px;
+      transform: translate(-50%, -50%);
+      z-index: 101;
+      background: #18181b !important;
+      color: #00eaff !important;
+      border: 1px solid #00eaff !important;
+      
+      /* --- RECTANGULAR REDESIGN START --- */
+      width: 28px !important;
+      height: 60px !important;
+      min-width: unset !important;
+      border-radius: 0 8px 8px 0 !important;
+      /* --- RECTANGULAR REDESIGN END --- */
+
+      padding: 0 !important;
+      box-shadow: 0 0 12px #00eaff80;
+      transition: all 0.4s ease;
+    }
+    .sidebar-toggle-btn:hover {
+      background-color: #00eaff22 !important;
+      transform: translate(-50%, -50%) scale(1.05); /* Keep centering transform */
+    }
+    .sidebar-toggle-btn.open {
+      left: 200px;
+    }
+    .sidebar-toggle-btn:not(.open) {
+      left: 14px; /* Half of the new width (28px) to sit flush against the edge */
+    }
+    .fantasy-content {
+        transition: margin-left 0.4s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start; /* Align content to the top */
+        align-items: center;
+        flex-grow: 1;
+        padding: 2rem;
+    }
+    .arcade-sidebar-btn {
+      width: 176px;
+      height: auto;
+      min-height: 48px;
+      background: #18181b80;
+      color: #fff !important;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem !important;
+      font-weight: 500;
+      justify-content: space-between !important;
+      align-items: center;
+      padding: 12px 16px !important;
+      border-radius: 8px !important;
+      border: 1px solid #00eaff;
+      box-shadow: 0 0 8px #00eaff80;
+      display: flex !important;
+      white-space: normal;
+      line-height: 1.3;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .arcade-btn-text {
+      text-align: left;
+      pointer-events: none;
+    }
+
+    .arcade-btn-arrow {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1rem;
+      color: #00eaff;
+      text-shadow: 0 0 8px #00eaff;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .arcade-sidebar-btn:hover {
+      transform: translateX(5px);
+      border-color: #ff00c8;
+      box-shadow: 0 0 16px #ff00c8;
+    }
+
+    .arcade-sidebar-btn:hover .arcade-btn-arrow {
+      color: #ff00c8;
+      text-shadow: 0 0 8px #ff00c8;
+      transform: translateX(3px);
+    }
+    
+    .arcade-sidebar-btn-feedback {
+        border-color: #ffb86c;
+    }
+
+    .arcade-sidebar-btn-feedback:hover {
+        border-color: #ff5af7;
+        box-shadow: 0 0 16px #ff5af7;
+    }
+  `}</style>
+);
 
 const fantasyMascots = [
   { name: "Wizard", src: "/fantasy/wizard_avatar.png" },
@@ -25,7 +173,7 @@ const fantasyMascots = [
   { name: "Fairy", src: "/fantasy/fairy_avatar.png" }
 ];
 
-const StudentHome = ({ setIsAuthenticated }) => {
+const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) => {
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [mascot, setMascot] = useState(fantasyMascots[0]);
@@ -69,130 +217,608 @@ const StudentHome = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <Box className="fantasy-root arcade-neon" style={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Left Sidebar */}
-      <Box className="arcade-sidebar">
-        <Box className="arcade-sidebar-btn-group">
-          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="castle">🏰</span>} onClick={() => navigate('/student/classes')}>My Classes</Button>
-          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="scroll">📜</span>} onClick={() => setJoinModalOpen(true)}>Join Class</Button>
-          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="spellbook">📖</span>} onClick={() => navigate('/student/word-of-the-day')}>Word of the Day</Button>
-          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="trophy">🏆</span>} onClick={() => navigate('/leaderboard/wotd')}>Leaderboard</Button>
-        </Box>
-        <Box className="arcade-sidebar-bottom">
-          <Button className="arcade-sidebar-btn" startIcon={<span role="img" aria-label="feedback">💬</span>}>Comments and Feedback</Button>
-        </Box>
-      </Box>
-      {/* Main Content */}
-      <Box className="fantasy-content" p={2}>
-        {/* Arcade Neon Animated Grid Background */}
-        <div className="fantasy-bg" />
-        <div className="fantasy-sparkle" />
-        {/* Mascot + Greeting */}
-        <Box className="mascot-row" display="flex" alignItems="center" mb={2}>
-          <Avatar
-            src={mascot.src}
-            alt={mascot.name}
-            className="fantasy-avatar"
-            sx={{ width: 64, height: 64, marginRight: 2, boxShadow: 3 }}
-          />
-          <Box>
-            <Typography className="arcade-welcome" variant="h4" fontWeight="bold" gutterBottom>
-              Welcome, Apprentice!
-            </Typography>
-          </Box>
-        </Box>
-        {/* XP / Level */}
-        <Box className="fantasy-xp-bar" mb={2}>
-          <Typography variant="subtitle1" fontWeight="bold" color="secondary" mb={0.5} style={{ fontFamily: 'Press Start 2P' }}>
-            XP PROGRESS
-          </Typography>
-          <Box sx={{ width: '100%', mt: 1 }}>
-            <Box sx={{ height: 8, bgcolor: '#e0c3fc', borderRadius: 4, mb: 1 }}>
-              <Box sx={{ width: '60%', height: '100%', bgcolor: '#2563eb', borderRadius: 4 }} />
+    <>
+      <GlobalSidebarStyles />
+      <Box className="fantasy-root arcade-neon" style={{ display: 'flex', minHeight: '100vh', position: 'relative', alignItems: 'flex-start', paddingTop: '75px' }}>
+        {/* Sidebar and Toggle Button Wrapper */}
+        <Box>
+          <Box className={`arcade-sidebar ${isSidebarOpen ? '' : 'hidden'}`}>
+            {/* Sidebar Content */}
+            <Box className="arcade-sidebar-btn-group">
+              <Button className="arcade-sidebar-btn" onClick={() => navigate('/student/classes')}>
+                <span className="arcade-btn-text">My Classes</span>
+                <span className="arcade-btn-arrow">&gt;</span>
+              </Button>
+              <Button className="arcade-sidebar-btn" onClick={() => setJoinModalOpen(true)}>
+                <span className="arcade-btn-text">Join Class</span>
+                <span className="arcade-btn-arrow">&gt;</span>
+              </Button>
+              <Button className="arcade-sidebar-btn" onClick={() => navigate('/student/word-of-the-day')}>
+                <span className="arcade-btn-text">Word of the Day</span>
+                <span className="arcade-btn-arrow">&gt;</span>
+              </Button>
+              <Button className="arcade-sidebar-btn" onClick={() => navigate('/leaderboard/wotd')}>
+                <span className="arcade-btn-text">Leaderboard</span>
+                <span className="arcade-btn-arrow">&gt;</span>
+              </Button>
+            </Box>
+            <Box className="arcade-sidebar-bottom">
+              <Button className="arcade-sidebar-btn arcade-sidebar-btn-feedback" onClick={() => navigate('/student/feedback')}>
+                <span className="arcade-btn-text">Comments and Feedback</span>
+                <span className="arcade-btn-arrow">&gt;</span>
+              </Button>
             </Box>
           </Box>
-          <Box display="flex" alignItems="center" mt={0.5} gap={1}>
-            <span role="img" aria-label="magic">🕹️</span>
-            <Typography variant="body2" color="text.secondary" style={{ fontFamily: 'Press Start 2P' }}>
-              Wizard Level 3 (120 / 200 XP)
-            </Typography>
-          </Box>
-        </Box>
-        {/* Spelling Challenge Section */}
-        <Typography className="arcade-section-title" variant="h5" mt={2} mb={1} fontWeight="bold">
-          <span role="img" aria-label="crystal">👾</span> Spelling Challenge Levels
-        </Typography>
-        <Box>
-          {classes.length === 0 && (
-            <Typography color="text.secondary" fontStyle="italic" className="arcade-body">
-              (You have not joined any classes yet.)
-            </Typography>
-          )}
-          {classes.map(cls => (
-            <Card
-              key={cls.id}
-              className="arcade-card"
-              sx={{
-                my: 1.5,
-                boxShadow: 4,
-                borderRadius: 3,
-                transition: "transform 0.2s",
-                '&:hover': { transform: "scale(1.03) translateY(-2px)" }
-              }}
-            >
-              <CardContent sx={{ display: "flex", alignItems: "center" }}>
-                <span role="img" aria-label="treasure">🪙</span>
-                <Box flexGrow={1}>
-                  <Typography variant="h6" fontWeight="bold" color="primary.dark" className="arcade-body">
-                    {cls.name}
-                  </Typography>
-                </Box>
-                <Button
-                  className="arcade-btn"
-                  variant="contained"
-                  endIcon={<ArrowForwardIosIcon />}
-                  onClick={() => navigate(`/student/classes/${cls.id}/spelling-levels`)}
-                >
-                  View Levels
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-        {/* Logout Button */}
-        <Box mt={4} display="flex" justifyContent="center">
-          <Button
-            className="arcade-btn logout-btn"
-            variant="contained"
-            startIcon={<LogoutIcon />}
-            onClick={handleLogout}
-          >
-            Logout
+
+          {/* TOGGLE BUTTON IS NOW OUTSIDE THE SIDEBAR */}
+          <Button className={`sidebar-toggle-btn ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            {isSidebarOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </Button>
         </Box>
-        {/* Join Class Modal */}
-        <Dialog open={joinModalOpen} onClose={() => setJoinModalOpen(false)}>
-          <DialogTitle>Join Class</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Class Code *"
-              type="text"
-              fullWidth
-              value={joinCode}
-              onChange={e => setJoinCode(e.target.value)}
-              error={!!joinError}
-              helperText={joinError}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setJoinModalOpen(false)} color="secondary">Cancel</Button>
-            <Button onClick={handleJoinClassSubmit} className="arcade-btn" color="primary">Join</Button>
-          </DialogActions>
-        </Dialog>
+
+        {/* Main Content */}
+        <Box
+          className="fantasy-content"
+          style={{
+            marginLeft: isSidebarOpen ? '200px' : '0px',
+            flexGrow: 1,
+            padding: '2rem',
+            position: 'relative',
+            top: '-80px',
+
+          }}
+        >
+          {/* Arcade Neon Animated Grid Background */}
+          <div className="fantasy-bg" />
+          <div className="fantasy-sparkle" />
+          
+          {/* The one and only content container */}
+          <Box className="arcade-profile-container">
+            {/* Rank Icon in top right corner */}
+            <div className="arcade-profile-rank-icon">
+              <span role="img" aria-label="rank">🏆</span>
+              <span>LVL 24</span>
+            </div>
+
+            {/* Top Row: Avatar + Name/Subtitle + Stats */}
+            <Box className="arcade-profile-header" sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 3 }}>
+              <Avatar className="arcade-profile-avatar" sx={{ width: 90, height: 90, mr: 4 }} />
+              <Box sx={{ flexGrow: 1 }}>
+                <div className="arcade-profile-name">FirstName</div>
+                <div className="arcade-profile-subtitle">Bonus booster 24lv</div>
+                <Box className="arcade-profile-stats-row">
+                  <Box className="arcade-profile-stat-card">
+                    <div className="arcade-profile-stat-icon">📚</div>
+                    <div className="arcade-profile-stat-value">27</div>
+                    <div className="arcade-profile-stat-label">Levels Passed</div>
+                  </Box>
+                  <Box className="arcade-profile-stat-card">
+                    <div className="arcade-profile-stat-icon">⏱️</div>
+                    <div className="arcade-profile-stat-value">27min</div>
+                    <div className="arcade-profile-stat-label">Fastest Time</div>
+                  </Box>
+                  <Box className="arcade-profile-stat-card">
+                    <div className="arcade-profile-stat-icon">✔️</div>
+                    <div className="arcade-profile-stat-value">200</div>
+                    <div className="arcade-profile-stat-label">Correct Answers</div>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+            {/* --- Middle Row: Current Classes + Word of the Day --- */ }
+            <Box className="arcade-middle-row">
+              {/* Current Classes Card */}
+              <Box className="arcade-middle-card">
+                <div className="arcade-middle-card-title">Current Classes</div>
+                <Box className="arcade-class-list">
+                  {classes.length > 0 ? (
+                    classes.map(cls => (
+                      <div key={cls.id} className="arcade-class-item">
+                        <div className="arcade-class-info">
+                          <span className="arcade-class-name">{cls.name}</span>
+                          <span className="arcade-class-details">Section: {cls.section || 'A'}</span>
+                          <span className="arcade-class-details">Teacher: {cls.teacherName || 'Mr. Smith'}</span>
+                          <span className="arcade-class-details">S.Y.: 2024-2025</span>
+                        </div>
+                        <button className="arcade-view-btn" onClick={() => navigate(`/student/classes/${cls.id}/spelling-levels`)}>View</button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="arcade-class-info">No classes joined.</div>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Word of the Day Card */}
+              <Box className="arcade-middle-card">
+                <div className="arcade-middle-card-title">Word of the Day</div>
+                <div className="arcade-wotd-word">Serendipity</div>
+                <div className="arcade-wotd-definition">"The occurrence and development of events by chance in a happy or beneficial way."</div>
+              </Box>
+            </Box>
+            {/* Section Title */}
+            <div className="arcade-profile-section-title">Game Modes:</div>
+            {/* Game Mode Cards Row */}
+            <Box className="arcade-profile-modes-row">
+              <Box className="arcade-profile-mode-card">
+                <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #23232b 100%)'}}></div>
+                <div className="arcade-profile-mode-title">Adventure Mode</div>
+                <div className="arcade-profile-mode-desc">Game Mode Description here.</div>
+              </Box>
+              <Box className="arcade-profile-mode-card">
+                <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #ff00c833 100%)'}}></div>
+                <div className="arcade-profile-mode-title">Time Attack Mode</div>
+                <div className="arcade-profile-mode-desc">Game Mode Description here.</div>
+              </Box>
+              <Box className="arcade-profile-mode-card">
+                <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #00eaff33 100%)'}}></div>
+                <div className="arcade-profile-mode-title">4pics1word Mode</div>
+                <div className="arcade-profile-mode-desc">Game Mode Description here.</div>
+              </Box>
+              <Box className="arcade-profile-mode-card">
+                <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #ff5af733 100%)'}}></div>
+                <div className="arcade-profile-mode-title">Meteor Mash</div>
+                <div className="arcade-profile-mode-desc">Destroy incoming meteors by typing!</div>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* NEW Right-Side Container - Positioned separately */}
+          <div className="arcade-leaderboard-container">
+            <div className="arcade-middle-card-title">CLASSMATES LEADERBOARD</div>
+            <p style={{ color: '#fff', fontSize: '0.9rem', textAlign: 'center', marginTop: 'rem' }}>
+              Leaderboard content will go here
+            </p>
+          </div>
+
+          {/* Join Class Modal */}
+          <Dialog open={joinModalOpen} onClose={() => setJoinModalOpen(false)}>
+            <DialogTitle>Join Class</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Class Code *"
+                type="text"
+                fullWidth
+                value={joinCode}
+                onChange={e => setJoinCode(e.target.value)}
+                error={!!joinError}
+                helperText={joinError}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setJoinModalOpen(false)} color="secondary">Cancel</Button>
+              <Button onClick={handleJoinClassSubmit} className="arcade-btn" color="primary">Join</Button>
+            </DialogActions>
+          </Dialog>
+        </Box>
       </Box>
-    </Box>
+      <style>{`
+        /* Modal background and border */
+        .MuiDialog-paper {
+          background: #18181b !important;
+          border: 2px solid #00eaff !important;
+          box-shadow: 0 0 32px #00eaff80, 0 0 64px #ff00c880 !important;
+          border-radius: 16px !important;
+          color: #fff !important;
+          font-family: 'Press Start 2P', cursive !important;
+        }
+        .MuiDialogTitle-root {
+          color: #00eaff !important;
+          font-family: 'Press Start 2P', cursive !important;
+          font-size: 1.1rem !important;
+          text-shadow: 0 0 8px #00eaff;
+          letter-spacing: 1px;
+          padding-bottom: 8px !important;
+        }
+        .MuiDialogContent-root {
+          color: #fff !important;
+          font-family: 'Press Start 2P', cursive !important;
+          font-size: 0.9rem !important;
+        }
+        .MuiTextField-root {
+          width: 100%;
+          margin-top: 12px;
+        }
+        .MuiInputBase-root {
+          background: #23232b !important;
+          border-radius: 8px !important;
+          color: #fff !important;
+          font-family: 'Press Start 2P', cursive !important;
+          border: 1.5px solid #00eaff !important;
+          box-shadow: 0 0 8px #00eaff40;
+          transition: border 0.2s;
+        }
+        .MuiInputBase-root.Mui-focused {
+          border: 2px solid #ff00c8 !important;
+          box-shadow: 0 0 12px #ff00c8;
+        }
+        .MuiInputBase-input {
+          color: #fff !important;
+          font-family: 'Press Start 2P', cursive !important;
+          font-size: 0.9rem !important;
+          letter-spacing: 1px;
+          padding: 12px 10px !important;
+        }
+        .MuiDialogActions-root {
+          justify-content: flex-end;
+          padding: 16px 8px 8px 8px !important;
+          gap: 12px;
+        }
+        .MuiDialogActions-root .MuiButton-root {
+          font-family: 'Press Start 2P', cursive !important;
+          font-size: 0.8rem !important;
+          border-radius: 8px !important;
+          padding: 8px 20px !important;
+          text-transform: none !important;
+          box-shadow: 0 0 8px #00eaff80;
+          transition: all 0.2s;
+        }
+        .MuiDialogActions-root .MuiButton-root:nth-of-type(1) {
+          color: #ff00c8 !important;
+          border: 1.5px solid #ff00c8 !important;
+          background: #18181b !important;
+        }
+        .MuiDialogActions-root .MuiButton-root:nth-of-type(1):hover {
+          background: #ff00c822 !important;
+          box-shadow: 0 0 16px #ff00c8;
+          color: #fff !important;
+        }
+        .MuiDialogActions-root .MuiButton-root:nth-of-type(2) {
+          color: #00eaff !important;
+          border: 1.5px solid #00eaff !important;
+          background: #18181b !important;
+        }
+        .MuiDialogActions-root .MuiButton-root:nth-of-type(2):hover {
+          background: #00eaff22 !important;
+          box-shadow: 0 0 16px #00eaff;
+          color: #fff !important;
+        }
+        .Mui-error {
+          color: #ff00c8 !important;
+          font-family: 'Press Start 2P', cursive !important;
+          font-size: 0.8rem !important;
+          text-shadow: 0 0 8px #ff00c8;
+        }
+        .MuiInputLabel-root {
+          color: #00eaff !important;
+          font-family: 'Press Start 2P', cursive !important;
+          font-size: 1rem !important;
+          font-weight: bold !important;
+          letter-spacing: 1px;
+          text-shadow: 0 0 6px #00eaff;
+          z-index: 2;
+        }
+        .MuiInputLabel-root.Mui-focused {
+          color: #ff00c8 !important;
+          text-shadow: 0 0 8px #ff00c8;
+        }
+        .arcade-profile-container {
+          margin-bottom: auto;
+          position: relative; /* Needed for absolute positioning of the rank icon */
+          min-width: 350px;
+          min-height: 200px;
+          background: #18181b;
+          border: 2.5px solid #00eaff;
+          border-radius: 24px;
+          box-shadow: 0 0 32px #00eaff80, 0 0 64px #ff00c880;
+          padding: 36px 32px 32px 32px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: flex-start;
+          z-index: 2;
+          max-width: 1100px;
+          width: 95vw;
+          margin: 0 auto;
+        }
+        .arcade-profile-header {
+          width: 100%;
+          margin-bottom: 24px;
+        }
+        .arcade-profile-avatar {
+          border: 2px solid #00eaff;
+          box-shadow: 0 0 16px #00eaff;
+        }
+        .arcade-profile-name {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1.3rem;
+          margin-bottom: 2px;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-profile-subtitle {
+          color: #fff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.9rem;
+          margin-bottom: 10px;
+        }
+        .arcade-profile-stats-row {
+          display: flex;
+          gap: 18px;
+          margin-top: 8px;
+        }
+        .arcade-profile-stat-card {
+          background: #23232b;
+          border: 2px solid #00eaff;
+          border-radius: 12px;
+          box-shadow: 0 0 8px #00eaff80;
+          min-width: 110px;
+          min-height: 70px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 10px 6px 10px;
+        }
+        .arcade-profile-stat-icon {
+          font-size: 1.2rem;
+          margin-bottom: 2px;
+        }
+        .arcade-profile-stat-value {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1.1rem;
+          font-weight: bold;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-profile-stat-label {
+          color: #fff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.7rem;
+          margin-top: 2px;
+          text-align: center;
+        }
+        .arcade-profile-section-title {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1.1rem;
+          margin-bottom: 18px;
+          text-shadow: 0 0 8px #00eaff;
+          align-self: flex-start;
+        }
+        .arcade-profile-modes-row {
+          display: flex;
+          gap: 20px;
+          width: 100%;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        .arcade-profile-mode-card {
+          background: #23232b;
+          border: 2px solid #00eaff;
+          border-radius: 16px;
+          box-shadow: 0 0 16px #00eaff80;
+          width: 230px;
+          min-height: 220px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          margin-bottom: 16px;
+          padding: 0 0 14px 0;
+          transition: box-shadow 0.2s, border 0.2s;
+          overflow: hidden;
+        }
+        .arcade-profile-mode-img {
+          width: 100%;
+          height: 90px;
+          border-bottom: 2px solid #00eaff;
+          border-radius: 16px 16px 0 0;
+          background-size: cover;
+          background-position: center;
+        }
+        .arcade-profile-mode-title {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1rem;
+          margin: 12px 0 6px 16px;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-profile-mode-desc {
+          color: #fff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.85rem;
+          text-align: left;
+          margin-left: 16px;
+          margin-right: 10px;
+        }
+        .arcade-current-class {
+          background: #23232b;
+          border: 2px solid #00eaff;
+          border-radius: 14px;
+          box-shadow: 0 0 12px #00eaff80;
+          padding: 16px 24px 10px 24px;
+          margin-bottom: 22px;
+          margin-top: 2px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          width: 100%;
+          max-width: 420px;
+        }
+        .arcade-current-class-title {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1rem;
+          margin-bottom: 6px;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-current-class-info {
+          color: #fff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.85rem;
+          margin-bottom: 2px;
+        }
+        .arcade-current-class-value {
+          color: #ff00c8;
+          font-weight: bold;
+          text-shadow: 0 0 8px #ff00c8;
+        }
+        .arcade-current-class-section-title {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1.1rem;
+          margin-bottom: 6px;
+          margin-top: 2px;
+          text-shadow: 0 0 8px #00eaff;
+          align-self: flex-start;
+        }
+        .arcade-view-class-btn {
+          margin-top: 10px;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.9rem;
+          color: #00eaff;
+          background: #18181b;
+          border: 2px solid #00eaff;
+          border-radius: 8px;
+          padding: 8px 24px;
+          box-shadow: 0 0 8px #00eaff80;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-view-class-btn:hover {
+          background: #00eaff22;
+          color: #fff;
+          border-color: #ff00c8;
+          box-shadow: 0 0 16px #ff00c8;
+          text-shadow: 0 0 8px #ff00c8;
+        }
+        .arcade-current-class-section {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.95rem;
+          margin-bottom: 4px;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-current-class-section-value {
+          color: #00eaff;
+          font-weight: bold;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        /* NEW middle row styles */
+        .arcade-middle-row {
+          display: flex;
+          width: 100%;
+          gap: 28px;
+          margin-bottom: 24px;
+          align-items: stretch;
+        }
+        .arcade-middle-card {
+          background: #23232b;
+          border: 2px solid #00eaff;
+          border-radius: 14px;
+          box-shadow: 0 0 12px #00eaff80;
+          padding: 16px 24px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+        .arcade-middle-card-title {
+          color: #00eaff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1rem;
+          margin-bottom: 12px;
+          text-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-class-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .arcade-class-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .arcade-class-info {
+          color: #fff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.85rem;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          align-items: flex-start;
+        }
+        .arcade-class-name {
+          color: #ff00c8;
+          font-weight: bold;
+        }
+        .arcade-class-section {
+          font-size: 0.7rem;
+          color: #ccc;
+        }
+        .arcade-view-btn {
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.8rem;
+          color: #00eaff;
+          background: transparent;
+          border: 1px solid #00eaff;
+          border-radius: 6px;
+          padding: 4px 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .arcade-view-btn:hover {
+          background: #00eaff22;
+          color: #fff;
+          box-shadow: 0 0 8px #00eaff;
+        }
+        .arcade-wotd-word {
+          color: #ff00c8;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 1.2rem;
+          text-shadow: 0 0 8px #ff00c8;
+          margin-bottom: 8px;
+        }
+        .arcade-wotd-definition {
+          color: #fff;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.8rem;
+          line-height: 1.4;
+        }
+        /* NEW styles for more details */
+        .arcade-class-details {
+          font-size: 0.7rem;
+          color: #ccc;
+        }
+        /* NEW styles for the rank icon */
+        .arcade-profile-rank-icon {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: #18181b;
+          border: 2px solid #ff00c8;
+          border-radius: 10px;
+          box-shadow: 0 0 12px #ff00c880;
+          padding: 6px 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Press Start 2P', cursive;
+          font-size: 0.9rem;
+          color: #ff00c8;
+          text-shadow: 0 0 8px #ff00c8;
+        }
+        /* Right-side leaderboard container */
+        .arcade-leaderboard-container {
+          position: absolute;
+          top: 1;
+          left: calc(103.5vw - 380px);
+          width: 250px;
+          height: 610px;
+          background: #18181b;
+          border: 2.5px solid #00eaff;
+          border-radius: 24px;
+          box-shadow: 0 0 32px #00eaff80, 0 0 64px #ff00c880;
+          padding: 36px 32px;
+          display: flex;
+          flex-direction: column;
+          z-index: 2;
+        }
+      `}</style>
+    </>
   );
 };
 

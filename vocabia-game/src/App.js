@@ -100,6 +100,7 @@ function App() {
 
 function AppContent({ isAuthenticated, setIsAuthenticated, role, setRole, needsNavPadding, handleLogout }) {
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Paths to HIDE navbar on
   const adventurePrefixes = [
@@ -127,6 +128,8 @@ function AppContent({ isAuthenticated, setIsAuthenticated, role, setRole, needsN
             setIsAuthenticated={setIsAuthenticated}
             role={role}
             setRole={setRole}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
           />
         </div>
       ) : (
@@ -135,13 +138,15 @@ function AppContent({ isAuthenticated, setIsAuthenticated, role, setRole, needsN
           setIsAuthenticated={setIsAuthenticated}
           role={role}
           setRole={setRole}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
         />
       )}
     </>
   );
 }
 
-function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole }) {
+function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSidebarOpen, setIsSidebarOpen }) {
   return (
     <Routes>
       {/* AUTH ROUTES */}
@@ -177,7 +182,11 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole }) {
       {/* STUDENT ROUTES */}
       <Route path="/student-home" element={
         isAuthenticated && role === 'STUDENT'
-          ? <StudentHome setIsAuthenticated={setIsAuthenticated} />
+          ? <StudentHome
+              setIsAuthenticated={setIsAuthenticated}
+              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
+            />
           : <Navigate to="/" replace />
       } />
       <Route path="/student/classes" element={isAuthenticated && role === 'STUDENT' ? <StudentClassListPage /> : <Navigate to="/" replace />} />

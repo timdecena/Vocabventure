@@ -4,8 +4,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .fantasy-root {
-  position: relative;
+  background-color: #18181b;
   min-height: 100vh;
+  position: relative;
   width: 100%;
   overflow-x: hidden;
   font-family: 'Cinzel Decorative', 'Poppins', 'Nunito', Arial, sans-serif;
@@ -56,6 +57,7 @@
   padding-bottom: 2.5rem;
   min-height: 100vh;
   margin-left: 170px;
+  transition: margin-left 0.3s ease;
 }
 
 .fantasy-avatar {
@@ -259,45 +261,81 @@
   text-shadow: 0 0 8px #00eaff, 0 0 16px #ff00c8;
 }
 
+/* === COMPLETE SIDEBAR OVERRIDE START === */
+
+/* Main sidebar container */
 .arcade-sidebar {
   position: fixed;
-  top: 64px;
+  top: 0;
   left: 0;
-  width: 200px;
-  height: calc(100vh - 64px);
-  background: rgba(24,24,27,0.5);
+  width: 200px; /* Sidebar width */
+  height: 100vh;
+  background: rgba(24, 24, 27, 0.85); /* Slightly more opaque for readability */
   border-right: 2px solid #00eaff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  z-index: 10;
-  padding: 16px 0 16px 0;
+  z-index: 100;
+  padding: 32px 0 24px 0;
   box-shadow: 0 0 32px #00eaff33;
+  transition: transform 0.4s ease-in-out;
 }
+
+/* Hidden state for the sidebar */
+.arcade-sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+/* Main content area adjustment */
+.fantasy-content {
+  transition: margin-left 0.4s ease-in-out;
+}
+
+/* Toggle button - THIS IS THE FIX */
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 50%;
+  left: 100%; /* Position at the right edge of the container */
+  transform: translate(-50%, -50%); /* Center it perfectly on the line */
+  z-index: 101; /* Above the sidebar itself */
+  
+  /* Styling */
+  background: #18181b !important;
+  color: #00eaff !important;
+  border: 1px solid #00eaff !important;
+  border-radius: 50% !important;
+  min-width: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  box-shadow: 0 0 12px #00eaff80;
+}
+.sidebar-toggle-btn:hover {
+  box-shadow: 0 0 18px #ff00c8;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Group for the top buttons */
 .arcade-sidebar-btn-group {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   width: 100%;
   align-items: center;
-  flex: 1;
-  justify-content: flex-start;
-  margin-bottom: 32px;
 }
-.arcade-sidebar-btn, .arcade-sidebar-btn-feedback {
-  width: 184px;
-  min-width: 184px;
-  max-width: 184px;
-  height: 56px;
-  min-height: 56px;
-  max-height: 56px;
+
+/* Individual sidebar buttons */
+.arcade-sidebar-btn {
+  width: 176px;
+  height: 48px;
+  min-height: 48px;
   background: linear-gradient(90deg, #00eaff 0%, #ff00c8 100%);
   color: #fff !important;
   font-family: 'Poppins', Arial, sans-serif;
-  font-size: 0.82rem !important;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-size: 0.9rem !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-align: center;
   justify-content: center;
   align-items: center;
@@ -306,37 +344,25 @@
   border-radius: 18px !important;
   border: none;
   box-shadow: 0 0 16px #00eaffcc, 0 0 24px #ff00c880;
-  margin-left: 8px;
-  margin-right: 8px;
   display: flex;
   text-shadow: 0 2px 8px #000, 0 0 2px #fff8;
-  z-index: 1;
   white-space: normal;
-  overflow: hidden;
   line-height: 1.15;
 }
-.arcade-sidebar-btn-label {
+
+/* Container for the bottom button */
+.arcade-sidebar-bottom {
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  white-space: normal;
-  overflow: hidden;
-  line-height: 1.15;
-}
-.arcade-sidebar-btn svg, .arcade-sidebar-btn span[role="img"] {
-  font-size: 1.1em !important;
-  margin-right: 0;
-  display: flex;
+  flex-direction: column;
   align-items: center;
 }
+
+/* Specific style for the feedback button */
 .arcade-sidebar-btn-feedback {
   background: linear-gradient(90deg, #ff5af7 0%, #ffb86c 100%);
-  color: #fff !important;
   border: 2px solid #ff5af7;
-  font-weight: 900;
-  box-shadow: 0 0 18px #ff5af7cc, 0 0 32px #ffb86c88, 0 2px 8px #fff2;
-  text-shadow: 0 2px 8px #fff, 0 0 2px #ff5af7;
-  margin-top: 18px;
+  font-weight: 800;
 }
+
+/* === COMPLETE SIDEBAR OVERRIDE END === */

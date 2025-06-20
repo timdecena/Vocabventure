@@ -55,52 +55,62 @@ const Navbar = ({ role, onLogout }) => {
     <nav
       style={{
         width: "100%",
-        background: "#212e36",
+        background: "#18181b",
         color: "#fff",
-        padding: "16px 32px",
+        padding: "12px 32px",
         display: "flex",
         alignItems: "center",
+        justifyContent: "flex-start",
         gap: 20,
-        position: "sticky",
+        position: "fixed",
         top: 0,
         left: 0,
         zIndex: 1000,
-        boxShadow: "0 4px 20px #0002",
+        boxShadow: "0 0 20px #00eaff80",
+        borderBottom: "1px solid #00eaff"
       }}
     >
+      <span style={logoStyle} onClick={() => navigate(role === 'STUDENT' ? '/student-home' : '/teacher-home')}>VocabVenture</span>
+      
       {role === "STUDENT" && (
         <>
-          <button onClick={() => navigate("/student-home")} style={navBtnStyle}>Home</button>
-          <button onClick={() => navigate("/student/classes")} style={navBtnStyle}>Classes</button>
-          <button onClick={() => navigate("/student/adventure")} style={navBtnStyle}>Adventure Mode</button>
-
+          <NavButton onClick={() => navigate("/student-home")}>Home</NavButton>
+          <NavButton onClick={() => navigate("/student/classes")}>Classes</NavButton>
+          <NavButton onClick={() => navigate("/student/adventure")}>Adventure Mode</NavButton>
         </>
       )}
       {role === "TEACHER" && (
         <>
-          <button onClick={() => navigate("/teacher-home")} style={navBtnStyle}>Home</button>
-          <button onClick={() => navigate("/teacher/classes")} style={navBtnStyle}>Classes</button>
-          <button onClick={handleCustomWordListClick} style={navBtnStyle}>
-            Custom Word Lists
-          </button>
-          {/* Optional: Show current class and allow change */}
+          <NavButton onClick={() => navigate("/teacher-home")}>Home</NavButton>
+          <NavButton onClick={() => navigate("/teacher/classes")}>Classes</NavButton>
+          <NavButton onClick={handleCustomWordListClick}>Custom Word Lists</NavButton>
           {classId && (
-            <span style={{ marginLeft: 10, color: "#00ffaa" }}>
-              | Current Class: <b>{classId}</b> <button style={navBtnStyle} onClick={handleChangeClass}>Change</button>
+            <span style={{ display: 'flex', alignItems: 'center', marginLeft: 10, color: "#00ffaa" }}>
+              | <NavButton onClick={handleChangeClass}>Change Class</NavButton>
             </span>
           )}
         </>
       )}
+
       {(role === "STUDENT" || role === "TEACHER") && (
-        <button
+        <NavButton
           onClick={onLogout}
-          style={{ ...navBtnStyle, marginLeft: "auto", background: "#ff5555", color: "#fff" }}
+          style={{ ...logoutBtnStyle, marginLeft: 'auto',marginRight: '40px' }}
         >
           Logout
-        </button>
+        </NavButton>
       )}
     </nav>
   );
+};
+
+const logoStyle = {
+  fontFamily: "'Press Start 2P', cursive",
+  fontSize: "1.5rem",
+  color: "#fff",
+  textShadow: "0 0 4px #fff, 0 0 12px #ff00c8, 0 0 24px #ff00c8",
+  cursor: "pointer",
+  marginRight: '20px'
 };
 
 const navBtnStyle = {
@@ -112,7 +122,49 @@ const navBtnStyle = {
   fontWeight: "bold",
   padding: "8px 16px",
   borderRadius: "8px",
-  transition: "background 0.2s",
+  transition: "all 0.2s",
+  fontFamily: "'Press Start 2P', cursive",
+  textShadow: "0 0 8px #00eaff",
+  letterSpacing: '1px'
+};
+
+const logoutBtnStyle = {
+  background: 'transparent',
+  border: '2px solid #ff5555',
+  color: '#ff5555',
+  textShadow: '0 0 8px #ff5555',
+};
+
+const hoverStyle = {
+  background: "#00eaff22",
+  color: "#fff",
+  textShadow: "0 0 12px #ff00c8, 0 0 4px #fff",
+  transform: 'scale(1.05)'
+};
+
+const logoutHoverStyle = {
+  background: "#ff555533",
+  color: '#fff',
+  textShadow: '0 0 12px #ff5555, 0 0 4px #fff'
+}
+
+// Add hover effects using onMouseOver and onMouseOut
+const NavButton = ({ onClick, children, style }) => {
+  const [hover, setHover] = useState(false);
+  
+  const isLogout = style && style.color === '#ff5555';
+  const currentHoverStyle = isLogout ? logoutHoverStyle : hoverStyle;
+
+  return (
+    <button
+      onClick={onClick}
+      style={{ ...navBtnStyle, ...style, ...(hover ? currentHoverStyle : {}) }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </button>
+  );
 };
 
 export default Navbar;

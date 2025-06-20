@@ -12,8 +12,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 
-// Nature wrapper with gradient background
-const NatureWrapper = styled(Box)({
+// Arcade Neon wrapper with animated grid background
+const ArcadeWrapper = styled(Box)({
   minHeight: '100vh',
   width: '100%',
   margin: 0,
@@ -22,76 +22,125 @@ const NatureWrapper = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'linear-gradient(to bottom, #e6ffe6, #b3ffcc)',
+  background: '#18181b',
   position: 'relative',
   zIndex: 0,
+  // Neon grid overlay
+  backgroundImage: `
+    repeating-linear-gradient(90deg, rgba(0,234,255,0.18) 0 2px, transparent 2px 80px),
+    repeating-linear-gradient(0deg, rgba(0,234,255,0.18) 0 2px, transparent 2px 80px)
+  `,
+  boxShadow: '0 0 40px 10px #00eaff33 inset',
+  animation: 'arcadeGridMove 12s linear infinite',
 });
 
-// Animated leaf
-const Leaf = styled('div')(({ x, size, duration, delay }) => ({
-  position: 'absolute',
-  top: '-10%',
-  left: `${x}%`,
-  width: `${size}px`,
-  height: `${size}px`,
-  backgroundImage: 'url("/leaf.png")',
-  backgroundSize: 'contain',
-  backgroundRepeat: 'no-repeat',
-  animation: `fallLeaf ${duration}s linear ${delay}s infinite`,
-  opacity: 0.6,
-  zIndex: 1,
-}));
-
-// Firefly
-const Firefly = styled('div')(({ x, y, size, duration, delay }) => ({
+// Floating neon particles
+const NeonParticle = styled('div')(({ x, y, size, duration, delay, color }) => ({
   position: 'absolute',
   left: `${x}%`,
   top: `${y}%`,
   width: `${size}px`,
   height: `${size}px`,
-  backgroundColor: 'rgba(255, 255, 153, 0.8)',
+  backgroundColor: color,
   borderRadius: '50%',
   filter: 'blur(1px)',
-  animation: `float ${duration}s ease-in-out ${delay}s infinite alternate`,
+  boxShadow: `0 0 10px ${color}, 0 0 20px ${color}`,
+  animation: `neonFloat ${duration}s ease-in-out ${delay}s infinite alternate`,
   zIndex: 1,
 }));
 
-const NaturePaper = styled(Paper)(({ theme }) => ({
+const ArcadePaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(5),
-  borderRadius: '20px',
-  background: 'rgba(255, 255, 255, 0.85)',
-  boxShadow: '0 0 20px rgba(0,100,0,0.2)',
+  borderRadius: '24px',
+  background: '#18181b',
+  border: '2.5px solid #00eaff',
+  boxShadow: '0 0 32px #00eaff80, 0 0 64px #ff00c880',
   backdropFilter: 'blur(8px)',
   zIndex: 2,
   position: 'relative',
+  minWidth: '450px',
 }));
 
-const NatureButton = styled(Button)({
-  background: 'linear-gradient(90deg, #66cc66, #33aa33)',
-  color: '#fff',
+const ArcadeButton = styled(Button)({
+  background: 'transparent',
+  color: '#00eaff',
   fontWeight: 'bold',
+  fontFamily: "'Press Start 2P', cursive",
+  fontSize: '0.9rem',
+  border: '2px solid #00eaff',
   borderRadius: '12px',
+  padding: '12px 24px',
+  textShadow: '0 0 8px #00eaff',
+  boxShadow: '0 0 16px #00eaff80',
+  transition: 'all 0.3s ease',
   '&:hover': {
-    background: 'linear-gradient(90deg, #33aa33, #66cc66)',
-    boxShadow: '0 0 12px #33aa33',
+    background: '#00eaff22',
+    borderColor: '#ff00c8',
+    color: '#fff',
+    boxShadow: '0 0 24px #ff00c8',
+    textShadow: '0 0 12px #ff00c8',
+    transform: 'scale(1.05)',
   },
 });
 
-const leaves = Array.from({ length: 20 }).map((_, i) => ({
-  id: i,
-  x: Math.random() * 100,
-  size: Math.random() * 30 + 20,
-  duration: 8 + Math.random() * 5,
-  delay: Math.random() * 5
-}));
+const ArcadeTextField = styled(TextField)({
+  '& .MuiFilledInput-root': {
+    background: '#23232b',
+    border: '2px solid #00eaff',
+    borderRadius: '8px',
+    color: '#fff',
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.8rem',
+    '&:hover': {
+      borderColor: '#ff00c8',
+      boxShadow: '0 0 8px #ff00c880',
+    },
+    '&.Mui-focused': {
+      borderColor: '#ff00c8',
+      boxShadow: '0 0 12px #ff00c8',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: '#00eaff',
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.8rem',
+    fontWeight: 'bold',
+    textShadow: '0 0 6px #00eaff',
+    '&.Mui-focused': {
+      color: '#ff00c8',
+      textShadow: '0 0 8px #ff00c8',
+    },
+  },
+  '& .MuiFilledInput-input': {
+    color: '#fff',
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.8rem',
+  },
+  '& .MuiMenuItem-root': {
+    background: '#23232b',
+    color: '#fff',
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.8rem',
+    '&:hover': {
+      background: '#00eaff22',
+      color: '#00eaff',
+    },
+    '&.Mui-selected': {
+      background: '#ff00c822',
+      color: '#ff00c8',
+    },
+  },
+});
 
-const fireflies = Array.from({ length: 15 }).map((_, i) => ({
+// Generate neon particles
+const neonParticles = Array.from({ length: 25 }).map((_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
-  size: Math.random() * 5 + 2,
-  duration: 4 + Math.random() * 4,
-  delay: Math.random() * 4
+  size: Math.random() * 4 + 2,
+  duration: 3 + Math.random() * 4,
+  delay: Math.random() * 4,
+  color: Math.random() > 0.5 ? '#00eaff' : '#ff00c8',
 }));
 
 const Register = () => {
@@ -104,6 +153,7 @@ const Register = () => {
     role: 'STUDENT'
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -112,6 +162,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     try {
       const res = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
@@ -119,8 +170,10 @@ const Register = () => {
         body: JSON.stringify(form)
       });
       if (res.ok) {
-        alert('Registration successful. Please log in!');
-        navigate('/');
+        setSuccess('Registration successful! Redirecting to login...');
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
       } else {
         const msg = await res.text();
         setError(msg);
@@ -131,77 +184,214 @@ const Register = () => {
   };
 
   return (
-    <NatureWrapper>
-      {leaves.map(leaf => <Leaf key={leaf.id} {...leaf} />)}
-      {fireflies.map(f => <Firefly key={f.id} {...f} />)}
+    <ArcadeWrapper>
+      {neonParticles.map(particle => <NeonParticle key={particle.id} {...particle} />)}
 
-      <NaturePaper>
+      <ArcadePaper>
         <Typography variant="h4" align="center" sx={{
-          color: '#2e7d32',
-          fontFamily: 'Georgia, serif',
-          mb: 3
+          color: '#fff',
+          fontFamily: "'Press Start 2P', cursive",
+          fontSize: '1.2rem',
+          mb: 4,
+          textShadow: '0 0 4px #fff, 0 0 12px #ff00c8, 0 0 24px #ff00c8',
         }}>
-          🌱 Create an Account
+          Create an Account
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <Stack spacing={2}>
-            <TextField name="firstName" label="First Name" variant="filled" fullWidth required value={form.firstName} onChange={handleChange}
-              InputProps={{ style: { color: '#2e7d32' } }} InputLabelProps={{ style: { color: '#4caf50' } }}
-              sx={{ backgroundColor: '#f0fff0', borderRadius: 1 }}
+          <Stack spacing={3}>
+            <ArcadeTextField 
+              name="firstName" 
+              label="First Name *" 
+              variant="filled" 
+              fullWidth 
+              required 
+              value={form.firstName} 
+              onChange={handleChange}
             />
-            <TextField name="lastName" label="Last Name" variant="filled" fullWidth required value={form.lastName} onChange={handleChange}
-              InputProps={{ style: { color: '#2e7d32' } }} InputLabelProps={{ style: { color: '#4caf50' } }}
-              sx={{ backgroundColor: '#f0fff0', borderRadius: 1 }}
+            <ArcadeTextField 
+              name="lastName" 
+              label="Last Name *" 
+              variant="filled" 
+              fullWidth 
+              required 
+              value={form.lastName} 
+              onChange={handleChange}
             />
-            <TextField name="email" type="email" label="Email" variant="filled" fullWidth required value={form.email} onChange={handleChange}
-              InputProps={{ style: { color: '#2e7d32' } }} InputLabelProps={{ style: { color: '#4caf50' } }}
-              sx={{ backgroundColor: '#f0fff0', borderRadius: 1 }}
+            <ArcadeTextField 
+              name="email" 
+              type="email" 
+              label="Email *" 
+              variant="filled" 
+              fullWidth 
+              required 
+              value={form.email} 
+              onChange={handleChange}
             />
-            <TextField name="password" type="password" label="Password" variant="filled" fullWidth required value={form.password} onChange={handleChange}
-              InputProps={{ style: { color: '#2e7d32' } }} InputLabelProps={{ style: { color: '#4caf50' } }}
-              sx={{ backgroundColor: '#f0fff0', borderRadius: 1 }}
+            <ArcadeTextField 
+              name="password" 
+              type="password" 
+              label="Password *" 
+              variant="filled" 
+              fullWidth 
+              required 
+              value={form.password} 
+              onChange={handleChange}
             />
-            <TextField name="role" select label="Role" variant="filled" fullWidth value={form.role} onChange={handleChange}
-              InputProps={{ style: { color: '#2e7d32' } }} InputLabelProps={{ style: { color: '#4caf50' } }}
-              sx={{ backgroundColor: '#f0fff0', borderRadius: 1 }}
+            <ArcadeTextField 
+              name="role" 
+              select 
+              label="Role" 
+              variant="filled" 
+              fullWidth 
+              value={form.role} 
+              onChange={handleChange}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      background: '#23232b',
+                      border: '2px solid #00eaff',
+                      borderRadius: '8px',
+                      '& .MuiMenuItem-root': {
+                        color: '#fff',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.8rem',
+                        '&:hover': {
+                          background: '#00eaff22',
+                          color: '#00eaff',
+                        },
+                        '&.Mui-selected': {
+                          background: '#ff00c822',
+                          color: '#ff00c8',
+                          '&:hover': {
+                            background: '#ff00c833',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              }}
             >
               <MenuItem value="STUDENT">Student</MenuItem>
               <MenuItem value="TEACHER">Teacher</MenuItem>
-            </TextField>
+            </ArcadeTextField>
 
-            <NatureButton type="submit" fullWidth>
+            <ArcadeButton type="submit" fullWidth>
               REGISTER
-            </NatureButton>
-            {error && <Alert severity="error">{error}</Alert>}
-            <Typography variant="body2" align="center" sx={{ color: '#2e7d32' }}>
+            </ArcadeButton>
+            {error && (
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  background: '#ff00c833', 
+                  border: '2px solid #ff00c8',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontFamily: "'Press Start 2P', cursive",
+                  fontSize: '0.7rem',
+                  boxShadow: '0 0 16px #ff00c880',
+                  '& .MuiAlert-icon': {
+                    color: '#ff00c8',
+                    filter: 'drop-shadow(0 0 8px #ff00c8)'
+                  }
+                }}
+              >
+                {error}
+              </Alert>
+            )}
+            {success && (
+              <Alert 
+                severity="success" 
+                sx={{ 
+                  background: '#00eaff33', 
+                  border: '2px solid #00eaff',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  fontFamily: "'Press Start 2P', cursive",
+                  fontSize: '0.7rem',
+                  boxShadow: '0 0 16px #00eaff80',
+                  animation: 'neonPulse 2s ease-in-out infinite',
+                  '& .MuiAlert-icon': {
+                    color: '#00eaff',
+                    filter: 'drop-shadow(0 0 8px #00eaff)'
+                  }
+                }}
+              >
+                {success}
+              </Alert>
+            )}
+            <Typography variant="body2" align="center" sx={{ 
+              color: '#fff', 
+              fontFamily: "'Press Start 2P', cursive",
+              fontSize: '0.7rem',
+              mt: 2
+            }}>
               Already have an account?&nbsp;
-              <Link to="/" style={{ color: '#4caf50', textDecoration: 'none' }}>
+              <Link 
+                to="/" 
+                style={{ 
+                  color: '#00eaff', 
+                  textDecoration: 'none',
+                  textShadow: '0 0 8px #00eaff',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = '#ff00c8';
+                  e.target.style.textShadow = '0 0 8px #ff00c8';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = '#00eaff';
+                  e.target.style.textShadow = '0 0 8px #00eaff';
+                }}
+              >
                 Login here
               </Link>
             </Typography>
           </Stack>
         </form>
-      </NaturePaper>
+      </ArcadePaper>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
         }
 
-        @keyframes fallLeaf {
-          0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
-          100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+        @keyframes arcadeGridMove {
+          0% {
+            background-position: 0 0, 0 0;
+          }
+          100% {
+            background-position: 80px 0, 0 80px;
+          }
         }
 
-        @keyframes float {
-          0% { transform: translate(0, 0) scale(1); }
-          100% { transform: translate(20px, -20px) scale(1.2); }
+        @keyframes neonFloat {
+          0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.7;
+          }
+          100% {
+            transform: translate(30px, -30px) scale(1.3);
+            opacity: 1;
+          }
+        }
+
+        @keyframes neonPulse {
+          0%, 100% {
+            box-shadow: 0 0 16px #00eaff80;
+          }
+          50% {
+            box-shadow: 0 0 32px #00eaff, 0 0 48px #00eaff80;
+          }
         }
       `}</style>
-    </NatureWrapper>
+    </ArcadeWrapper>
   );
 };
 
