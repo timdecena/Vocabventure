@@ -30,4 +30,10 @@ public class User {
 
     @Column(nullable = false)
     private int gold = 0; // Only used for STUDENTs
+
+    @Column(nullable = false)
+    private int correctAnswers = 0;
+
+    @Column(nullable = false)
+    private int progressPoints = 0;
 }

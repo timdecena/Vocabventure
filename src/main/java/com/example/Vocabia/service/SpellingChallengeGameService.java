@@ -14,10 +14,11 @@ public class SpellingChallengeGameService {
     private final SpellingChallengeRepository challengeRepo;
     private final SpellingChallengeScoreRepository scoreRepo;
     private final UserRepository userRepo;
+
     public List<SpellingChallenge> getAllForClassroom(Long classroomId) {
         Classroom classroom = new Classroom();
         classroom.setId(classroomId);
-            return challengeRepo.findByClassroom(classroom);
+        return challengeRepo.findByClassroom(classroom);
     }
 
     public boolean hasPlayed(User student, SpellingChallenge challenge) {
@@ -40,31 +41,36 @@ public class SpellingChallengeGameService {
     score.setCorrect(correct);
     score.setScore(correct ? 1 : 0);
 
-    // ✅ Reward gold if correct and fast (within 5 seconds)
-    if (correct && elapsedTime <= 5.0) {
-        student.setGold(student.getGold() + 10);
-        userRepo.save(student); // 💾 Persist gold update
+    if (correct) {
+        // ✅ Reward gold only if answered within 5 seconds
+        if (elapsedTime <= 5.0) {
+            student.setGold(student.getGold() + 10);
+        }
+
+        // ✅ Always update progress tracking if correct
+        student.setCorrectAnswers(student.getCorrectAnswers() + 1);
+        student.setProgressPoints(student.getProgressPoints() + 10);
+
+        // ✅ Persist all updates together
+        userRepo.save(student);
     }
 
     return scoreRepo.save(score);
 }
 
+
     public List<Long> getCompletedChallengeIds(User student) {
-    return scoreRepo.findAllByStudent(student)
+        return scoreRepo.findAllByStudent(student)
             .stream()
             .map(score -> score.getChallenge().getId())
             .toList();
-}
+    }
 
-public List<Long> getCorrectChallengeIds(User student) {
-    return scoreRepo.findAllByStudent(student)
-        .stream()
-        .filter(SpellingChallengeScore::isCorrect)
-        .map(score -> score.getChallenge().getId())
-        .toList();
-}
-
-
-
-
+    public List<Long> getCorrectChallengeIds(User student) {
+        return scoreRepo.findAllByStudent(student)
+            .stream()
+            .filter(SpellingChallengeScore::isCorrect)
+            .map(score -> score.getChallenge().getId())
+            .toList();
+    }
 }
