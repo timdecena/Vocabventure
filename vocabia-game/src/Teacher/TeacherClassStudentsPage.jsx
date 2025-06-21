@@ -5,6 +5,13 @@ import api from "../api/api";
 export default function TeacherClassStudentsPage() {
   const { id } = useParams();
   const [students, setStudents] = useState([]);
+  const [className, setClassName] = useState("");
+
+useEffect(() => {
+  api.get(`/teacher/classes/${id}`)
+    .then(res => setClassName(res.data.name))
+    .catch(() => setClassName("Unknown"));
+}, [id]);
 
   useEffect(() => {
     api.get(`/teacher/classes/${id}/students`)
@@ -30,7 +37,7 @@ export default function TeacherClassStudentsPage() {
             <tr key={s.id}>
               <td>{s.firstName} {s.lastName}</td>
               <td>{s.email}</td>
-              <td>{s.className ?? "N/A"}</td> {/* ✅ Class Name Display */}
+              <td>{className}</td>
               <td>{s.correctAnswers ?? 0}</td>
               <td>{s.progressPoints ?? 0}</td>
             </tr>
