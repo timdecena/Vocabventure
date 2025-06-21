@@ -25,6 +25,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import TodayIcon from '@mui/icons-material/Today';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FeedbackIcon from '@mui/icons-material/Feedback';
+import StudentWOTDCard from "../WordOfTheDay/StudentWOTDCard"; // update path as needed
 
 const GlobalSidebarStyles = () => (
   <style>{`
@@ -351,11 +352,8 @@ api.get("/user-progress/student-info")
               </Box>
 
               {/* Word of the Day Card */}
-              <Box className="arcade-middle-card">
-                <div className="arcade-middle-card-title">Word of the Day</div>
-                <div className="arcade-wotd-word">Serendipity</div>
-                <div className="arcade-wotd-definition">"The occurrence and development of events by chance in a happy or beneficial way."</div>
-              </Box>
+              <StudentWOTDCard />
+
             </Box>
             {/* Section Title */}
             <div className="arcade-profile-section-title">Game Modes:</div>
