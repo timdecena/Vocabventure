@@ -13,7 +13,7 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 3rem;
+  padding-top: 5.5rem; /* increased from 3rem to 5.5rem for more space at the top */
 }
 
 /* Overlay card */
@@ -165,7 +165,7 @@ html, body, #root {
 
 /* Return button */
 .jl-return-btn {
-  margin-top: 2rem;
+  margin-top: 3.5rem; /* increased from 2rem to 3.5rem for more space below content */
   padding: 0.8rem 2.2rem;
   background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
   color: #fff;

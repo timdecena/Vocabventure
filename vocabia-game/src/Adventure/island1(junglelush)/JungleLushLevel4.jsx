@@ -6,7 +6,7 @@ import '../../styles/MapView.css';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
-const JUNGLE_BG = 'https://png.pngtree.com/background/20220727/original/pngtree-jungle-game-background-arcade-art-picture-image_1829537.jpg';
+const JUNGLE_BG = 'https://i.ytimg.com/vi/ZKHsb-TYIew/maxresdefault.jpg';
 const WIZARD_IMG = 'https://www.shutterstock.com/image-vector/pixel-art-wizard-long-beard-260nw-2544146115.jpg';
 const USER_IMG = 'https://w7.pngwing.com/pngs/928/303/png-transparent-pixel-dodgers-pixel-art-sprite-text-cartoon-fictional-character.png';
 const COMMAWIDOW_IMG = 'https://img.freepik.com/premium-photo/3d-pixel-art-scary-black-spider-with-white-fang-halloween-decorative-ornament-theme-design_477250-292.jpg';
@@ -203,6 +203,7 @@ const TopBar = styled(Box)(({ theme }) => ({
   left: 0,
   zIndex: 30,
   padding: '18px 32px',
+  marginTop: '12px',
 }));
 const CenterBar = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -810,7 +811,7 @@ const JungleLushLevel4 = () => {
             <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>{timeLeft}s</Typography>
           </TimerBox>
         ) : <div style={{ width: 90 }} />}
-        <Button variant="contained" color="error" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />} style={{ fontWeight: 700, fontFamily: 'monospace', borderRadius: 18, marginLeft: 16 }}>
+        <Button variant="contained" color="error" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />} style={{ fontWeight: 700, fontFamily: 'monospace', borderRadius: 18, marginRight: 48, marginTop: 12 }}>
           Quit
         </Button>
       </TopBar>

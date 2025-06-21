@@ -5,6 +5,7 @@ import com.example.Vocabia.entity.WordOfTheDay;
 import com.example.Vocabia.entity.WordOfTheDayScore;
 import com.example.Vocabia.repository.WordOfTheDayRepository;
 import com.example.Vocabia.repository.WordOfTheDayScoreRepository;
+import com.example.Vocabia.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class WordOfTheDayService {
 
     private final WordOfTheDayRepository wordRepo;
     private final WordOfTheDayScoreRepository scoreRepo;
+    private final UserRepository userRepo;
 
     public WordOfTheDay getTodayWord() {
         LocalDate today = computeGameDate();
@@ -30,22 +32,37 @@ public class WordOfTheDayService {
     }
 
     public WordOfTheDayScore submit(User student, String guess) {
-    WordOfTheDay todayWord = getTodayWord();
+        WordOfTheDay todayWord = getTodayWord();
 
-    if (hasPlayed(student, todayWord)) {
-        throw new RuntimeException("Already played today");
+        if (hasPlayed(student, todayWord)) {
+            throw new RuntimeException("Already played today");
+        }
+
+        boolean correct = todayWord.getWord().equalsIgnoreCase(guess.trim());
+
+        WordOfTheDayScore score = new WordOfTheDayScore();
+        score.setStudent(student);
+        score.setWord(todayWord);
+        score.setCorrect(correct);
+        score.setScore(correct ? 1 : 0);
+        return scoreRepo.save(score);
     }
 
-    boolean correct = todayWord.getWord().equalsIgnoreCase(guess.trim());
+    public void retry(User student) {
+        WordOfTheDay todayWord = getTodayWord();
 
-    WordOfTheDayScore score = new WordOfTheDayScore();
-    score.setStudent(student);
-    score.setWord(todayWord);
-    score.setCorrect(correct);
-    score.setScore(correct ? 1 : 0); // ✅ Set score value
-    return scoreRepo.save(score);
-}
+        if (student.getGold() < 10) {
+            throw new RuntimeException("Not enough gold to retry.");
+        }
 
+        // Delete previous score
+        scoreRepo.findByStudentAndWord(student, todayWord)
+                .ifPresent(scoreRepo::delete);
+
+        // Deduct gold and save
+        student.setGold(student.getGold() - 10);
+        userRepo.save(student);
+    }
 
     private LocalDate computeGameDate() {
         ZoneId zone = ZoneId.of("Asia/Manila");

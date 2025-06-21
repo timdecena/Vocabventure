@@ -27,4 +27,7 @@ public class User {
 
     private String password;
     private String role; // "STUDENT" or "TEACHER"
+
+    @Column(nullable = false)
+    private int gold = 0; // Only used for STUDENTs
 }

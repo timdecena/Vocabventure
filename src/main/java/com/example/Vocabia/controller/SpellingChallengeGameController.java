@@ -27,12 +27,17 @@ public class SpellingChallengeGameController {
     }
 
     @PostMapping("/submit")
-    public Map<String, Object> submit(@RequestBody AnswerRequest req, Principal principal) {
-        User student = userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("User not found: " + principal.getName()));
-        var score = gameService.submitAnswer(student, req.getChallengeId(), req.getGuess());
-        return Map.of("correct", score.isCorrect(), "score", score.getScore());
-    }
+public Map<String, Object> submit(@RequestBody AnswerRequest req, Principal principal) {
+    User student = userService.findByEmail(principal.getName())
+            .orElseThrow(() -> new RuntimeException("User not found: " + principal.getName()));
+    
+    var score = gameService.submitAnswer(student, req.getChallengeId(), req.getGuess(), req.getElapsedTime());
+
+    return Map.of(
+        "correct", score.isCorrect(),
+        "score", score.getScore()
+    );
+}
 
     @GetMapping("/completed")
     public List<Long> getCompletedChallengeIds(Principal principal) {
@@ -52,5 +57,6 @@ public class SpellingChallengeGameController {
     public static class AnswerRequest {
         private Long challengeId;
         private String guess;
+        private double elapsedTime; 
     }
 }

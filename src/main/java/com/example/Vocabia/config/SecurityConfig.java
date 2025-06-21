@@ -53,9 +53,11 @@ public class SecurityConfig {
                 // Public FourPicsOneWord metadata endpoints
                 .requestMatchers("/api/fpow/categories", "/api/fpow/levels").permitAll()
                 // Game and progress tracking (authenticated)
+
+.requestMatchers("/api/game/word-of-the-day/retry").hasRole("STUDENT")
+
                 .requestMatchers("/api/fpow/**").authenticated()
-                .requestMatchers("/api/user-progress/**").authenticated()
-                // Spelling game audio upload
+.requestMatchers("/api/user-progress/**").hasRole("STUDENT")                // Spelling game audio upload
                 .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
                 // Spelling level access
                 .requestMatchers("/api/spelling-level/**").hasAnyRole("TEACHER", "STUDENT")

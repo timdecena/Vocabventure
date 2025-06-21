@@ -13,7 +13,7 @@ public class SpellingChallengeGameService {
 
     private final SpellingChallengeRepository challengeRepo;
     private final SpellingChallengeScoreRepository scoreRepo;
-
+    private final UserRepository userRepo;
     public List<SpellingChallenge> getAllForClassroom(Long classroomId) {
         Classroom classroom = new Classroom();
         classroom.setId(classroomId);
@@ -24,23 +24,30 @@ public class SpellingChallengeGameService {
         return scoreRepo.findByStudentAndChallenge(student, challenge).isPresent();
     }
 
-    public SpellingChallengeScore submitAnswer(User student, Long challengeId, String guess) {
-        SpellingChallenge challenge = challengeRepo.findById(challengeId)
-            .orElseThrow(() -> new RuntimeException("Challenge not found"));
+    public SpellingChallengeScore submitAnswer(User student, Long challengeId, String guess, double elapsedTime) {
+    SpellingChallenge challenge = challengeRepo.findById(challengeId)
+        .orElseThrow(() -> new RuntimeException("Challenge not found"));
 
-        if (hasPlayed(student, challenge)) {
-            throw new RuntimeException("Already played");
-        }
-
-        boolean correct = challenge.getWord().equalsIgnoreCase(guess.trim());
-
-        SpellingChallengeScore score = new SpellingChallengeScore();
-        score.setStudent(student);
-        score.setChallenge(challenge);
-        score.setCorrect(correct);
-        score.setScore(correct ? 1 : 0);
-        return scoreRepo.save(score);
+    if (hasPlayed(student, challenge)) {
+        throw new RuntimeException("Already played");
     }
+
+    boolean correct = challenge.getWord().equalsIgnoreCase(guess.trim());
+
+    SpellingChallengeScore score = new SpellingChallengeScore();
+    score.setStudent(student);
+    score.setChallenge(challenge);
+    score.setCorrect(correct);
+    score.setScore(correct ? 1 : 0);
+
+    // ✅ Reward gold if correct and fast (within 5 seconds)
+    if (correct && elapsedTime <= 5.0) {
+        student.setGold(student.getGold() + 10);
+        userRepo.save(student); // 💾 Persist gold update
+    }
+
+    return scoreRepo.save(score);
+}
 
     public List<Long> getCompletedChallengeIds(User student) {
     return scoreRepo.findAllByStudent(student)

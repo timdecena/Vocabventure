@@ -1,174 +1,368 @@
 /* File: src/Student/StudentHomeNature.css */
 
-.nature-root {
-  position: relative;
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.fantasy-root {
+  background-color: #18181b;
   min-height: 100vh;
+  position: relative;
   width: 100%;
   overflow-x: hidden;
-  font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+  font-family: 'Cinzel Decorative', 'Poppins', 'Nunito', Arial, sans-serif;
   background: transparent;
 }
 
-.nature-bg-parallax {
+.fantasy-bg {
   position: fixed;
   z-index: 0;
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(to bottom, #d0f5e3 0%, #aee5c2 100%);
-  /* Parallax: soft layered forest/mountain silhouettes */
-  background-image:
-    url('./nature/river_layer.jpg'),
-    url('./nature/forest_layer.jpg'),
-    url('./nature/clouds_layer.jpg');
-
-  background-repeat: no-repeat, no-repeat, no-repeat;
-  background-size: cover, cover, cover;
-  background-position: bottom, center, top;
-  animation: bgParallaxMove 30s linear infinite alternate;
+  /* Magical gradient background */
+  background: linear-gradient(135deg, #b7aaff 0%, #e0c3fc 50%, #ffd700 100%);
+  animation: fantasyGradientMove 20s ease-in-out infinite alternate;
 }
 
-@keyframes bgParallaxMove {
-  0% { background-position: bottom, center, top; }
-  100% { background-position: bottom, 53% 51%, top; }
+@keyframes fantasyGradientMove {
+  0% { filter: brightness(1) hue-rotate(0deg); }
+  100% { filter: brightness(1.08) hue-rotate(20deg); }
 }
 
-.nature-bg-foreground {
-  position: fixed;
-  z-index: 1;
-  inset: 0;
+.fantasy-sparkle {
+  position: absolute;
   pointer-events: none;
-  /* e.g. light rays, sparkles, clouds */
-  background-image:
-    url('./nature/birds_anim.gif');
-  background-repeat: no-repeat, no-repeat;
-  background-position: top right, bottom left;
-  animation: cloudFloat 24s linear infinite alternate;
-  opacity: 0.8;
-}
-
-@keyframes cloudFloat {
-  0% { background-position: 90% 5%, 5% 80%; }
-  100% { background-position: 80% 8%, 12% 85%; }
-}
-
-.nature-content {
-  position: relative;
+  width: 100vw;
+  height: 100vh;
   z-index: 2;
+  /* CSS sparkles using radial gradients */
+  background: repeating-radial-gradient(circle at 20% 30%, #fffbe7 0 2px, transparent 3px 100px),
+              repeating-radial-gradient(circle at 70% 60%, #ffd700 0 1.5px, transparent 2px 100px),
+              repeating-radial-gradient(circle at 50% 80%, #e0c3fc 0 1.5px, transparent 2px 100px);
+  opacity: 0.4;
+  animation: sparkleFloat 18s linear infinite alternate;
+}
+
+@keyframes sparkleFloat {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: 40px 60px, 80px 40px, 60px 100px; }
+}
+
+.fantasy-content {
+  position: relative;
+  z-index: 3;
   max-width: 700px;
   margin: 0 auto;
   padding-top: 2.5rem;
   padding-bottom: 2.5rem;
   min-height: 100vh;
+  margin-left: 170px;
+  transition: margin-left 0.3s ease;
 }
 
-.mascot-row {
-  gap: 1.5rem;
+.fantasy-avatar {
+  background: #fff8e1;
+  border: 3px solid #a48be0;
+  box-shadow: 0 2px 18px 4px #bdaaff80;
+  animation: avatarGlow 3s infinite alternate;
+}
+@keyframes avatarGlow {
+  0% { box-shadow: 0 2px 18px 4px #bdaaff80; }
+  100% { box-shadow: 0 2px 28px 8px #e0c3fc; }
 }
 
-.nature-mascot {
-  background: #fffef5;
-  border: 3px solid #bbd99c;
-  box-shadow: 0 2px 14px 3px rgba(80,160,100,0.22);
-  animation: mascotBounce 3s infinite ease-in-out;
+.fantasy-welcome {
+  color: #6c3bb7;
+  text-shadow: 0 2px 12px #e0c3fc80;
+  font-family: 'Cinzel Decorative', cursive;
+  letter-spacing: 0.04em;
 }
 
-@keyframes mascotBounce {
-  0%, 100% { transform: translateY(0);}
-  50% { transform: translateY(-7px);}
-}
-
-.welcome-text {
-  color: #25562a;
-  text-shadow: 0 2px 8px #eafbf5c0;
-  letter-spacing: 0.02em;
-}
-
-.adventure-chip {
-  border-radius: 16px !important;
-  font-size: 1.1rem !important;
-  letter-spacing: 0.03em !important;
-}
-
-.nature-xp-progress {
-  background: #e8fbe3 !important;
-}
-.xp-bar {
-  background: rgba(230, 250, 236, 0.8);
+.fantasy-xp-bar {
+  background: linear-gradient(90deg, #f3e8ff 0%, #ffd700 100%) !important;
   border-radius: 12px;
   padding: 12px 22px 8px 22px;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 10px 1px #a4e6b970;
+  box-shadow: 0 2px 16px 2px #b7aaff60;
 }
 
-.nature-btn {
-  background: linear-gradient(92deg, #7cc885 0%, #65c6bb 100%);
-  color: #25562a !important;
-  border-radius: 22px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 12px 1px #75d6a56e;
+.fantasy-xp-progress {
+  background: linear-gradient(90deg, #e0c3fc 0%, #ffd700 100%) !important;
+  height: 14px !important;
+  border-radius: 7px !important;
+  box-shadow: 0 0 8px #b7aaff80 inset;
+}
+
+.fantasy-btn {
+  background: linear-gradient(92deg, #ffd700 0%, #b7aaff 100%);
+  color: #6c3bb7 !important;
+  border-radius: 30px !important;
+  font-weight: 700 !important;
+  font-family: 'Cinzel Decorative', cursive;
   font-size: 1.13rem !important;
-  letter-spacing: 0.02em !important;
-  transition: background 0.2s, transform 0.15s;
-  border: 2px solid #b5f3c5;
+  letter-spacing: 0.04em !important;
+  box-shadow: 0 4px 16px 2px #b7aaff60;
+  border: 2px solid #ffd700;
   outline: none !important;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
 }
-.nature-btn:hover, .nature-btn:focus {
-  background: linear-gradient(98deg, #9ee29f 20%, #6dd9d7 100%);
+.fantasy-btn:hover, .fantasy-btn:focus {
+  background: linear-gradient(98deg, #fffbe7 20%, #e0c3fc 100%);
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 7px 14px 0 #60c78c4a;
-  border-color: #8ee79e;
+  box-shadow: 0 7px 18px 0 #ffd70080;
+  border-color: #e0c3fc;
 }
 
-.logout-btn {
-  background: linear-gradient(92deg, #ffe5ec 0%, #f5b0c2 100%) !important;
-  color: #a03847 !important;
-  border-color: #f7c5d8 !important;
-}
-.logout-btn:hover {
-  background: linear-gradient(98deg, #f5b0c2 0%, #ffe5ec 100%) !important;
-  color: #a03847 !important;
-  border-color: #e6859a !important;
-}
-
-.nature-card {
-  background: rgba(244,255,249,0.99);
-  border-left: 8px solid #81cba3;
-  border-radius: 20px;
-  box-shadow: 0 5px 16px 0 #9ad7c1a0;
-  transition: box-shadow 0.25s, transform 0.18s;
+.fantasy-card {
+  background: rgba(255,250,240,0.99);
+  border-left: 8px solid #ffd700;
+  border-radius: 24px;
+  box-shadow: 0 5px 20px 0 #b7aaff80;
   margin-bottom: 1.2rem;
+  transition: box-shadow 0.25s, transform 0.18s;
+}
+.fantasy-card:hover {
+  box-shadow: 0 8px 28px 3px #ffd70060;
+  border-color: #b7aaff;
 }
 
-.nature-card:hover {
-  box-shadow: 0 8px 26px 3px #52c67234;
-  border-color: #b2f8c9;
-}
-
-.section-title {
-  color: #22563c;
-  font-family: 'Poppins', 'Nunito', Arial, sans-serif;
-  letter-spacing: 0.01em;
+.fantasy-section-title {
+  color: #6c3bb7;
+  font-family: 'Cinzel Decorative', cursive;
+  letter-spacing: 0.03em;
   display: flex;
   align-items: center;
   gap: 0.6em;
-  text-shadow: 0 2px 9px #deffe9b0;
-}
-
-.class-icon {
-  background: #e9fce9;
-  border-radius: 9px;
-  padding: 2px;
-  margin-right: 14px;
+  text-shadow: 0 2px 12px #e0c3fc80;
 }
 
 ::-webkit-scrollbar {
   width: 10px;
-  background: #c3f0e3;
+  background: #e0c3fc;
   border-radius: 12px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #98ddb9;
+  background: #b7aaff;
   border-radius: 16px;
   min-height: 40px;
 }
+
+/* Light Mode Fantasy Theme */
+.light-mode .fantasy-bg {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0c3fc 50%, #fffbe7 100%);
+}
+
+.light-mode .fantasy-sparkle {
+  opacity: 0.25;
+}
+
+.light-mode .fantasy-xp-bar,
+.light-mode .fantasy-xp-progress {
+  background: linear-gradient(90deg, #fffbe7 0%, #e0c3fc 100%) !important;
+}
+
+.light-mode .fantasy-btn {
+  background: linear-gradient(92deg, #fff 0%, #ffe082 100%);
+  color: #6c3bb7 !important;
+  border: 2px solid #e0c3fc;
+  box-shadow: 0 2px 8px 0 #e0c3fc40;
+}
+
+.light-mode .fantasy-btn:hover, .light-mode .fantasy-btn:focus {
+  background: linear-gradient(98deg, #e0c3fc 20%, #fffbe7 100%);
+  border-color: #ffd700;
+}
+
+.light-mode .fantasy-card {
+  background: #fff;
+  border-left: 8px solid #e0c3fc;
+  box-shadow: 0 2px 12px 0 #e0c3fc40;
+}
+
+.light-mode .fantasy-section-title {
+  color: #6c3bb7;
+}
+
+.arcade-neon .fantasy-bg {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #18181b;
+  /* Neon grid overlay only */
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0,234,255,0.18) 0 2px, transparent 2px 80px),
+    repeating-linear-gradient(0deg, rgba(0,234,255,0.18) 0 2px, transparent 2px 80px);
+  box-shadow: 0 0 40px 10px #00eaff33 inset;
+  animation: arcadeGridMove 12s linear infinite;
+}
+
+@keyframes arcadeGridMove {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 80px 0, 0 80px;
+  }
+}
+
+.arcade-neon .fantasy-sparkle {
+  display: none;
+}
+
+.arcade-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.arcade-btn {
+  min-width: 180px;
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+  padding: 16px 0;
+}
+.arcade-body {
+  font-family: 'Poppins', 'Nunito', Arial, sans-serif;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.arcade-card {
+  background: #232946;
+  border-left: 8px solid #00eaff;
+  border-radius: 16px;
+  box-shadow: 0 0 16px #00eaff80;
+  margin-bottom: 1.2rem;
+  font-family: 'Press Start 2P', cursive;
+  color: #fff;
+}
+
+.arcade-section-title {
+  color: #ff00c8;
+  font-family: 'Press Start 2P', cursive;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 8px #00eaff, 0 0 16px #ff00c8;
+  font-size: 1.2rem !important;
+  margin-bottom: 1.2rem;
+}
+
+.arcade-neon .fantasy-xp-bar,
+.arcade-neon .fantasy-xp-progress {
+  background: linear-gradient(90deg, #00eaff 0%, #ff00c8 100%) !important;
+  box-shadow: 0 0 8px #00eaff80 inset;
+}
+
+.arcade-neon .fantasy-welcome {
+  color: #fff700;
+  font-family: 'Press Start 2P', cursive;
+  text-shadow: 0 0 8px #00eaff, 0 0 16px #ff00c8;
+}
+
+/* === COMPLETE SIDEBAR OVERRIDE START === */
+
+/* Main sidebar container */
+.arcade-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px; /* Sidebar width */
+  height: 100vh;
+  background: rgba(24, 24, 27, 0.85); /* Slightly more opaque for readability */
+  border-right: 2px solid #00eaff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  padding: 32px 0 24px 0;
+  box-shadow: 0 0 32px #00eaff33;
+  transition: transform 0.4s ease-in-out;
+}
+
+/* Hidden state for the sidebar */
+.arcade-sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+/* Main content area adjustment */
+.fantasy-content {
+  transition: margin-left 0.4s ease-in-out;
+}
+
+/* Toggle button - THIS IS THE FIX */
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 50%;
+  left: 100%; /* Position at the right edge of the container */
+  transform: translate(-50%, -50%); /* Center it perfectly on the line */
+  z-index: 101; /* Above the sidebar itself */
+  
+  /* Styling */
+  background: #18181b !important;
+  color: #00eaff !important;
+  border: 1px solid #00eaff !important;
+  border-radius: 50% !important;
+  min-width: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  box-shadow: 0 0 12px #00eaff80;
+}
+.sidebar-toggle-btn:hover {
+  box-shadow: 0 0 18px #ff00c8;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Group for the top buttons */
+.arcade-sidebar-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+}
+
+/* Individual sidebar buttons */
+.arcade-sidebar-btn {
+  width: 176px;
+  height: 48px;
+  min-height: 48px;
+  background: linear-gradient(90deg, #00eaff 0%, #ff00c8 100%);
+  color: #fff !important;
+  font-family: 'Poppins', Arial, sans-serif;
+  font-size: 0.9rem !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+  gap: 8px;
+  border-radius: 18px !important;
+  border: none;
+  box-shadow: 0 0 16px #00eaffcc, 0 0 24px #ff00c880;
+  display: flex;
+  text-shadow: 0 2px 8px #000, 0 0 2px #fff8;
+  white-space: normal;
+  line-height: 1.15;
+}
+
+/* Container for the bottom button */
+.arcade-sidebar-bottom {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Specific style for the feedback button */
+.arcade-sidebar-btn-feedback {
+  background: linear-gradient(90deg, #ff5af7 0%, #ffb86c 100%);
+  border: 2px solid #ff5af7;
+  font-weight: 800;
+}
+
+/* === COMPLETE SIDEBAR OVERRIDE END === */
