@@ -180,6 +180,8 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
+  const [customWordListModalOpen, setCustomWordListModalOpen] = useState(false);
+
 
   useEffect(() => {
     setMascot(fantasyMascots[Math.floor(Math.random() * fantasyMascots.length)]);
@@ -235,6 +237,10 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
               </Button>
               <Button className="arcade-sidebar-btn" onClick={() => navigate('/student/word-of-the-day')}>
                 <span className="arcade-btn-text">Word of the Day</span>
+                <span className="arcade-btn-arrow">&gt;</span>
+              </Button>
+              <Button className="arcade-sidebar-btn" onClick={() => setCustomWordListModalOpen(true)}>
+                <span className="arcade-btn-text">Custom Word List</span>
                 <span className="arcade-btn-arrow">&gt;</span>
               </Button>
               <Button className="arcade-sidebar-btn" onClick={() => navigate('/leaderboard/wotd')}>
@@ -392,6 +398,86 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
               <Button onClick={handleJoinClassSubmit} className="arcade-btn" color="primary">Join</Button>
             </DialogActions>
           </Dialog>
+          {/* Custom Word List Modal */}
+<Dialog
+  open={customWordListModalOpen}
+  onClose={() => setCustomWordListModalOpen(false)}
+  fullWidth
+  maxWidth="sm"
+>
+  <DialogTitle>Custom Word Lists</DialogTitle>
+  <DialogContent dividers>
+    {classes.length > 0 ? (
+      classes.map(cls => (
+        <Box
+          key={cls.id}
+          sx={{
+            mb: 2,
+            p: 2,
+            border: '1px solid #00eaff',
+            borderRadius: 2,
+            backgroundColor: '#23232b'
+          }}
+        >
+          <Typography
+            sx={{
+              fontFamily: 'Press Start 2P',
+              color: '#00eaff',
+              mb: 1,
+              fontSize: '0.85rem'
+            }}
+          >
+            {cls.name}
+          </Typography>
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={() => {
+              navigate(`/student/classes/${cls.id}/spelling-levels`);
+              setCustomWordListModalOpen(false);
+            }}
+            sx={{
+              color: '#00eaff',
+              borderColor: '#00eaff',
+              fontFamily: 'Press Start 2P',
+              fontSize: '0.7rem',
+              '&:hover': {
+                backgroundColor: '#00eaff22',
+                borderColor: '#ff00c8',
+                color: '#fff'
+              }
+            }}
+          >
+            View Word List
+          </Button>
+        </Box>
+      ))
+    ) : (
+      <Typography sx={{ fontFamily: 'Press Start 2P', fontSize: '0.75rem', color: '#888' }}>
+        You haven't joined any classes yet.
+      </Typography>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button
+      onClick={() => setCustomWordListModalOpen(false)}
+      sx={{
+        fontFamily: 'Press Start 2P',
+        fontSize: '0.75rem',
+        color: '#ff00c8',
+        border: '1px solid #ff00c8',
+        '&:hover': {
+          backgroundColor: '#ff00c822',
+          color: '#fff'
+        }
+      }}
+    >
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>          
+
+
         </Box>
       </Box>
       <style>{`
