@@ -19,11 +19,8 @@ This section provides instructions on how to set up and run the VocabVenture bac
 
 ### Database Setup
 
-1. Install XAMPP(MySQL) if you haven't already
-2. Create a new database for the application:
-   ```sql
-   CREATE DATABASE vocabventure;
-   ```
+1. Install My SQL Workbench
+2. Create a new database for the application: vocabia_db
 3. Create a MySQL user or use an existing one with permissions to access this database
 
 ### Application Setup
@@ -69,7 +66,7 @@ This section provides instructions on how to set up and run the VocabVenture fro
 
 1. Navigate to the frontend directory:
    ```
-   cd VocabVenture/frontend
+   cd VocabVenture/vocabia-game
    ```
 2. Install dependencies:
    ```
