@@ -25,4 +25,6 @@ public class UserProgressDTO {
     private Integer lastPlayedLevel;
     private String lastPlayedCategory;
     private LocalDateTime lastActive;
+
+    private int gold;
 }

@@ -74,7 +74,7 @@ export default function StudentSpellingChallenge() {
 
   // --- Score state ---
   const [score, setScore] = useState(0);
-
+  const [startTime, setStartTime] = useState(null);
   const [attackResultText, setAttackResultText] = useState("");
   const [showResultText, setShowResultText] = useState(false);
   const [slimeHurt, setSlimeHurt] = useState(false);
@@ -150,37 +150,41 @@ export default function StudentSpellingChallenge() {
     if (audioRef.current?.src) {
       audioRef.current.play();
       setTimerStarted(true);
+      setStartTime(Date.now());
     }
   };
 
   const handleSubmit = async () => {
-    try {
-      const res = await api.post("/game/spelling/submit", {
-        challengeId: challenges[current].id,
-        guess: answer,
-      });
+  const endTime = Date.now();
+  const elapsedTime = (endTime - startTime) / 1000; // ⏱️ in seconds
 
-      const correct = res.data.correct;
-      setFeedback(correct ? "✅ Correct!" : "❌ Attack failed.");
-      setAttackResultText(correct ? "🧙 Attack Successful!" : "💥 Attack Failed!");
-      setShowResultText(true);
-      setSlimeHurt(true);
-      attackSoundRef.current?.play();
+  try {
+    const res = await api.post("/game/spelling/submit", {
+      challengeId: challenges[current].id,
+      guess: answer,
+      elapsedTime, // ✅ send to backend
+    });
 
-      // --- Update score if correct ---
-      if (res.data.score === 1) setScore((s) => s + 1);
+    const correct = res.data.correct;
+    setFeedback(correct ? "✅ Correct!" : "❌ Attack failed.");
+    setAttackResultText(correct ? "🧙 Attack Successful!" : "💥 Attack Failed!");
+    setShowResultText(true);
+    setSlimeHurt(true);
+    attackSoundRef.current?.play();
 
-      setTimeout(() => setShowResultText(false), 1500);
-      setTimeout(() => setSlimeHurt(false), 600);
+    if (res.data.score === 1) setScore((s) => s + 1);
 
-    } catch (err) {
-      setFeedback("⚠️ Already answered or error submitting answer.");
-    } finally {
-      setIsSubmitted(true);
-      setAnimationPhase("attack");
-      setSpriteFrame(1);
-    }
-  };
+    setTimeout(() => setShowResultText(false), 1500);
+    setTimeout(() => setSlimeHurt(false), 600);
+
+  } catch (err) {
+    setFeedback("⚠️ Already answered or error submitting answer.");
+  } finally {
+    setIsSubmitted(true);
+    setAnimationPhase("attack");
+    setSpriteFrame(1);
+  }
+};
 
   const nextChallenge = () => {
     setAnswer("");

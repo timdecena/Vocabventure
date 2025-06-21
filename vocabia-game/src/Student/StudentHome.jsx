@@ -181,6 +181,13 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
   const [customWordListModalOpen, setCustomWordListModalOpen] = useState(false);
+  const [studentInfo, setStudentInfo] = useState({});
+
+  useEffect(() => {
+api.get("/user-progress/student-info")
+    .then(res => setStudentInfo(res.data))
+    .catch(err => console.error("Failed to load student info", err));
+}, []);
 
 
   useEffect(() => {
@@ -290,9 +297,17 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
             <Box className="arcade-profile-header" sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 3 }}>
               <Avatar className="arcade-profile-avatar" sx={{ width: 90, height: 90, mr: 4 }} />
               <Box sx={{ flexGrow: 1 }}>
-                <div className="arcade-profile-name">FirstName</div>
+                <div className="arcade-profile-name">
+  {studentInfo.firstName} {studentInfo.lastName}
+</div>
                 <div className="arcade-profile-subtitle">Bonus booster 24lv</div>
                 <Box className="arcade-profile-stats-row">
+                <Box className="arcade-profile-stat-card">
+  <div className="arcade-profile-stat-icon">💰</div>
+  <div className="arcade-profile-stat-value">{studentInfo.gold ?? 0}</div>
+  <div className="arcade-profile-stat-label">Gold</div>
+</Box>
+
                   <Box className="arcade-profile-stat-card">
                     <div className="arcade-profile-stat-icon">📚</div>
                     <div className="arcade-profile-stat-value">27</div>

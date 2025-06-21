@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.stream.Collectors;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user-progress")
@@ -100,4 +102,19 @@ public class UserProgressController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(progressList);
     }
+
+
+
+    @GetMapping("/student-info")
+public ResponseEntity<Map<String, Object>> getStudentInfo(Principal principal) {
+    User user = userService.findByEmail(principal.getName())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("firstName", user.getFirstName());
+    response.put("lastName", user.getLastName());
+    response.put("gold", user.getGold());
+
+    return ResponseEntity.ok(response);
+}
 }
