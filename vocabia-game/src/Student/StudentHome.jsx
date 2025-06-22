@@ -311,19 +311,15 @@ api.get("/user-progress/student-info")
 
                   <Box className="arcade-profile-stat-card">
                     <div className="arcade-profile-stat-icon">📚</div>
-                    <div className="arcade-profile-stat-value">27</div>
-                    <div className="arcade-profile-stat-label">Levels Passed</div>
+    <div className="arcade-profile-stat-value">{studentInfo.correctAnswers ?? 0}</div>
+    <div className="arcade-profile-stat-label">Correct Answers</div>
                   </Box>
                   <Box className="arcade-profile-stat-card">
                     <div className="arcade-profile-stat-icon">⏱️</div>
-                    <div className="arcade-profile-stat-value">27min</div>
-                    <div className="arcade-profile-stat-label">Fastest Time</div>
+    <div className="arcade-profile-stat-value">{studentInfo.progressPoints ?? 0}</div>
+    <div className="arcade-profile-stat-label">Progress Points</div>
                   </Box>
-                  <Box className="arcade-profile-stat-card">
-                    <div className="arcade-profile-stat-icon">✔️</div>
-                    <div className="arcade-profile-stat-value">200</div>
-                    <div className="arcade-profile-stat-label">Correct Answers</div>
-                  </Box>
+
                 </Box>
               </Box>
             </Box>

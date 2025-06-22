@@ -115,6 +115,10 @@ public ResponseEntity<Map<String, Object>> getStudentInfo(Principal principal) {
     response.put("lastName", user.getLastName());
     response.put("gold", user.getGold());
 
+    // ✅ Add these two lines
+    response.put("correctAnswers", user.getCorrectAnswers());
+    response.put("progressPoints", user.getProgressPoints());
+
     return ResponseEntity.ok(response);
 }
 }

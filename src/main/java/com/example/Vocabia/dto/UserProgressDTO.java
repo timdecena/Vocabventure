@@ -18,7 +18,6 @@ public class UserProgressDTO {
     private int hintsUsed;
     private int streakCount;
     private int maxStreak;
-    private int correctAnswers;
     private int wrongAnswers;
     private int totalAttempts;
     private int livesLeft;
@@ -27,4 +26,6 @@ public class UserProgressDTO {
     private LocalDateTime lastActive;
 
     private int gold;
+    private int progressPoints;
+    private int correctAnswers;
 }
