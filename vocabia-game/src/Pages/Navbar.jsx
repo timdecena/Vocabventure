@@ -77,6 +77,7 @@ const Navbar = ({ role, onLogout }) => {
           <NavButton onClick={() => navigate("/student-home")}>Home</NavButton>
           <NavButton onClick={() => navigate("/student/classes")}>Classes</NavButton>
           <NavButton onClick={() => navigate("/student/adventure")}>Adventure Mode</NavButton>
+          <NavButton onClick={() => navigate("/student/profile")}>Profile</NavButton>
         </>
       )}
       {role === "TEACHER" && (
@@ -84,6 +85,7 @@ const Navbar = ({ role, onLogout }) => {
           <NavButton onClick={() => navigate("/teacher-home")}>Home</NavButton>
           <NavButton onClick={() => navigate("/teacher/classes")}>Classes</NavButton>
           <NavButton onClick={handleCustomWordListClick}>Custom Word Lists</NavButton>
+          <NavButton onClick={() => navigate("/teacher/profile")}>Profile</NavButton>
           {classId && (
             <span style={{ display: 'flex', alignItems: 'center', marginLeft: 10, color: "#00ffaa" }}>
               | <NavButton onClick={handleChangeClass}>Change Class</NavButton>

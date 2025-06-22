@@ -23,7 +23,7 @@ const TokenRefresher = () => {
         
         // Call the validate token endpoint
         console.log('Validating token with backend...');
-        const response = await api.post('/auth/validate', { token });
+        const response = await api.post('/api/auth/validate', { token });
         console.log('Token validation response:', response.data);
         
         if (response.data && response.data.valid) {
@@ -100,3 +100,4 @@ const TokenRefresher = () => {
 };
 
 export default TokenRefresher;
+ 

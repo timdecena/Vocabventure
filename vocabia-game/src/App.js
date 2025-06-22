@@ -53,6 +53,9 @@ import JungleLushLevel4 from "./Adventure/island1(junglelush)/JungleLushLevel4";
 import JungleLushLevel5 from "./Adventure/island1(junglelush)/JungleLushLevel5";
 import Tutorial from "./Adventure/tutorial/Tutorial";
 
+// Profile
+import Profile from './components/Profile';
+
 import './App.css';
 
 function App() {
@@ -178,6 +181,7 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/teacher/classes/:id/students" element={isAuthenticated && role === 'TEACHER' ? <TeacherClassStudentsPage /> : <Navigate to="/" replace />} />
       <Route path="/teacher/classes/:classId/fpow-progress" element={isAuthenticated && role === 'TEACHER' ? <TeacherFPOWProgressPage /> : <Navigate to="/" replace />} />
       <Route path="/teacher/classes/:classId/students/:studentId/fpow-progress" element={isAuthenticated && role === 'TEACHER' ? <TeacherStudentFPOWProgressPage /> : <Navigate to="/" replace />} />
+      <Route path="/teacher/profile" element={isAuthenticated && role === 'TEACHER' ? <Profile /> : <Navigate to="/" replace />} />
 
       {/* STUDENT ROUTES */}
       <Route path="/student-home" element={
@@ -192,6 +196,7 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/student/classes" element={isAuthenticated && role === 'STUDENT' ? <StudentClassListPage /> : <Navigate to="/" replace />} />
       <Route path="/student/classes/:id" element={isAuthenticated && role === 'STUDENT' ? <StudentViewClassPage /> : <Navigate to="/" replace />} />
       <Route path="/student/classes/:id/classmates" element={isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />} />
+      <Route path="/student/profile" element={isAuthenticated && role === 'STUDENT' ? <Profile /> : <Navigate to="/" replace />} />
 
       {/* FOUR PIC ONE WORD GAME ROUTES (NEW) */}
       <Route

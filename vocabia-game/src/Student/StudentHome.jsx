@@ -183,6 +183,8 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
   const [joinError, setJoinError] = useState("");
   const [customWordListModalOpen, setCustomWordListModalOpen] = useState(false);
   const [studentInfo, setStudentInfo] = useState({});
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
 
   useEffect(() => {
 api.get("/user-progress/student-info")
@@ -229,13 +231,13 @@ api.get("/user-progress/student-info")
   return (
     <>
       <GlobalSidebarStyles />
-      <Box className="fantasy-root arcade-neon" style={{ display: 'flex', minHeight: '100vh', position: 'relative', alignItems: 'flex-start', paddingTop: '75px' }}>
+      <Box className="fantasy-root arcade-neon" sx={{ minHeight: '0', height: 'auto', position: 'relative', paddingTop: '56px', background: 'none', width: '100vw', fontFamily: 'Roboto, "Press Start 2P", Arial, sans-serif', overflow: 'visible' }}>
         {/* Sidebar and Toggle Button Wrapper */}
-        <Box>
-          <Box className={`arcade-sidebar ${isSidebarOpen ? '' : 'hidden'}`}>
+        <Box sx={{ height: 'auto', margin: 0, padding: 0 }}>
+          <Box className={`arcade-sidebar ${isSidebarOpen ? '' : 'hidden'}`} sx={{ margin: 0, padding: 0, left: 0, width: { xs: '56px', md: '140px' }, background: '#18181b', borderRight: '2px solid #00eaff', minHeight: '0', boxShadow: '0 0 8px #00eaff40', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
             {/* Sidebar Content */}
-            <Box className="arcade-sidebar-btn-group">
-              <Button className="arcade-sidebar-btn" onClick={() => navigate('/student/classes')}>
+            <Box className="arcade-sidebar-btn-group" sx={{ width: '100%', mt: 2 }}>
+              <Button className="arcade-sidebar-btn" sx={{ width: '90%', mb: 1, fontSize: '0.92rem', fontWeight: 500, color: '#00eaff', borderRadius: '10px', background: 'rgba(24,24,27,0.95)', boxShadow: '0 0 8px #00eaff40', '&:hover': { background: '#232336' } }} onClick={() => navigate('/student/classes')}>
                 <span className="arcade-btn-text">My Classes</span>
                 <span className="arcade-btn-arrow">&gt;</span>
               </Button>
@@ -270,24 +272,43 @@ api.get("/user-progress/student-info")
           </Button>
         </Box>
 
-        {/* Main Content */}
+        {/* Main Content + Leaderboard Grid Layout */}
         <Box
-          className="fantasy-content"
-          style={{
-            marginLeft: isSidebarOpen ? '200px' : '0px',
-            flexGrow: 1,
-            padding: '2rem',
+          className="fantasy-main-grid"
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            gridTemplateRows: 'repeat(5, 1fr)',
+            gap: 1,
+            marginLeft: isSidebarOpen ? '140px' : '0px',
+            padding: { xs: '8px 2px', md: '16px 16px 16px 16px' },
+            minHeight: '0',
+            height: 'auto',
             position: 'relative',
-            top: '-80px',
-
+            alignItems: 'flex-start',
+            transition: 'margin 0.4s cubic-bezier(0.77,0,0.18,1)',
+            background: 'none',
+            width: '100%',
+            boxSizing: 'border-box',
+            overflow: 'visible',
           }}
         >
           {/* Arcade Neon Animated Grid Background */}
           <div className="fantasy-bg" />
           <div className="fantasy-sparkle" />
-          
-          {/* The one and only content container */}
-          <Box className="arcade-profile-container">
+
+          {/* --- MAIN CONTENT (spans columns 1-4, all rows) --- */}
+          <Box className="arcade-profile-container" sx={{
+            gridColumn: '1 / span 4',
+            gridRow: '1 / span 5',
+            width: '100%',
+            maxWidth: '720px',
+            margin: { xs: '0 auto', md: '0' },
+            padding: { xs: '10px 6px 10px 6px', md: '18px 14px 14px 14px' },
+            borderRadius: '12px',
+            boxShadow: '0 0 10px #00eaff40, 0 0 20px #ff00c840',
+            border: '2px solid #00eaff'
+          }}>
             {/* Rank Icon in top right corner */}
             <div className="arcade-profile-rank-icon">
               <span role="img" aria-label="rank">🏆</span>
@@ -378,13 +399,62 @@ api.get("/user-progress/student-info")
             </Box>
           </Box>
 
-          {/* NEW Right-Side Container - Positioned separately */}
-          <div className="arcade-leaderboard-container">
-            <div className="arcade-middle-card-title">CLASSMATES LEADERBOARD</div>
-            <p style={{ color: '#fff', fontSize: '0.9rem', textAlign: 'center', marginTop: 'rem' }}>
-              Leaderboard content will go here
-            </p>
-          </div>
+          {/* --- RIGHT: Leaderboard --- */}
+          {!isSidebarOpen && (
+            <Box className="arcade-leaderboard-container" sx={{
+              gridColumn: '5',
+              gridRow: '1 / span 5',
+              width: '100%',
+              minWidth: '120px',
+              maxWidth: '210px',
+              background: '#18181b',
+              border: '2px solid #00eaff',
+              borderRadius: '16px',
+              boxShadow: '0 0 8px #00eaff40, 0 0 14px #ff00c840',
+              padding: '10px 8px',
+              display: { xs: 'none', md: 'flex' },
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              zIndex: 2,
+              marginLeft: 0,
+              marginTop: 0,
+              position: 'relative',
+              opacity: 1,
+              transition: 'opacity 0.3s',
+            }}>
+              <Box sx={{ width: '100%', mb: 1 }}>
+                <div className="arcade-middle-card-title" style={{ fontSize: '1.1rem', marginBottom: '8px', textAlign: 'center', letterSpacing: 1 }}>
+                  CLASSMATES LEADERBOARD
+                </div>
+              </Box>
+              <Box className="leaderboard-list" sx={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', textAlign: 'center', overflowY: 'auto', minHeight: 60, maxHeight: '380px', gap: 1 }}>
+  {leaderboardLoading ? (
+    <span style={{ color: '#00eaff', fontFamily: 'Press Start 2P', fontSize: '0.9rem', marginTop: 24 }}>Loading...</span>
+  ) : leaderboard.length === 0 ? (
+    <span style={{ color: '#fff', fontFamily: 'Montserrat, Roboto, Arial, sans-serif', fontSize: '1rem', marginTop: 24 }}>No leaderboard data.</span>
+  ) : (
+    leaderboard.map((student, idx) => (
+      <Box key={student.id || student.name} className={`leaderboard-item ${idx < 3 ? 'medal' : ''}`} sx={{
+        display: 'flex', alignItems: 'center', width: '100%', background: idx % 2 === 0 ? 'rgba(0,234,255,0.07)' : 'transparent', borderRadius: '12px', padding: '7px 10px', marginBottom: '4px', boxShadow: idx === 0 ? '0 0 16px #00eaff80' : 'none', border: idx === 0 ? '2px solid #00eaff' : 'none', position: 'relative'
+      }}>
+        <span className="leaderboard-rank" style={{ fontWeight: 700, fontSize: '1.2rem', width: 28, display: 'inline-block', color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#00eaff', textShadow: idx < 3 ? '0 0 8px #fff' : '0 0 4px #00eaff' }}>
+          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
+        </span>
+        <Avatar src={student.avatar || '/avatars/default.png'} alt={student.name} sx={{ width: 38, height: 38, mx: 1, border: '2px solid #00eaff', boxShadow: '0 0 8px #00eaff80', background: '#23232b' }} />
+        <span className="leaderboard-name" style={{ flex: 1, textAlign: 'left', fontWeight: 500, fontFamily: 'Montserrat, Roboto, Arial, sans-serif', fontSize: '1rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: 8 }}>
+          {student.name}
+        </span>
+        <span className="leaderboard-score" style={{ fontWeight: 600, fontFamily: 'Press Start 2P, monospace', color: '#00eaff', fontSize: '0.92rem', marginLeft: 10, letterSpacing: 1 }}>
+          {student.score}
+        </span>
+        <EmojiEventsIcon sx={{ color: idx < 3 ? (idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32') : '#00eaff', ml: 1, fontSize: '1.3rem', display: idx < 3 ? 'inline' : 'none' }} />
+      </Box>
+    ))
+  )}
+</Box>
+            </Box>
+          )}
 
           {/* Join Class Modal */}
           <Dialog open={joinModalOpen} onClose={() => setJoinModalOpen(false)}>
@@ -592,20 +662,20 @@ api.get("/user-progress/student-info")
         .arcade-profile-container {
           margin-bottom: auto;
           position: relative; /* Needed for absolute positioning of the rank icon */
-          min-width: 350px;
-          min-height: 200px;
+          min-width: 240px;
+          min-height: 120px;
           background: #18181b;
           border: 2.5px solid #00eaff;
-          border-radius: 24px;
-          box-shadow: 0 0 32px #00eaff80, 0 0 64px #ff00c880;
-          padding: 36px 32px 32px 32px;
+          border-radius: 18px;
+          box-shadow: 0 0 18px #00eaff80, 0 0 32px #ff00c880;
+          padding: 18px 12px 18px 12px;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
           justify-content: flex-start;
           z-index: 2;
-          max-width: 1100px;
-          width: 95vw;
+          max-width: 900px;
+          width: 97vw;
           margin: 0 auto;
         }
         .arcade-profile-header {
@@ -898,19 +968,67 @@ api.get("/user-progress/student-info")
         }
         /* Right-side leaderboard container */
         .arcade-leaderboard-container {
-          position: absolute;
-          top: 1;
-          left: calc(103.5vw - 380px);
-          width: 250px;
-          height: 610px;
-          background: #18181b;
-          border: 2.5px solid #00eaff;
-          border-radius: 24px;
-          box-shadow: 0 0 32px #00eaff80, 0 0 64px #ff00c880;
-          padding: 36px 32px;
-          display: flex;
-          flex-direction: column;
-          z-index: 2;
+  background: linear-gradient(135deg, #18181b 70%, #1a1a22 100%);
+  border: 2.5px solid #00eaff;
+  border-radius: 24px;
+  box-shadow: 0 0 32px #00eaff80, 0 0 64px #ff00c880, 0 0 0 8px #00eaff15 inset;
+  padding: 28px 18px 28px 18px;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  opacity: 1;
+  transition: opacity 0.3s;
+  max-width: 250px;
+  min-width: 170px;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+.leaderboard-list {
+  width: 100%;
+  max-width: 210px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #00eaff #23232b;
+}
+.leaderboard-list::-webkit-scrollbar {
+  width: 7px;
+  background: #23232b;
+  border-radius: 8px;
+}
+.leaderboard-list::-webkit-scrollbar-thumb {
+  background: #00eaff;
+  border-radius: 8px;
+}
+.leaderboard-item {
+  transition: box-shadow 0.2s, border 0.2s, background 0.2s;
+}
+.leaderboard-item:hover {
+  background: #00eaff22 !important;
+  box-shadow: 0 0 12px #00eaff;
+}
+.leaderboard-rank {
+  font-family: 'Press Start 2P', cursive;
+}
+.leaderboard-name {
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+}
+.leaderboard-score {
+  font-family: 'Press Start 2P', monospace;
+}
+@media (max-width: 1200px) {
+  .arcade-leaderboard-container {
+    display: none !important;
+  }
+}
+        @media (max-width: 1200px) {
+          .arcade-leaderboard-container {
+            display: none !important;
+          }
         }
       `}</style>
     </>
