@@ -9,8 +9,13 @@ export default function TeacherCreateClassPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await api.post("/teacher/classes", { name, description });
-    navigate("/teacher/classes");
+    try {
+      await api.post("/api/teacher/classes", { name, description });
+      navigate("/teacher/classes");
+    } catch (err) {
+      console.error("Failed to create class:", err);
+      alert("Failed to create class: " + (err.response?.data?.message || err.message));
+    }
   };
 
   return (

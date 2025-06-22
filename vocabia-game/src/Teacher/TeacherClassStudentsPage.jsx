@@ -8,15 +8,34 @@ export default function TeacherClassStudentsPage() {
   const [className, setClassName] = useState("");
 
 useEffect(() => {
-  api.get(`/teacher/classes/${id}`)
+  api.get(`/api/teacher/classes/${id}`)
     .then(res => setClassName(res.data.name))
-    .catch(() => setClassName("Unknown"));
+    .catch((err) => {
+      console.error("Failed to fetch class name:", err);
+      setClassName("Unknown");
+    });
 }, [id]);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    api.get(`/teacher/classes/${id}/students`)
-      .then(res => setStudents(res.data))
-      .catch(() => alert("Failed to load students"));
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(`/api/teacher/classes/${id}/students`);
+        setStudents(res.data);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load students:", err);
+        setError("Failed to load students");
+        setStudents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchStudents();
   }, [id]);
 
   return (

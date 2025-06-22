@@ -6,16 +6,37 @@ export default function TeacherViewClassPage() {
   const { id } = useParams();
   const [classroom, setClassroom] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    api.get("/teacher/classes")
-      .then(res => {
-        const found = res.data.find(c => c.id === Number(id));
-        if (found) setClassroom(found);
-        else alert("Class not found");
-      });
+    const fetchClassData = async () => {
+      try {
+        setLoading(true);
+        // Get the specific class by ID directly
+        const response = await api.get(`/api/teacher/classes/${id}`);
+        setClassroom(response.data);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch class data:", err);
+        if (err.response?.status === 403) {
+          setError("You don't have permission to view this class");
+        } else if (err.response?.status === 404) {
+          setError("Class not found");
+        } else {
+          setError("Failed to load class data");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchClassData();
   }, [id]);
 
-  if (!classroom) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error} <br/><Link to="/teacher/classes">Back to My Classes</Link></div>;
+  if (!classroom) return <div>Class not found <br/><Link to="/teacher/classes">Back to My Classes</Link></div>;
 
   return (
     <div>

@@ -5,9 +5,12 @@ export default function WOTDLeaderboardPage() {
   const [entries, setEntries] = useState([]);
 
   useEffect(() => {
-    api.get("/leaderboard/wotd")
+    api.get("/api/leaderboard/wotd")
       .then(res => setEntries(res.data))
-      .catch(() => alert("Failed to load leaderboard"));
+      .catch(err => {
+        console.error("Failed to load leaderboard:", err);
+        alert("Failed to load leaderboard");
+      });
   }, []);
 
   return (

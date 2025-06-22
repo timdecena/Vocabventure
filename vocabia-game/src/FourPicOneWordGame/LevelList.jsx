@@ -73,7 +73,7 @@ export default function LevelList() {
       try {
         // Fetch available levels for the category
         // Remove duplicate '/api' prefix since it's already in the baseURL
-        const res = await api.get(`/fpow/levels`, { params: { category } });
+        const res = await api.get(`/api/fpow/levels`, { params: { category } });
         if (!Array.isArray(res.data)) throw new Error('Invalid response format for levels');
         if (isMounted) setLevels(res.data);
 
@@ -103,7 +103,7 @@ export default function LevelList() {
             isAuthenticated = true;
             // Get user progress from server
             // Remove duplicate '/api' prefix since it's already in the baseURL
-            const progressRes = await api.get(`/user-progress/category/${category}`);
+            const progressRes = await api.get(`/api/user-progress/category/${category}`);
             
             if (progressRes.data && Array.isArray(progressRes.data)) {
               // Process server data to get completed levels

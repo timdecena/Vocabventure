@@ -6,21 +6,41 @@ export default function StudentViewClassPage() {
   const { id } = useParams();
   const [classroom, setClassroom] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    // Remove duplicate '/api' prefix since it's already in the baseURL
-    api.get("/student/classes")
-      .then(res => {
-        const found = res.data.find(c => c.id === Number(id));
-        if (found) setClassroom(found);
-        else alert("Class not found");
-      })
-      .catch(err => {
-        console.error("Error fetching student classes:", err);
-        alert("Failed to load classes. Please make sure you're logged in as a student.");
-      });
+    const fetchClassData = async () => {
+      try {
+        setLoading(true);
+        // Get all classes for the student and filter by ID
+        const response = await api.get(`/api/student/classes`);
+        const classData = response.data.find(c => c.id === parseInt(id));
+        
+        if (classData) {
+          setClassroom(classData);
+          setError(null);
+        } else {
+          setError("Class not found or you don't have access to this class");
+        }
+      } catch (err) {
+        console.error("Failed to fetch class data:", err);
+        if (err.response?.status === 403) {
+          setError("You don't have permission to view classes");
+        } else {
+          setError("Failed to load class data: " + (err.response?.data || err.message));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchClassData();
   }, [id]);
 
-  if (!classroom) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error} <br/><Link to="/student/classes">Back to My Classes</Link></div>;
+  if (!classroom) return <div>Class not found <br/><Link to="/student/classes">Back to My Classes</Link></div>;
 
   return (
     <div>

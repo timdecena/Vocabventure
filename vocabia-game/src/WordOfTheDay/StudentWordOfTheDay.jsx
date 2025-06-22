@@ -40,7 +40,7 @@ export default function StudentWordOfTheDay() {
 
   const fetchWordData = async () => {
     try {
-      const res = await api.get("/game/word-of-the-day");
+      const res = await api.get("/api/game/word-of-the-day");
       setDefinition(res.data.definition);
       
       // Check if a new day has passed
@@ -94,7 +94,7 @@ export default function StudentWordOfTheDay() {
 
   const submitGuess = async () => {
     try {
-      const res = await api.post("/game/word-of-the-day/submit", { guess });
+      const res = await api.post("/api/game/word-of-the-day/submit", { guess });
       const today = new Date().toDateString();
       
       setResult(res.data.correct ? "✅ Correct!" : "❌ Incorrect");
@@ -118,7 +118,7 @@ export default function StudentWordOfTheDay() {
 
   const handleRetry = async () => {
     try {
-      const res = await api.post("/game/word-of-the-day/retry");
+      const res = await api.post("/api/game/word-of-the-day/retry");
       setHasPlayed(false);
       saveState("wotd_hasPlayed", false);
       setGuess("");

@@ -11,7 +11,7 @@ export default function TeacherCreateSpellingLevel() {
   const [mediaRecorder, setMediaRecorder] = useState(null);
 
   useEffect(() => {
-    api.get("/teacher/classes").then((res) => setClassrooms(res.data));
+    api.get("/api/teacher/classes").then((res) => setClassrooms(res.data));
   }, []);
 
   // --- Word field changes ---
@@ -133,13 +133,13 @@ export default function TeacherCreateSpellingLevel() {
         // Prioritize uploaded .mp3 file
         const formData = new FormData();
         formData.append("file", entry.file);
-        const res = await api.post("/teacher/spelling/upload-audio", formData);
+        const res = await api.post("/api/teacher/spelling/upload-audio", formData);
         audioUrl = res.data.url;
       } else if (entry.audioBlob) {
         // Use accepted recording if no file
         const formData = new FormData();
         formData.append("file", entry.audioBlob, "recorded.webm");
-        const res = await api.post("/teacher/spelling/upload-audio", formData);
+        const res = await api.post("/api/teacher/spelling/upload-audio", formData);
         audioUrl = res.data.url;
       }
       uploaded.push({ ...entry, audioUrl });
@@ -175,7 +175,7 @@ export default function TeacherCreateSpellingLevel() {
         word, definition, sentence, audioUrl,
       }));
 
-      await api.post("/spelling-level/create", {
+      await api.post("/api/spelling-level/create", {
         title,
         classroomId,
         words: formattedWords,

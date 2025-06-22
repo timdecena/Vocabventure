@@ -18,7 +18,7 @@ export default function Adventure() {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
-      const res = await api.get("/auth/profile");
+      const res = await api.get("/api/auth/profile");
       return res.data;
     } catch (err) {
       console.error("❌ Failed to fetch user profile:", err);
@@ -41,7 +41,7 @@ useEffect(() => {
     }
 
     try {
-      const res = await api.get(`/adventure/profile`);
+      const res = await api.get(`/api/adventure/profile`);
       if (res.data && isMounted) {
         console.log("✅ Profile loaded:", res.data);
         console.log("🎯 tutorialCompleted =", res.data.tutorialCompleted);
@@ -89,7 +89,7 @@ useEffect(() => {
     }
 
     try {
-      const res = await api.post("/adventure-profile", {
+      const res = await api.post("/api/adventure-profile", {
         adventurer_name: formData.adventurer_name,
         gender: formData.gender,
         user_id: user.id

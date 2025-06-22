@@ -135,7 +135,7 @@ export default function CategoryList() {
         setIsAuthenticated(!!token);
 
         // Fetch categories
-        const categoriesRes = await api.get("/fpow/categories");
+        const categoriesRes = await api.get("/api/fpow/categories");
         const categoriesData = categoriesRes.data || [];
         setCategories(categoriesData);
 
@@ -146,7 +146,7 @@ export default function CategoryList() {
         if (token) {
           try {
             // Fetch all user progress
-            const progressRes = await api.get("/user-progress/all");
+            const progressRes = await api.get("/api/user-progress/all");
 
             // Process server data
             if (progressRes.data && Array.isArray(progressRes.data)) {

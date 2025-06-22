@@ -7,15 +7,23 @@ export default function TeacherClassListPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/teacher/classes")
+    api.get("/api/teacher/classes")
       .then(res => setClasses(res.data))
-      .catch(() => alert("Failed to load classes"));
+      .catch(err => {
+        console.error("Failed to load classes:", err);
+        alert("Failed to load classes");
+      });
   }, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this class?")) return;
-    await api.delete(`/teacher/classes/${id}`);
-    setClasses(prev => prev.filter(c => c.id !== id));
+    try {
+      await api.delete(`/api/teacher/classes/${id}`);
+      setClasses(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      console.error("Failed to delete class:", err);
+      alert("Failed to delete class");
+    }
   };
 
   return (

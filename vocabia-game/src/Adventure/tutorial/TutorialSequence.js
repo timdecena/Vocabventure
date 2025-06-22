@@ -51,7 +51,7 @@ const TutorialSequence = ({ onClose }) => {
     const checkUserStatus = async () => {
       try {
         // Use the main API helper to get the adventure profile
-        const res = await api.get(`/adventure/profile`);
+        const res = await api.get(`/api/adventure/profile`);
         setProfileDebug(res.data); // Save profile data for debug
         if (res.data && typeof res.data === 'object') {
           setIsNewUser(!res.data.tutorialCompleted);
@@ -89,7 +89,7 @@ const TutorialSequence = ({ onClose }) => {
     // Mark tutorial as completed
     const markTutorialCompleted = async () => {
       try {
-        await api.post(`/adventure/profile/complete-tutorial`);
+        await api.post(`/api/adventure/profile/complete-tutorial`);
         setHasCompletedTutorial(true);
         setIsNewUser(false);
       } catch (err) {

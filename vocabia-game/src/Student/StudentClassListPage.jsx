@@ -25,10 +25,26 @@ const StudentClassListPage = () => {
   const [classes, setClasses] = useState([]);
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    api.get("/student/classes")
-      .then(res => setClasses(res.data))
-      .catch(() => alert("Failed to load classes"));
+    const fetchClasses = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/api/student/classes");
+        setClasses(res.data);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load classes:", err);
+        setError("Failed to load classes");
+        setClasses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchClasses();
   }, []);
 
   return (

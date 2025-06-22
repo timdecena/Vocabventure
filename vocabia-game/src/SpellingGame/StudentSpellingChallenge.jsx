@@ -94,7 +94,7 @@ export default function StudentSpellingChallenge() {
   useEffect(() => {
     const fetchChallenges = async () => {
       try {
-        const res = await api.get(`/spelling-level/${levelId}/challenges`);
+        const res = await api.get(`/api/spelling-level/${levelId}/challenges`);
         if (Array.isArray(res.data)) {
           setChallenges(res.data);
         } else {
@@ -159,7 +159,7 @@ export default function StudentSpellingChallenge() {
   const elapsedTime = (endTime - startTime) / 1000; // ⏱️ in seconds
 
   try {
-    const res = await api.post("/game/spelling/submit", {
+    const res = await api.post("/api/game/spelling/submit", {
       challengeId: challenges[current].id,
       guess: answer,
       elapsedTime, // ✅ send to backend

@@ -17,8 +17,8 @@ export default function StudentSpellingLevelList() {
   useEffect(() => {
   const fetchData = async () => {
     try {
-      const levelsRes = await api.get(`/spelling-level/classroom/${classId}`);
-      const correctRes = await api.get(`/game/spelling/correct`);
+      const levelsRes = await api.get(`/api/spelling-level/classroom/${classId}`);
+      const correctRes = await api.get(`/api/game/spelling/correct`);
 
       if (Array.isArray(levelsRes.data)) {
         setLevels(levelsRes.data);
@@ -46,7 +46,7 @@ export default function StudentSpellingLevelList() {
 
       for (const level of levels) {
         try {
-          const res = await api.get(`/spelling-level/${level.id}/challenges`);
+          const res = await api.get(`/api/spelling-level/${level.id}/challenges`);
           const challengeIds = res.data.map((c) => c.id);
           const correctAnswered = challengeIds.filter(id => completedChallengeIds.includes(id));
           const isCompleted = challengeIds.length > 0 && correctAnswered.length === challengeIds.length;

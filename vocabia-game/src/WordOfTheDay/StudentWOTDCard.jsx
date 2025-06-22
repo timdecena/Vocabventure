@@ -7,12 +7,13 @@ export default function StudentWOTDCard() {
   const [definition, setDefinition] = useState("");
 
   useEffect(() => {
-    api.get("/game/word-of-the-day")
+    api.get("/api/game/word-of-the-day")
       .then(res => {
         setWord(res.data.word); // assuming `word` is included in backend response
         setDefinition(res.data.definition);
       })
-      .catch(() => {
+      .catch(err => {
+        console.error("Failed to load word of the day:", err);
         setWord("N/A");
         setDefinition("Failed to load word of the day.");
       });

@@ -273,7 +273,7 @@ const GamePlay = () => {
         }
         
         // Remove duplicate '/api' prefix since it's already in the baseURL
-        const res = await api.get('/fpow/puzzle', { params: { category, level } });
+        const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
         if (!res.data || !res.data.answer) throw new Error('No puzzle found');
         const imageUrls = [
           res.data.image1Url, res.data.image2Url, res.data.image3Url, res.data.image4Url
@@ -347,7 +347,7 @@ const GamePlay = () => {
         // First try to get the current progress to check if it exists
         try {
           // Remove duplicate '/api' prefix since it's already in the baseURL
-          await api.post('/user-progress/submit', payload);
+          await api.post('/api/user-progress/submit', payload);
           console.log("Progress saved successfully");
         } catch (innerError) {
           // If we get a non-unique result error, try a different approach
@@ -382,7 +382,7 @@ const GamePlay = () => {
     for (let i = 0; i < state.selectedLetters.length; i++) dispatch({ type: 'REMOVE_LETTER', index: 0 });
     try {
       // The API base URL already includes '/api'
-      await api.post('/user-progress/wrong', {
+      await api.post('/api/user-progress/wrong', {
         category,
         level,
         answer: state.selectedLetters.map(l => l.value).join('')
@@ -457,7 +457,7 @@ const GamePlay = () => {
         console.log(`Sending hint usage: category=${cleanCategory}, level=${levelNum}`);
         
         // The API base URL already includes '/api'
-        await api.post(`/user-progress/use-hint?category=${encodeURIComponent(cleanCategory)}&level=${levelNum}`);
+        await api.post(`/api/user-progress/use-hint?category=${encodeURIComponent(cleanCategory)}&level=${levelNum}`);
         console.log('Hint usage recorded successfully');
       }
     } catch (error) {

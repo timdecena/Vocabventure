@@ -187,10 +187,18 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
 
   useEffect(() => {
-api.get("/user-progress/student-info")
-    .then(res => setStudentInfo(res.data))
-    .catch(err => console.error("Failed to load student info", err));
-}, []);
+    api.get("/api/user-progress/student-info")
+      .then(res => setStudentInfo(res.data))
+      .catch(err => {
+        console.error("Failed to load student info", err);
+        // Use fallback data if API fails
+        setStudentInfo({
+          firstName: localStorage.getItem('firstName') || "Student",
+          lastName: localStorage.getItem('lastName') || "",
+          profileImageUrl: localStorage.getItem('profileImageUrl') || ""
+        });
+      });
+  }, []);
 
 
   useEffect(() => {
@@ -201,10 +209,11 @@ api.get("/user-progress/student-info")
 
   const fetchClasses = async () => {
     try {
-      const classRes = await api.get("/student/classes");
+      const classRes = await api.get("/api/student/classes");
       setClasses(classRes.data);
     } catch (err) {
       console.error("Failed to load classes", err);
+      setClasses([]);
     }
   };
 
@@ -219,12 +228,13 @@ api.get("/user-progress/student-info")
     e.preventDefault();
     setJoinError("");
     try {
-      await api.post("/student/classes/join", { joinCode });
+      await api.post("/api/student/classes/join", { joinCode });
       setJoinModalOpen(false);
       setJoinCode("");
       await fetchClasses();
     } catch (err) {
-      setJoinError("Failed to join class: " + (err.response?.data || "Unknown error"));
+      console.error("Failed to join class:", err);
+      setJoinError("Failed to join class: " + (err.response?.data?.message || err.message || "Unknown error"));
     }
   };
 

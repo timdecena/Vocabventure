@@ -8,23 +8,47 @@ export default function TeacherEditClassPage() {
   const [description, setDescription] = useState("");
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    api.get("/teacher/classes")
-      .then(res => {
-        const found = res.data.find(c => c.id === Number(id));
-        if (found) {
-          setName(found.name);
-          setDescription(found.description);
+    const fetchClassData = async () => {
+      try {
+        setLoading(true);
+        // Get the specific class by ID directly
+        const response = await api.get(`/api/teacher/classes/${id}`);
+        setName(response.data.name);
+        setDescription(response.data.description);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch class data:", err);
+        if (err.response?.status === 403) {
+          alert("You don't have permission to edit this class");
+        } else if (err.response?.status === 404) {
+          alert("Class not found");
         } else {
-          alert("Class not found"); navigate("/teacher/classes");
+          alert("Failed to load class data");
         }
-      });
+        navigate("/teacher/classes");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchClassData();
   }, [id, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await api.put(`/teacher/classes/${id}`, { name, description });
-    navigate("/teacher/classes");
+    try {
+      setLoading(true);
+      await api.put(`/api/teacher/classes/${id}`, { name, description });
+      navigate("/teacher/classes");
+    } catch (err) {
+      console.error("Failed to update class:", err);
+      setError(err.response?.data?.message || "Failed to update class");
+      setLoading(false);
+    }
   };
 
   return (
