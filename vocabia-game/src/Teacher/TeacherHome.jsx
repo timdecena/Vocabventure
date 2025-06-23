@@ -21,60 +21,23 @@ import {
   ListItemIcon,
   ListItemText,
   IconButton,
-  Tooltip,
-  Badge,
-  Paper,
-  useTheme
+  Tooltip
 } from '@mui/material';
 import {
   School as SchoolIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
+  AddCircleOutline as AddCircleOutlineIcon,
+  EditNote as EditNoteIcon,
   Logout as LogoutIcon,
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
-  People as PeopleIcon,
-  Assessment as AnalyticsIcon,
+  Class as ClassIcon,
+  BarChart as AnalyticsIcon,
+  Groups as GroupsIcon,
   Assignment as AssignmentIcon,
-  Book as BookIcon,
-  Notifications as NotificationsIcon,
   ChevronLeft,
   ChevronRight
 } from '@mui/icons-material';
-import { styled, alpha } from '@mui/material/styles';
 import api from '../api/api';
 
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    backgroundColor: theme.palette.success.main,
-    color: theme.palette.success.main,
-    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    '&::after': {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      borderRadius: '50%',
-      animation: 'ripple 1.2s infinite ease-in-out',
-      border: '1px solid currentColor',
-      content: '""',
-    },
-  },
-  '@keyframes ripple': {
-    '0%': {
-      transform: 'scale(.8)',
-      opacity: 1,
-    },
-    '100%': {
-      transform: 'scale(2.4)',
-      opacity: 0,
-    },
-  },
-}));
-
 const TeacherHome = ({ setIsAuthenticated }) => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [className, setClassName] = useState('');
@@ -86,7 +49,6 @@ const TeacherHome = ({ setIsAuthenticated }) => {
   const [teacherInfo, setTeacherInfo] = useState({});
   const [recentActivity, setRecentActivity] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [notifications, setNotifications] = useState(3);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,9 +57,7 @@ const TeacherHome = ({ setIsAuthenticated }) => {
         const teacherRes = await api.get('/api/teacher/info');
         setTeacherInfo(teacherRes.data);
         
-        // Fetch recent activity
-        const activityRes = await api.get('/api/teacher/recent-activity');
-        setRecentActivity(activityRes.data);
+        
         
         // Fetch classes
         const classesRes = await api.get('/api/teacher/classes');
@@ -106,13 +66,13 @@ const TeacherHome = ({ setIsAuthenticated }) => {
         console.error("Failed to fetch data", err);
         // Fallback to mock data if API fails
         setTeacherInfo({
-          firstName: "Emily",
-          lastName: "Johnson",
-          email: "emily.johnson@school.edu",
-          avatar: "/avatars/teacher-demo.png"
+          firstName: "Demo",
+          lastName: "Teacher",
+          email: "teacher@example.com",
+          profileImageUrl: "/avatars/teacher.png"
         });
-        
-        
+        setClasses([]);
+        setRecentActivity([]);
       }
     };
     
@@ -174,158 +134,105 @@ const TeacherHome = ({ setIsAuthenticated }) => {
   };
 
   const navItems = [
-    
     { icon: <SchoolIcon />, text: 'My Classes', path: '/teacher/classes' },
-
-  ];
-
-  const quickActions = [
-    { 
-      icon: <SchoolIcon fontSize="large" />, 
-      title: "New Class", 
-      description: "Set up a new class",
-      action: handleOpenCreateClass,
-      color: 'primary'
-    }
-    
-    
+    { icon: <AddCircleOutlineIcon />, text: 'Create Class', action: handleOpenCreateClass },
+    { icon: <EditNoteIcon />, text: 'Create Level', path: '/teacher/spelling/create' },
+    { icon: <AnalyticsIcon />, text: 'Analytics', path: '/teacher/analytics' },
+    { icon: <GroupsIcon />, text: 'Students', path: '/teacher/students' },
+    { icon: <AssignmentIcon />, text: 'Assignments', path: '/teacher/assignments' },
   ];
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafc' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* Sidebar */}
-      <Paper
-        elevation={0}
+      <Box
         sx={{
-          width: sidebarOpen ? 280 : 0,
-          bgcolor: 'background.paper',
+          width: sidebarOpen ? 240 : 0,
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
           transition: 'width 0.3s ease',
           overflow: 'hidden',
           position: 'fixed',
           height: '100vh',
           zIndex: 1200,
-          borderRight: `1px solid ${theme.palette.divider}`,
-          display: 'flex',
-          flexDirection: 'column'
+          boxShadow: 3
         }}
       >
         <Box sx={{ 
-          p: 3, 
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
+          p: 2, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          borderBottom: '1px solid rgba(255,255,255,0.1)'
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <SchoolIcon color="primary" sx={{ mr: 1, fontSize: 32 }} />
-            <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
-              EduPortal
-            </Typography>
+            <ClassIcon sx={{ mr: 1 }} />
+            <Typography variant="h6">Teacher Portal</Typography>
           </Box>
           <IconButton 
             onClick={() => setSidebarOpen(false)} 
-            size="small"
-            sx={{ color: 'text.secondary' }}
+            sx={{ color: 'inherit' }}
           >
             <ChevronLeft />
           </IconButton>
         </Box>
         
-        <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <StyledBadge
-              overlap="circular"
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              variant="dot"
-            >
-              <Avatar 
-                src={teacherInfo.avatar} 
-                sx={{ 
-                  width: 48, 
-                  height: 48,
-                  mr: 2,
-                  bgcolor: 'primary.main',
-                  color: 'primary.contrastText'
-                }}
-              >
-                {teacherInfo.firstName?.charAt(0)}{teacherInfo.lastName?.charAt(0)}
-              </Avatar>
-            </StyledBadge>
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                {teacherInfo.firstName} {teacherInfo.lastName}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {teacherInfo.email}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-        
-        <List sx={{ p: 2, flexGrow: 1 }}>
+        <List sx={{ p: 1 }}>
           {navItems.map((item, index) => (
             <ListItem 
               button 
               key={index}
               onClick={() => item.path ? navigate(item.path) : item.action()}
               sx={{
-                borderRadius: 2,
+                borderRadius: 1,
                 mb: 0.5,
                 '&:hover': {
-                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                  color: theme.palette.primary.main,
-                  '& .MuiListItemIcon-root': {
-                    color: theme.palette.primary.main
-                  }
+                  bgcolor: 'primary.light'
                 }
               }}
             >
-              <ListItemIcon sx={{ color: 'text.secondary', minWidth: '40px' }}>
+              <ListItemIcon sx={{ color: 'inherit', minWidth: '40px' }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.text} 
-                primaryTypographyProps={{ fontWeight: 500 }}
-              />
+              <ListItemText primary={item.text} />
             </ListItem>
           ))}
         </List>
         
-        <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+        <Box sx={{ 
+          position: 'absolute', 
+          bottom: 0, 
+          width: '100%', 
+          p: 2, 
+          borderTop: '1px solid rgba(255,255,255,0.1)'
+        }}>
           <ListItem 
             button 
             onClick={handleLogout}
             sx={{
-              borderRadius: 2,
+              borderRadius: 1,
               '&:hover': {
-                backgroundColor: alpha(theme.palette.error.main, 0.1),
-                color: theme.palette.error.main,
-                '& .MuiListItemIcon-root': {
-                  color: theme.palette.error.main
-                }
+                bgcolor: 'primary.light'
               }
             }}
           >
-            <ListItemIcon sx={{ color: 'text.secondary', minWidth: '40px' }}>
+            <ListItemIcon sx={{ color: 'inherit', minWidth: '40px' }}>
               <LogoutIcon />
             </ListItemIcon>
-            <ListItemText 
-              primary="Logout" 
-              primaryTypographyProps={{ fontWeight: 500 }}
-            />
+            <ListItemText primary="Logout" />
           </ListItem>
         </Box>
-      </Paper>
+      </Box>
 
       {/* Main Content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          ml: sidebarOpen ? '280px' : 0,
+          ml: sidebarOpen ? '240px' : 0,
           transition: 'margin-left 0.3s ease',
-          p: 4,
-          backgroundColor: '#f9fafc'
+          p: 3,
+          backgroundColor: 'background.default'
         }}
       >
         {/* Sidebar Toggle Button (when closed) */}
@@ -335,18 +242,19 @@ const TeacherHome = ({ setIsAuthenticated }) => {
               onClick={() => setSidebarOpen(true)}
               sx={{
                 position: 'fixed',
-                left: 16,
-                top: 16,
+                left: 0,
+                top: '50%',
+                transform: 'translateY(-50%)',
                 zIndex: 1100,
-                backgroundColor: 'background.paper',
-                color: 'text.primary',
-                boxShadow: 1,
+                backgroundColor: 'primary.main',
+                color: 'primary.contrastText',
+                borderRadius: '0 4px 4px 0',
                 '&:hover': {
-                  backgroundColor: 'background.default'
+                  backgroundColor: 'primary.dark'
                 }
               }}
             >
-              <MenuIcon />
+              <ChevronRight />
             </IconButton>
           </Tooltip>
         )}
@@ -359,95 +267,94 @@ const TeacherHome = ({ setIsAuthenticated }) => {
           mb: 4 
         }}>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
+            <Typography variant="h4" sx={{ fontWeight: 600 }}>
               Teacher Dashboard
             </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            <Typography variant="subtitle1" color="text.secondary">
+              Welcome back, {teacherInfo.firstName || 'Teacher'}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton sx={{ color: 'text.secondary' }}>
-              <Badge badgeContent={notifications} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <Avatar 
-              src={teacherInfo.avatar} 
-              sx={{ 
-                width: 48, 
-                height: 48,
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText'
-              }}
-            >
-              {teacherInfo.firstName?.charAt(0)}{teacherInfo.lastName?.charAt(0)}
-            </Avatar>
-          </Box>
+          <Avatar 
+            src={teacherInfo.avatar} 
+            sx={{ 
+              width: 60, 
+              height: 60,
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText'
+            }}
+          >
+            {teacherInfo.firstName?.charAt(0)}{teacherInfo.lastName?.charAt(0)}
+          </Avatar>
         </Box>
 
         {/* Quick Actions */}
-        <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: 'text.primary' }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 500 }}>
           Quick Actions
         </Typography>
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {quickActions.map((action, index) => (
+          {[
+            { 
+              icon: <SchoolIcon fontSize="large" />, 
+              title: "My Classes", 
+              description: "View and manage all your classes",
+              action: () => navigate('/teacher/classes'),
+              color: 'primary'
+            },
+            { 
+              icon: <AddCircleOutlineIcon fontSize="large" />, 
+              title: "Create Class", 
+              description: "Set up a new class for your students",
+              action: handleOpenCreateClass,
+              color: 'success'
+            },
+            { 
+              icon: <EditNoteIcon fontSize="large" />, 
+              title: "Create Level", 
+              description: "Design a new spelling level",
+              action: () => navigate('/teacher/spelling/create'),
+              color: 'secondary'
+            }
+          ].map((action, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
               <Card 
-                elevation={0}
                 sx={{ 
                   height: '100%',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  border: `1px solid ${theme.palette.divider}`,
-                  backgroundColor: 'background.paper',
+                  transition: 'transform 0.2s',
                   '&:hover': { 
                     transform: 'translateY(-4px)',
-                    boxShadow: theme.shadows[4],
-                    borderColor: alpha(theme.palette.primary.main, 0.5)
+                    boxShadow: 3
                   }
                 }}
                 onClick={action.action}
               >
-                <CardContent sx={{ textAlign: 'center', p: 3 }}>
+                <CardContent sx={{ textAlign: 'center' }}>
                   <Box sx={{ 
                     display: 'inline-flex',
                     p: 2,
                     mb: 2,
                     borderRadius: '50%',
                     bgcolor: `${action.color}.light`,
-                    color: `${action.color}.main`
+                    color: `${action.color}.contrastText`
                   }}>
                     {action.icon}
                   </Box>
-                  <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
                     {action.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     {action.description}
                   </Typography>
                   <Button 
-                    variant="outlined" 
+                    variant="contained" 
                     color={action.color}
-                    size="small"
-                    sx={{ borderRadius: 2 }}
                   >
-                    Get Started
+                    {action.title}
                   </Button>
                 </CardContent>
               </Card>
             </Grid>
           ))}
-        </Grid>
-
-        <Grid container spacing={3}>
-          {/* Recent Activity */}
-          
-
-          {/* Your Classes */}
-          <Grid item xs={12} md={6}>
-      
-    </Grid>
         </Grid>
 
         {/* Create Class Modal */}
@@ -456,32 +363,21 @@ const TeacherHome = ({ setIsAuthenticated }) => {
           onClose={handleCloseCreateClass} 
           maxWidth="sm" 
           fullWidth
-          PaperProps={{
-            sx: {
-              borderRadius: 3
-            }
-          }}
         >
-          <DialogTitle sx={{ 
-            bgcolor: 'background.paper',
-            borderBottom: `1px solid ${theme.palette.divider}`,
-            py: 3
-          }}>
+          <DialogTitle sx={{ bgcolor: 'background.paper' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <AddIcon color="primary" sx={{ mr: 1.5 }} />
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Create New Class
-              </Typography>
+              <AddCircleOutlineIcon color="primary" sx={{ mr: 1 }} />
+              <Typography variant="h6">Create New Class</Typography>
             </Box>
           </DialogTitle>
-          <DialogContent sx={{ py: 3 }}>
+          <DialogContent sx={{ pt: 3 }}>
             {successMsg && (
-              <Alert severity="success" sx={{ mb: 3 }}>
+              <Alert severity="success" sx={{ mb: 2 }}>
                 {successMsg}
               </Alert>
             )}
             {errorMsg && (
-              <Alert severity="error" sx={{ mb: 3 }}>
+              <Alert severity="error" sx={{ mb: 2 }}>
                 {errorMsg}
               </Alert>
             )}
@@ -495,7 +391,6 @@ const TeacherHome = ({ setIsAuthenticated }) => {
               variant="outlined"
               autoFocus
               inputProps={{ maxLength: 50 }}
-              sx={{ mb: 2 }}
             />
             <TextField
               label="Description (optional)"
@@ -507,22 +402,13 @@ const TeacherHome = ({ setIsAuthenticated }) => {
               minRows={3}
               variant="outlined"
               inputProps={{ maxLength: 200 }}
-              sx={{ mb: 1 }}
             />
-            <Typography variant="caption" color="text.secondary">
-              Max 200 characters
-            </Typography>
           </DialogContent>
-          <DialogActions sx={{ 
-            p: 3, 
-            bgcolor: 'background.paper',
-            borderTop: `1px solid ${theme.palette.divider}`
-          }}>
+          <DialogActions sx={{ p: 3, bgcolor: 'background.paper' }}>
             <Button 
               onClick={handleCloseCreateClass} 
               color="inherit"
               disabled={loading}
-              sx={{ borderRadius: 2 }}
             >
               Cancel
             </Button>
@@ -532,7 +418,6 @@ const TeacherHome = ({ setIsAuthenticated }) => {
               color="primary"
               disabled={loading}
               startIcon={loading ? <CircularProgress size={20} /> : null}
-              sx={{ borderRadius: 2 }}
             >
               {loading ? 'Creating...' : 'Create Class'}
             </Button>
