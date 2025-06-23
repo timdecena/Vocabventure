@@ -32,37 +32,48 @@ public class WordOfTheDayService {
     }
 
     public WordOfTheDayScore submit(User student, String guess) {
-        WordOfTheDay todayWord = getTodayWord();
+    WordOfTheDay todayWord = getTodayWord();
 
-        if (hasPlayed(student, todayWord)) {
-            throw new RuntimeException("Already played today");
-        }
+    WordOfTheDayScore score = scoreRepo.findByStudentAndWord(student, todayWord).orElse(null);
+    if (score != null && score.isCorrect()) {
+        throw new RuntimeException("Already answered correctly today");
+    }
 
-        boolean correct = todayWord.getWord().equalsIgnoreCase(guess.trim());
+    boolean correct = todayWord.getWord().equalsIgnoreCase(guess.trim());
 
-        WordOfTheDayScore score = new WordOfTheDayScore();
+    if (score == null) {
+        score = new WordOfTheDayScore();
         score.setStudent(student);
         score.setWord(todayWord);
-        score.setCorrect(correct);
-        score.setScore(correct ? 1 : 0);
-        return scoreRepo.save(score);
+        score.setPlayCount(1);
     }
+
+    score.setCorrect(correct);
+    score.setScore(correct ? 1 : 0);
+    scoreRepo.save(score);
+
+    return score;
+}
 
     public void retry(User student) {
-        WordOfTheDay todayWord = getTodayWord();
+    WordOfTheDay todayWord = getTodayWord();
 
-        if (student.getGold() < 10) {
-            throw new RuntimeException("Not enough gold to retry.");
-        }
-
-        // Delete previous score
-        scoreRepo.findByStudentAndWord(student, todayWord)
-                .ifPresent(scoreRepo::delete);
-
-        // Deduct gold and save
-        student.setGold(student.getGold() - 10);
-        userRepo.save(student);
+    if (student.getGold() < 10) {
+        throw new RuntimeException("Not enough gold to retry.");
     }
+
+    WordOfTheDayScore score = scoreRepo.findByStudentAndWord(student, todayWord)
+        .orElseThrow(() -> new RuntimeException("No score to retry."));
+
+    score.setCorrect(false); // Reset correctness
+    score.setScore(0); // Reset score
+    score.setPlayCount(score.getPlayCount() + 1); // Increment retries
+
+    scoreRepo.save(score);
+
+    student.setGold(student.getGold() - 10);
+    userRepo.save(student);
+}
 
     private LocalDate computeGameDate() {
         ZoneId zone = ZoneId.of("Asia/Manila");

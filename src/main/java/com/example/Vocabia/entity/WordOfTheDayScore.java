@@ -21,4 +21,7 @@ public class WordOfTheDayScore {
 
     @Column(nullable = false)
     private int score; // ✅ Add this line
+
+    @Column(nullable = false)
+private int playCount = 1;
 }

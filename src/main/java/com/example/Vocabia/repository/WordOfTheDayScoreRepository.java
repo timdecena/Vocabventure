@@ -16,9 +16,9 @@ public interface WordOfTheDayScoreRepository extends JpaRepository<WordOfTheDayS
     SELECT 
         u.id AS studentId,
         CONCAT(u.firstName, ' ', u.lastName) AS studentName,
-        COUNT(s) AS totalPlayed,
+        SUM(s.playCount) AS totalPlayed,
         SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) AS correctAnswers,
-        ROUND(SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) * 100.0 / COUNT(s), 1) AS accuracyPercent
+        ROUND(SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) * 100.0 / SUM(s.playCount), 1) AS accuracyPercent
     FROM WordOfTheDayScore s
     JOIN s.student u
     GROUP BY u.id
