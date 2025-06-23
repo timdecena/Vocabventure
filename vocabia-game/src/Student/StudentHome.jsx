@@ -365,9 +365,7 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
                       <div key={cls.id} className="arcade-class-item">
                         <div className="arcade-class-info">
                           <span className="arcade-class-name">{cls.name}</span>
-                          <span className="arcade-class-details">Section: {cls.section || 'A'}</span>
                           <span className="arcade-class-details">Teacher: {cls.teacherName || 'Mr. Smith'}</span>
-                          <span className="arcade-class-details">S.Y.: 2024-2025</span>
                         </div>
                         <button className="arcade-view-btn" onClick={() => navigate(`/student/classes/${cls.id}/spelling-levels`)}>View</button>
                       </div>
@@ -389,22 +387,22 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
               <Box className="arcade-profile-mode-card">
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #23232b 100%)'}}></div>
                 <div className="arcade-profile-mode-title">Adventure Mode</div>
-                <div className="arcade-profile-mode-desc">Game Mode Description here.</div>
+                <div className="arcade-profile-mode-desc">Dive into an epic jungle quest where every vocabulary challenge unlocks XP, levels, and thrilling new adventures!</div>
               </Box>
               <Box className="arcade-profile-mode-card">
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #ff00c833 100%)'}}></div>
-                <div className="arcade-profile-mode-title">Time Attack Mode</div>
-                <div className="arcade-profile-mode-desc">Game Mode Description here.</div>
+                <div className="arcade-profile-mode-title">Custom Word List (Time Attack)</div>
+                <div className="arcade-profile-mode-desc">Race against the clock in a farm your gold to victory</div>
               </Box>
               <Box className="arcade-profile-mode-card">
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #00eaff33 100%)'}}></div>
                 <div className="arcade-profile-mode-title">4pics1word Mode</div>
-                <div className="arcade-profile-mode-desc">Game Mode Description here.</div>
+                <div className="arcade-profile-mode-desc">Solve the puzzle by finding the one word that connects all four pictures. Test your brain and climb the leaderboard!</div>
               </Box>
               <Box className="arcade-profile-mode-card">
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #ff5af733 100%)'}}></div>
-                <div className="arcade-profile-mode-title">Meteor Mash</div>
-                <div className="arcade-profile-mode-desc">Destroy incoming meteors by typing!</div>
+                <div className="arcade-profile-mode-title">Word of The Day</div>
+                <div className="arcade-profile-mode-desc">Play the Word of the Day challenge to guess the hidden word from its definition and image.</div>
               </Box>
             </Box>
           </Box>
@@ -687,6 +685,8 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
           max-width: 900px;
           width: 97vw;
           margin: 0 auto;
+          max-height: 90vh; /* Limit container height */
+          overflow-y: auto;
         }
         .arcade-profile-header {
           width: 100%;
@@ -755,18 +755,46 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
         }
         .arcade-profile-modes-row {
           display: flex;
-          gap: 20px;
+          gap: 12px;
+          overflow-x: auto;
+          padding-bottom: 8px;
+          scrollbar-width: thin;
+          scrollbar-color: #00eaff #23232b;
           width: 100%;
           justify-content: center;
           flex-wrap: wrap;
         }
+          .arcade-profile-modes-row::-webkit-scrollbar {
+  height: 6px;
+  background: #23232b;
+}
+  /* Responsive adjustments */
+@media (max-width: 768px) {
+  .arcade-middle-card {
+    min-width: 100%; /* Full width on mobile */
+  }
+  
+  .arcade-profile-stat-card {
+    min-width: 80px; /* More compact stats */
+    min-height: 60px;
+  }
+  
+  .arcade-profile-name {
+    font-size: 1.1rem; /* Smaller name */
+  }
+}
+
+.arcade-profile-modes-row::-webkit-scrollbar-thumb {
+  background: #00eaff;
+  border-radius: 3px;
+}
         .arcade-profile-mode-card {
           background: #23232b;
           border: 2px solid #00eaff;
           border-radius: 16px;
           box-shadow: 0 0 16px #00eaff80;
-          width: 230px;
-          min-height: 220px;
+          width: 200px;
+          min-height: 180px;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
@@ -777,7 +805,7 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
         }
         .arcade-profile-mode-img {
           width: 100%;
-          height: 90px;
+          height: 70px;
           border-bottom: 2px solid #00eaff;
           border-radius: 16px 16px 0 0;
           background-size: cover;
@@ -803,14 +831,14 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
           border: 2px solid #00eaff;
           border-radius: 14px;
           box-shadow: 0 0 12px #00eaff80;
-          padding: 16px 24px 10px 24px;
-          margin-bottom: 22px;
+          padding: 12px 16px 8px 16px;
+          margin-bottom: 16px;
           margin-top: 2px;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
           width: 100%;
-          max-width: 420px;
+          max-width: 100%;
         }
         .arcade-current-class-title {
           color: #00eaff;
@@ -876,19 +904,23 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
         .arcade-middle-row {
           display: flex;
           width: 100%;
-          gap: 28px;
-          margin-bottom: 24px;
+          gap: 18px;
+          margin-bottom: 18px;
           align-items: stretch;
+          flex-wrap: wrap;
         }
         .arcade-middle-card {
           background: #23232b;
           border: 2px solid #00eaff;
-          border-radius: 14px;
-          box-shadow: 0 0 12px #00eaff80;
-          padding: 16px 24px;
+          border-radius: 12px;
+          box-shadow: 0 0 8px #00eaff80;
+          padding: 12px 16px;
           flex: 1;
           display: flex;
           flex-direction: column;
+          min-width: 280px; /* Minimum width before wrapping */
+          max-height: 300px; /* Limit height */
+          overflow-y: auto;
         }
         .arcade-middle-card-title {
           color: #00eaff;
@@ -900,20 +932,23 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
         .arcade-class-list {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 6px;
         }
         .arcade-class-item {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          padding: 6px 4px; /* Added padding */
+          border-bottom: 1px solid #00eaff20; /* Subtle separator */
+          
         }
         .arcade-class-info {
           color: #fff;
           font-family: 'Press Start 2P', cursive;
-          font-size: 0.85rem;
+          font-size: 0.75rem;
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 1px;
           align-items: flex-start;
         }
         .arcade-class-name {
@@ -926,14 +961,15 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
         }
         .arcade-view-btn {
           font-family: 'Press Start 2P', cursive;
-          font-size: 0.8rem;
+          font-size: 0.7rem;
           color: #00eaff;
           background: transparent;
           border: 1px solid #00eaff;
           border-radius: 6px;
-          padding: 4px 12px;
+          padding: 3px 8px;
           cursor: pointer;
           transition: all 0.2s;
+          border-width: 1px;
         }
         .arcade-view-btn:hover {
           background: #00eaff22;
