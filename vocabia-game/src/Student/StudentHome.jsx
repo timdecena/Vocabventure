@@ -344,7 +344,7 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
               <Avatar className="arcade-profile-avatar" sx={{ width: 90, height: 90, mr: 4 }} />
               <Box sx={{ flexGrow: 1 }}>
                 <div className="arcade-profile-name">
-  {studentInfo.firstName} {studentInfo.lastName}
+  {`${studentInfo.firstName?.charAt(0).toUpperCase() + studentInfo.firstName?.slice(1) || ''} ${studentInfo.lastName?.charAt(0).toUpperCase() + studentInfo.lastName?.slice(1) || ''}`}
 </div>
                 <div className="arcade-profile-subtitle">Bonus booster 24lv</div>
                 <Box className="arcade-profile-stats-row">
