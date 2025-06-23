@@ -184,7 +184,21 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
   const [customWordListModalOpen, setCustomWordListModalOpen] = useState(false);
   const [studentInfo, setStudentInfo] = useState({});
   const [leaderboard, setLeaderboard] = useState([]);
-  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+
+  useEffect(() => {
+  api.get("/api/leaderboard/wotd")
+    .then(res => {
+      setLeaderboard(res.data);        // <-- data should be an array of entries
+      setLeaderboardLoading(false);    // <-- don't forget this!
+    })
+    .catch(err => {
+      console.error("Failed to load leaderboard:", err);
+      setLeaderboardLoading(false);    // <-- hide loading even on error
+    });
+}, []);
+
+
 
   useEffect(() => {
     api.get("/api/user-progress/student-info")
@@ -431,34 +445,100 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
               opacity: 1,
               transition: 'opacity 0.3s',
             }}>
-              <Box sx={{ width: '100%', mb: 1 }}>
-                <div className="arcade-middle-card-title" style={{ fontSize: '1.1rem', marginBottom: '8px', textAlign: 'center', letterSpacing: 1 }}>
-                  CLASSMATES LEADERBOARD
-                </div>
-              </Box>
-              <Box className="leaderboard-list" sx={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', textAlign: 'center', overflowY: 'auto', minHeight: 60, maxHeight: '380px', gap: 1 }}>
+              <Box sx={{ width: '100%', mb: 10 }}>
+  <div className="arcade-middle-card-title" style={{ fontSize: '1.1rem', marginBottom: '8px', textAlign: 'center', letterSpacing: 1 }}>
+    WOTD Top Players
+  </div>
+</Box>
+
+<Box className="leaderboard-list" sx={{
+  flex: 1,
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+  textAlign: 'center',
+  overflowY: 'auto',
+  minHeight: 60,
+  maxHeight: '380px',
+  gap: 1
+}}>
   {leaderboardLoading ? (
     <span style={{ color: '#00eaff', fontFamily: 'Press Start 2P', fontSize: '0.9rem', marginTop: 24 }}>Loading...</span>
   ) : leaderboard.length === 0 ? (
     <span style={{ color: '#fff', fontFamily: 'Montserrat, Roboto, Arial, sans-serif', fontSize: '1rem', marginTop: 24 }}>No leaderboard data.</span>
   ) : (
     leaderboard.map((student, idx) => (
-      <Box key={student.id || student.name} className={`leaderboard-item ${idx < 3 ? 'medal' : ''}`} sx={{
-        display: 'flex', alignItems: 'center', width: '100%', background: idx % 2 === 0 ? 'rgba(0,234,255,0.07)' : 'transparent', borderRadius: '12px', padding: '7px 10px', marginBottom: '4px', boxShadow: idx === 0 ? '0 0 16px #00eaff80' : 'none', border: idx === 0 ? '2px solid #00eaff' : 'none', position: 'relative'
+      <Box key={student.studentId || student.studentName} className={`leaderboard-item ${idx < 3 ? 'medal' : ''}`} sx={{
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+        background: idx % 2 === 0 ? 'rgba(0,234,255,0.07)' : 'transparent',
+        borderRadius: '12px',
+        padding: '7px 10px',
+        marginBottom: '4px',
+        boxShadow: idx === 0 ? '0 0 16px #00eaff80' : 'none',
+        border: idx === 0 ? '2px solid #00eaff' : 'none',
+        position: 'relative'
       }}>
-        <span className="leaderboard-rank" style={{ fontWeight: 700, fontSize: '1.2rem', width: 28, display: 'inline-block', color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#00eaff', textShadow: idx < 3 ? '0 0 8px #fff' : '0 0 4px #00eaff' }}>
-          {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
+        <span className="leaderboard-rank" style={{
+          fontWeight: 700,
+          fontSize: '1.2rem',
+          width: 28,
+          display: 'inline-block',
+          color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#00eaff',
+          textShadow: idx < 3 ? '0 0 8px #fff' : '0 0 4px #00eaff'
+        }}>
+          {idx === 0 ? '1' : idx === 1 ? '2' : idx === 2 ? '3' : idx + 1}
         </span>
-        <Avatar src={student.avatar || '/avatars/default.png'} alt={student.name} sx={{ width: 38, height: 38, mx: 1, border: '2px solid #00eaff', boxShadow: '0 0 8px #00eaff80', background: '#23232b' }} />
-        <span className="leaderboard-name" style={{ flex: 1, textAlign: 'left', fontWeight: 500, fontFamily: 'Montserrat, Roboto, Arial, sans-serif', fontSize: '1rem', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: 8 }}>
-          {student.name}
+
+        <Avatar src={student.avatar || '/avatars/default.png'} alt={student.studentName} sx={{
+          width: 38,
+          height: 38,
+          mx: 1,
+          border: '2px solid #00eaff',
+          boxShadow: '0 0 8px #00eaff80',
+          background: '#23232b'
+        }} />
+
+        <span className="leaderboard-name" style={{
+          flex: 1,
+          textAlign: 'left',
+          fontWeight: 500,
+          fontFamily: 'Montserrat, Roboto, Arial, sans-serif',
+          fontSize: '1rem',
+          color: '#fff',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          marginLeft: 8
+        }}>
+          {student.studentName}
         </span>
-        <span className="leaderboard-score" style={{ fontWeight: 600, fontFamily: 'Press Start 2P, monospace', color: '#00eaff', fontSize: '0.92rem', marginLeft: 10, letterSpacing: 1 }}>
-          {student.score}
+
+        <span style={{
+          fontFamily: 'Press Start 2P, monospace',
+          fontSize: '0.65rem',
+          textAlign: 'right',
+          color: '#00eaff',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '2px',
+          marginLeft: 8
+        }}>
+
         </span>
-        <EmojiEventsIcon sx={{ color: idx < 3 ? (idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32') : '#00eaff', ml: 1, fontSize: '1.3rem', display: idx < 3 ? 'inline' : 'none' }} />
+
+        <EmojiEventsIcon sx={{
+          color: idx < 3 ? (idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : '#cd7f32') : '#00eaff',
+          ml: 1,
+          fontSize: '1.3rem',
+          display: idx < 3 ? 'inline' : 'none'
+        }} />
       </Box>
-    ))
+    ))  
   )}
 </Box>
             </Box>
