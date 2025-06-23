@@ -10,10 +10,16 @@ import {
 } from "@mui/material";
 import api from "../api/api";
 
-// Helper functions for localStorage
+
+
+  const userScopedKey = (key) => {
+  const userEmail = localStorage.getItem("userEmail") || "guest";
+  return `wotd_${userEmail}_${key}`;
+};
+
 const loadState = (key, defaultValue) => {
   try {
-    const saved = localStorage.getItem(key);
+    const saved = localStorage.getItem(userScopedKey(key));
     return saved !== null ? JSON.parse(saved) : defaultValue;
   } catch {
     return defaultValue;
@@ -22,7 +28,7 @@ const loadState = (key, defaultValue) => {
 
 const saveState = (key, value) => {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(userScopedKey(key), JSON.stringify(value));
   } catch (error) {
     console.error("Failed to save state:", error);
   }
@@ -31,12 +37,16 @@ const saveState = (key, value) => {
 export default function StudentWordOfTheDay() {
   const [definition, setDefinition] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [hasPlayed, setHasPlayed] = useState(loadState("wotd_hasPlayed", false));
+  const [hasPlayed, setHasPlayed] = useState(loadState("hasPlayed", false));
   const [guess, setGuess] = useState("");
   const [result, setResult] = useState("");
-  const [gold, setGold] = useState(loadState("wotd_gold", null));
-  const [streak, setStreak] = useState(loadState("wotd_streak", 0));
-  const [lastPlayedDate, setLastPlayedDate] = useState(loadState("wotd_lastPlayedDate", null));
+const [gold, setGold] = useState(loadState("gold", null));
+  const [streak, setStreak] = useState(loadState("streak", 0));
+  const [lastPlayedDate, setLastPlayedDate] = useState(loadState("lastPlayedDate", null));
+
+
+
+
 
   const fetchWordData = async () => {
     try {
