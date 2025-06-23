@@ -1,4 +1,33 @@
 import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  Card,
+  CardContent,
+  Divider,
+  IconButton,
+  Paper,
+  CircularProgress,
+  Alert,
+  Chip,
+  Grid,
+  List,
+  ListItem
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Mic as MicIcon,
+  Stop as StopIcon,
+  Delete as DeleteIcon,
+  Check as CheckIcon,
+  Close as CloseIcon,
+  Upload as UploadIcon,
+  Class as ClassIcon
+} from "@mui/icons-material";
 import api from "../api/api";
 
 export default function TeacherCreateSpellingLevel() {
@@ -6,73 +35,74 @@ export default function TeacherCreateSpellingLevel() {
   const [classroomId, setClassroomId] = useState("");
   const [title, setTitle] = useState("");
   const [words, setWords] = useState([]);
-  const [message, setMessage] = useState("");
-  const [recordingIndex, setRecordingIndex] = useState(null); // Which word is being recorded
+  const [message, setMessage] = useState({ text: "", severity: "info" });
+  const [recordingIndex, setRecordingIndex] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    api.get("/api/teacher/classes").then((res) => setClassrooms(res.data));
+    api.get("/api/teacher/classes")
+      .then((res) => setClassrooms(res.data))
+      .catch(() => setMessage({ text: "Failed to load classrooms", severity: "error" }));
   }, []);
 
-  // --- Word field changes ---
   const handleWordChange = (index, field, value) => {
     const updated = [...words];
     updated[index][field] = value;
     setWords(updated);
   };
 
-  // --- File upload handling ---
   const handleFileChange = (index, file) => {
     const updated = [...words];
-    updated[index].file = file;
-    // Remove any existing recordings if uploading a file
-    updated[index].audioBlob = null;
-    updated[index].audioUrl = null;
-    updated[index].recordingBlob = null;
-    updated[index].recordingUrl = null;
+    updated[index] = { 
+      ...updated[index],
+      file,
+      audioBlob: null,
+      audioUrl: null,
+      recordingBlob: null,
+      recordingUrl: null
+    };
     setWords(updated);
   };
 
-  // --- Remove file ---
-  const handleRemoveFile = (index) => {
-    const updated = [...words];
-    updated[index].file = null;
-    setWords(updated);
-  };
-
-  // --- Recording ---
   const startRecording = async (index) => {
-    if (!navigator.mediaDevices) {
-      alert("Audio recording not supported in this browser");
-      return;
-    }
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mr = new window.MediaRecorder(stream);
-    let chunks = [];
-    mr.ondataavailable = (e) => {
-      if (e.data.size > 0) chunks.push(e.data);
-    };
-    mr.onstop = () => {
-      const blob = new Blob(chunks, { type: 'audio/webm' });
-      const audioUrl = URL.createObjectURL(blob);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mr = new MediaRecorder(stream);
+      let chunks = [];
+      
+      mr.ondataavailable = (e) => chunks.push(e.data);
+      mr.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const audioUrl = URL.createObjectURL(blob);
+        const updated = [...words];
+        updated[index] = {
+          ...updated[index],
+          isRecording: false,
+          recordingBlob: blob,
+          recordingUrl: audioUrl
+        };
+        setWords(updated);
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mr.start();
       const updated = [...words];
-      updated[index].isRecording = false;
-      updated[index].recordingBlob = blob;      // TEMP: preview before accept
-      updated[index].recordingUrl = audioUrl;
+      updated[index] = {
+        ...updated[index],
+        isRecording: true,
+        file: null,
+        recordingBlob: null,
+        recordingUrl: null,
+        audioBlob: null,
+        audioUrl: null
+      };
       setWords(updated);
-      stream.getTracks().forEach(track => track.stop());
-    };
-    mr.start();
-    const updated = [...words];
-    updated[index].isRecording = true;
-    updated[index].recordingBlob = null;
-    updated[index].recordingUrl = null;
-    updated[index].file = null; // Remove file upload if present
-    updated[index].audioBlob = null;
-    updated[index].audioUrl = null;
-    setWords(updated);
-    setRecordingIndex(index);
-    setMediaRecorder(mr);
+      setRecordingIndex(index);
+      setMediaRecorder(mr);
+    } catch (err) {
+      setMessage({ text: "Microphone access denied", severity: "error" });
+    }
   };
 
   const stopRecording = () => {
@@ -85,28 +115,22 @@ export default function TeacherCreateSpellingLevel() {
 
   const handleUseRecording = (index) => {
     const updated = [...words];
-    updated[index].audioBlob = updated[index].recordingBlob; // FINAL: submit this
-    updated[index].audioUrl = updated[index].recordingUrl;
-    updated[index].recordingBlob = null; // clear preview
-    updated[index].recordingUrl = null;
+    updated[index] = {
+      ...updated[index],
+      audioBlob: updated[index].recordingBlob,
+      audioUrl: updated[index].recordingUrl,
+      recordingBlob: null,
+      recordingUrl: null
+    };
     setWords(updated);
   };
 
-  const handleRemoveRecordingPreview = (index) => {
+  const removeWordRow = (index) => {
     const updated = [...words];
-    updated[index].recordingBlob = null;
-    updated[index].recordingUrl = null;
+    updated.splice(index, 1);
     setWords(updated);
   };
 
-  const handleRemoveRecording = (index) => {
-    const updated = [...words];
-    updated[index].audioBlob = null;
-    updated[index].audioUrl = null;
-    setWords(updated);
-  };
-
-  // --- Add new word row ---
   const addWordRow = () => {
     setWords([
       ...words,
@@ -124,163 +148,288 @@ export default function TeacherCreateSpellingLevel() {
     ]);
   };
 
-  // --- Upload logic ---
-  const uploadAudios = async () => {
-    const uploaded = [];
-    for (const entry of words) {
-      let audioUrl = "";
-      if (entry.file) {
-        // Prioritize uploaded .mp3 file
-        const formData = new FormData();
-        formData.append("file", entry.file);
-        const res = await api.post("/api/teacher/spelling/upload-audio", formData);
-        audioUrl = res.data.url;
-      } else if (entry.audioBlob) {
-        // Use accepted recording if no file
-        const formData = new FormData();
-        formData.append("file", entry.audioBlob, "recorded.webm");
-        const res = await api.post("/api/teacher/spelling/upload-audio", formData);
-        audioUrl = res.data.url;
-      }
-      uploaded.push({ ...entry, audioUrl });
-    }
-    return uploaded;
-  };
-
-  // --- Validation ---
-  const validate = () => {
-    if (!title.trim() || !classroomId) return false;
-    if (words.length === 0) return false;
-    for (const entry of words) {
-      if (
-        !entry.word.trim() ||
-        !entry.definition.trim() ||
-        !entry.sentence.trim() ||
-        (!(entry.file) && !(entry.audioBlob))
-      ) return false;
-    }
-    return true;
-  };
-
-  // --- Submit ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) {
-      setMessage("❌ Please complete all fields and ensure every word has audio.");
+      setMessage({ text: "Please complete all fields and ensure every word has audio", severity: "error" });
       return;
     }
+    
+    setIsSubmitting(true);
     try {
-      const uploadedEntries = await uploadAudios();
-      const formattedWords = uploadedEntries.map(({ word, definition, sentence, audioUrl }) => ({
-        word, definition, sentence, audioUrl,
+      const uploads = await Promise.all(words.map(async (word) => {
+        let audioUrl = "";
+        if (word.file) {
+          const formData = new FormData();
+          formData.append("file", word.file);
+          const res = await api.post("/api/teacher/spelling/upload-audio", formData);
+          audioUrl = res.data.url;
+        } else if (word.audioBlob) {
+          const formData = new FormData();
+          formData.append("file", word.audioBlob, "recording.webm");
+          const res = await api.post("/api/teacher/spelling/upload-audio", formData);
+          audioUrl = res.data.url;
+        }
+        return { ...word, audioUrl };
       }));
 
       await api.post("/api/spelling-level/create", {
         title,
         classroomId,
-        words: formattedWords,
+        words: uploads.map(({ word, definition, sentence, audioUrl }) => ({
+          word, definition, sentence, audioUrl
+        }))
       });
 
-      setMessage("✅ Level created successfully!");
+      setMessage({ text: "Level created successfully!", severity: "success" });
       setWords([]);
       setTitle("");
       setClassroomId("");
     } catch (err) {
-      console.error(err);
-      setMessage("❌ Failed to create level.");
+      setMessage({ text: "Failed to create level", severity: "error" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const validate = () => {
+    if (!title.trim() || !classroomId) return false;
+    if (words.length === 0) return false;
+    return words.every(word => (
+      word.word.trim() && 
+      word.definition.trim() && 
+      word.sentence.trim() && 
+      (word.file || word.audioBlob)
+    ));
+  };
+
   return (
-    <div style={{ maxWidth: 700, margin: "auto", padding: 32 }}>
-      <h2>Create Spelling Challenge Level</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Level Title:</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
-        </div>
-        <div>
-          <label>Classroom:</label>
-          <select value={classroomId} onChange={(e) => setClassroomId(e.target.value)} required>
-            <option value="">-- Select --</option>
-            {classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
-        <br />
-        <h4>Words:</h4>
-        {words.map((entry, i) => (
-          <div key={i} style={{ border: "1px solid #ccc", padding: 10, marginBottom: 10 }}>
-            <input
-              placeholder="Word"
-              value={entry.word}
-              onChange={(e) => handleWordChange(i, "word", e.target.value)}
-              required
-            /><br />
-            <textarea
-              placeholder="Definition"
-              value={entry.definition}
-              onChange={(e) => handleWordChange(i, "definition", e.target.value)}
-              required
-            /><br />
-            <textarea
-              placeholder="Sentence"
-              value={entry.sentence}
-              onChange={(e) => handleWordChange(i, "sentence", e.target.value)}
-              required
-            /><br />
+    <Box sx={{ maxWidth: 800, margin: "auto", p: 0.5 }}>
+      <Card sx={{ borderRadius: 3 }}>
+        <CardContent>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+            <ClassIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
+            <Typography variant="h4" sx={{ fontWeight: 600 }}>
+              Create Spelling Challenge
+            </Typography>
+          </Box>
 
-            {/* AUDIO UI */}
-            <div>
-              {/* UPLOAD: disabled if recording in progress or a final audio is attached */}
-              <input
-                type="file"
-                accept=".mp3,audio/mp3,audio/mpeg"
-                disabled={!!entry.audioUrl || !!entry.isRecording}
-                onChange={(e) => handleFileChange(i, e.target.files[0])}
+          {message.text && (
+            <Alert severity={message.severity} sx={{ mb: 3 }}>
+              {message.text}
+            </Alert>
+          )}
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Level Title"
+                variant="outlined"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
               />
-              {entry.file && (
-                <div>
-                  <strong>Uploaded: </strong> {entry.file.name}
-                  <button type="button" onClick={() => handleRemoveFile(i)}>Remove</button>
-                  <audio controls src={URL.createObjectURL(entry.file)} />
-                </div>
-              )}
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Select
+                fullWidth
+                value={classroomId}
+                onChange={(e) => setClassroomId(e.target.value)}
+                displayEmpty
+                required
+              >
+                <MenuItem value="" disabled>Select Classroom</MenuItem>
+                {classrooms.map(c => (
+                  <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                ))}
+              </Select>
+            </Grid>
+          </Grid>
 
-              {/* RECORD UI: only if no file and no final audio */}
-              {!entry.file && !entry.audioUrl && (
-                <>
-                  {!entry.isRecording && !entry.recordingUrl && (
-                    <button type="button" onClick={() => startRecording(i)}>🎤 Record</button>
-                  )}
-                  {entry.isRecording && recordingIndex === i && (
-                    <button type="button" onClick={stopRecording}>⏹️ Stop</button>
-                  )}
-                  {/* PREVIEW after recording */}
-                  {entry.recordingUrl && (
-                    <div>
-                      <audio controls src={entry.recordingUrl} />
-                      <button type="button" onClick={() => handleUseRecording(i)}>Use Recording</button>
-                      <button type="button" onClick={() => handleRemoveRecordingPreview(i)}>Discard</button>
-                    </div>
-                  )}
-                </>
-              )}
+          <Divider sx={{ my: 3 }} />
 
-              {/* FINAL: After "Use Recording", show and allow remove */}
-              {!entry.file && entry.audioUrl && (
-                <div>
-                  <audio controls src={entry.audioUrl} />
-                  <button type="button" onClick={() => handleRemoveRecording(i)}>Remove</button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-        <button type="button" onClick={addWordRow}>➕ Add Word</button>
-        <br /><br />
-        <button type="submit" disabled={!validate()}>✅ Submit Level</button>
-      </form>
-      {message && <p>{message}</p>}
-    </div>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Words ({words.length})
+          </Typography>
+
+          <Paper sx={{ maxHeight: 500, overflow: "auto", p: 2, mb: 2 }}>
+            {words.length === 0 ? (
+              <Box sx={{ textAlign: "center", p: 3 }}>
+                <Typography color="text.secondary">
+                  No words added yet
+                </Typography>
+              </Box>
+            ) : (
+              <List>
+                {words.map((word, index) => (
+                  <ListItem 
+                    key={index} 
+                    sx={{ 
+                      mb: 2,
+                      p: 3,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      flexDirection: "column",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <Box sx={{ width: "100%", mb: 2 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                          Word {index + 1}
+                        </Typography>
+                        <IconButton onClick={() => removeWordRow(index)}>
+                          <DeleteIcon color="error" />
+                        </IconButton>
+                      </Box>
+                      
+                      <TextField
+                        fullWidth
+                        label="Word"
+                        value={word.word}
+                        onChange={(e) => handleWordChange(index, "word", e.target.value)}
+                        required
+                        sx={{ mb: 2 }}
+                      />
+                      
+                      <TextField
+                        fullWidth
+                        label="Definition"
+                        value={word.definition}
+                        onChange={(e) => handleWordChange(index, "definition", e.target.value)}
+                        required
+                        multiline
+                        rows={2}
+                        sx={{ mb: 2 }}
+                      />
+                      
+                      <TextField
+                        fullWidth
+                        label="Sentence"
+                        value={word.sentence}
+                        onChange={(e) => handleWordChange(index, "sentence", e.target.value)}
+                        required
+                        multiline
+                        rows={2}
+                        sx={{ mb: 2 }}
+                      />
+                    </Box>
+
+                    <Box sx={{ width: "100%" }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        Audio
+                      </Typography>
+                      
+                      {/* Upload option */}
+                      {!word.audioUrl && !word.isRecording && (
+                        <Button
+                          component="label"
+                          variant="outlined"
+                          startIcon={<UploadIcon />}
+                          sx={{ mr: 2, mb: 2 }}
+                        >
+                          Upload MP3
+                          <input
+                            type="file"
+                            accept=".mp3,audio/mp3,audio/mpeg"
+                            hidden
+                            onChange={(e) => handleFileChange(index, e.target.files[0])}
+                          />
+                        </Button>
+                      )}
+
+                      {/* Record option */}
+                      {!word.audioUrl && !word.file && (
+                        <Button
+                          variant="outlined"
+                          startIcon={word.isRecording ? <StopIcon /> : <MicIcon />}
+                          onClick={() => word.isRecording ? stopRecording() : startRecording(index)}
+                          color={word.isRecording ? "error" : "primary"}
+                          sx={{ mb: 2 }}
+                        >
+                          {word.isRecording ? "Stop Recording" : "Record"}
+                        </Button>
+                      )}
+
+                      {/* Audio previews */}
+                      {word.file && (
+                        <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                          <Chip
+                            label={word.file.name}
+                            onDelete={() => handleWordChange(index, "file", null)}
+                            sx={{ mr: 2 }}
+                          />
+                          <audio controls src={URL.createObjectURL(word.file)} />
+                        </Box>
+                      )}
+
+                      {word.recordingUrl && (
+                        <Box sx={{ mt: 2 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                            <Typography variant="body2">Recording Preview:</Typography>
+                            <audio controls src={word.recordingUrl} />
+                          </Box>
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              startIcon={<CheckIcon />}
+                              onClick={() => handleUseRecording(index)}
+                            >
+                              Use This
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<CloseIcon />}
+                              onClick={() => handleWordChange(index, "recordingUrl", null)}
+                            >
+                              Discard
+                            </Button>
+                          </Box>
+                        </Box>
+                      )}
+
+                      {word.audioUrl && !word.file && (
+                        <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                          <Chip
+                            label="Recording"
+                            onDelete={() => handleWordChange(index, "audioUrl", null)}
+                            sx={{ mr: 2 }}
+                          />
+                          <audio controls src={word.audioUrl} />
+                        </Box>
+                      )}
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Paper>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={addWordRow}
+            sx={{ mr: 2 }}
+          >
+            Add Word
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={!validate() || isSubmitting}
+            sx={{ mt: 2 }}
+            startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
+          >
+            {isSubmitting ? "Creating..." : "Create Level"}
+          </Button>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
