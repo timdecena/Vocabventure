@@ -398,22 +398,44 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
             <div className="arcade-profile-section-title">Game Modes:</div>
             {/* Game Mode Cards Row */}
             <Box className="arcade-profile-modes-row">
-              <Box className="arcade-profile-mode-card">
+              <Box 
+                className="arcade-profile-mode-card" 
+                onClick={() => navigate('/student/adventure')}
+                sx={{ cursor: 'pointer' }}
+              >
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #23232b 100%)'}}></div>
                 <div className="arcade-profile-mode-title">Adventure Mode</div>
                 <div className="arcade-profile-mode-desc">Dive into an epic jungle quest where every vocabulary challenge unlocks XP, levels, and thrilling new adventures!</div>
               </Box>
-              <Box className="arcade-profile-mode-card">
+              <Box 
+                className="arcade-profile-mode-card"
+                onClick={() => setCustomWordListModalOpen(true)}
+                sx={{ cursor: 'pointer' }}
+              >
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #ff00c833 100%)'}}></div>
                 <div className="arcade-profile-mode-title">Custom Word List (Time Attack)</div>
                 <div className="arcade-profile-mode-desc">Race against the clock in a farm your gold to victory</div>
               </Box>
-              <Box className="arcade-profile-mode-card">
+              <Box 
+                className="arcade-profile-mode-card"
+                onClick={() => {
+                  if (classes.length > 0) {
+                    navigate(`/student/classes/${classes[0].id}/4pic1word`);
+                  } else {
+                    alert('You need to join a class first to play 4pics1word!');
+                  }
+                }}
+                sx={{ cursor: 'pointer' }}
+              >
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #00eaff33 100%)'}}></div>
                 <div className="arcade-profile-mode-title">4pics1word Mode</div>
                 <div className="arcade-profile-mode-desc">Solve the puzzle by finding the one word that connects all four pictures. Test your brain and climb the leaderboard!</div>
               </Box>
-              <Box className="arcade-profile-mode-card">
+              <Box 
+                className="arcade-profile-mode-card"
+                onClick={() => navigate('/student/word-of-the-day')}
+                sx={{ cursor: 'pointer' }}
+              >
                 <div className="arcade-profile-mode-img" style={{background: 'linear-gradient(135deg, #23232b 60%, #ff5af733 100%)'}}></div>
                 <div className="arcade-profile-mode-title">Word of The Day</div>
                 <div className="arcade-profile-mode-desc">Play the Word of the Day challenge to guess the hidden word from its definition and image.</div>
@@ -880,8 +902,13 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
           align-items: flex-start;
           margin-bottom: 16px;
           padding: 0 0 14px 0;
-          transition: box-shadow 0.2s, border 0.2s;
+          transition: box-shadow 0.3s, border 0.3s, transform 0.3s;
           overflow: hidden;
+        }
+        .arcade-profile-mode-card:hover {
+          border-color: #ff00c8;
+          box-shadow: 0 0 24px #ff00c8;
+          transform: translateY(-4px);
         }
         .arcade-profile-mode-img {
           width: 100%;

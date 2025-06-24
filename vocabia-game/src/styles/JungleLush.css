@@ -6,201 +6,586 @@ html, body, #root {
 }
 
 .junglelush-bg {
-  min-height: calc(100vh - 64px); /* assuming navbar is 64px */
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 5.5rem; /* increased from 3rem to 5.5rem for more space at the top */
-}
-
-/* Overlay card */
-.jl-bg-overlay {
-  background: rgba(255, 255, 245, 0.32);
-  border-radius: 32px;
-  padding: 2.5rem 2rem 2.5rem 2rem;
-  margin: 3rem auto 0 auto;
-  max-width: 900px;
-  width: 90vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25), 0 0 0 4px #7ed95744;
-  backdrop-filter: blur(12px) saturate(1.2);
-  border: 2.5px solid #7ed95788;
-  animation: fadeIn 0.7s cubic-bezier(.4,1.4,.6,1) 0.1s both;
-}
-
-.jl-header {
-  font-size: 2.7rem;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: 0.08em;
-  text-shadow: 0 4px 24px #000, 0 0 2px #000;
-  margin-bottom: 2.5rem;
-  text-align: center;
-}
-
-/* Levels Row */
-.jl-levels-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-  margin-bottom: 3rem;
-  animation: fadeIn 1.1s cubic-bezier(.4,1.4,.6,1) 0.2s both;
-}
-
-/* Level Buttons */
-.jl-level-btn {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7ed957 60%, #388e3c 100%);
-  background-size: cover;
-  background-position: center;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  border: 4px solid #fff;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-  cursor: pointer;
+  width: 100%;
+  height: 100vh;
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  animation: popIn 0.7s cubic-bezier(.4,1.4,.6,1) both;
 }
 
-/* Lock & Boss Effects */
-.jl-level-btn.locked {
-  background: #bdbdbd;
-  color: #888;
-  border: 4px solid #aaa;
-  cursor: not-allowed;
-  opacity: 0.7;
-  filter: grayscale(1) brightness(0.8);
-}
-
-.jl-level-btn .jl-lock {
+/* Jungle decorative elements */
+.jungle-vines {
   position: absolute;
-  bottom: 12px;
-  right: 18px;
-  font-size: 1.5rem;
-  color: #fff200;
-  text-shadow: 0 2px 8px #0008;
+  width: 100px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(34, 139, 34, 0.8) 0%,
+    rgba(85, 107, 47, 0.6) 50%,
+    rgba(34, 139, 34, 0.4) 100%
+  );
+  z-index: 1;
+  animation: vineSwing 8s ease-in-out infinite;
 }
 
-/* Boss style */
-.jl-level-btn.boss {
-  background: linear-gradient(135deg, #b71c1c 60%, #fff200 100%);
-  color: #fff;
-  border: 5px solid #fff200;
-  box-shadow: 0 0 32px #b71c1c, 0 0 8px #fff200;
-  font-size: 1rem;
-  text-shadow: 0 2px 8px #000;
+.jungle-vine-1 {
+  left: 5%;
+  width: 60px;
+  border-radius: 0 0 30px 30px;
+  animation-delay: 0s;
 }
 
-/* Icons, Stars, Labels */
-.jl-icon {
+.jungle-vine-2 {
+  right: 8%;
+  width: 80px;
+  border-radius: 0 0 40px 40px;
+  animation-delay: 2s;
+}
+
+@keyframes vineSwing {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.jungle-leaves {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 2rem;
-  filter: drop-shadow(0 2px 4px #0008);
-  z-index: 2;
-}
-
-.jl-stars {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.1rem;
-  color: #FFD700;
-  text-shadow: 0 2px 8px #0008;
-  z-index: 2;
-}
-
-.jl-boss-label {
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: #fff200;
-  text-shadow: 0 2px 8px #000, 0 0 2px #000;
-  display: block;
-  z-index: 2;
-}
-
-/* Button overlay for background dimming */
-.jl-btn-overlay {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: 50%;
-  background: rgba(20, 20, 20, 0.48);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(34, 139, 34, 0.6) 0%, transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(0, 128, 0, 0.5) 0%, transparent 25%),
+    radial-gradient(circle at 70% 80%, rgba(85, 107, 47, 0.4) 0%, transparent 35%),
+    radial-gradient(circle at 25% 75%, rgba(34, 139, 34, 0.5) 0%, transparent 30%);
+  animation: leavesRustle 12s ease-in-out infinite;
   z-index: 1;
   pointer-events: none;
 }
 
-/* Text shadow helper */
-.jl-btn-text, .jl-boss-label, .jl-stars {
-  position: relative;
+@keyframes leavesRustle {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  33% { opacity: 0.8; transform: scale(1.02); }
+  66% { opacity: 0.7; transform: scale(0.98); }
+}
+
+/* Animated background overlay for depth */
+.junglelush-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 100, 0, 0.2) 0%,
+    rgba(34, 139, 34, 0.1) 50%,
+    rgba(85, 107, 47, 0.3) 100%
+  );
+  animation: jungleBreeze 10s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes jungleBreeze {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* Floating fireflies effect */
+.junglelush-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(2px 2px at 25% 30%, rgba(255, 255, 0, 0.9), transparent),
+    radial-gradient(1px 1px at 75% 20%, rgba(50, 255, 50, 0.8), transparent),
+    radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 0, 0.7), transparent),
+    radial-gradient(1px 1px at 30% 80%, rgba(100, 255, 100, 0.9), transparent);
+  background-repeat: repeat;
+  background-size: 300px 200px;
+  animation: fireflies 20s linear infinite;
   z-index: 2;
+  pointer-events: none;
+}
+
+@keyframes fireflies {
+  0% { transform: translateY(100vh) translateX(-50px); }
+  100% { transform: translateY(-100px) translateX(50px); }
+}
+
+.jl-bg-overlay {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(1px);
+}
+
+.jl-header {
+  font-family: 'Merriweather', 'Georgia', serif;
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #DAA520;
+  text-shadow: 
+    0 0 20px rgba(218, 165, 32, 0.8),
+    0 0 40px rgba(139, 69, 19, 0.6),
+    3px 3px 6px rgba(0, 0, 0, 0.8);
+  margin-bottom: 1rem;
+  text-align: center;
+  letter-spacing: 2px;
+  animation: titleGrow 4s ease-in-out infinite;
+}
+
+@keyframes titleGrow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); text-shadow: 0 0 30px rgba(218, 165, 32, 1); }
+}
+
+.jl-subtitle {
+  font-family: 'Merriweather', serif;
+  font-size: 1.1rem;
+  color: rgba(218, 165, 32, 0.9);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-style: italic;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Enhanced Levels Row */
+.jl-levels-row {
+  display: flex;
+  gap: 1.8rem;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+  position: relative;
+  padding: 2rem;
+  flex-wrap: wrap;
+}
+
+/* Adventure Path Connections */
+.jl-levels-row::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  right: 5%;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(139, 69, 19, 0.6) 20%,
+    rgba(218, 165, 32, 0.8) 50%,
+    rgba(139, 69, 19, 0.6) 80%,
+    transparent 100%
+  );
+  border-radius: 3px;
+  box-shadow: 0 0 15px rgba(218, 165, 32, 0.5);
+  z-index: 1;
+  animation: pathPulse 3s ease-in-out infinite;
+}
+
+@keyframes pathPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; box-shadow: 0 0 25px rgba(218, 165, 32, 0.8); }
+}
+
+/* Enhanced Level Buttons */
+.jl-level-btn {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  z-index: 2;
+  overflow: hidden;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(50, 205, 50, 0.3);
+  border: 3px solid rgba(139, 69, 19, 0.7);
+}
+
+.jl-level-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.jl-level-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  opacity: 0.8;
+}
+
+/* Web Theme (Level 1) */
+.jl-level-web .jl-level-background {
+  background: radial-gradient(circle at center, 
+    rgba(139, 69, 19, 0.9) 0%, 
+    rgba(160, 82, 45, 0.7) 50%, 
+    rgba(101, 67, 33, 0.9) 100%);
+}
+
+.jl-level-web .jl-level-animation {
+  background-image: 
+    linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.2) 45%, rgba(255, 255, 255, 0.2) 55%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, rgba(255, 255, 255, 0.2) 45%, rgba(255, 255, 255, 0.2) 55%, transparent 60%);
+  animation: webShimmer 4s ease-in-out infinite;
+}
+
+@keyframes webShimmer {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* Forest Theme (Level 2) */
+.jl-level-forest .jl-level-background {
+  background: linear-gradient(135deg, 
+    rgba(34, 139, 34, 0.9) 0%, 
+    rgba(0, 128, 0, 0.8) 50%, 
+    rgba(85, 107, 47, 0.9) 100%);
+}
+
+.jl-level-forest .jl-level-animation {
+  background-image: 
+    radial-gradient(circle at 30% 70%, rgba(50, 205, 50, 0.6) 0%, transparent 40%),
+    radial-gradient(circle at 70% 30%, rgba(144, 238, 144, 0.5) 0%, transparent 35%);
+  animation: forestBreeze 6s ease-in-out infinite;
+}
+
+@keyframes forestBreeze {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+/* Swamp Theme (Level 3) */
+.jl-level-swamp .jl-level-background {
+  background: linear-gradient(135deg, 
+    rgba(85, 107, 47, 0.9) 0%, 
+    rgba(128, 128, 0, 0.7) 50%, 
+    rgba(107, 142, 35, 0.9) 100%);
+}
+
+.jl-level-swamp .jl-level-animation {
+  background-image: 
+    radial-gradient(ellipse at 50% 80%, rgba(0, 100, 0, 0.5) 0%, transparent 60%),
+    linear-gradient(180deg, transparent 60%, rgba(34, 139, 34, 0.4) 100%);
+  animation: swampBubble 5s ease-in-out infinite;
+}
+
+@keyframes swampBubble {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); opacity: 0.8; }
+}
+
+/* Tower Theme (Level 4) */
+.jl-level-tower .jl-level-background {
+  background: linear-gradient(135deg, 
+    rgba(105, 105, 105, 0.9) 0%, 
+    rgba(169, 169, 169, 0.8) 50%, 
+    rgba(128, 128, 128, 0.9) 100%);
+}
+
+.jl-level-tower .jl-level-animation {
+  background-image: 
+    linear-gradient(0deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  animation: towerShine 4s ease-in-out infinite;
+}
+
+@keyframes towerShine {
+  0%, 100% { opacity: 0.4; transform: rotate(0deg); }
+  50% { opacity: 0.8; transform: rotate(2deg); }
+}
+
+/* Boss Theme (Level 5) */
+.jl-level-boss .jl-level-background {
+  background: radial-gradient(circle at center, 
+    rgba(139, 0, 0, 0.9) 0%, 
+    rgba(165, 42, 42, 0.8) 50%, 
+    rgba(128, 0, 0, 0.9) 100%);
+}
+
+.jl-level-boss .jl-level-animation {
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.3) 0%, transparent 60%),
+    conic-gradient(from 0deg, transparent, rgba(255, 69, 0, 0.4), transparent);
+  animation: bossAura 3s ease-in-out infinite;
+}
+
+@keyframes bossAura {
+  0%, 100% { 
+    opacity: 0.6; 
+    transform: scale(1) rotate(0deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.02) rotate(180deg); 
+  }
+}
+
+.jl-level-btn:hover {
+  transform: translateY(-8px) scale(1.08);
+  border-color: rgba(218, 165, 32, 1);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(218, 165, 32, 0.8);
+}
+
+.jl-level-btn.boss:hover {
+  border-color: rgba(255, 69, 0, 1);
+  box-shadow: 
+    0 20px 45px rgba(0, 0, 0, 0.8),
+    0 0 50px rgba(255, 69, 0, 0.9);
+}
+
+/* Locked Level Styling */
+.jl-level-btn.locked {
+  background: linear-gradient(135deg, rgba(40, 40, 40, 0.9), rgba(60, 60, 60, 0.9));
+  border-color: rgba(100, 100, 100, 0.4);
+  cursor: not-allowed;
+  filter: grayscale(100%) brightness(0.5);
+}
+
+.jl-level-btn.locked .jl-level-background,
+.jl-level-btn.locked .jl-level-animation {
+  opacity: 0.3;
+}
+
+.jl-level-btn.locked:hover {
+  transform: none;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Enhanced Button Content */
+.jl-btn-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.1) 0%,
+    transparent 50%,
+    rgba(50, 205, 50, 0.05) 100%
+  );
+  z-index: 3;
+}
+
+.jl-level-info {
+  position: absolute;
+  bottom: 30px;
+  left: 10px;
+  right: 10px;
+  z-index: 4;
+  text-align: center;
+}
+
+.jl-difficulty {
+  display: block;
+  color: rgba(218, 165, 32, 0.9);
+  font-family: 'Merriweather', serif;
+  font-size: 0.65rem;
+  font-weight: 400;
+  margin-top: 3px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.jl-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 1.8rem;
+  z-index: 4;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+.jl-btn-text {
+  color: #fff;
+  font-family: 'Merriweather', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  z-index: 4;
+  line-height: 1.1;
+}
+
+.jl-boss-label {
+  color: #ffcccb;
+  font-family: 'Merriweather', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  z-index: 4;
+  line-height: 1.1;
 }
 
 .jl-btn-text-shadow {
-  text-shadow: 0 2px 8px #000, 0 0 2px #000, 0 0 8px #000a;
+  text-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(218, 165, 32, 0.3);
 }
 
-/* Hover animations */
-.jl-level-btn:hover:not(.locked):not(:disabled) {
-  transform: scale(1.12) rotate(-2deg);
-  box-shadow: 0 8px 32px #2e7d32, 0 0 0 6px #fff20044;
-  background: linear-gradient(135deg, #a8ff78 60%, #388e3c 100%);
-  filter: brightness(1.08) saturate(1.2);
+/* Enhanced Stars Display */
+.jl-stars {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 4;
 }
 
-/* Return button */
+.jl-stars span {
+  display: inline-block;
+  font-size: 1.1rem;
+  margin: 0 1px;
+  animation: starTwinkle 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.8));
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* Lock Icon */
+.jl-lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  color: rgba(150, 150, 150, 0.8);
+  z-index: 4;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+/* Progress Indicator */
+.jl-progress-indicator {
+  margin: 2rem 0;
+  text-align: center;
+  z-index: 3;
+  position: relative;
+}
+
+.jl-progress-text {
+  font-family: 'Merriweather', serif;
+  color: rgba(218, 165, 32, 0.9);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.jl-progress-bar {
+  width: 300px;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 5px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(139, 69, 19, 0.4);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.jl-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(218, 165, 32, 0.8), rgba(255, 215, 0, 0.9));
+  border-radius: 5px;
+  transition: width 0.8s ease;
+  box-shadow: 0 0 10px rgba(218, 165, 32, 0.6);
+  animation: progressGlow 2s ease-in-out infinite;
+}
+
+@keyframes progressGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(218, 165, 32, 0.6); }
+  50% { box-shadow: 0 0 20px rgba(218, 165, 32, 0.9); }
+}
+
+/* Enhanced Return Button */
 .jl-return-btn {
-  margin-top: 3.5rem; /* increased from 2rem to 3.5rem for more space below content */
-  padding: 0.8rem 2.2rem;
-  background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(160, 82, 45, 0.9));
+  border: 3px solid rgba(218, 165, 32, 0.8);
+  border-radius: 12px;
   color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  font-family: 'Merriweather', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 25px;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.7em;
-}
-
-.jl-return-btn::before {
-  content: '🌿';
-  font-size: 1.3em;
-  margin-right: 0.5em;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(218, 165, 32, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  position: relative;
+  z-index: 3;
 }
 
 .jl-return-btn:hover {
-  background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
-  transform: translateY(-2px) scale(1.04);
-  filter: brightness(1.08);
+  transform: translateY(-3px);
+  border-color: rgba(218, 165, 32, 1);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(218, 165, 32, 0.7);
+  background: linear-gradient(135deg, rgba(218, 165, 32, 0.9), rgba(255, 215, 0, 0.9));
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(40px) scale(0.98); }
-  to { opacity: 1; transform: none; }
+/* Responsive Design */
+@media (max-width: 768px) {
+  .jl-header {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .jl-levels-row {
+    gap: 1.2rem;
+    padding: 1rem;
+  }
+  
+  .jl-level-btn {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .jl-btn-text {
+    font-size: 0.75rem;
+  }
 }
 
-@keyframes popIn {
-  0% { transform: scale(0.7); opacity: 0; }
-  80% { transform: scale(1.08); opacity: 1; }
-  100% { transform: scale(1); }
+@media (max-width: 480px) {
+  .jl-levels-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .jl-levels-row::before {
+    display: none;
+  }
 }

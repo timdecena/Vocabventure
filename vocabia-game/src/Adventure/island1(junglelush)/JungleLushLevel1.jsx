@@ -7,10 +7,361 @@ import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
 const JUNGLE_BG = 'https://png.pngtree.com/background/20220727/original/pngtree-jungle-game-background-arcade-art-picture-image_1829537.jpg';
-const WIZARD_IMG = 'https://www.shutterstock.com/image-vector/pixel-art-wizard-long-beard-260nw-2544146115.jpg';
-const USER_IMG = 'https://w7.pngwing.com/pngs/928/303/png-transparent-pixel-dodgers-pixel-art-sprite-text-cartoon-fictional-character.png';
-const COMMAWIDOW_IMG = 'https://img.freepik.com/premium-photo/3d-pixel-art-scary-black-spider-with-white-fang-halloween-decorative-ornament-theme-design_477250-292.jpg';
-const HEART_IMG = 'https://p7.hiclipart.com/preview/28/266/352/pixel-art-heart-8-bit-color-heart-thumbnail.jpg';
+
+// Enhanced Avatar Components - Detailed Silhouettes with Icons
+const WizardAvatar = styled(Box)(({ theme }) => ({
+  width: '120px',
+  height: '150px',
+  position: 'relative',
+  filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.6))',
+  animation: `${bounce} 2.2s infinite`,
+  
+  // Robe base
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '85px',
+    height: '115px',
+    background: 'linear-gradient(180deg, #4a2c1a 0%, #3d2414 30%, #2c1810 70%, #1a0f08 100%)',
+    borderRadius: '45px 45px 8px 8px',
+    boxShadow: 'inset 0 0 25px rgba(218, 165, 32, 0.15)',
+  },
+  
+  // Hat
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    top: '5px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '65px',
+    height: '45px',
+    background: 'linear-gradient(135deg, #1a0f08 0%, #3d2414 50%, #2c1810 100%)',
+    borderRadius: '40px 40px 0 0',
+    clipPath: 'polygon(15% 100%, 20% 15%, 80% 15%, 85% 100%)',
+    boxShadow: 'inset 0 0 15px rgba(0,0,0,0.3)',
+  }
+}));
+
+const WizardBeard = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '55px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: '45px',
+  height: '35px',
+  background: 'linear-gradient(135deg, #8B7355, #A0845C)',
+  borderRadius: '50% 50% 60% 40%',
+  clipPath: 'polygon(20% 0%, 80% 0%, 90% 70%, 70% 100%, 30% 100%, 10% 70%)',
+  boxShadow: 'inset 0 0 10px rgba(139, 115, 85, 0.4)',
+}));
+
+const WizardIcon = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '65px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: '35px',
+  height: '35px',
+  background: 'radial-gradient(circle, #FFD700 20%, #FFA500 60%, #DAA520 100%)',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '20px',
+  color: '#4a2c1a',
+  fontWeight: 'bold',
+  animation: 'wizardGlow 2s ease-in-out infinite alternate',
+  boxShadow: '0 0 15px rgba(255, 215, 0, 0.6)',
+  '&::before': {
+    content: '"🔮"',
+  },
+  '@keyframes wizardGlow': {
+    '0%': { 
+      boxShadow: '0 0 15px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.3)',
+      transform: 'translateX(-50%) scale(1)'
+    },
+    '100%': { 
+      boxShadow: '0 0 25px rgba(255, 215, 0, 0.8), 0 0 35px rgba(255, 165, 0, 0.4), inset 0 0 15px rgba(255, 215, 0, 0.5)',
+      transform: 'translateX(-50%) scale(1.05)'
+    }
+  }
+}));
+
+const UserAvatar = styled(Box)(({ theme, isDamaged }) => ({
+  width: '100px',
+  height: '130px',
+  position: 'relative',
+  filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.5))',
+  animation: `${bounce} 2s infinite, ${isDamaged ? `${shake} 0.5s ease-in-out, ${userFlash} 0.5s ease-in-out` : 'none'}`,
+  
+  // Body armor/tunic
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '65px',
+    height: '95px',
+    background: 'linear-gradient(180deg, #8B4513 0%, #A0522D 20%, #6b3e1a 50%, #4a2c1a 100%)',
+    borderRadius: '32px 32px 15px 15px',
+    boxShadow: 'inset 0 0 20px rgba(139, 69, 19, 0.3)',
+  },
+  
+  // Head
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    top: '10px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '42px',
+    height: '42px',
+    background: 'linear-gradient(135deg, #D2B48C 0%, #DEB887 30%, #F5DEB3 60%, #D2B48C 100%)',
+    borderRadius: '50%',
+    boxShadow: 'inset 0 0 12px rgba(210, 180, 140, 0.4)',
+  }
+}));
+
+const UserCape = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '35px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: '50px',
+  height: '70px',
+  background: 'linear-gradient(135deg, #228B22 0%, #32CD32 40%, #20B2AA 100%)',
+  borderRadius: '25px 25px 8px 8px',
+  clipPath: 'polygon(20% 0%, 80% 0%, 85% 80%, 60% 100%, 40% 100%, 15% 80%)',
+  zIndex: -1,
+  boxShadow: 'inset 0 0 15px rgba(34, 139, 34, 0.3)',
+}));
+
+const UserIcon = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '55px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: '30px',
+  height: '30px',
+  background: 'radial-gradient(circle, #32CD32 20%, #228B22 60%, #006400 100%)',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '16px',
+  color: 'white',
+  fontWeight: 'bold',
+  animation: 'heroicPulse 1.5s ease-in-out infinite',
+  boxShadow: '0 0 12px rgba(50, 205, 50, 0.6)',
+  '&::before': {
+    content: '"⚔️"',
+  },
+  '@keyframes heroicPulse': {
+    '0%': { 
+      transform: 'translateX(-50%) scale(1)',
+      boxShadow: '0 0 12px rgba(50, 205, 50, 0.6)'
+    },
+    '50%': { 
+      transform: 'translateX(-50%) scale(1.1)',
+      boxShadow: '0 0 20px rgba(50, 205, 50, 0.8), 0 0 30px rgba(34, 139, 34, 0.4)'
+    },
+    '100%': { 
+      transform: 'translateX(-50%) scale(1)',
+      boxShadow: '0 0 12px rgba(50, 205, 50, 0.6)'
+    }
+  }
+}));
+
+const CommawidowAvatar = styled(Box)(({ theme, isDamaged }) => ({
+  width: '140px',
+  height: '160px',
+  position: 'relative',
+  filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.7))',
+  animation: `${bounce} 2.3s infinite, ${isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none'}`,
+  
+  // Main body (thorax)
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    bottom: '15px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '85px',
+    height: '85px',
+    background: 'radial-gradient(ellipse, #2a1a1a 0%, #1a0a0a 40%, #000000 80%, #0a0000 100%)',
+    borderRadius: '50%',
+    boxShadow: 'inset 0 0 25px rgba(139, 0, 0, 0.4), 0 0 20px rgba(0,0,0,0.5)',
+  },
+  
+  // Abdomen (larger rear section)
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: '55px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '60px',
+    height: '60px',
+    background: 'radial-gradient(ellipse, #3a2a2a 0%, #2a1a1a 30%, #1a0a0a 70%, #0a0000 100%)',
+    borderRadius: '50%',
+    boxShadow: 'inset 0 0 20px rgba(139, 0, 0, 0.5), 0 0 15px rgba(0,0,0,0.3)',
+  }
+}));
+
+const SpiderMarkings = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  bottom: '25px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: '65px',
+  height: '65px',
+  
+  // Red hourglass marking
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '30px',
+    height: '20px',
+    background: 'linear-gradient(45deg, #DC143C, #B22222)',
+    clipPath: 'polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%)',
+    boxShadow: '0 0 10px rgba(220, 20, 60, 0.6)',
+  },
+  
+  // Additional dark patterns
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    top: '20%',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '40px',
+    height: '8px',
+    background: 'linear-gradient(90deg, transparent, #000000, transparent)',
+    borderRadius: '4px',
+  }
+}));
+
+const CommawidowIcon = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '35px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: '40px',
+  height: '40px',
+  background: 'radial-gradient(circle, #DC143C 20%, #8B0000 60%, #4B0000 100%)',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '22px',
+  color: 'white',
+  fontWeight: 'bold',
+  animation: 'spiderMenace 3s ease-in-out infinite',
+  boxShadow: '0 0 15px rgba(220, 20, 60, 0.7), inset 0 0 10px rgba(139, 0, 0, 0.5)',
+  '&::before': {
+    content: '"🕷️"',
+    textShadow: '0 0 8px rgba(0,0,0,0.8)',
+  },
+  '@keyframes spiderMenace': {
+    '0%': { 
+      transform: 'translateX(-50%) rotate(0deg) scale(1)',
+      boxShadow: '0 0 15px rgba(220, 20, 60, 0.7), inset 0 0 10px rgba(139, 0, 0, 0.5)'
+    },
+    '25%': { 
+      transform: 'translateX(-50%) rotate(-3deg) scale(1.05)',
+      boxShadow: '0 0 20px rgba(220, 20, 60, 0.8), inset 0 0 15px rgba(139, 0, 0, 0.6)'
+    },
+    '75%': { 
+      transform: 'translateX(-50%) rotate(3deg) scale(1.05)',
+      boxShadow: '0 0 20px rgba(220, 20, 60, 0.8), inset 0 0 15px rgba(139, 0, 0, 0.6)'
+    },
+    '100%': { 
+      transform: 'translateX(-50%) rotate(0deg) scale(1)',
+      boxShadow: '0 0 15px rgba(220, 20, 60, 0.7), inset 0 0 10px rgba(139, 0, 0, 0.5)'
+    }
+  }
+}));
+
+// Enhanced spider legs with joints
+const SpiderLegs = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '130px',
+  height: '130px',
+  
+  '& .leg': {
+    position: 'absolute',
+    width: '45px',
+    height: '4px',
+    background: 'linear-gradient(90deg, #3a2a2a 0%, #1a0a0a 50%, #000000 100%)',
+    transformOrigin: 'left center',
+    borderRadius: '2px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
+    
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      right: '15px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: '6px',
+      height: '6px',
+      background: '#2a1a1a',
+      borderRadius: '50%',
+      boxShadow: '0 0 2px rgba(0,0,0,0.8)',
+    }
+  },
+  
+  '& .leg1': { top: '15px', left: '8px', transform: 'rotate(-50deg)' },
+  '& .leg2': { top: '25px', left: '3px', transform: 'rotate(-25deg)' },
+  '& .leg3': { top: '75px', left: '3px', transform: 'rotate(25deg)' },
+  '& .leg4': { top: '85px', left: '8px', transform: 'rotate(50deg)' },
+  '& .leg5': { top: '15px', right: '8px', transform: 'rotate(-130deg)' },
+  '& .leg6': { top: '25px', right: '3px', transform: 'rotate(-155deg)' },
+  '& .leg7': { top: '75px', right: '3px', transform: 'rotate(155deg)' },
+  '& .leg8': { top: '85px', right: '8px', transform: 'rotate(130deg)' },
+}));
+
+const HeartIcon = styled(Box)(({ theme, filled }) => ({
+  width: '40px',
+  height: '40px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '32px',
+  color: filled ? '#DC143C' : '#999',
+  filter: filled ? 'drop-shadow(0 0 12px rgba(220, 20, 60, 0.8)) saturate(1.5)' : 'grayscale(100%) brightness(0.7)',
+  transition: 'all 0.4s ease',
+  animation: filled ? 'heartbeat 2s ease-in-out infinite' : 'none',
+  '&::before': {
+    content: '"❤️"',
+    textShadow: filled ? '0 0 8px rgba(220, 20, 60, 0.6)' : 'none',
+  },
+  '@keyframes heartbeat': {
+    '0%': { 
+      transform: 'scale(1)',
+      filter: 'drop-shadow(0 0 12px rgba(220, 20, 60, 0.8)) saturate(1.5)'
+    },
+    '50%': { 
+      transform: 'scale(1.05)',
+      filter: 'drop-shadow(0 0 16px rgba(220, 20, 60, 1)) saturate(1.8)'
+    },
+    '100%': { 
+      transform: 'scale(1)',
+      filter: 'drop-shadow(0 0 12px rgba(220, 20, 60, 0.8)) saturate(1.5)'
+    }
+  }
+}));
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -105,26 +456,7 @@ const CommawidowGroup = styled(Box)(({ theme }) => ({
   gap: '32px',
 }));
 
-const WizardSprite = styled('img')({
-  width: '120px',
-  height: 'auto',
-  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
-  animation: `${bounce} 2.2s infinite`,
-});
 
-const UserSprite = styled('img')(({ isDamaged }) => ({
-  width: '100px',
-  height: 'auto',
-  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
-  animation: `${bounce} 2s infinite, ${isDamaged ? `${shake} 0.5s ease-in-out, ${userFlash} 0.5s ease-in-out` : 'none'}`,
-}));
-
-const CommawidowSprite = styled('img')(({ isDamaged }) => ({
-  width: '140px',
-  height: 'auto',
-  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
-  animation: `${bounce} 2.3s infinite, ${isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none'}`,
-}));
 
 const FLESH_BROWN = '#e6c7b2';
 const NAME_BG = '#d1a97a';
@@ -641,7 +973,7 @@ const JungleLushLevel1 = () => {
         {showQuiz ? (
           <HeartRow>
             {[...Array(3)].map((_, idx) => (
-              <img key={idx} src={HEART_IMG} alt="Heart" style={{ width: 40, height: 40, opacity: idx < hearts ? 1 : 0.3 }} />
+              <HeartIcon key={idx} filled={idx < hearts} />
             ))}
           </HeartRow>
         ) : <div />}
@@ -661,13 +993,32 @@ const JungleLushLevel1 = () => {
           <SpritesRow>
             {showLeftSprites && (
               <WizardUserGroup>
-                <WizardSprite src={WIZARD_IMG} />
-                <UserSprite src={USER_IMG} />
+                <WizardAvatar>
+                  <WizardBeard />
+                  <WizardIcon />
+                </WizardAvatar>
+                <UserAvatar>
+                  <UserCape />
+                  <UserIcon />
+                </UserAvatar>
               </WizardUserGroup>
             )}
             <CommawidowGroup>
               {showCommawidow && (
-                <CommawidowSprite src={COMMAWIDOW_IMG} />
+                <CommawidowAvatar isDamaged={false}>
+                  <SpiderLegs>
+                    <div className="leg leg1"></div>
+                    <div className="leg leg2"></div>
+                    <div className="leg leg3"></div>
+                    <div className="leg leg4"></div>
+                    <div className="leg leg5"></div>
+                    <div className="leg leg6"></div>
+                    <div className="leg leg7"></div>
+                    <div className="leg leg8"></div>
+                  </SpiderLegs>
+                  <SpiderMarkings />
+                  <CommawidowIcon />
+                </CommawidowAvatar>
               )}
             </CommawidowGroup>
           </SpritesRow>
@@ -682,14 +1033,30 @@ const JungleLushLevel1 = () => {
       ) : (
         <>
           <BattleSpritesRow>
-            <UserSprite src={USER_IMG} isDamaged={userDamaged} />
+            <UserAvatar isDamaged={userDamaged}>
+              <UserCape />
+              <UserIcon />
+            </UserAvatar>
             <VS>VS</VS>
             <MonsterSpriteWrapper>
               <MonsterHPText>Commawidow HP</MonsterHPText>
               <MonsterHPBar>
                 <MonsterHPFill hp={monsterHP} />
               </MonsterHPBar>
-              <CommawidowSprite src={COMMAWIDOW_IMG} isDamaged={monsterDamaged} />
+              <CommawidowAvatar isDamaged={monsterDamaged}>
+                <SpiderLegs>
+                  <div className="leg leg1"></div>
+                  <div className="leg leg2"></div>
+                  <div className="leg leg3"></div>
+                  <div className="leg leg4"></div>
+                  <div className="leg leg5"></div>
+                  <div className="leg leg6"></div>
+                  <div className="leg leg7"></div>
+                  <div className="leg leg8"></div>
+                </SpiderLegs>
+                <SpiderMarkings />
+                <CommawidowIcon />
+              </CommawidowAvatar>
             </MonsterSpriteWrapper>
           </BattleSpritesRow>
           <BattleBottomBar>

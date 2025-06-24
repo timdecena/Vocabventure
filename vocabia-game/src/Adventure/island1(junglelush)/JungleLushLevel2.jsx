@@ -6,12 +6,64 @@ import '../../styles/MapView.css';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
+// Character Assets
+// Orc Animation Frames
+import OrcIdle1 from '../AdventureAssets/Orc(Minion)/Orc-Idle_1.png';
+import OrcIdle2 from '../AdventureAssets/Orc(Minion)/Orc-Idle_2.png';
+import OrcIdle3 from '../AdventureAssets/Orc(Minion)/Orc-Idle_3.png';
+import OrcIdle4 from '../AdventureAssets/Orc(Minion)/Orc-Idle_4.png';
+import OrcIdle5 from '../AdventureAssets/Orc(Minion)/Orc-Idle_5.png';
+import OrcIdle6 from '../AdventureAssets/Orc(Minion)/Orc-Idle_6.png';
+import OrcAttack1 from '../AdventureAssets/Orc(Minion)/Orc-Attack02_1.png';
+import OrcAttack2 from '../AdventureAssets/Orc(Minion)/Orc-Attack02_2.png';
+import OrcAttack3 from '../AdventureAssets/Orc(Minion)/Orc-Attack02_3.png';
+import OrcAttack4 from '../AdventureAssets/Orc(Minion)/Orc-Attack02_4.png';
+import OrcAttack5 from '../AdventureAssets/Orc(Minion)/Orc-Attack02_5.png';
+import OrcAttack6 from '../AdventureAssets/Orc(Minion)/Orc-Attack02_6.png';
+import OrcHurt1 from '../AdventureAssets/Orc(Minion)/Orc-Hurt_1.png';
+import OrcHurt2 from '../AdventureAssets/Orc(Minion)/Orc-Hurt_2.png';
+import OrcHurt3 from '../AdventureAssets/Orc(Minion)/Orc-Hurt_3.png';
+import OrcHurt4 from '../AdventureAssets/Orc(Minion)/Orc-Hurt_4.png';
+import OrcDeath1 from '../AdventureAssets/Orc(Minion)/Orc-Death_1.png';
+import OrcDeath2 from '../AdventureAssets/Orc(Minion)/Orc-Death_2.png';
+import OrcDeath3 from '../AdventureAssets/Orc(Minion)/Orc-Death_3.png';
+import OrcDeath4 from '../AdventureAssets/Orc(Minion)/Orc-Death_4.png';
+
+// Wizard Animation Frames
+import WizardIdle1 from '../AdventureAssets/Wizard/Idle_1.png';
+import WizardIdle2 from '../AdventureAssets/Wizard/Idle_2.png';
+
+// Adventurer Animation Frames
+import SoldierIdle1 from '../AdventureAssets/Adventurer/Soldier-Idle_1.png';
+import SoldierIdle2 from '../AdventureAssets/Adventurer/Soldier-Idle_2.png';
+import SoldierIdle3 from '../AdventureAssets/Adventurer/Soldier-Idle_3.png';
+import SoldierIdle4 from '../AdventureAssets/Adventurer/Soldier-Idle_4.png';
+import SoldierIdle5 from '../AdventureAssets/Adventurer/Soldier-Idle_5.png';
+import SoldierIdle6 from '../AdventureAssets/Adventurer/Soldier-Idle_6.png';
+
+// Tensaphant Animation Frames
+import TensaphantIdle1 from '../AdventureAssets/Tensaphant/Idle_1.png';
+import TensaphantIdle2 from '../AdventureAssets/Tensaphant/Idle_2.png';
+import TensaphantIdle3 from '../AdventureAssets/Tensaphant/Idle_3.png';
+import TensaphantIdle4 from '../AdventureAssets/Tensaphant/Idle_4.png';
+import TensaphantAttack1 from '../AdventureAssets/Tensaphant/Attack2_1.png';
+import TensaphantAttack2 from '../AdventureAssets/Tensaphant/Attack2_2.png';
+import TensaphantAttack3 from '../AdventureAssets/Tensaphant/Attack2_3.png';
+import TensaphantAttack4 from '../AdventureAssets/Tensaphant/Attack2_4.png';
+import TensaphantAttack5 from '../AdventureAssets/Tensaphant/Attack2_5.png';
+import TensaphantAttack6 from '../AdventureAssets/Tensaphant/Attack2_6.png';
+import TensaphantHurt1 from '../AdventureAssets/Tensaphant/Hurt_1.png';
+import TensaphantHurt2 from '../AdventureAssets/Tensaphant/Hurt_2.png';
+import TensaphantHurt3 from '../AdventureAssets/Tensaphant/Hurt_3.png';
+import TensaphantHurt4 from '../AdventureAssets/Tensaphant/Hurt_4.png';
+import TensaphantDeath1 from '../AdventureAssets/Tensaphant/Death_1.png';
+import TensaphantDeath2 from '../AdventureAssets/Tensaphant/Death_2.png';
+import TensaphantDeath3 from '../AdventureAssets/Tensaphant/Death_3.png';
+import TensaphantDeath4 from '../AdventureAssets/Tensaphant/Death_4.png';
+import TensaphantDeath5 from '../AdventureAssets/Tensaphant/Death_5.png';
+import TensaphantDeath6 from '../AdventureAssets/Tensaphant/Death_6.png';
+
 const JUNGLE_BG = 'https://png.pngtree.com/background/20220727/original/pngtree-jungle-game-background-arcade-art-picture-image_1829537.jpg';
-const WIZARD_IMG = 'https://www.shutterstock.com/image-vector/pixel-art-wizard-long-beard-260nw-2544146115.jpg';
-const USER_IMG = 'https://w7.pngwing.com/pngs/928/303/png-transparent-pixel-dodgers-pixel-art-sprite-text-cartoon-fictional-character.png';
-const TENSEPHANT_IMG = 'https://files.idyllic.app/files/static/2179601';
-const TIMEGRUB_IMG = 'https://i.redd.it/fahn2okk3fy41.png';
-const HEART_IMG = 'https://p7.hiclipart.com/preview/28/266/352/pixel-art-heart-8-bit-color-heart-thumbnail.jpg';
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -69,46 +121,290 @@ const SpritesRow = styled(Box)(({ theme }) => ({
   position: 'absolute',
   left: '50%',
   transform: 'translateX(-50%)',
-  bottom: '130px',
-  height: '160px',
+  bottom: '130px', // Position on top of the platform (90px ground + 40px height)
+  height: '250px', // More room for larger sprites
   zIndex: 3,
   pointerEvents: 'none',
 }));
-const WizardUserGroup = styled(Box)(({ theme }) => ({
+// Individual character positioning
+const PositionedWizard = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  left: 0,
-  bottom: 0,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: '24px',
+  left: '100px', // Fixed position from left edge
+  bottom: '100px', // Directly on the platform (90px + 40px)
+  zIndex: 4,
 }));
-const MonsterGroup = styled(Box)(({ theme }) => ({
+
+const PositionedAdventurer = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: 0,
-  bottom: 0,
+  left: '180px', // Position next to wizard
+  bottom: '5px', // Directly on the platform (90px + 40px)
+  zIndex: 4,
+}));
+
+const PositionedMonster = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  right: '50px', // Closer to edge for better battle composition
+  bottom: '-20px', // Directly on the platform (90px + 40px)
+  zIndex: 4,
+}));
+
+// Battle-specific positioning components
+const BattleAdventurer = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  left: '500px', // Adjust as needed for battle
+  bottom: '120px', // Adjust as needed for battle
+  zIndex: 4,
+}));
+
+const BattleMonster = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  right: '420px', // Adjust as needed for battle
+  bottom: '90px', // Match adventurer's ground level
+  zIndex: 4,
+}));
+
+// Animated Wizard Component with idle cycling
+const WizardSprite = ({ ...props }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFrame(prev => (prev + 1) % 2);
+    }, 1000); // Switch frames every 1 second
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const WizardImg = styled('img')({
+    width: '180px', // Perfect size
+    height: 'auto',
+    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+    // No bouncing - standing still
+  });
+
+  return <WizardImg src={currentFrame === 0 ? WizardIdle1 : WizardIdle2} {...props} />;
+};
+
+// Animated Adventurer Component with idle cycling
+const AdventurerSprite = ({ isDamaged, ...props }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFrame(prev => (prev + 1) % 6); // Cycle through 6 frames
+    }, 800); // Switch frames every 0.8 seconds for smooth animation
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const getAdventurerFrame = () => {
+    switch (currentFrame) {
+      case 0: return SoldierIdle1;
+      case 1: return SoldierIdle2;
+      case 2: return SoldierIdle3;
+      case 3: return SoldierIdle4;
+      case 4: return SoldierIdle5;
+      case 5: return SoldierIdle6;
+      default: return SoldierIdle1;
+    }
+  };
+
+  const AdventurerImg = styled('img')(({ isDamaged }) => ({
+    width: '280px', // Bigger to match better with wizard
+    height: 'auto',
+    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+    animation: isDamaged ? `${shake} 0.5s ease-in-out, ${userFlash} 0.5s ease-in-out` : 'none',
+    marginBottom: '0px', // Ensure it's aligned with the platform
+  }));
+
+  return <AdventurerImg src={getAdventurerFrame()} isDamaged={isDamaged} {...props} />;
+};
+
+// Animated Orc Sprite Component
+const OrcSprite = ({ state, isDamaged, ...props }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (state === 'idle') {
+        setCurrentFrame(prev => (prev + 1) % 6); // 6 idle frames
+      } else if (state === 'attack') {
+        setCurrentFrame(prev => (prev + 1) % 6); // 6 attack frames
+      } else if (state === 'hurt') {
+        setCurrentFrame(prev => (prev + 1) % 4); // 4 hurt frames
+      } else if (state === 'death') {
+        setCurrentFrame(prev => (prev + 1) % 4); // 4 death frames
+      }
+    }, 600); // Frame speed
+    
+    return () => clearInterval(interval);
+  }, [state]);
+
+  const getOrcFrame = () => {
+    switch (state) {
+      case 'attack':
+        switch (currentFrame) {
+          case 0: return OrcAttack1;
+          case 1: return OrcAttack2;
+          case 2: return OrcAttack3;
+          case 3: return OrcAttack4;
+          case 4: return OrcAttack5;
+          case 5: return OrcAttack6;
+          default: return OrcAttack1;
+        }
+      case 'hurt':
+        switch (currentFrame) {
+          case 0: return OrcHurt1;
+          case 1: return OrcHurt2;
+          case 2: return OrcHurt3;
+          case 3: return OrcHurt4;
+          default: return OrcHurt1;
+        }
+      case 'death':
+        switch (currentFrame) {
+          case 0: return OrcDeath1;
+          case 1: return OrcDeath2;
+          case 2: return OrcDeath3;
+          case 3: return OrcDeath4;
+          default: return OrcDeath1;
+        }
+      default: // idle
+        switch (currentFrame) {
+          case 0: return OrcIdle1;
+          case 1: return OrcIdle2;
+          case 2: return OrcIdle3;
+          case 3: return OrcIdle4;
+          case 4: return OrcIdle5;
+          case 5: return OrcIdle6;
+          default: return OrcIdle1;
+        }
+    }
+  };
+
+  const OrcImg = styled('img')(({ isDamaged }) => ({
+    width: '350px', // Orc size
+    height: 'auto',
+    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+    animation: isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none',
+    transform: 'scaleX(-1)', // Flip horizontally to face the adventurer
+  }));
+
+  return <OrcImg src={getOrcFrame()} isDamaged={isDamaged} {...props} />;
+};
+
+// Animated Tensaphant Sprite Component
+const TensaphantSprite = ({ state, isDamaged, ...props }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (state === 'idle') {
+        setCurrentFrame(prev => (prev + 1) % 4); // 4 idle frames
+      } else if (state === 'attack') {
+        setCurrentFrame(prev => (prev + 1) % 6); // 6 attack frames
+      } else if (state === 'hurt') {
+        setCurrentFrame(prev => (prev + 1) % 4); // 4 hurt frames
+      } else if (state === 'death') {
+        setCurrentFrame(prev => (prev + 1) % 6); // 6 death frames
+      }
+    }, 600); // Frame speed
+    
+    return () => clearInterval(interval);
+  }, [state]);
+
+  const getTensaphantFrame = () => {
+    switch (state) {
+      case 'attack':
+        switch (currentFrame) {
+          case 0: return TensaphantAttack1;
+          case 1: return TensaphantAttack2;
+          case 2: return TensaphantAttack3;
+          case 3: return TensaphantAttack4;
+          case 4: return TensaphantAttack5;
+          case 5: return TensaphantAttack6;
+          default: return TensaphantAttack1;
+        }
+      case 'hurt':
+        switch (currentFrame) {
+          case 0: return TensaphantHurt1;
+          case 1: return TensaphantHurt2;
+          case 2: return TensaphantHurt3;
+          case 3: return TensaphantHurt4;
+          default: return TensaphantHurt1;
+        }
+      case 'death':
+        switch (currentFrame) {
+          case 0: return TensaphantDeath1;
+          case 1: return TensaphantDeath2;
+          case 2: return TensaphantDeath3;
+          case 3: return TensaphantDeath4;
+          case 4: return TensaphantDeath5;
+          case 5: return TensaphantDeath6;
+          default: return TensaphantDeath1;
+        }
+      default: // idle
+        switch (currentFrame) {
+          case 0: return TensaphantIdle1;
+          case 1: return TensaphantIdle2;
+          case 2: return TensaphantIdle3;
+          case 3: return TensaphantIdle4;
+          default: return TensaphantIdle1;
+        }
+    }
+  };
+
+  const TensaphantImg = styled('img')(({ isDamaged }) => ({
+    width: '380px', // Tensaphant size
+    height: 'auto',
+    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+    animation: isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none',
+  }));
+
+  return <TensaphantImg src={getTensaphantFrame()} isDamaged={isDamaged} {...props} />;
+};
+
+// Monster Sprite Wrapper Component
+const MonsterSprite = ({ monster, state, isDamaged, ...props }) => {
+  if (monster === 'orc') {
+    return <OrcSprite state={state} isDamaged={isDamaged} {...props} />;
+  } else if (monster === 'tensaphant') {
+    return <TensaphantSprite state={state} isDamaged={isDamaged} {...props} />;
+  }
+  // Fallback to orc if unknown monster
+  return <OrcSprite state={state} isDamaged={isDamaged} {...props} />;
+};
+
+
+
+const HeartIcon = styled(Box)(({ theme, filled }) => ({
+  width: '40px',
+  height: '40px',
   display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: '32px',
-}));
-const WizardSprite = styled('img')({
-  width: '120px',
-  height: 'auto',
-  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
-  animation: `${bounce} 2.2s infinite`,
-});
-const UserSprite = styled('img')(({ isDamaged }) => ({
-  width: '100px',
-  height: 'auto',
-  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
-  animation: `${bounce} 2s infinite, ${isDamaged ? `${shake} 0.5s ease-in-out, ${userFlash} 0.5s ease-in-out` : 'none'}`,
-}));
-const MonsterSprite = styled('img')(({ isDamaged }) => ({
-  width: '140px',
-  height: 'auto',
-  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
-  animation: `${bounce} 2.3s infinite, ${isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none'}`,
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '32px',
+  color: filled ? '#DC143C' : '#999',
+  filter: filled ? 'drop-shadow(0 0 12px rgba(220, 20, 60, 0.8)) saturate(1.5)' : 'grayscale(100%) brightness(0.7)',
+  transition: 'all 0.4s ease',
+  animation: filled ? 'heartbeat 2s ease-in-out infinite' : 'none',
+  '&::before': {
+    content: '"❤️"',
+    textShadow: filled ? '0 0 8px rgba(220, 20, 60, 0.6)' : 'none',
+  },
+  '@keyframes heartbeat': {
+    '0%': { 
+      transform: 'scale(1)',
+      filter: 'drop-shadow(0 0 12px rgba(220, 20, 60, 0.8)) saturate(1.5)'
+    },
+    '50%': { 
+      transform: 'scale(1.05)',
+      filter: 'drop-shadow(0 0 16px rgba(220, 20, 60, 1)) saturate(1.8)'
+    },
+    '100%': { 
+      transform: 'scale(1)',
+      filter: 'drop-shadow(0 0 12px rgba(220, 20, 60, 0.8)) saturate(1.5)'
+    }
+  }
 }));
 const FLESH_BROWN = '#e6c7b2';
 const NAME_BG = '#d1a97a';
@@ -221,10 +517,10 @@ const BattleSpritesRow = styled(Box)(({ theme }) => ({
   flexDirection: 'row',
   alignItems: 'flex-end',
   justifyContent: 'center',
-  marginBottom: '180px',
+  marginBottom: '200px',
   zIndex: 20,
   pointerEvents: 'none',
-  minHeight: '220px',
+  minHeight: '300px', // More room for larger sprites
   position: 'relative',
 }));
 const MonsterSpriteWrapper = styled(Box)(({ theme }) => ({
@@ -354,13 +650,13 @@ const dialogueSequence = [
   { speaker: 'Tensaphant', text: "The villagers babble nonsense now, caught in echoes of incorrect tenses. I like it that way." },
   { speaker: 'User', text: "Then you won't like what comes next." },
   { speaker: 'Tensaphant', text: "Before you challenge me, face my echo from a fractured timeline." },
-  { speaker: 'Timegrub', text: "Past, present, future... all blend in my belly!" },
-  { speaker: 'Timegrub', text: "Get the tense wrong, and I'll gnaw on your precious hearts!" },
-  { speaker: 'User', text: "You'll be burping grammar rules by the time I'm done." },
+  { speaker: 'Orc Minion', text: "HAH! Another weakling stumbles into MY domain!" },
+  { speaker: 'Orc Minion', text: "Me no care about your fancy grammar rules! Me CRUSH you with bad tenses!" },
+  { speaker: 'User', text: "Your grammar is as broken as your ugly face will be." },
 ];
 
-// Questions for Timegrub (3)
-const timegrubQuestions = [
+// Questions for Orc Minion (3)
+const orcQuestions = [
   {
     question: 'Choose the correct sentence (past tense):',
     options: [
@@ -392,7 +688,7 @@ const timegrubQuestions = [
 
 // Pre-Tensaphant battle dialogue
 const preTensaphantDialogue = [
-  { speaker: 'Timegrub', text: "Urghh… the timeline... corrected… *faints*" },
+  { speaker: 'Orc Minion', text: "GRAAAH! You... you actually beat me?! IMPOSSIBLE!" },
   { speaker: 'Tensaphant', text: "You've disrupted my rhythm!" },
   { speaker: 'User', text: "Then I'll break the rest of your clock!" },
   { speaker: 'Tensaphant', text: "Let's see how well you handle me, time meddler!" },
@@ -496,14 +792,15 @@ const VictoryButton = styled(Button)(({ theme }) => ({
 const JungleLushLevel2 = () => {
   const navigate = useNavigate();
   // Dialogue and battle state
-  const [phase, setPhase] = useState('dialogue'); // dialogue, timegrub, pretense, tensephant, victory, gameover
+  const [phase, setPhase] = useState('dialogue'); // dialogue, orc, pretense, tensephant, victory, gameover
   const [dialogueIdx, setDialogueIdx] = useState(0);
   const [preTenseDialogueIdx, setPreTenseDialogueIdx] = useState(0);
   // Battle state
   const [hearts, setHearts] = useState(3);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [monsterHP, setMonsterHP] = useState(MONSTER_MAX_HP);
-  const [monster, setMonster] = useState('timegrub'); // 'timegrub' or 'tensephant'
+  const [monster, setMonster] = useState('orc'); // 'orc' or 'tensephant'
+  const [monsterState, setMonsterState] = useState('idle'); // idle, attack, hurt, death
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -530,10 +827,10 @@ const JungleLushLevel2 = () => {
 
   // Timer logic
   useEffect(() => {
-    if ((phase === 'timegrub' || phase === 'tensephant') && timeLeft > 0 && !victory && !gameOver) {
+    if ((phase === 'orc' || phase === 'tensephant') && timeLeft > 0 && !victory && !gameOver) {
       const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
       return () => clearInterval(timer);
-    } else if ((phase === 'timegrub' || phase === 'tensephant') && timeLeft === 0 && !victory && !gameOver) {
+    } else if ((phase === 'orc' || phase === 'tensephant') && timeLeft === 0 && !victory && !gameOver) {
       // Decrease heart, reset timer or game over
       if (hearts > 1) {
         setHearts(h => h - 1);
@@ -555,12 +852,13 @@ const JungleLushLevel2 = () => {
       if (dialogueIdx < dialogueSequence.length - 1) {
         setDialogueIdx(dialogueIdx + 1);
       } else {
-        // Start Timegrub battle
-        setPhase('timegrub');
-        setMonster('timegrub');
+        // Start Orc battle
+        setPhase('orc');
+        setMonster('orc');
         setMonsterHP(MONSTER_MAX_HP);
         setCurrentQuestion(0);
         setTimeLeft(TIMER_DURATION);
+        setMonsterState('idle');
       }
     } else if (phase === 'pretense') {
       if (preTenseDialogueIdx < preTensaphantDialogue.length - 1) {
@@ -582,19 +880,28 @@ const JungleLushLevel2 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setShowResult(true);
-    const questions = monster === 'timegrub' ? timegrubQuestions : tensephantQuestions;
+    const questions = monster === 'orc' ? orcQuestions : tensephantQuestions;
     if (idx === questions[currentQuestion].correctAnswer) {
       setMonsterDamaged(true);
-      setTimeout(() => setMonsterDamaged(false), 500);
+      setMonsterState('hurt');
+      setTimeout(() => {
+        setMonsterDamaged(false);
+        setMonsterState('idle');
+      }, 500);
       setMonsterHP(hp => {
         const newHP = Math.max(0, hp - Math.floor(MONSTER_MAX_HP / questions.length));
         if (currentQuestion === questions.length - 1 || newHP === 0) {
-          if (monster === 'timegrub') {
+          if (monster === 'orc') {
             // Pre-Tensephant dialogue
-            setPhase('pretense');
-            setPreTenseDialogueIdx(0);
+            setMonsterState('death');
+            setTimeout(() => {
+              setPhase('pretense');
+              setPreTenseDialogueIdx(0);
+              setMonsterState('idle');
+            }, 1000);
           } else {
-            setVictory(true);
+            setMonsterState('death');
+            setTimeout(() => setVictory(true), 1000);
           }
         }
         return newHP;
@@ -609,7 +916,11 @@ const JungleLushLevel2 = () => {
       }
     } else {
       setUserDamaged(true);
-      setTimeout(() => setUserDamaged(false), 500);
+      setMonsterState('attack');
+      setTimeout(() => {
+        setUserDamaged(false);
+        setMonsterState('idle');
+      }, 500);
       if (hearts > 1) {
         setTimeout(() => {
           setHearts(h => h - 1);
@@ -641,9 +952,10 @@ const JungleLushLevel2 = () => {
       setPhase('tensephant');
       setMonster('tensephant');
     } else {
-      setPhase('timegrub');
-      setMonster('timegrub');
+      setPhase('orc');
+      setMonster('orc');
     }
+    setMonsterState('idle');
   };
 
   // Retry handler for whole level (used on victory)
@@ -659,7 +971,8 @@ const JungleLushLevel2 = () => {
     setPhase('dialogue');
     setDialogueIdx(0);
     setPreTenseDialogueIdx(0);
-    setMonster('timegrub');
+    setMonster('orc');
+    setMonsterState('idle');
   };
 
   // Persist progress: save stars on victory
@@ -669,7 +982,7 @@ const JungleLushLevel2 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Tensephant's Domain",
+            levelName: "Orc Minion's Lair",
             completed: true,
             starsEarned: hearts
           }, {
@@ -690,16 +1003,16 @@ const JungleLushLevel2 = () => {
     const d = dialogueSequence[dialogueIdx];
     content = (
       <>
-        <SpritesRow>
-          <WizardUserGroup>
-            <WizardSprite src={WIZARD_IMG} />
-            <UserSprite src={USER_IMG} />
-          </WizardUserGroup>
-          <MonsterGroup>
-            {d.speaker === 'Tensaphant' && <MonsterSprite src={TENSEPHANT_IMG} />}
-            {d.speaker === 'Timegrub' && <MonsterSprite src={TIMEGRUB_IMG} />}
-          </MonsterGroup>
-        </SpritesRow>
+        <PositionedWizard>
+          <WizardSprite />
+        </PositionedWizard>
+        <PositionedAdventurer>
+          <AdventurerSprite />
+        </PositionedAdventurer>
+        <PositionedMonster>
+          {d.speaker === 'Tensaphant' && <MonsterSprite monster="tensaphant" state="idle" />}
+          {d.speaker === 'Orc Minion' && <MonsterSprite monster="orc" state="idle" />}
+        </PositionedMonster>
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
           <Typography variant="h6" gutterBottom style={{ marginTop: 18, fontFamily: 'monospace' }}>
@@ -709,23 +1022,24 @@ const JungleLushLevel2 = () => {
         </DialogueBox>
       </>
     );
-  } else if (phase === 'timegrub' || phase === 'tensephant') {
-    const questions = monster === 'timegrub' ? timegrubQuestions : tensephantQuestions;
-    const monsterImg = monster === 'timegrub' ? TIMEGRUB_IMG : TENSEPHANT_IMG;
-    const monsterName = monster === 'timegrub' ? 'Timegrub' : 'Tensaphant';
+  } else if (phase === 'orc' || phase === 'tensephant') {
+    const questions = monster === 'orc' ? orcQuestions : tensephantQuestions;
+    const monsterName = monster === 'orc' ? 'Orc Minion' : 'Tensaphant';
     content = (
       <>
-        <BattleSpritesRow>
-          <UserSprite src={USER_IMG} isDamaged={userDamaged} />
-          <VS>VS</VS>
-          <MonsterSpriteWrapper>
+        <>
+          <BattleAdventurer>
+            <AdventurerSprite isDamaged={userDamaged} />
+          </BattleAdventurer>
+          <BattleMonster>
             <MonsterHPText>{monsterName} HP</MonsterHPText>
             <MonsterHPBar>
               <MonsterHPFill hp={monsterHP} />
             </MonsterHPBar>
-            <MonsterSprite src={monsterImg} isDamaged={monsterDamaged} />
-          </MonsterSpriteWrapper>
-        </BattleSpritesRow>
+            <MonsterSprite monster={monster} state={monsterState} isDamaged={monsterDamaged} />
+          </BattleMonster>
+          <VS style={{ position: 'absolute', left: '50%', bottom: '250px', transform: 'translateX(-50%)', zIndex: 5 }}>VS</VS>
+        </>
         <BattleBottomBar>
           <QuestionText>
             {questions[currentQuestion].question}
@@ -751,16 +1065,16 @@ const JungleLushLevel2 = () => {
     const d = preTensaphantDialogue[preTenseDialogueIdx];
     content = (
       <>
-        <SpritesRow>
-          <WizardUserGroup>
-            <WizardSprite src={WIZARD_IMG} />
-            <UserSprite src={USER_IMG} />
-          </WizardUserGroup>
-          <MonsterGroup>
-            {d.speaker === 'Tensaphant' && <MonsterSprite src={TENSEPHANT_IMG} />}
-            {d.speaker === 'Timegrub' && <MonsterSprite src={TIMEGRUB_IMG} />}
-          </MonsterGroup>
-        </SpritesRow>
+        <PositionedWizard>
+          <WizardSprite />
+        </PositionedWizard>
+        <PositionedAdventurer>
+          <AdventurerSprite />
+        </PositionedAdventurer>
+        <PositionedMonster>
+          {d.speaker === 'Tensaphant' && <MonsterSprite monster="tensaphant" state="idle" />}
+          {d.speaker === 'Orc Minion' && <MonsterSprite monster="orc" state="idle" />}
+        </PositionedMonster>
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
           <Typography variant="h6" gutterBottom style={{ marginTop: 18, fontFamily: 'monospace' }}>
@@ -776,15 +1090,15 @@ const JungleLushLevel2 = () => {
     <SceneContainer>
       <Ground />
       <TopBar>
-        {(phase === 'timegrub' || phase === 'tensephant') ? (
+        {(phase === 'orc' || phase === 'tensephant') ? (
           <HeartRow>
             {[...Array(3)].map((_, idx) => (
-              <img key={idx} src={HEART_IMG} alt="Heart" style={{ width: 40, height: 40, opacity: idx < hearts ? 1 : 0.3 }} />
+              <HeartIcon key={idx} filled={idx < hearts} />
             ))}
           </HeartRow>
         ) : <div />}
         <div style={{ flex: 1 }} />
-        {(phase === 'timegrub' || phase === 'tensephant') ? (
+        {(phase === 'orc' || phase === 'tensephant') ? (
           <TimerBox>
             <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>TIMER</Typography>
             <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>{timeLeft}s</Typography>
@@ -831,7 +1145,7 @@ const JungleLushLevel2 = () => {
                 New Record!
               </Typography>
             )}
-            <VictoryTitle>Victory!<br />You've defeated Tensephant!</VictoryTitle>
+            <VictoryTitle>Victory!<br />You've defeated the Orc Minion!</VictoryTitle>
             <Typography style={{ color: '#3a2a1a', fontFamily: 'monospace', marginBottom: 24, fontSize: '1.1rem', textAlign: 'center' }}>
               The timeline is restored, and the jungle breathes freely again.
             </Typography>
