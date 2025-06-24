@@ -238,30 +238,30 @@ export default function CategoryList() {
       </Box>
     );
 
-  return (
-    <Box
-      sx={{
-        background: 'linear-gradient(135deg, #1A2980 0%, #26D0CE 100%)',
-        minHeight: '100vh',
-        pt: { xs: 2, sm: 3, md: 4 },
-        pb: { xs: 4, sm: 6, md: 8 },
-        px: { xs: 0, sm: 3 },
-        overflow: 'hidden',
-      }}
-    >
-      <Box sx={{
-        py: 4,
-        px: { xs: 2, sm: 3 },
-        maxWidth: "lg",
-        mx: "auto",
-        background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
-        borderRadius: { xs: 0, sm: 4 },
-        mb: 4,
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-        position: "relative",
-        overflow: "hidden",
-        width: '100%',
-      }}>
+    return (
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, #1A2980 0%, #26D0CE 100%)',
+          minHeight: '100vh',
+          pt: { xs: 2, sm: 3, md: 4 },
+          pb: { xs: 4, sm: 6, md: 8 },
+          px: { xs: 0, sm: 3 },
+          overflow: 'hidden',
+        }}
+      >
+        <Box sx={{
+          py: 4,
+          px: { xs: 2, sm: 3 },
+          maxWidth: "lg",
+          mx: "auto",
+          background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+          borderRadius: { xs: 0, sm: 4 },
+          mb: 4,
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
+          position: "relative",
+          overflow: "hidden",
+          width: '100%',
+        }}>
           {/* Decorative elements */}
           <Box sx={{
             position: "absolute",
@@ -281,7 +281,8 @@ export default function CategoryList() {
             borderRadius: "50%",
             background: "rgba(255,255,255,0.1)",
           }} />
-
+    
+          {/* Header */}
           <Box sx={{
             display: "flex",
             alignItems: "center",
@@ -324,281 +325,222 @@ export default function CategoryList() {
               VOCAB ADVENTURE
             </Typography>
           </Box>
-
-          {categories.length === 0 ? (
-            <Alert severity="info" sx={{ borderRadius: 3, boxShadow: 3 }}>No categories available.</Alert>
-          ) : (
-            <Grid container spacing={{ xs: 2, sm: 3 }} justifyContent="center" sx={{ mt: 0 }}>
-              {categories.map((cat, i) => {
-                const theme = categoryThemes[cat] || categoryThemes.default;
-                const level = userProgress[cat]?.level || 1;
-                const levelRank = getLevelRank(level);
-
-                return (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={cat}>
-                    <Zoom in={true} style={{ transitionDelay: `${i * 100}ms` }}>
-                      <Card sx={{
-                        height: "100%",
-                        borderRadius: 4,
-                        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
-                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                        "&:hover": {
-                          transform: "translateY(-8px)",
-                          boxShadow: "0 16px 32px rgba(0, 0, 0, 0.16)",
-                        },
+    
+          {/* Category Grid */}
+          <Grid container spacing={4} justifyContent="center" sx={{ mt: 2 }}>
+            {categories.map((cat, idx) => {
+              const theme =
+                categoryThemes[cat] || categoryThemes.default;
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={cat}>
+                  <Zoom in={animationReady} style={{ transitionDelay: `${idx * 100}ms` }}>
+                    <Card
+                      sx={{
                         background: theme.gradient,
                         color: theme.color,
+                        borderRadius: 6,
+                        boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
                         position: "relative",
                         overflow: "visible",
-                      }}>
-                        {/* Level Badge - positioned absolutely */}
-                        <Avatar
+                        minHeight: 370,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        p: 2,
+                      }}
+                      elevation={5}
+                    >
+                      <CardContent>
+                        {/* Icon */}
+                        <Box
                           sx={{
-                            position: 'absolute',
-                            top: -15,
-                            right: -15,
-                            width: 60,
-                            height: 60,
-                            backgroundColor: theme.secondaryColor,
-                            outline: '3px solid rgba(255,255,255,0.7)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            color: theme.color,
-                            fontWeight: 800,
-                            fontSize: '1.2rem',
-                            zIndex: 2,
+                            mb: 2,
+                            mt: 1,
+                            position: 'relative',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
                           }}
                         >
-                          {userProgress[cat]?.level || 1}
-                        </Avatar>
-
-                        {/* Rank Badge */}
-                        <Chip 
-                          label={levelRank} 
-                          sx={{
-                            position: 'absolute',
-                            top: 15,
-                            left: 15,
-                            fontWeight: 700,
-                            backgroundColor: 'rgba(255,255,255,0.85)',
-                            color: theme.secondaryColor,
-                            borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                          }}
-                        />
-
-                        <CardContent sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          py: { xs: 3, sm: 4 },
-                          px: { xs: 2, sm: 3 },
-                          height: '100%',
-                          justifyContent: 'space-between',
-                        }}>
-
-                          {/* Category Icon with animation */}
                           <Box
                             sx={{
-                              mb: 2,
-                              mt: 1,
-                              position: 'relative',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
+                              width: 100,
+                              height: 100,
+                              borderRadius: '50%',
+                              background: 'rgba(255,255,255,0.25)',
+                              position: 'absolute',
+                              animation: 'pulse 2s infinite',
+                              '@keyframes pulse': {
+                                '0%': {
+                                  transform: 'scale(0.95)',
+                                  boxShadow: '0 0 0 0 rgba(255,255,255,0.5)',
+                                },
+                                '70%': {
+                                  transform: 'scale(1)',
+                                  boxShadow: '0 0 0 10px rgba(255,255,255,0)',
+                                },
+                                '100%': {
+                                  transform: 'scale(0.95)',
+                                  boxShadow: '0 0 0 0 rgba(255,255,255,0)',
+                                },
+                              },
+                            }}
+                          />
+                          <Avatar
+                            sx={{
+                              width: 80,
+                              height: 80,
+                              backgroundColor: 'rgba(255,255,255,0.9)',
+                              color: theme.secondaryColor,
+                              boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
                             }}
                           >
-                            {/* Animated background circle */}
-                            <Box
-                              sx={{
-                                width: 100,
-                                height: 100,
+                            {theme.icon}
+                          </Avatar>
+                          <Badge
+                            badgeContent={userProgress[cat]?.completedLevels || 0}
+                            color="error"
+                            max={99}
+                            overlap="circular"
+                            sx={{
+                              position: 'absolute',
+                              bottom: -5,
+                              right: -5,
+                              '& .MuiBadge-badge': {
+                                fontSize: '0.9rem',
+                                height: 28,
+                                minWidth: 28,
                                 borderRadius: '50%',
-                                background: 'rgba(255,255,255,0.25)',
-                                position: 'absolute',
-                                animation: 'pulse 2s infinite',
-                                '@keyframes pulse': {
-                                  '0%': {
-                                    transform: 'scale(0.95)',
-                                    boxShadow: '0 0 0 0 rgba(255,255,255,0.5)',
-                                  },
-                                  '70%': {
-                                    transform: 'scale(1)',
-                                    boxShadow: '0 0 0 10px rgba(255,255,255,0)',
-                                  },
-                                  '100%': {
-                                    transform: 'scale(0.95)',
-                                    boxShadow: '0 0 0 0 rgba(255,255,255,0)',
-                                  },
-                                },
-                              }}
-                            />
-
-                            {/* Category icon */}
-                            <Avatar
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                              }
+                            }}
+                          />
+                        </Box>
+                        {/* Category Name */}
+                        <Typography
+                          variant="h5"
+                          fontWeight={700}
+                          gutterBottom
+                          fontSize={{ xs: '1.3rem', sm: '1.5rem' }}
+                          textAlign="center"
+                          sx={{
+                            textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            letterSpacing: '0.5px',
+                            mb: 2,
+                          }}
+                        >
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </Typography>
+                        {/* Stats Section */}
+                        <Box
+                          sx={{
+                            width: '100%',
+                            mb: 3,
+                            p: 2,
+                            borderRadius: 3,
+                            backgroundColor: 'rgba(255,255,255,0.15)',
+                            backdropFilter: 'blur(5px)',
+                          }}
+                        >
+                          {/* XP Progress */}
+                          <Box sx={{ mb: 1.5 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                              <Typography
+                                variant="body2"
+                                fontWeight={700}
+                                sx={{ color: 'inherit', opacity: 0.9 }}
+                              >
+                                XP PROGRESS
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                fontWeight={700}
+                                sx={{ color: 'inherit', opacity: 0.9 }}
+                              >
+                                {userProgress[cat]?.xp || 0}/{userProgress[cat]?.xpRequired || 50}
+                              </Typography>
+                            </Box>
+                            <LinearProgress
+                              variant="determinate"
+                              value={((userProgress[cat]?.xp || 0) / (userProgress[cat]?.xpRequired || 50)) * 100}
                               sx={{
-                                width: 80,
-                                height: 80,
-                                backgroundColor: 'rgba(255,255,255,0.9)',
-                                color: theme.secondaryColor,
-                                boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                              }}
-                            >
-                              {theme.icon}
-                            </Avatar>
-
-                            {/* Completed levels badge */}
-                            <Badge
-                              badgeContent={userProgress[cat]?.completedLevels || 0}
-                              color="error"
-                              max={99}
-                              overlap="circular"
-                              sx={{
-                                position: 'absolute',
-                                bottom: -5,
-                                right: -5,
-                                '& .MuiBadge-badge': {
-                                  fontSize: '0.9rem',
-                                  height: 28,
-                                  minWidth: 28,
-                                  borderRadius: '50%',
-                                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                                height: 10,
+                                borderRadius: 5,
+                                backgroundColor: 'rgba(255,255,255,0.3)',
+                                '& .MuiLinearProgress-bar': {
+                                  backgroundColor: 'rgba(255,255,255,0.9)'
                                 }
                               }}
                             />
                           </Box>
-
-                          {/* Category Name */}
-                          <Typography 
-                            variant="h5" 
-                            fontWeight={700} 
-                            gutterBottom
-                            fontSize={{ xs: '1.3rem', sm: '1.5rem' }}
-                            textAlign="center"
-                            sx={{
-                              textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                              letterSpacing: '0.5px',
-                              mb: 2,
-                            }}
-                          >
-                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                          </Typography>
-
-                          {/* Stats Section */}
-                          <Box 
-                            sx={{
-                              width: '100%',
-                              mb: 3,
-                              p: 2,
-                              borderRadius: 3,
-                              backgroundColor: 'rgba(255,255,255,0.15)',
-                              backdropFilter: 'blur(5px)',
-                            }}
-                          >
-                            {/* XP Progress */}
-                            <Box sx={{ mb: 1.5 }}>
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                <Typography 
-                                  variant="body2" 
-                                  fontWeight={700} 
-                                  sx={{ color: 'inherit', opacity: 0.9 }}
-                                >
-                                  XP PROGRESS
-                                </Typography>
-                                <Typography 
-                                  variant="body2" 
-                                  fontWeight={700} 
-                                  sx={{ color: 'inherit', opacity: 0.9 }}
-                                >
-                                  {userProgress[cat]?.xp || 0}/{userProgress[cat]?.xpRequired || 50}
-                                </Typography>
-                              </Box>
-                              <LinearProgress 
-                                variant="determinate" 
-                                value={((userProgress[cat]?.xp || 0) / (userProgress[cat]?.xpRequired || 50)) * 100}
-                                sx={{ 
-                                  height: 10, 
-                                  borderRadius: 5,
-                                  backgroundColor: 'rgba(255,255,255,0.3)',
-                                  '& .MuiLinearProgress-bar': {
-                                    backgroundColor: 'rgba(255,255,255,0.9)'
-                                  }
-                                }}
-                              />
+                          {/* Stats Grid */}
+                          <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            mt: 1.5,
+                          }}>
+                            <Box sx={{ textAlign: 'center' }}>
+                              <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
+                                {userProgress[cat]?.completedLevels || 0}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
+                                COMPLETED
+                              </Typography>
                             </Box>
-
-                            {/* Stats Grid */}
-                            <Box sx={{ 
-                              display: 'flex', 
-                              justifyContent: 'space-between',
-                              mt: 1.5,
-                            }}>
-                              <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
-                                  {userProgress[cat]?.completedLevels || 0}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
-                                  COMPLETED
-                                </Typography>
-                              </Box>
-                              
-                              <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
-                                  {userProgress[cat]?.currentLevel || 1}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
-                                  CURRENT
-                                </Typography>
-                              </Box>
-                              
-                              <Box sx={{ textAlign: 'center' }}>
-                                <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
-                                  {Math.floor((userProgress[cat]?.xp || 0) / 10)}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
-                                  STARS
-                                </Typography>
-                              </Box>
+                            <Box sx={{ textAlign: 'center' }}>
+                              <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
+                                {userProgress[cat]?.currentLevel || 1}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
+                                CURRENT
+                              </Typography>
+                            </Box>
+                            <Box sx={{ textAlign: 'center' }}>
+                              <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
+                                {Math.floor((userProgress[cat]?.xp || 0) / 10)}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
+                                STARS
+                              </Typography>
                             </Box>
                           </Box>
-
-                          {/* Play Button */}
-                          <Button
-                            variant="contained"
-                            endIcon={<ArrowForwardIosIcon />}
-                            size="large"
-                            fullWidth
-                            sx={{ 
-                              fontWeight: 700, 
-                              borderRadius: 8, 
-                              px: { xs: 2, sm: 3, md: 4 },
-                              py: { xs: 1.5, sm: 1.8 },
-                              fontSize: { xs: '1rem', sm: '1.1rem' },
-                              backgroundColor: 'rgba(255,255,255,0.9)',
-                              color: theme.secondaryColor,
-                              boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '1px',
-                              '&:hover': {
-                                backgroundColor: 'rgba(255,255,255,1)',
-                                boxShadow: '0 12px 20px rgba(0,0,0,0.2)',
-                                transform: 'translateY(-3px)'
-                              },
-                              transition: 'all 0.3s ease'
-                            }}
-                            onClick={() => navigate(`/student/classes/${id}/4pic1word/${cat}`)}
-                          >
-                            Play Now
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </Zoom>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
+                        </Box>
+                        {/* Play Button */}
+                        <Button
+                          variant="contained"
+                          endIcon={<ArrowForwardIosIcon />}
+                          size="large"
+                          fullWidth
+                          sx={{
+                            fontWeight: 700,
+                            borderRadius: 8,
+                            px: { xs: 2, sm: 3, md: 4 },
+                            py: { xs: 1.5, sm: 1.8 },
+                            fontSize: { xs: '1rem', sm: '1.1rem' },
+                            backgroundColor: 'rgba(255,255,255,0.9)',
+                            color: theme.secondaryColor,
+                            boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                            '&:hover': {
+                              backgroundColor: 'rgba(255,255,255,1)',
+                              boxShadow: '0 12px 20px rgba(0,0,0,0.2)',
+                              transform: 'translateY(-3px)'
+                            },
+                            transition: 'all 0.3s ease'
+                          }}
+                          onClick={() => navigate(`/student/classes/${id}/4pic1word/${cat}`)}
+                        >
+                          Play Now
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Zoom>
+                </Grid>
+              );
+            })}
+          </Grid>
         </Box>
-    </Box>
-  );
+      </Box>
+    );    
 }

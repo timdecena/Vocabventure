@@ -17,12 +17,32 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import LockIcon from '@mui/icons-material/Lock';
 import api from '../api/api';
+import { useUser } from '../UserContext';
+// NOTE: Import the 'Press Start 2P' font in your CSS or index.html via Google Fonts.
+
+// Constants for UI text - move to constants.js for better i18n support
+const PROFILE_AVATAR_ALT = 'Profile avatar';
+const MESSAGES = {
+  UPLOAD_SUCCESS: 'Profile image updated successfully!',
+  UPLOAD_FAILURE: 'Failed to upload image. Please try again.',
+  UPLOAD_NO_URL: 'Profile image upload failed: No image URL returned.',
+  PROFILE_UPDATE_SUCCESS: 'Profile updated successfully!',
+  PROFILE_UPDATE_FAILURE: 'Failed to update profile. Please try again.',
+  PASSWORD_CHANGE_SUCCESS: 'Password changed successfully!',
+  PASSWORD_CHANGE_FAILURE: 'Failed to change password.',
+  PASSWORD_MISMATCH: 'New passwords do not match.',
+  PASSWORD_LENGTH: 'New password must be at least 6 characters.',
+  PASSWORD_FIELDS_REQUIRED: 'Please fill in all password fields.',
+  PROFILE_LOAD_FAILURE: 'Failed to load profile. Please try again later.',
+  IMAGE_TOO_LARGE: 'Image too large! Maximum size is 1MB.',
+  IMAGE_TYPE_INVALID: 'Please select an image file.'
+};
 
 const Profile = () => {
+  const { user, setUser } = useUser();
   // Change Password State
   const [changePassword, setChangePassword] = useState({
     currentPassword: '',
@@ -41,15 +61,15 @@ const Profile = () => {
   const handleChangePassword = async (e) => {
     e?.preventDefault?.();
     if (!changePassword.currentPassword || !changePassword.newPassword || !changePassword.confirmNewPassword) {
-      setSnackbar({ open: true, message: 'Please fill in all password fields.', severity: 'error' });
+      setSnackbar({ open: true, message: MESSAGES.PASSWORD_FIELDS_REQUIRED, severity: 'error' });
       return;
     }
     if (changePassword.newPassword !== changePassword.confirmNewPassword) {
-      setSnackbar({ open: true, message: 'New passwords do not match.', severity: 'error' });
+      setSnackbar({ open: true, message: MESSAGES.PASSWORD_MISMATCH, severity: 'error' });
       return;
     }
     if (changePassword.newPassword.length < 6) {
-      setSnackbar({ open: true, message: 'New password must be at least 6 characters.', severity: 'error' });
+      setSnackbar({ open: true, message: MESSAGES.PASSWORD_LENGTH, severity: 'error' });
       return;
     }
     setChangingPassword(true);
@@ -58,13 +78,14 @@ const Profile = () => {
         currentPassword: changePassword.currentPassword,
         newPassword: changePassword.newPassword
       });
-      setSnackbar({ open: true, message: 'Password changed successfully!', severity: 'success' });
+      setSnackbar({ open: true, message: MESSAGES.PASSWORD_CHANGE_SUCCESS, severity: 'success' });
       setChangePassword({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
       setPasswordDialogOpen(false);
     } catch (err) {
-      let msg = 'Failed to change password.';
+      let msg = MESSAGES.PASSWORD_CHANGE_FAILURE;
       if (err.response?.data?.message) msg = err.response.data.message;
       setSnackbar({ open: true, message: msg, severity: 'error' });
+      console.error('Password change error:', err);
     } finally {
       setChangingPassword(false);
     }
@@ -87,7 +108,6 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: '',
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -107,15 +127,30 @@ const Profile = () => {
     try {
       setLoading(true);
       const response = await api.get('/api/users/me');
+      if (!response.data) {
+        throw new Error('No profile data received');
+      }
+      
+      // Log profile data to help debug image issues
+      console.log('Profile data received:', response.data);
+      
+      // Check if profilePicture exists and is valid
+      if (response.data.profilePicture) {
+        console.log('Profile picture URL:', response.data.profilePicture);
+      } else {
+        console.log('No profile picture URL in profile data');
+      }
+      
       setProfile(response.data);
+      setUser(response.data); // Update global user context
       setFormData({
         firstName: response.data.firstName || '',
         lastName: response.data.lastName || '',
-        email: response.data.email || '',
       });
       setLoading(false);
     } catch (err) {
-      setError('Failed to load profile. Please try again later.');
+      console.error('Error fetching profile:', err.response?.data || err.message || err);
+      setError(MESSAGES.PROFILE_LOAD_FAILURE);
       setLoading(false);
     }
   };
@@ -135,7 +170,7 @@ const Profile = () => {
       if (file.size > 1024 * 1024) {
         setSnackbar({
           open: true,
-          message: 'Image too large! Maximum size is 1MB.',
+          message: MESSAGES.IMAGE_TOO_LARGE,
           severity: 'error'
         });
         return;
@@ -143,7 +178,7 @@ const Profile = () => {
       if (!file.type.startsWith('image/')) {
         setSnackbar({
           open: true,
-          message: 'Please select an image file.',
+          message: MESSAGES.IMAGE_TYPE_INVALID,
           severity: 'error'
         });
         return;
@@ -163,24 +198,42 @@ const Profile = () => {
       setUploading(true);
       const formDataObj = new FormData();
       formDataObj.append('file', selectedFile);
+      
+      // Upload image and get updated user object
       const response = await api.post('/api/users/me/profile-image', formDataObj, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setProfile(response.data);
+      
+      console.log('Profile image upload response:', response.data);
+      
+      // Response is UserProfileResponse, with .profileImageBase64
+      const updatedProfile = response.data;
+      if (!updatedProfile || !updatedProfile.profileImageBase64) {
+        setUploading(false);
+        setSnackbar({
+          open: true,
+          message: MESSAGES.UPLOAD_NO_URL,
+          severity: 'error'
+        });
+        return;
+      }
+      setProfile(updatedProfile);
+      setUser(updatedProfile);
+      setPreviewUrl(`data:image/png;base64,${updatedProfile.profileImageBase64}`);
       setSelectedFile(null);
-      setPreviewUrl(null);
       setUploading(false);
       setSnackbar({
         open: true,
-        message: 'Profile image updated successfully!',
+        message: MESSAGES.UPLOAD_SUCCESS,
         severity: 'success'
       });
       await fetchProfile();
     } catch (err) {
+      console.error('Profile image upload error:', err.response?.data || err.message || err);
       setUploading(false);
       setSnackbar({
         open: true,
-        message: 'Failed to upload image. Please try again.',
+        message: err.response?.data?.message || MESSAGES.UPLOAD_FAILURE,
         severity: 'error'
       });
     }
@@ -188,23 +241,42 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
+      // Validate form data
+      if (!formData.firstName || !formData.lastName) {
+        setSnackbar({
+          open: true,
+          message: 'First name and last name are required.',
+          severity: 'warning'
+        });
+        return;
+      }
+      
       setLoading(true);
+      // Only send firstName and lastName per backend contract
       const response = await api.put('/api/users/me', {
         firstName: formData.firstName,
         lastName: formData.lastName
       });
+      
+      if (!response.data) {
+        throw new Error('No response data received');
+      }
+      
       setProfile(response.data);
+      setUser(response.data); // Update global user context
       setEditMode(false);
+      setLoading(false);
       setSnackbar({
         open: true,
-        message: 'Profile information updated successfully!',
+        message: MESSAGES.PROFILE_UPDATE_SUCCESS,
         severity: 'success'
       });
-      await fetchProfile();
     } catch (err) {
+      console.error('Error updating profile:', err);
+      setLoading(false);
       setSnackbar({
         open: true,
-        message: 'Failed to update profile. Please try again.',
+        message: MESSAGES.PROFILE_UPDATE_FAILURE,
         severity: 'error'
       });
     } finally {
@@ -350,14 +422,28 @@ const Profile = () => {
                 <Box className="avatar-section">
                   <Box position="relative">
                     <Avatar
-                      src={previewUrl || profile?.profilePicture}
+                      src={
+                        // Robust avatar source logic with improved fallbacks:
+                        previewUrl
+                          ? previewUrl
+                          : profile?.profileImageBase64
+                          ? `data:image/png;base64,${profile.profileImageBase64}`
+                          : '/default-avatar.png'
+                      }
+                      alt={PROFILE_AVATAR_ALT}
                       sx={{
                         width: 120,
                         height: 120,
                         border: '3px solid #ff00c8',
                         boxShadow: '0 0 15px #ff00c8'
                       }}
+                      onError={e => { 
+                        console.log('Avatar load error, using default'); 
+                        e.target.onerror = null; 
+                        e.target.src = '/default-avatar.png'; 
+                      }}
                     />
+                    {console.log('Avatar src attempt:', previewUrl || user?.profilePicture || profile?.profilePicture || 'default')}
                     <IconButton
                       component="label"
                       sx={{
@@ -466,26 +552,7 @@ const Profile = () => {
                           sx: { color: '#00eaff', fontFamily: "'Press Start 2P', cursive", fontSize: '0.7rem' }
                         }}
                       />
-                      <TextField
-                        fullWidth
-                        label="Email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        margin="normal"
-                        disabled
-                        InputProps={{
-                          sx: {
-                            backgroundColor: '#23232b',
-                            color: 'white',
-                            borderRadius: '8px'
-                          }
-                        }}
-                        InputLabelProps={{
-                          sx: { color: '#00eaff', fontFamily: "'Press Start 2P', cursive", fontSize: '0.7rem' }
-                        }}
-                      />
+
                       <Box display="flex" gap={2} mt={2}>
                         <Button
                           variant="contained"

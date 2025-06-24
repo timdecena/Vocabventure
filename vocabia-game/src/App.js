@@ -7,6 +7,7 @@ import JwtDebugger from './utils/JwtDebugger';
 import authService from './services/authService';
 
 import Navbar from './Pages/Navbar';
+import SimpleGridPage from './Tester/SimpleGridPage';
 
 // Auth
 import Login from './Pages/Login';
@@ -57,6 +58,7 @@ import Tutorial from "./Adventure/tutorial/Tutorial";
 import Profile from './components/Profile';
 
 import './App.css';
+import { UserProvider } from './UserContext';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
@@ -88,14 +90,16 @@ function App() {
     <div className="App">
       <TokenRefresher />
       <BrowserRouter>
-        <AppContent
-          isAuthenticated={isAuthenticated}
-          setIsAuthenticated={setIsAuthenticated}
-          role={role}
-          setRole={setRole}
-          needsNavPadding={needsNavPadding}
-          handleLogout={handleLogout}
-        />
+        <UserProvider>
+          <AppContent
+            isAuthenticated={isAuthenticated}
+            setIsAuthenticated={setIsAuthenticated}
+            role={role}
+            setRole={setRole}
+            needsNavPadding={needsNavPadding}
+            handleLogout={handleLogout}
+          />
+        </UserProvider>
       </BrowserRouter>
     </div>
   );
@@ -236,8 +240,12 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       {/* DEBUG */}
       <Route path="/debug/jwt" element={<JwtDebugger />} />
 
+      {/* SIMPLE GRID TESTER ROUTE */}
+      <Route path="/test/simple-grid" element={<SimpleGridPage />} />
+
       {/* CATCH ALL */}
       <Route path="*" element={<Navigate to="/" replace />} />
+
     </Routes>
   );
 }
