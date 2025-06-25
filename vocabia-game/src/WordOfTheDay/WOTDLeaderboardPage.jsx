@@ -17,6 +17,9 @@ import api from "../api/api";
 export default function WOTDLeaderboardPage() {
   const [entries, setEntries] = useState([]);
 
+
+
+
   useEffect(() => {
     api.get("/api/leaderboard/wotd")
       .then(res => setEntries(res.data))
@@ -72,15 +75,7 @@ export default function WOTDLeaderboardPage() {
             🏆 WORD OF THE DAY LEADERBOARD
           </Typography>
           
-          <Avatar
-            src="/fantasy/trophy_avatar.png"
-            sx={{
-              width: 60,
-              height: 60,
-              border: "2px solid #ffb86c",
-              boxShadow: "0 0 16px #ffb86c"
-            }}
-          />
+
         </Box>
 
         {/* Leaderboard Table */}
@@ -239,15 +234,7 @@ export default function WOTDLeaderboardPage() {
           zIndex: 100
         }}
       >
-        <Avatar
-          src="/fantasy/wizard_avatar.png"
-          sx={{
-            width: 120,
-            height: 120,
-            border: "2px solid #ff00c8",
-            boxShadow: "0 0 16px #ff00c8"
-          }}
-        />
+       
       </Box>
 
       <style>
