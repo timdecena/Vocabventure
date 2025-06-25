@@ -12,7 +12,6 @@ public class UserProgressDTO {
     private Long id;
     private String category;
     private int currentLevel;
-    private int currentXp;
     private int level;
     private int puzzlesSolved;
     private int hintsUsed;

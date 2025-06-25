@@ -461,7 +461,7 @@ const GamePlay = () => {
         console.log('Hint usage recorded successfully');
       }
     } catch (error) {
-      // Log error but don't affect user experience - hint is already shown
+      // Log error but don't affect user erience - hint is already shown
       console.warn("Could not record hint usage:", error.response?.data || error.message);
       // Continue with local hint display only
     }

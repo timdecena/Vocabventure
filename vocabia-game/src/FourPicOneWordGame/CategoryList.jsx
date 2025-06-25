@@ -37,24 +37,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import api from "../api/api";
 import { Zoom } from "@mui/material";
 
-// Define XP thresholds for different levels
-const XP_LEVELS = {
-  BEGINNER: 1,
-  INTERMEDIATE: 5,
-  ADVANCED: 10,
-  EXPERT: 15,
-  MASTER: 20,
-};
-
-// Function to determine level rank based on level
-const getLevelRank = (level) => {
-  if (level >= XP_LEVELS.MASTER) return "Master";
-  if (level >= XP_LEVELS.EXPERT) return "Expert";
-  if (level >= XP_LEVELS.ADVANCED) return "Advanced";
-  if (level >= XP_LEVELS.INTERMEDIATE) return "Intermediate";
-  return "Beginner";
-};
-
 // Category theme mapping
 const categoryThemes = {
   animals: {
@@ -108,7 +90,10 @@ const categoryThemes = {
   }
 };
 
-export default function CategoryList() {
+function CategoryList() {
+  // Fix: remove any reference to XP, stars, or player rank/level in progress
+  // Only show completed levels per category
+
   const { id } = useParams(); // classroom id
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -155,11 +140,7 @@ export default function CategoryList() {
                 if (category) {
                   progressData[category] = {
                     completedLevels: progress.puzzlesSolved || 0,
-                    currentLevel: progress.currentLevel || 1,
-                    level: progress.level || 1,
-                    xp: progress.currentXp || 0,
-                    // Calculate XP required for next level
-                    xpRequired: 50 * progress.level * (progress.level + 1) / 2
+                    Level: progress.Level || 1,
                   };
                 }
               });
@@ -178,18 +159,13 @@ export default function CategoryList() {
               const userId = localStorage.getItem("userId") || "anonymous";
               const completedKey = `vocabVenture_${userId}_${category}_completed`;
               const highestKey = `vocabVenture_${userId}_${category}_highest`;
-              const xpKey = `vocabVenture_${userId}_${category}_xp`;
 
               const completedLevels = localStorage.getItem(completedKey);
               const highestLevel = localStorage.getItem(highestKey) || "1";
-              const xp = localStorage.getItem(xpKey) || "0";
 
               progressData[category] = {
                 completedLevels: completedLevels ? JSON.parse(completedLevels) : [],
-                currentLevel: parseInt(highestLevel, 10),
-                level: 1,
-                xp: parseInt(xp, 10),
-                xpRequired: 50
+                Level: parseInt(highestLevel, 10),
               };
             }
           });
@@ -199,10 +175,7 @@ export default function CategoryList() {
             if (!progressData[category]) {
               progressData[category] = {
                 completedLevels: [],
-                currentLevel: 1,
-                level: 1,
-                xp: 0,
-                xpRequired: 50
+                Level: 1,
               };
             }
           });
@@ -442,37 +415,6 @@ export default function CategoryList() {
                             backdropFilter: 'blur(5px)',
                           }}
                         >
-                          {/* XP Progress */}
-                          <Box sx={{ mb: 1.5 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                              <Typography
-                                variant="body2"
-                                fontWeight={700}
-                                sx={{ color: 'inherit', opacity: 0.9 }}
-                              >
-                                XP PROGRESS
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                fontWeight={700}
-                                sx={{ color: 'inherit', opacity: 0.9 }}
-                              >
-                                {userProgress[cat]?.xp || 0}/{userProgress[cat]?.xpRequired || 50}
-                              </Typography>
-                            </Box>
-                            <LinearProgress
-                              variant="determinate"
-                              value={((userProgress[cat]?.xp || 0) / (userProgress[cat]?.xpRequired || 50)) * 100}
-                              sx={{
-                                height: 10,
-                                borderRadius: 5,
-                                backgroundColor: 'rgba(255,255,255,0.3)',
-                                '& .MuiLinearProgress-bar': {
-                                  backgroundColor: 'rgba(255,255,255,0.9)'
-                                }
-                              }}
-                            />
-                          </Box>
                           {/* Stats Grid */}
                           <Box sx={{
                             display: 'flex',
@@ -485,22 +427,6 @@ export default function CategoryList() {
                               </Typography>
                               <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
                                 COMPLETED
-                              </Typography>
-                            </Box>
-                            <Box sx={{ textAlign: 'center' }}>
-                              <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
-                                {userProgress[cat]?.currentLevel || 1}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
-                                CURRENT
-                              </Typography>
-                            </Box>
-                            <Box sx={{ textAlign: 'center' }}>
-                              <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
-                                {Math.floor((userProgress[cat]?.xp || 0) / 10)}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
-                                STARS
                               </Typography>
                             </Box>
                           </Box>
@@ -544,3 +470,5 @@ export default function CategoryList() {
       </Box>
     );    
 }
+
+export default CategoryList;

@@ -28,9 +28,6 @@ public class UserProgress {
     @Builder.Default
     private int currentLevel = 1;
 
-    @Column(name = "current_xp", nullable = false)
-    @Builder.Default
-    private int currentXp = 0;
 
     @Column(nullable = false)
     @Builder.Default

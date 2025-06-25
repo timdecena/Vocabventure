@@ -18,8 +18,8 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
 
     List<UserProgress> findByCategory(String category);
 
-    List<UserProgress> findTop10ByCategoryOrderByCurrentXpDesc(String category);
+    List<UserProgress> findTop10ByCategoryOrderByPuzzlesSolvedDesc(String category);
 
-    @Query("SELECT u FROM UserProgress u ORDER BY u.currentXp DESC")
+    @Query("SELECT u FROM UserProgress u ORDER BY u.puzzlesSolved DESC")
     List<UserProgress> findTop10Global();
 }

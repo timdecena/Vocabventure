@@ -42,19 +42,13 @@ public class UserProgressService {
 
     public UserProgressDTO completeLevel(User user, String category, boolean usedHint) {
         UserProgress p = getOrCreateProgress(user, category);
-        int xpGain = usedHint ? 5 : 10;
-        p.setCurrentXp(p.getCurrentXp() + xpGain);
+        
+        
         p.setPuzzlesSolved(p.getPuzzlesSolved() + 1);
         p.setCorrectAnswers(p.getCorrectAnswers() + 1);
         p.setTotalAttempts(p.getTotalAttempts() + 1);
         p.setStreakCount(p.getStreakCount() + 1);
         if (p.getStreakCount() > p.getMaxStreak()) p.setMaxStreak(p.getStreakCount());
-
-        int requiredXp = xpRequiredForNextLevel(p.getLevel());
-        while (p.getCurrentXp() >= requiredXp) {
-            p.setLevel(p.getLevel() + 1);
-            requiredXp = xpRequiredForNextLevel(p.getLevel());
-        }
 
         p.setCurrentLevel(p.getCurrentLevel() + 1);
         p.setLastActive(LocalDateTime.now());
@@ -91,7 +85,7 @@ public class UserProgressService {
     }
 
     public List<UserProgressDTO> getLeaderboard(String category) {
-        return repo.findTop10ByCategoryOrderByCurrentXpDesc(category)
+        return repo.findTop10ByCategoryOrderByPuzzlesSolvedDesc(category)
                 .stream().map(this::toDto).collect(Collectors.toList());
     }
 
@@ -119,7 +113,7 @@ public class UserProgressService {
                 .id(e.getId())
                 .category(e.getCategory())
                 .currentLevel(e.getCurrentLevel())
-                .currentXp(e.getCurrentXp())
+
                 .level(e.getLevel())
                 .puzzlesSolved(e.getPuzzlesSolved())
                 .hintsUsed(e.getHintsUsed())
