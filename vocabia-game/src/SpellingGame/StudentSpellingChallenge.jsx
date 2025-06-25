@@ -139,6 +139,7 @@ export default function StudentSpellingChallenge() {
   const [showResultText, setShowResultText] = useState(false);
   const [slimeHurt, setSlimeHurt] = useState(false);
   const [showDrowningAlert, setShowDrowningAlert] = useState(false);
+  const [panicLevel, setPanicLevel] = useState(0); // 0: normal, 1: mild panic, 2: full panic
 
   const audioRef = useRef(null);
   const attackSoundRef = useRef(null);
@@ -148,15 +149,16 @@ export default function StudentSpellingChallenge() {
   const queryParams = new URLSearchParams(location.search);
   const levelId = queryParams.get("levelId");
 
+  // Difficulty progression factors
+  const difficultyFactor = Math.min(1 + (current * 0.1), 1.5); // Increases by 10% each level up to 50%
+  const baseTime = 15;
+  const waterRiseSpeed = difficultyFactor * (100 / baseTime); // Adjusts with difficulty
+
   useEffect(() => {
     const fetchChallenges = async () => {
       try {
         const res = await api.get(`/api/spelling-level/${levelId}/challenges`);
-        if (Array.isArray(res.data)) {
-          setChallenges(res.data);
-        } else {
-          setChallenges([]);
-        }
+        setChallenges(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         setError("❌ You are not authorized to view this or no challenges found.");
       } finally {
@@ -167,24 +169,35 @@ export default function StudentSpellingChallenge() {
   }, [levelId]);
 
   useEffect(() => {
+    // Reset for new challenge with progressive difficulty
+    const newTimer = Math.max(5, Math.min(baseTime, timer + 3)); // Add 3 seconds but cap at baseTime
+    setTimer(newTimer);
     setWaterLevel(0);
     setMaxWaterLevel(0);
     setShowDrowningAlert(false);
+    setPanicLevel(0);
   }, [current]);
 
-  useEffect(() => {
+   useEffect(() => {
     if (timerStarted && !isSubmitted && timer > 0) {
       const t = setTimeout(() => {
         setTimer((t) => t - 1);
-        const newWaterLevel = Math.min(waterLevel + (100 / 15), 100);
+        const newWaterLevel = Math.min(waterLevel + waterRiseSpeed, 100);
         setWaterLevel(newWaterLevel);
         setMaxWaterLevel(prev => Math.max(prev, newWaterLevel));
         
-        // Show drowning alert when water reaches 80%
-        if (newWaterLevel >= 80 && !showDrowningAlert) {
-          setShowDrowningAlert(true);
-          drowningSoundRef.current?.play();
-        } else if (newWaterLevel < 80 && showDrowningAlert) {
+        // Update panic state based on water level
+        if (newWaterLevel >= 80) {
+          setPanicLevel(2); // Full panic
+          if (!showDrowningAlert) {
+            setShowDrowningAlert(true);
+            drowningSoundRef.current?.play();
+          }
+        } else if (newWaterLevel >= 50) {
+          setPanicLevel(1); // Mild panic
+          setShowDrowningAlert(false);
+        } else {
+          setPanicLevel(0); // Normal
           setShowDrowningAlert(false);
         }
       }, 1000);
@@ -192,6 +205,7 @@ export default function StudentSpellingChallenge() {
     }
     if (timer === 0 && !isSubmitted) {
       setWaterLevel(100);
+      setPanicLevel(2);
       setTimeout(() => handleSubmit(), 500);
     }
   }, [timerStarted, timer, isSubmitted, waterLevel, showDrowningAlert]);
@@ -223,9 +237,11 @@ export default function StudentSpellingChallenge() {
       attackSoundRef.current?.play();
 
       if (correct) {
-        const timeBonus = Math.max(0, (15 - elapsedTime) / 15);
-        const waterReduction = 30 + (timeBonus * 50);
+        // Calculate water reduction based on response time (faster = more reduction)
+        const timeBonus = Math.max(0, (baseTime - elapsedTime) / baseTime);
+        const waterReduction = 20 + (timeBonus * 60); // Reduce by 20-80%
         setWaterLevel(prev => Math.max(0, prev - waterReduction));
+        
         if (res.data.score === 1) setScore((s) => s + 1);
       }
 
@@ -245,15 +261,17 @@ export default function StudentSpellingChallenge() {
   const nextChallenge = () => {
     setAnswer("");
     setFeedback("");
-    setTimer(15);
     setTimerStarted(false);
     setIsSubmitted(false);
     setCurrent((prev) => prev + 1);
   };
 
   const getCharacterSprite = () => {
-    if (waterLevel >= 80) return "/sprites/Boy_Panicking1.png";
-    return "/sprites/Boy_Stand.png";
+    switch(panicLevel) {
+      case 2: return "/sprites/Boy_Panicking2.png"; // Full panic
+      case 1: return "/sprites/Boy_Panicking1.png"; // Mild panic
+      default: return "/sprites/Boy_Stand.png"; // Normal
+    }
   };
 
   if (loading) return <p>🔄 Loading spelling challenges...</p>;
@@ -275,7 +293,7 @@ export default function StudentSpellingChallenge() {
 
   const currentChallenge = challenges[current];
 
-  return (
+   return (
     <GameWrapper>
       <WaterContainer>
         <WaterOverlay waterLevel={waterLevel}>
@@ -286,7 +304,7 @@ export default function StudentSpellingChallenge() {
 
       {showDrowningAlert && (
         <DrowningAlert>
-          DANGER! The water is rising!
+          DANGER! WATER RISING FAST!
         </DrowningAlert>
       )}
 
@@ -295,13 +313,14 @@ export default function StudentSpellingChallenge() {
           position: "absolute",
           top: "50%",
           transform: "translateY(-50%)",
-          background: "rgba(0,0,0,0.7)",
+          background: attackResultText.includes("Successful") ? "rgba(50, 200, 50, 0.8)" : "rgba(200, 50, 50, 0.8)",
           color: "#fff",
           padding: "20px 40px",
           fontSize: "28px",
           borderRadius: "12px",
           zIndex: 99,
-          boxShadow: "0 0 15px rgba(0,0,0,0.5)"
+          boxShadow: "0 0 15px rgba(0,0,0,0.5)",
+          animation: "pulse 0.5s"
         }}>
           {attackResultText}
         </div>
@@ -315,23 +334,26 @@ export default function StudentSpellingChallenge() {
         <CharacterSprite 
           src={getCharacterSprite()} 
           alt="character" 
-          style={{ transform: `translateY(${-waterLevel * 0.3}px)` }} 
+          style={{ 
+            transform: `translateY(${-waterLevel * 0.3}px)`,
+            filter: panicLevel > 0 ? `brightness(${100 + panicLevel * 10}%)` : 'none'
+          }} 
         />
         <EnemySprite src="/sprites/Slime_Idle.png" alt="slime" hurt={slimeHurt} />
       </CharacterContainer>
 
       <FloatingUI>
         <Typography variant="h6">
-          Challenge {current + 1} / {challenges.length}
+          Challenge {current + 1} / {challenges.length} (Level {Math.floor(current/5) + 1})
         </Typography>
         <Typography variant="body1" sx={{ fontWeight: "bold" }}>
           Score: {score} / {challenges.length}
         </Typography>
         <Typography variant="body2" sx={{ 
-          color: waterLevel > 70 ? "red" : "inherit",
+          color: waterLevel > 70 ? "red" : waterLevel > 40 ? "orange" : "inherit",
           fontWeight: waterLevel > 70 ? "bold" : "normal"
         }}>
-          Water Level: {Math.round(waterLevel)}% {waterLevel > 70 && "⚠️ Hurry!"}
+          Water Level: {Math.round(waterLevel)}% {waterLevel > 70 && "⚠️ HURRY!"}
         </Typography>
 
         {currentChallenge.audioUrl && (
@@ -350,15 +372,14 @@ export default function StudentSpellingChallenge() {
                 border: "none",
                 background: timerStarted ? "#ccc" : "#4CAF50",
                 color: "white",
-                cursor: timerStarted ? "not-allowed" : "pointer"
+                cursor: timerStarted ? "not-allowed" : "pointer",
+                fontSize: "16px"
               }}
             >
-              ▶️ Play Word
+              ▶️ Play Word ({timer}s left)
             </button>
           </>
         )}
-
-        <p><b>⏱️ Time Left:</b> {timerStarted ? `${timer}s` : "Not started"}</p>
 
         {!isSubmitted ? (
           <div>
@@ -370,12 +391,13 @@ export default function StudentSpellingChallenge() {
               disabled={!timerStarted}
               autoFocus
               style={{ 
-                padding: "10px", 
-                fontSize: "16px", 
+                padding: "12px", 
+                fontSize: "18px", 
                 borderRadius: "8px", 
                 width: "100%",
-                border: "2px solid #ddd",
-                marginTop: "10px"
+                border: waterLevel > 70 ? "2px solid red" : "2px solid #ddd",
+                margin: "10px 0",
+                backgroundColor: waterLevel > 70 ? "#fff0f0" : "white"
               }}
             />
             <button
@@ -383,21 +405,24 @@ export default function StudentSpellingChallenge() {
               disabled={!timerStarted || !answer.trim()}
               style={{ 
                 marginTop: "10px",
-                padding: "10px 20px",
+                padding: "12px 24px",
                 borderRadius: "8px",
                 border: "none",
-                background: (!timerStarted || !answer.trim()) ? "#ccc" : "#2196F3",
+                background: (!timerStarted || !answer.trim()) ? "#ccc" : 
+                          waterLevel > 70 ? "#f44336" : "#2196F3",
                 color: "white",
-                cursor: (!timerStarted || !answer.trim()) ? "not-allowed" : "pointer"
+                cursor: (!timerStarted || !answer.trim()) ? "not-allowed" : "pointer",
+                fontSize: "16px",
+                fontWeight: "bold"
               }}
             >
-              Cast Spell
+              {waterLevel > 70 ? "QUICK! CAST SPELL!" : "Cast Spell"}
             </button>
           </div>
         ) : (
           <div>
             <p><b>{feedback}</b></p>
-            {current < challenges.length - 1 && <p>➡️ Preparing next challenge...</p>}
+            {current < challenges.length - 1 && <p>➡️ Next challenge in 2 seconds...</p>}
           </div>
         )}
       </FloatingUI>

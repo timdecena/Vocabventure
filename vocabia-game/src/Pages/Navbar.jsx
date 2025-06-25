@@ -76,7 +76,7 @@ const Navbar = ({ role, onLogout }) => {
         <>
           <NavButton onClick={() => navigate("/student-home")}>Home</NavButton>
           <NavButton onClick={() => navigate("/student/classes")}>Classes</NavButton>
-          
+          <NavButton onClick={() => navigate("/student/adventure")}>Adventure</NavButton>
           <NavButton onClick={() => navigate("/student/profile")}>Profile</NavButton>
         </>
       )}

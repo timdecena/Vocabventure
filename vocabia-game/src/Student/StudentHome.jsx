@@ -212,7 +212,10 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
       setStudentInfo({
         firstName: localStorage.getItem('firstName') || "Student",
         lastName: localStorage.getItem('lastName') || "",
-        profileImageBase64: null
+        profileImageBase64: null,
+        correctAnswers: 0,
+  progressPoints: 0,
+  gold: 0
       });
     });
 }, []);
