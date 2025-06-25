@@ -1394,49 +1394,314 @@ const JungleLushLevel2 = () => {
         </QuitButton>
       </TopBar>
       {content}
-      <StyledDialog open={showQuit} onClose={() => setShowQuit(false)}>
-        <StyledDialogContent>
-          <Typography variant="h6">Are you sure you want to quit?</Typography>
-        </StyledDialogContent>
-        <StyledDialogActions>
-          <DialogButton variant="cancel" onClick={() => setShowQuit(false)}>Cancel</DialogButton>
-          <DialogButton variant="quit" onClick={() => navigate('/jungle-lush')}>Quit</DialogButton>
-        </StyledDialogActions>
-      </StyledDialog>
+      <Dialog 
+        open={showQuit} 
+        onClose={() => setShowQuit(false)}
+        PaperProps={{
+          style: {
+            background: 'linear-gradient(145deg, #fffbe6 0%, #f5f0e6 50%, #e8dcc6 100%)',
+            borderRadius: '24px',
+            border: '4px solid #b48a6e',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            minWidth: '300px',
+            padding: '16px'
+          }
+        }}
+      >
+        <DialogContent style={{ padding: '24px 24px 16px 24px' }}>
+          <Typography 
+            variant="h5" 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              color: '#3a2a1a',
+              marginBottom: '16px',
+              textShadow: '0 2px 4px rgba(180,138,110,0.3)'
+            }}
+          >
+            Are you sure you want to quit?
+          </Typography>
+          <Typography 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              color: '#5a4a3a',
+              fontSize: '1rem'
+            }}
+          >
+            Your progress in this level will be lost.
+          </Typography>
+        </DialogContent>
+        <DialogActions style={{ padding: '16px 24px 24px 24px', gap: '12px', justifyContent: 'center' }}>
+          <Button 
+            onClick={() => setShowQuit(false)} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '10px 24px',
+              border: '2px solid #2e7d32',
+              boxShadow: '0 4px 12px rgba(76,175,80,0.3)',
+              textTransform: 'none',
+              minWidth: '100px'
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => navigate('/jungle-lush')} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #f44336 0%, #e53935 50%, #d32f2f 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '10px 24px',
+              border: '2px solid #c62828',
+              boxShadow: '0 4px 12px rgba(244,67,54,0.3)',
+              textTransform: 'none',
+              minWidth: '100px'
+            }}
+          >
+            Quit
+          </Button>
+        </DialogActions>
+      </Dialog>
       {/* Game over dialog only (not for victory) */}
-      <StyledDialog open={gameOver && hearts === 0} onClose={() => {}}>
-        <StyledDialogContent>
-          <Typography variant="h5">Game Over! Try again?</Typography>
-        </StyledDialogContent>
-        <StyledDialogActions>
-          <DialogButton variant="cancel" onClick={handleRetryBattle}>Retry</DialogButton>
-          <DialogButton variant="quit" onClick={() => navigate('/jungle-lush')}>Quit</DialogButton>
-        </StyledDialogActions>
-      </StyledDialog>
+      <Dialog 
+        open={gameOver && hearts === 0} 
+        onClose={() => {}}
+        PaperProps={{
+          style: {
+            background: 'linear-gradient(145deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%)',
+            borderRadius: '24px',
+            border: '4px solid #d84315',
+            boxShadow: '0 8px 32px rgba(216,67,21,0.4)',
+            minWidth: '350px',
+            padding: '16px'
+          }
+        }}
+      >
+        <DialogContent style={{ padding: '24px 24px 16px 24px', textAlign: 'center' }}>
+          <Typography 
+            style={{
+              fontSize: '4rem',
+              marginBottom: '16px',
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))'
+            }}
+          >
+            💀
+          </Typography>
+          <Typography 
+            variant="h4" 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 900,
+              color: '#d84315',
+              marginBottom: '12px',
+              textShadow: '0 2px 8px rgba(216,67,21,0.3)'
+            }}
+          >
+            Game Over!
+          </Typography>
+          <Typography 
+            variant="h6"
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 600,
+              color: '#5d4037',
+              marginBottom: '8px'
+            }}
+          >
+            The monsters have defeated you!
+          </Typography>
+          <Typography 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              color: '#6d4c41',
+              fontSize: '1rem'
+            }}
+          >
+            Would you like to try again?
+          </Typography>
+        </DialogContent>
+        <DialogActions style={{ padding: '16px 24px 24px 24px', gap: '12px', justifyContent: 'center' }}>
+          <Button 
+            onClick={handleRetryBattle} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #2196F3 0%, #1976D2 50%, #1565C0 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '12px 24px',
+              border: '2px solid #0d47a1',
+              boxShadow: '0 4px 12px rgba(33,150,243,0.3)',
+              textTransform: 'none',
+              minWidth: '100px',
+              fontSize: '1.1rem'
+            }}
+          >
+            🔄 Retry
+          </Button>
+          <Button 
+            onClick={() => navigate('/jungle-lush')} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #757575 0%, #616161 50%, #424242 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '12px 24px',
+              border: '2px solid #212121',
+              boxShadow: '0 4px 12px rgba(117,117,117,0.3)',
+              textTransform: 'none',
+              minWidth: '100px',
+              fontSize: '1.1rem'
+            }}
+          >
+            🚪 Quit
+          </Button>
+        </DialogActions>
+      </Dialog>
       {victory && (
         <VictoryOverlay>
           <VictoryContainer elevation={12}>
-            {/* Star rating */}
-            <Typography style={{ color: '#3a2a1a', fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem', marginBottom: 2, textAlign: 'center', letterSpacing: 1 }}>Battle Rating</Typography>
+            <Typography 
+              style={{ 
+                color: '#3a2a1a', 
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', 
+                fontWeight: 700, 
+                fontSize: '1.2rem', 
+                marginBottom: 8, 
+                textAlign: 'center', 
+                letterSpacing: '0.5px',
+                textShadow: '0 2px 4px rgba(58,42,26,0.2)'
+              }}
+            >
+              Battle Rating
+            </Typography>
             <StarRow>
               {[1,2,3].map(i => (
-                <Star key={i} filled={hearts >= i} style={newRecord && hearts >= i ? { animation: 'popIn 0.5s' } : {}}>
-                  ★
+                <Star key={i} filled={hearts >= i}>
+                  ⭐
                 </Star>
               ))}
             </StarRow>
-            {newRecord && (
-              <Typography style={{ color: '#d32f2f', fontWeight: 900, fontFamily: 'monospace', fontSize: '1.3rem', marginBottom: 8, textAlign: 'center', letterSpacing: 1, animation: 'popIn 0.7s' }}>
-                New Record!
-              </Typography>
-            )}
-            <VictoryTitle>Victory!<br />You've defeated the Orc Minion!</VictoryTitle>
-            <Typography style={{ color: '#3a2a1a', fontFamily: 'monospace', marginBottom: 24, fontSize: '1.1rem', textAlign: 'center' }}>
-              The timeline is restored, and the jungle breathes freely again.
+            <Typography 
+              variant="h3"
+              style={{
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 900,
+                color: '#2e7d32',
+                marginBottom: '12px',
+                marginTop: '16px',
+                textAlign: 'center',
+                textShadow: '0 4px 8px rgba(46,125,50,0.3)',
+                fontSize: '3rem'
+              }}
+            >
+              🎉 Victory! 🎉
             </Typography>
-            <VictoryButton variant="contained" color="success" onClick={() => navigate('/jungle-lush/level3')}>Go to Next Level</VictoryButton>
-            <VictoryButton variant="outlined" color="primary" onClick={handleRetryWholeLevel}>Retry Level</VictoryButton>
-            <VictoryButton variant="outlined" color="error" onClick={() => navigate('/jungle-lush')}>Quit</VictoryButton>
+            <Typography 
+              variant="h5"
+              style={{
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                color: '#388e3c',
+                marginBottom: '8px',
+                textAlign: 'center',
+                textShadow: '0 2px 4px rgba(56,142,60,0.3)'
+              }}
+            >
+              You've defeated Tensaphant!
+            </Typography>
+            <Typography 
+              style={{ 
+                color: '#5d4037', 
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', 
+                marginBottom: 32, 
+                fontSize: '1.2rem', 
+                textAlign: 'center',
+                fontWeight: 500,
+                lineHeight: 1.5
+              }}
+            >
+              🐘 The timeline is restored, and the jungle breathes freely again! 🐘
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate('/jungle-lush/level3')}
+              style={{
+                background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
+                color: '#fff',
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                borderRadius: '20px',
+                padding: '14px 32px',
+                margin: '8px 0',
+                minWidth: '200px',
+                fontSize: '1.1rem',
+                border: '3px solid #2e7d32',
+                boxShadow: '0 6px 20px rgba(76,175,80,0.4), 0 3px 10px rgba(0,0,0,0.2)',
+                textTransform: 'none',
+                letterSpacing: '0.5px'
+              }}
+            >
+              🚀 Go to Next Level
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleRetryWholeLevel}
+              style={{
+                background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 50%, #e0e0e0 100%)',
+                color: '#1976d2',
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                borderRadius: '20px',
+                padding: '14px 32px',
+                margin: '8px 0',
+                minWidth: '200px',
+                fontSize: '1.1rem',
+                border: '3px solid #1976d2',
+                boxShadow: '0 4px 16px rgba(25,118,210,0.3), 0 2px 8px rgba(0,0,0,0.1)',
+                textTransform: 'none',
+                letterSpacing: '0.5px'
+              }}
+            >
+              🔄 Retry Level
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/jungle-lush')}
+              style={{
+                background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 50%, #e0e0e0 100%)',
+                color: '#d32f2f',
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                borderRadius: '20px',
+                padding: '14px 32px',
+                margin: '8px 0',
+                minWidth: '200px',
+                fontSize: '1.1rem',
+                border: '3px solid #d32f2f',
+                boxShadow: '0 4px 16px rgba(211,47,47,0.3), 0 2px 8px rgba(0,0,0,0.1)',
+                textTransform: 'none',
+                letterSpacing: '0.5px'
+              }}
+            >
+              🏠 Return to Hub
+            </Button>
           </VictoryContainer>
         </VictoryOverlay>
       )}
