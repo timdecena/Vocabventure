@@ -1,336 +1,213 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent, Grid } from '@mui/material';
-import { styled, keyframes, alpha } from '@mui/material/styles';
+import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent } from '@mui/material';
+import { styled, keyframes } from '@mui/material/styles';
 import '../../styles/MapView.css';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
+// Character Assets
+// Commawidow Animation Frames
+import CommawidowIdle1 from '../AdventureAssets/Commawidow/BrownSpider_walk_1.png';
+import CommawidowIdle2 from '../AdventureAssets/Commawidow/BrownSpider_walk_2.png';
+import CommawidowIdle3 from '../AdventureAssets/Commawidow/BrownSpider_walk_3.png';
+import CommawidowIdle4 from '../AdventureAssets/Commawidow/BrownSpider_walk_4.png';
+import CommawidowAttack1 from '../AdventureAssets/Commawidow/BrownSpider_attack_1.png';
+import CommawidowAttack2 from '../AdventureAssets/Commawidow/BrownSpider_attack_2.png';
+import CommawidowAttack3 from '../AdventureAssets/Commawidow/BrownSpider_attack_3.png';
+import CommawidowAttack4 from '../AdventureAssets/Commawidow/BrownSpider_attack_4.png';
+import CommawidowAttack5 from '../AdventureAssets/Commawidow/BrownSpider_attack_5.png';
+import CommawidowAttack6 from '../AdventureAssets/Commawidow/BrownSpider_attack_6.png';
+import CommawidowAttack7 from '../AdventureAssets/Commawidow/BrownSpider_attack_7.png';
+import CommawidowHurt1 from '../AdventureAssets/Commawidow/BrownSpider_hurt_1.png';
+import CommawidowHurt2 from '../AdventureAssets/Commawidow/BrownSpider_hurt_2.png';
+import CommawidowHurt3 from '../AdventureAssets/Commawidow/BrownSpider_hurt_3.png';
+import CommawidowDeath1 from '../AdventureAssets/Commawidow/BrownSpider_death_1.png';
+import CommawidowDeath2 from '../AdventureAssets/Commawidow/BrownSpider_death_2.png';
+import CommawidowDeath3 from '../AdventureAssets/Commawidow/BrownSpider_death_3.png';
+import CommawidowDeath4 from '../AdventureAssets/Commawidow/BrownSpider_death_4.png';
+
+// Wizard Animation Frames
+import WizardIdle1 from '../AdventureAssets/Wizard/Idle_1.png';
+import WizardIdle2 from '../AdventureAssets/Wizard/Idle_2.png';
+
+// Adventurer Animation Frames
+import SoldierIdle1 from '../AdventureAssets/Adventurer/Soldier-Idle_1.png';
+import SoldierIdle2 from '../AdventureAssets/Adventurer/Soldier-Idle_2.png';
+import SoldierIdle3 from '../AdventureAssets/Adventurer/Soldier-Idle_3.png';
+import SoldierIdle4 from '../AdventureAssets/Adventurer/Soldier-Idle_4.png';
+import SoldierIdle5 from '../AdventureAssets/Adventurer/Soldier-Idle_5.png';
+import SoldierIdle6 from '../AdventureAssets/Adventurer/Soldier-Idle_6.png';
+import SoldierAttack1 from '../AdventureAssets/Adventurer/Soldier-Attack02_1.png';
+import SoldierAttack2 from '../AdventureAssets/Adventurer/Soldier-Attack02_2.png';
+import SoldierAttack3 from '../AdventureAssets/Adventurer/Soldier-Attack02_3.png';
+import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png';
+import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
+import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
+
 const JUNGLE_BG = 'https://png.pngtree.com/background/20220727/original/pngtree-jungle-game-background-arcade-art-picture-image_1829537.jpg';
 
-// Enhanced Avatar Components - Detailed Silhouettes with Icons
-const WizardAvatar = styled(Box)(({ theme }) => ({
-  width: '120px',
-  height: '150px',
-  position: 'relative',
-  filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.6))',
-  animation: `${bounce} 2.2s infinite`,
-  
-  // Robe base
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    bottom: 0,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '85px',
-    height: '115px',
-    background: 'linear-gradient(180deg, #4a2c1a 0%, #3d2414 30%, #2c1810 70%, #1a0f08 100%)',
-    borderRadius: '45px 45px 8px 8px',
-    boxShadow: 'inset 0 0 25px rgba(218, 165, 32, 0.15)',
-  },
-  
-  // Hat
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    top: '5px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '65px',
-    height: '45px',
-    background: 'linear-gradient(135deg, #1a0f08 0%, #3d2414 50%, #2c1810 100%)',
-    borderRadius: '40px 40px 0 0',
-    clipPath: 'polygon(15% 100%, 20% 15%, 80% 15%, 85% 100%)',
-    boxShadow: 'inset 0 0 15px rgba(0,0,0,0.3)',
-  }
-}));
+// Character positioning constants - adjust these to position characters
+const CHARACTER_POSITIONS = {
+  WIZARD_LEFT: '100px',
+  WIZARD_BOTTOM: '100px',
+  ADVENTURER_LEFT: '180px',
+  ADVENTURER_BOTTOM: '5px',
+  // Dialogue scene positioning
+  DIALOGUE_COMMAWIDOW_RIGHT: '50px',
+  DIALOGUE_COMMAWIDOW_BOTTOM: '120px', // ⭐ ADJUST THIS for Commawidow in dialogue
+  // Battle scene positioning
+  BATTLE_ADVENTURER_LEFT: '500px',
+  BATTLE_ADVENTURER_BOTTOM: '120px',
+  BATTLE_COMMAWIDOW_RIGHT: '420px',
+  BATTLE_COMMAWIDOW_BOTTOM: '240px', // ⭐ ADJUST THIS for Commawidow in battle
+};
 
-const WizardBeard = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '55px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  width: '45px',
-  height: '35px',
-  background: 'linear-gradient(135deg, #8B7355, #A0845C)',
-  borderRadius: '50% 50% 60% 40%',
-  clipPath: 'polygon(20% 0%, 80% 0%, 90% 70%, 70% 100%, 30% 100%, 10% 70%)',
-  boxShadow: 'inset 0 0 10px rgba(139, 115, 85, 0.4)',
-}));
 
-const WizardIcon = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '65px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  width: '35px',
-  height: '35px',
-  background: 'radial-gradient(circle, #FFD700 20%, #FFA500 60%, #DAA520 100%)',
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '20px',
-  color: '#4a2c1a',
-  fontWeight: 'bold',
-  animation: 'wizardGlow 2s ease-in-out infinite alternate',
-  boxShadow: '0 0 15px rgba(255, 215, 0, 0.6)',
-  '&::before': {
-    content: '"🔮"',
-  },
-  '@keyframes wizardGlow': {
-    '0%': { 
-      boxShadow: '0 0 15px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.3)',
-      transform: 'translateX(-50%) scale(1)'
-    },
-    '100%': { 
-      boxShadow: '0 0 25px rgba(255, 215, 0, 0.8), 0 0 35px rgba(255, 165, 0, 0.4), inset 0 0 15px rgba(255, 215, 0, 0.5)',
-      transform: 'translateX(-50%) scale(1.05)'
-    }
-  }
-}));
 
-const UserAvatar = styled(Box)(({ theme, isDamaged }) => ({
-  width: '100px',
-  height: '130px',
-  position: 'relative',
-  filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.5))',
-  animation: `${bounce} 2s infinite, ${isDamaged ? `${shake} 0.5s ease-in-out, ${userFlash} 0.5s ease-in-out` : 'none'}`,
+// Animated Wizard Component with idle cycling
+const WizardSprite = ({ ...props }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
   
-  // Body armor/tunic
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    bottom: 0,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '65px',
-    height: '95px',
-    background: 'linear-gradient(180deg, #8B4513 0%, #A0522D 20%, #6b3e1a 50%, #4a2c1a 100%)',
-    borderRadius: '32px 32px 15px 15px',
-    boxShadow: 'inset 0 0 20px rgba(139, 69, 19, 0.3)',
-  },
-  
-  // Head
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    top: '10px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '42px',
-    height: '42px',
-    background: 'linear-gradient(135deg, #D2B48C 0%, #DEB887 30%, #F5DEB3 60%, #D2B48C 100%)',
-    borderRadius: '50%',
-    boxShadow: 'inset 0 0 12px rgba(210, 180, 140, 0.4)',
-  }
-}));
-
-const UserCape = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '35px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  width: '50px',
-  height: '70px',
-  background: 'linear-gradient(135deg, #228B22 0%, #32CD32 40%, #20B2AA 100%)',
-  borderRadius: '25px 25px 8px 8px',
-  clipPath: 'polygon(20% 0%, 80% 0%, 85% 80%, 60% 100%, 40% 100%, 15% 80%)',
-  zIndex: -1,
-  boxShadow: 'inset 0 0 15px rgba(34, 139, 34, 0.3)',
-}));
-
-const UserIcon = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '55px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  width: '30px',
-  height: '30px',
-  background: 'radial-gradient(circle, #32CD32 20%, #228B22 60%, #006400 100%)',
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '16px',
-  color: 'white',
-  fontWeight: 'bold',
-  animation: 'heroicPulse 1.5s ease-in-out infinite',
-  boxShadow: '0 0 12px rgba(50, 205, 50, 0.6)',
-  '&::before': {
-    content: '"⚔️"',
-  },
-  '@keyframes heroicPulse': {
-    '0%': { 
-      transform: 'translateX(-50%) scale(1)',
-      boxShadow: '0 0 12px rgba(50, 205, 50, 0.6)'
-    },
-    '50%': { 
-      transform: 'translateX(-50%) scale(1.1)',
-      boxShadow: '0 0 20px rgba(50, 205, 50, 0.8), 0 0 30px rgba(34, 139, 34, 0.4)'
-    },
-    '100%': { 
-      transform: 'translateX(-50%) scale(1)',
-      boxShadow: '0 0 12px rgba(50, 205, 50, 0.6)'
-    }
-  }
-}));
-
-const CommawidowAvatar = styled(Box)(({ theme, isDamaged }) => ({
-  width: '140px',
-  height: '160px',
-  position: 'relative',
-  filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.7))',
-  animation: `${bounce} 2.3s infinite, ${isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none'}`,
-  
-  // Main body (thorax)
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    bottom: '15px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '85px',
-    height: '85px',
-    background: 'radial-gradient(ellipse, #2a1a1a 0%, #1a0a0a 40%, #000000 80%, #0a0000 100%)',
-    borderRadius: '50%',
-    boxShadow: 'inset 0 0 25px rgba(139, 0, 0, 0.4), 0 0 20px rgba(0,0,0,0.5)',
-  },
-  
-  // Abdomen (larger rear section)
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: '55px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '60px',
-    height: '60px',
-    background: 'radial-gradient(ellipse, #3a2a2a 0%, #2a1a1a 30%, #1a0a0a 70%, #0a0000 100%)',
-    borderRadius: '50%',
-    boxShadow: 'inset 0 0 20px rgba(139, 0, 0, 0.5), 0 0 15px rgba(0,0,0,0.3)',
-  }
-}));
-
-const SpiderMarkings = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  bottom: '25px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  width: '65px',
-  height: '65px',
-  
-  // Red hourglass marking
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '30px',
-    height: '20px',
-    background: 'linear-gradient(45deg, #DC143C, #B22222)',
-    clipPath: 'polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%)',
-    boxShadow: '0 0 10px rgba(220, 20, 60, 0.6)',
-  },
-  
-  // Additional dark patterns
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    top: '20%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '40px',
-    height: '8px',
-    background: 'linear-gradient(90deg, transparent, #000000, transparent)',
-    borderRadius: '4px',
-  }
-}));
-
-const CommawidowIcon = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '35px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  width: '40px',
-  height: '40px',
-  background: 'radial-gradient(circle, #DC143C 20%, #8B0000 60%, #4B0000 100%)',
-  borderRadius: '50%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '22px',
-  color: 'white',
-  fontWeight: 'bold',
-  animation: 'spiderMenace 3s ease-in-out infinite',
-  boxShadow: '0 0 15px rgba(220, 20, 60, 0.7), inset 0 0 10px rgba(139, 0, 0, 0.5)',
-  '&::before': {
-    content: '"🕷️"',
-    textShadow: '0 0 8px rgba(0,0,0,0.8)',
-  },
-  '@keyframes spiderMenace': {
-    '0%': { 
-      transform: 'translateX(-50%) rotate(0deg) scale(1)',
-      boxShadow: '0 0 15px rgba(220, 20, 60, 0.7), inset 0 0 10px rgba(139, 0, 0, 0.5)'
-    },
-    '25%': { 
-      transform: 'translateX(-50%) rotate(-3deg) scale(1.05)',
-      boxShadow: '0 0 20px rgba(220, 20, 60, 0.8), inset 0 0 15px rgba(139, 0, 0, 0.6)'
-    },
-    '75%': { 
-      transform: 'translateX(-50%) rotate(3deg) scale(1.05)',
-      boxShadow: '0 0 20px rgba(220, 20, 60, 0.8), inset 0 0 15px rgba(139, 0, 0, 0.6)'
-    },
-    '100%': { 
-      transform: 'translateX(-50%) rotate(0deg) scale(1)',
-      boxShadow: '0 0 15px rgba(220, 20, 60, 0.7), inset 0 0 10px rgba(139, 0, 0, 0.5)'
-    }
-  }
-}));
-
-// Enhanced spider legs with joints
-const SpiderLegs = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '130px',
-  height: '130px',
-  
-  '& .leg': {
-    position: 'absolute',
-    width: '45px',
-    height: '4px',
-    background: 'linear-gradient(90deg, #3a2a2a 0%, #1a0a0a 50%, #000000 100%)',
-    transformOrigin: 'left center',
-    borderRadius: '2px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFrame(prev => (prev + 1) % 2);
+    }, 1000); // Switch frames every 1 second
     
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      right: '15px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      width: '6px',
-      height: '6px',
-      background: '#2a1a1a',
-      borderRadius: '50%',
-      boxShadow: '0 0 2px rgba(0,0,0,0.8)',
-    }
-  },
+    return () => clearInterval(interval);
+  }, []);
+
+  const WizardImg = styled('img')({
+    width: '180px', // Perfect size
+    height: 'auto',
+    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+    // No bouncing - standing still
+  });
+
+  return <WizardImg src={currentFrame === 0 ? WizardIdle1 : WizardIdle2} {...props} />;
+};
+
+// Animated Adventurer Component with idle cycling and attack state
+const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
   
-  '& .leg1': { top: '15px', left: '8px', transform: 'rotate(-50deg)' },
-  '& .leg2': { top: '25px', left: '3px', transform: 'rotate(-25deg)' },
-  '& .leg3': { top: '75px', left: '3px', transform: 'rotate(25deg)' },
-  '& .leg4': { top: '85px', left: '8px', transform: 'rotate(50deg)' },
-  '& .leg5': { top: '15px', right: '8px', transform: 'rotate(-130deg)' },
-  '& .leg6': { top: '25px', right: '3px', transform: 'rotate(-155deg)' },
-  '& .leg7': { top: '75px', right: '3px', transform: 'rotate(155deg)' },
-  '& .leg8': { top: '85px', right: '8px', transform: 'rotate(130deg)' },
-}));
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (state === 'idle') {
+        setCurrentFrame(prev => (prev + 1) % 6); // Cycle through 6 frames
+      } else if (state === 'attack') {
+        setCurrentFrame(prev => (prev + 1) % 6); // 6 attack frames
+      }
+    }, state === 'attack' ? 400 : 800); // Faster animation for attacks
+    
+    return () => clearInterval(interval);
+  }, [state]);
+
+  const getAdventurerFrame = () => {
+    if (state === 'attack') {
+      switch (currentFrame) {
+        case 0: return SoldierAttack1;
+        case 1: return SoldierAttack2;
+        case 2: return SoldierAttack3;
+        case 3: return SoldierAttack4;
+        case 4: return SoldierAttack5;
+        case 5: return SoldierAttack6;
+        default: return SoldierAttack1;
+      }
+    } else {
+      // idle state
+      switch (currentFrame) {
+        case 0: return SoldierIdle1;
+        case 1: return SoldierIdle2;
+        case 2: return SoldierIdle3;
+        case 3: return SoldierIdle4;
+        case 4: return SoldierIdle5;
+        case 5: return SoldierIdle6;
+        default: return SoldierIdle1;
+      }
+    }
+  };
+
+  const AdventurerImg = styled('img')(({ isDamaged }) => ({
+    width: '280px', // Bigger to match better with wizard
+    height: 'auto',
+    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+    animation: isDamaged ? `${shake} 0.5s ease-in-out, ${userFlash} 0.5s ease-in-out` : 'none',
+    marginBottom: '0px', // Ensure it's aligned with the platform
+  }));
+
+  return <AdventurerImg src={getAdventurerFrame()} isDamaged={isDamaged} {...props} />;
+};
+
+// Animated Commawidow Sprite Component
+const CommawidowSprite = ({ state, isDamaged, ...props }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (state === 'idle') {
+        setCurrentFrame(prev => (prev + 1) % 4); // 4 idle frames (using walk as idle)
+      } else if (state === 'attack') {
+        setCurrentFrame(prev => (prev + 1) % 7); // 7 attack frames
+      } else if (state === 'hurt') {
+        setCurrentFrame(prev => (prev + 1) % 3); // 3 hurt frames
+      } else if (state === 'death') {
+        setCurrentFrame(prev => (prev + 1) % 4); // 4 death frames
+      }
+    }, 600); // Frame speed
+    
+    return () => clearInterval(interval);
+  }, [state]);
+
+  const getCommawidowFrame = () => {
+    switch (state) {
+      case 'attack':
+        switch (currentFrame) {
+          case 0: return CommawidowAttack1;
+          case 1: return CommawidowAttack2;
+          case 2: return CommawidowAttack3;
+          case 3: return CommawidowAttack4;
+          case 4: return CommawidowAttack5;
+          case 5: return CommawidowAttack6;
+          case 6: return CommawidowAttack7;
+          default: return CommawidowAttack1;
+        }
+      case 'hurt':
+        switch (currentFrame) {
+          case 0: return CommawidowHurt1;
+          case 1: return CommawidowHurt2;
+          case 2: return CommawidowHurt3;
+          default: return CommawidowHurt1;
+        }
+      case 'death':
+        switch (currentFrame) {
+          case 0: return CommawidowDeath1;
+          case 1: return CommawidowDeath2;
+          case 2: return CommawidowDeath3;
+          case 3: return CommawidowDeath4;
+          default: return CommawidowDeath1;
+        }
+      default: // idle
+        switch (currentFrame) {
+          case 0: return CommawidowIdle1;
+          case 1: return CommawidowIdle2;
+          case 2: return CommawidowIdle3;
+          case 3: return CommawidowIdle4;
+          default: return CommawidowIdle1;
+        }
+    }
+  };
+
+  const CommawidowImg = styled('img')(({ isDamaged, state }) => ({
+    width: '300px', // Commawidow size
+    height: 'auto',
+    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+    animation: isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none',
+    transform: state === 'hurt' ? 'scaleX(1)' : 'scaleX(1)', // Face adventurer when hurt, face away normally
+  }));
+
+  return <CommawidowImg src={getCommawidowFrame()} isDamaged={isDamaged} state={state} {...props} />;
+};
 
 const HeartIcon = styled(Box)(({ theme, filled }) => ({
   width: '40px',
@@ -410,7 +287,6 @@ const SceneContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   overflow: 'hidden',
 }));
-
 const Ground = styled(Box)(({ theme }) => ({
   position: 'absolute',
   left: 0,
@@ -423,37 +299,54 @@ const Ground = styled(Box)(({ theme }) => ({
   borderTopRightRadius: '30px',
   boxShadow: '0 0 16px 2px rgba(0,0,0,0.25)',
 }));
-
 const SpritesRow = styled(Box)(({ theme }) => ({
   width: '900px',
   maxWidth: '90vw',
   position: 'absolute',
   left: '50%',
   transform: 'translateX(-50%)',
-  bottom: '130px',
-  height: '160px',
+  bottom: '130px', // Position on top of the platform (90px ground + 40px height)
+  height: '250px', // More room for larger sprites
   zIndex: 3,
   pointerEvents: 'none',
 }));
-
-const WizardUserGroup = styled(Box)(({ theme }) => ({
+// Individual character positioning
+const PositionedWizard = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  left: 0,
-  bottom: 0,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: '24px',
+  left: CHARACTER_POSITIONS.WIZARD_LEFT,
+  bottom: CHARACTER_POSITIONS.WIZARD_BOTTOM,
+  zIndex: 4,
 }));
 
-const CommawidowGroup = styled(Box)(({ theme }) => ({
+const PositionedAdventurer = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: 0,
-  bottom: 0,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  gap: '32px',
+  left: CHARACTER_POSITIONS.ADVENTURER_LEFT,
+  bottom: CHARACTER_POSITIONS.ADVENTURER_BOTTOM,
+  zIndex: 4,
+}));
+
+// Dynamic dialogue monster positioning
+const PositionedMonster = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  right: CHARACTER_POSITIONS.DIALOGUE_COMMAWIDOW_RIGHT,
+  bottom: CHARACTER_POSITIONS.DIALOGUE_COMMAWIDOW_BOTTOM,
+  zIndex: 4,
+}));
+
+// Battle-specific positioning components
+const BattleAdventurer = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  left: CHARACTER_POSITIONS.BATTLE_ADVENTURER_LEFT,
+  bottom: CHARACTER_POSITIONS.BATTLE_ADVENTURER_BOTTOM,
+  zIndex: 4,
+}));
+
+// Dynamic battle monster positioning
+const BattleMonster = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  right: CHARACTER_POSITIONS.BATTLE_COMMAWIDOW_RIGHT,
+  bottom: CHARACTER_POSITIONS.BATTLE_COMMAWIDOW_BOTTOM,
+  zIndex: 4,
 }));
 
 
@@ -466,51 +359,182 @@ const DialogueBox = styled(Paper)(({ theme }) => ({
   left: '50%',
   bottom: 0,
   transform: 'translateX(-50%)',
-  width: '900px',
+  width: '800px',
   maxWidth: '90vw',
   minWidth: '320px',
+  height: '160px', // Fixed height to match your reference
   padding: theme.spacing(3, 4),
-  backgroundColor: FLESH_BROWN,
+  background: 'linear-gradient(145deg, #f4e4c1 0%, #e8d5a6 50%, #dcc48a 100%)',
   color: '#3a2a1a',
   textAlign: 'left',
-  borderRadius: '18px 18px 0 0',
-  zIndex: 10,
-  boxShadow: '0 -2px 16px 2px rgba(0,0,0,0.18)',
-  border: '3px solid #b48a6e',
-  fontFamily: 'monospace',
+  borderRadius: '20px 20px 0 0',
+  zIndex: 10, // Increased z-index but still below name tag
+  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.25), 0 -8px 32px 2px rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.6)',
+  border: '3px solid #b8956f',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-between',
+  justifyContent: 'flex-start',
   boxSizing: 'border-box',
+  overflow: 'visible', // Allow name tag to be visible outside the box
+  backdropFilter: 'blur(2px)',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
+    borderRadius: '20px 20px 0 0',
+    pointerEvents: 'none',
+  },
 }));
-
 const NameTag = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  top: '-22px',
-  left: '18px',
-  background: NAME_BG,
-  color: '#3a2a1a',
-  borderRadius: '16px',
-  padding: '4px 18px',
-  fontWeight: 700,
-  fontSize: '1.1rem',
-  boxShadow: '0 2px 8px #b48a6e44',
-  border: '2px solid #b48a6e',
-  fontFamily: 'monospace',
-  zIndex: 2,
+  top: '-25px',
+  left: '24px',
+  background: 'linear-gradient(145deg, #d4a574 0%, #c19956 50%, #a8834a 100%)',
+  color: '#2c1810',
+  borderRadius: '18px',
+  padding: '8px 20px',
+  fontWeight: 800,
+  fontSize: '1rem',
+  boxShadow: '0 4px 16px rgba(168,131,74,0.5), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.6)',
+  border: '3px solid #9a7a4a',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  zIndex: 100, // High but reasonable z-index
+  letterSpacing: '0.5px',
+  textShadow: '0 1px 2px rgba(255,255,255,0.4)',
+  minWidth: '80px',
+  textAlign: 'center',
+  display: 'block', // Ensure it's visible
+  visibility: 'visible', // Force visibility
+}));
+const DialogueWrapper = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  zIndex: 20,
+  isolation: 'isolate',
+}));
+
+const DialogueText = styled(Typography)(({ theme }) => ({
+  marginTop: 18,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1.2rem',
+  fontWeight: 600,
+  lineHeight: 1.4,
+  letterSpacing: '0.3px',
+  color: '#2c1810',
+  textShadow: '0 1px 1px rgba(255,255,255,0.3)',
+  zIndex: 12,
+  position: 'relative',
 }));
 
 const ClickPrompt = styled(Box)(({ theme }) => ({
   position: 'absolute',
   bottom: '16px',
   right: '32px',
-  color: '#00996b',
-  fontSize: '1.1rem',
+  color: '#2e7d32',
+  fontSize: '1rem',
   fontWeight: 700,
-  opacity: 0.85,
+  opacity: 0.9,
   pointerEvents: 'none',
-  zIndex: 5,
-  fontFamily: 'monospace',
+  zIndex: 16,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  letterSpacing: '0.3px',
+  textShadow: '0 1px 2px rgba(255,255,255,0.5)',
+  animation: 'pulse 2s infinite',
+  '@keyframes pulse': {
+    '0%': { opacity: 0.7 },
+    '50%': { opacity: 1 },
+    '100%': { opacity: 0.7 },
+  },
+}));
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialog-paper': {
+    background: 'linear-gradient(145deg, #f4e4c1 0%, #e8d5a6 50%, #dcc48a 100%)',
+    borderRadius: '20px',
+    border: '3px solid #b8956f',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.6)',
+    minWidth: '400px',
+    padding: '16px',
+    position: 'relative',
+    overflow: 'visible',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
+      borderRadius: '20px',
+      pointerEvents: 'none',
+    },
+  },
+}));
+
+const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
+  textAlign: 'center',
+  padding: '24px 32px 16px 32px',
+  position: 'relative',
+  zIndex: 2,
+  '& .MuiTypography-root': {
+    color: '#2c1810',
+    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+    fontWeight: 700,
+    fontSize: '1.3rem',
+    textShadow: '0 1px 2px rgba(255,255,255,0.4)',
+    letterSpacing: '0.3px',
+  },
+}));
+
+const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
+  padding: '16px 32px 24px 32px',
+  justifyContent: 'center',
+  gap: '16px',
+  position: 'relative',
+  zIndex: 2,
+}));
+
+const DialogButton = styled(Button)(({ variant }) => ({
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontWeight: 700,
+  fontSize: '1rem',
+  borderRadius: '16px',
+  padding: '10px 24px',
+  textTransform: 'none',
+  letterSpacing: '0.5px',
+  minWidth: '120px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  ...(variant === 'cancel' ? {
+    background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%)',
+    color: '#2c3e50',
+    border: '2px solid #dee2e6',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
+    '&:hover': {
+      background: 'linear-gradient(145deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9)',
+      border: '2px solid #adb5bd',
+    },
+  } : {
+    background: 'linear-gradient(145deg, #ff6b6b 0%, #ee5a52 50%, #d63031 100%)',
+    color: '#fff',
+    border: '2px solid #c23616',
+    boxShadow: '0 4px 12px rgba(214,48,49,0.4), 0 2px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
+    '&:hover': {
+      background: 'linear-gradient(145deg, #ff5252 0%, #e53935 50%, #c62828 100%)',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(214,48,49,0.5), 0 3px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+      border: '2px solid #b71c1c',
+    },
+  }),
+  '&:active': {
+    transform: 'translateY(1px)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)',
+  },
 }));
 
 const HeartRow = styled(Box)(({ theme }) => ({
@@ -523,19 +547,57 @@ const HeartRow = styled(Box)(({ theme }) => ({
   left: '32px',
   zIndex: 20,
 }));
-
 const TimerBox = styled(Box)(({ theme }) => ({
-  background: '#fffbe6',
+  background: 'linear-gradient(145deg, #fff9c4 0%, #f5e15b 50%, #e8d547 100%)',
   color: '#3a2a1a',
-  borderRadius: '12px',
-  padding: '6px 18px',
-  fontWeight: 700,
-  fontFamily: 'monospace',
-  fontSize: '1.2rem',
-  boxShadow: '0 2px 8px #b48a6e44',
-  border: '2px solid #b48a6e',
+  borderRadius: '16px',
+  padding: '8px 20px',
+  fontWeight: 800,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1.1rem',
+  boxShadow: '0 6px 16px rgba(212,165,116,0.4), 0 3px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8)',
+  border: '3px solid #d4a574',
   zIndex: 20,
   marginLeft: 16,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minWidth: '90px',
+  transition: 'all 0.3s ease',
+  textAlign: 'center',
+  letterSpacing: '0.5px',
+  '&:hover': {
+    transform: 'translateY(-1px)',
+    boxShadow: '0 8px 20px rgba(212,165,116,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)',
+  },
+}));
+const QuitButton = styled(Button)(({ theme }) => ({
+  background: 'linear-gradient(145deg, #ff6b6b 0%, #ee5a52 50%, #d63031 100%)',
+  color: '#fff',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1rem',
+  fontWeight: 700,
+  borderRadius: '16px',
+  padding: '10px 20px',
+  border: '3px solid #c23616',
+  boxShadow: '0 6px 16px rgba(214,48,49,0.4), 0 3px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
+  textTransform: 'none',
+  letterSpacing: '0.5px',
+  marginRight: 48,
+  marginTop: 12,
+  minWidth: '100px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #ff5252 0%, #e53935 50%, #c62828 100%)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 8px 20px rgba(214,48,49,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+    border: '3px solid #b71c1c',
+  },
+  '&:active': {
+    transform: 'translateY(1px)',
+    boxShadow: '0 4px 12px rgba(214,48,49,0.4), 0 2px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
+  },
 }));
 
 const VS = styled(Box)(({ theme }) => ({
@@ -547,7 +609,6 @@ const VS = styled(Box)(({ theme }) => ({
   zIndex: 22,
   pointerEvents: 'none',
 }));
-
 const TopBar = styled(Box)(({ theme }) => ({
   width: '100%',
   display: 'flex',
@@ -595,8 +656,8 @@ const MonsterSpriteWrapper = styled(Box)(({ theme }) => ({
 
 const BattleBottomBar = styled(Box)(({ theme }) => ({
   width: '100vw',
-  background: 'rgba(122,62,46,0.97)',
-  minHeight: '100px',
+  background: 'linear-gradient(180deg, rgba(139,69,19,0.95) 0%, rgba(101,67,33,0.98) 50%, rgba(62,39,35,1) 100%)',
+  minHeight: '180px', // Increased height to match dialogue box
   padding: '38px 0 18px 0',
   display: 'flex',
   flexDirection: 'column',
@@ -605,19 +666,39 @@ const BattleBottomBar = styled(Box)(({ theme }) => ({
   zIndex: 30,
   borderTopLeftRadius: '32px',
   borderTopRightRadius: '32px',
-  boxShadow: '0 -2px 24px 2px rgba(0,0,0,0.32)',
+  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.4), 0 -8px 32px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+  border: '2px solid rgba(139,69,19,0.8)',
+  borderBottom: 'none',
   position: 'absolute',
   left: 0,
   bottom: 0,
+  backdropFilter: 'blur(8px)',
+  overflow: 'visible',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+    borderRadius: '32px 32px 0 0',
+    pointerEvents: 'none',
+  },
 }));
-
 const QuestionText = styled(Typography)(({ theme }) => ({
-  color: 'white',
-  fontWeight: 600,
-  fontSize: '1.35rem',
-  marginBottom: '22px',
+  color: '#fff',
+  fontWeight: 700,
+  fontSize: '1.3rem',
+  marginBottom: '24px',
   textAlign: 'center',
-  textShadow: '0 2px 8px #000',
+  textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1)',
+  letterSpacing: '0.3px',
+  lineHeight: 1.4,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  position: 'relative',
+  zIndex: 12,
+  filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.1))',
 }));
 
 const MONSTER_MAX_HP = 100;
@@ -655,12 +736,13 @@ const MonsterHPText = styled(Typography)(({ theme }) => ({
 }));
 
 const ChoicesGrid = styled(Box)(({ theme, count }) => ({
-  width: count === 3 ? '520px' : '520px',
+  width: count === 3 ? '580px' : '580px',
+  maxWidth: '90vw',
   margin: '0 auto',
   display: 'grid',
   gridTemplateColumns: count === 3 ? '1fr 1fr 1fr' : '1fr 1fr',
   gridTemplateRows: count === 3 ? '1fr' : '1fr 1fr',
-  gap: '18px',
+  gap: '20px',
   justifyItems: 'stretch',
   alignItems: 'stretch',
   justifyContent: 'center',
@@ -668,27 +750,62 @@ const ChoicesGrid = styled(Box)(({ theme, count }) => ({
 
 const MoveButton = styled(Button)(({ selected }) => ({
   width: '100%',
-  minHeight: '64px',
-  background: '#f8f8f8',
-  color: '#222',
-  fontFamily: 'monospace',
-  fontSize: '1.1rem',
-  border: selected ? '2.5px solid #d32f2f' : '2.5px solid #444',
-  borderRadius: '4px',
-  boxShadow: selected ? '0 0 0 2px #ffbdbd' : '0 0 0 2px #222',
-  outline: selected ? '2px solid #d32f2f' : 'none',
+  minHeight: '68px',
+  background: selected 
+    ? 'linear-gradient(145deg, #fff9c4 0%, #f5e15b 50%, #e8d547 100%)' 
+    : 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%)',
+  color: selected ? '#8b4513' : '#2c3e50',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1.05rem',
+  fontWeight: selected ? 700 : 600,
+  border: selected 
+    ? '3px solid #d4a574' 
+    : '2px solid #dee2e6',
+  borderRadius: '16px',
+  boxShadow: selected 
+    ? '0 8px 16px rgba(212,165,116,0.4), 0 4px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)' 
+    : '0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
   textAlign: 'center',
   whiteSpace: 'normal',
   wordBreak: 'break-word',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '8px 12px',
-  transition: 'border 0.1s, box-shadow 0.1s',
+  padding: '12px 16px',
+  position: 'relative',
+  overflow: 'hidden',
+  textTransform: 'none',
+  letterSpacing: '0.3px',
+  lineHeight: 1.3,
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: '-100%',
+    width: '100%',
+    height: '100%',
+    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+    transition: 'left 0.6s ease',
+  },
   '&:hover': {
-    border: '2.5px solid #d32f2f',
-    boxShadow: '0 0 0 2px #ffbdbd',
-    background: '#fff3f3',
+    transform: 'translateY(-2px)',
+    border: '3px solid #d4a574',
+    boxShadow: '0 8px 20px rgba(212,165,116,0.3), 0 4px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.9)',
+    background: 'linear-gradient(145deg, #fff9c4 0%, #f5e15b 30%, #e8d547 100%)',
+    color: '#8b4513',
+    '&::before': {
+      left: '100%',
+    },
+  },
+  '&:active': {
+    transform: 'translateY(1px)',
+    boxShadow: '0 4px 8px rgba(212,165,116,0.3), 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8)',
+  },
+  '&:disabled': {
+    opacity: 0.7,
+    cursor: 'not-allowed',
+    transform: 'none',
   },
 }));
 
@@ -820,45 +937,45 @@ const Star = styled('span')(({ filled }) => ({
 
 const JungleLushLevel1 = () => {
   const navigate = useNavigate();
-  const [currentDialogue, setCurrentDialogue] = useState(0);
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showResult, setShowResult] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [victory, setVictory] = useState(false);
-  const [showClickPrompt, setShowClickPrompt] = useState(false);
-  const idleTimeout = useRef(null);
-  const [showQuit, setShowQuit] = useState(false);
+  // Dialogue and battle state
+  const [phase, setPhase] = useState('dialogue'); // dialogue, battle, victory, gameover
+  const [dialogueIdx, setDialogueIdx] = useState(0);
+  // Battle state
   const [hearts, setHearts] = useState(3);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [monsterHP, setMonsterHP] = useState(MONSTER_MAX_HP);
-  const [retryBattle, setRetryBattle] = useState(false);
+  const [monsterState, setMonsterState] = useState('idle'); // idle, attack, hurt, death
+  const [adventurerState, setAdventurerState] = useState('idle'); // idle, attack
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showResult, setShowResult] = useState(false);
   const [userDamaged, setUserDamaged] = useState(false);
   const [monsterDamaged, setMonsterDamaged] = useState(false);
+  const [victory, setVictory] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [showClickPrompt, setShowClickPrompt] = useState(false);
+  const [showQuit, setShowQuit] = useState(false);
+  const idleTimeout = useRef(null);
+  // Star rating state
   const [newRecord, setNewRecord] = useState(false);
   const levelNumber = 1; // This is level 1
-
-  // Show Commawidow sprite only when she is speaking
-  const showCommawidow = !showQuiz && dialogueSequence[currentDialogue].speaker === 'Commawidow';
-  // Hide left sprites for Grammowl (off-screen)
-  const showLeftSprites = !showQuiz && dialogueSequence[currentDialogue].speaker !== 'Grammowl';
 
   // Dialogue click/idle logic
   useEffect(() => {
     setShowClickPrompt(false);
     if (idleTimeout.current) clearTimeout(idleTimeout.current);
-    if (!showQuiz) {
+    if (phase === 'dialogue') {
       idleTimeout.current = setTimeout(() => setShowClickPrompt(true), 2000);
     }
     return () => clearTimeout(idleTimeout.current);
-  }, [currentDialogue, showQuiz]);
+  }, [dialogueIdx, phase]);
 
+  // Timer logic
   useEffect(() => {
-    if (showQuiz && timeLeft > 0 && !victory && !gameOver) {
+    if (phase === 'battle' && timeLeft > 0 && !victory && !gameOver) {
       const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
       return () => clearInterval(timer);
-    } else if (showQuiz && timeLeft === 0 && !victory && !gameOver) {
+    } else if (phase === 'battle' && timeLeft === 0 && !victory && !gameOver) {
       // Decrease heart, reset timer or game over
       if (hearts > 1) {
         setHearts(h => h - 1);
@@ -870,44 +987,64 @@ const JungleLushLevel1 = () => {
         setGameOver(true);
       }
     }
-  }, [showQuiz, timeLeft, victory, gameOver, hearts]);
+  }, [phase, timeLeft, victory, gameOver, hearts]);
 
+  // Dialogue click handler
   const handleDialogueClick = () => {
     setShowClickPrompt(false);
     if (idleTimeout.current) clearTimeout(idleTimeout.current);
-    if (currentDialogue < dialogueSequence.length - 1) {
-      setCurrentDialogue(currentDialogue + 1);
+    if (dialogueIdx < dialogueSequence.length - 1) {
+      setDialogueIdx(dialogueIdx + 1);
     } else {
-      setShowQuiz(true);
+      // Start battle
+      setPhase('battle');
+      setMonsterHP(MONSTER_MAX_HP);
+      setCurrentQuestion(0);
+      setTimeLeft(TIMER_DURATION);
+      setMonsterState('idle');
     }
   };
 
-  const handleAnswer = (index) => {
-    setSelectedAnswer(index);
+  // Answer handler
+  const handleAnswer = (idx) => {
+    setSelectedAnswer(idx);
     setShowResult(true);
-    if (index === questions[currentQuestion].correctAnswer) {
-      // Correct answer - damage monster
-      setMonsterDamaged(true);
-      setTimeout(() => setMonsterDamaged(false), 500);
-      
+    if (idx === questions[currentQuestion].correctAnswer) {
+      // Adventurer attacks first
+      setAdventurerState('attack');
+      setTimeout(() => {
+        setAdventurerState('idle');
+        // Then monster gets hurt
+        setMonsterDamaged(true);
+        setMonsterState('hurt');
+        setTimeout(() => {
+          setMonsterDamaged(false);
+          setMonsterState('idle');
+        }, 500);
+      }, 300); // Small delay to show attack animation
       setMonsterHP(hp => {
         const newHP = Math.max(0, hp - Math.floor(MONSTER_MAX_HP / questions.length));
         if (currentQuestion === questions.length - 1 || newHP === 0) {
-          setVictory(true);
+          setMonsterState('death');
+          setTimeout(() => setVictory(true), 1000);
         }
         return newHP;
       });
       if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(prev => prev + 1);
-        setSelectedAnswer(null);
-        setShowResult(false);
-        setTimeLeft(TIMER_DURATION);
+        setTimeout(() => {
+          setCurrentQuestion(prev => prev + 1);
+          setSelectedAnswer(null);
+          setShowResult(false);
+          setTimeLeft(TIMER_DURATION);
+        }, 600);
       }
     } else {
-      // Wrong answer - damage user
       setUserDamaged(true);
-      setTimeout(() => setUserDamaged(false), 500);
-      
+      setMonsterState('attack');
+      setTimeout(() => {
+        setUserDamaged(false);
+        setMonsterState('idle');
+      }, 500);
       if (hearts > 1) {
         setTimeout(() => {
           setHearts(h => h - 1);
@@ -924,13 +1061,7 @@ const JungleLushLevel1 = () => {
     }
   };
 
-  const handleContinue = () => {
-    if (victory || gameOver) {
-      navigate('/jungle-lush');
-    }
-  };
-
-  // Retry handler for battle only
+  // Retry handler for current battle (used on game over)
   const handleRetryBattle = () => {
     setHearts(3);
     setTimeLeft(TIMER_DURATION);
@@ -940,8 +1071,25 @@ const JungleLushLevel1 = () => {
     setShowResult(false);
     setGameOver(false);
     setVictory(false);
-    setShowQuiz(true);
-    setRetryBattle(false);
+    setPhase('battle');
+    setMonsterState('idle');
+    setAdventurerState('idle');
+  };
+
+  // Retry handler for whole level (used on victory)
+  const handleRetryWholeLevel = () => {
+    setHearts(3);
+    setTimeLeft(TIMER_DURATION);
+    setMonsterHP(MONSTER_MAX_HP);
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setGameOver(false);
+    setVictory(false);
+    setPhase('dialogue');
+    setDialogueIdx(0);
+    setMonsterState('idle');
+    setAdventurerState('idle');
   };
 
   // Persist progress: save stars on victory
@@ -966,11 +1114,76 @@ const JungleLushLevel1 = () => {
     }
   }, [victory]);
 
+  // Render logic
+  let content = null;
+  if (phase === 'dialogue') {
+    const d = dialogueSequence[dialogueIdx];
+    content = (
+      <>
+        <PositionedWizard>
+          <WizardSprite />
+        </PositionedWizard>
+        <PositionedAdventurer>
+          <AdventurerSprite state={adventurerState} />
+        </PositionedAdventurer>
+        {d.speaker === 'Commawidow' && (
+          <PositionedMonster>
+            <CommawidowSprite state="idle" />
+          </PositionedMonster>
+        )}
+        <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
+          <NameTag>{d.speaker}</NameTag>
+          <DialogueText variant="h6" gutterBottom>
+            {d.text}
+          </DialogueText>
+          {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
+        </DialogueBox>
+      </>
+    );
+  } else if (phase === 'battle') {
+    content = (
+      <>
+        <>
+          <BattleAdventurer>
+            <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
+          </BattleAdventurer>
+          <BattleMonster>
+            <MonsterHPText>Commawidow HP</MonsterHPText>
+            <MonsterHPBar>
+              <MonsterHPFill hp={monsterHP} />
+            </MonsterHPBar>
+            <CommawidowSprite state={monsterState} isDamaged={monsterDamaged} />
+          </BattleMonster>
+          <VS style={{ position: 'absolute', left: '50%', bottom: '250px', transform: 'translateX(-50%)', zIndex: 5 }}>VS</VS>
+        </>
+        <BattleBottomBar>
+          <QuestionText>
+            {questions[currentQuestion].question}
+          </QuestionText>
+          <ChoicesGrid count={questions[currentQuestion].options.length}>
+            {questions[currentQuestion].options.map((option, idx) => (
+              <MoveButton
+                key={idx}
+                selected={selectedAnswer === idx}
+                onClick={() => handleAnswer(idx)}
+                disableRipple
+                style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
+                disabled={showResult}
+              >
+                {option}
+              </MoveButton>
+            ))}
+          </ChoicesGrid>
+        </BattleBottomBar>
+      </>
+    );
+  }
+
   return (
     <SceneContainer>
       <Ground />
       <TopBar>
-        {showQuiz ? (
+        {phase === 'battle' ? (
           <HeartRow>
             {[...Array(3)].map((_, idx) => (
               <HeartIcon key={idx} filled={idx < hearts} />
@@ -978,151 +1191,325 @@ const JungleLushLevel1 = () => {
           </HeartRow>
         ) : <div />}
         <div style={{ flex: 1 }} />
-        {showQuiz ? (
+        {phase === 'battle' ? (
           <TimerBox>
-            <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>TIMER</Typography>
-            <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>{timeLeft}s</Typography>
+            <Typography style={{ fontWeight: 800, fontSize: '0.9rem', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', letterSpacing: '1px', lineHeight: 1 }}>TIMER</Typography>
+            <Typography style={{ fontWeight: 900, fontSize: '1.3rem', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', letterSpacing: '0.5px', lineHeight: 1, marginTop: '2px' }}>{timeLeft}s</Typography>
           </TimerBox>
         ) : <div style={{ width: 90 }} />}
-        <Button variant="contained" color="error" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />} style={{ fontWeight: 700, fontFamily: 'monospace', borderRadius: 18, marginRight: 48, marginTop: 12 }}>
+        <QuitButton variant="contained" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />}>
           Quit
-        </Button>
+        </QuitButton>
       </TopBar>
-      {!showQuiz ? (
-        <>
-          <SpritesRow>
-            {showLeftSprites && (
-              <WizardUserGroup>
-                <WizardAvatar>
-                  <WizardBeard />
-                  <WizardIcon />
-                </WizardAvatar>
-                <UserAvatar>
-                  <UserCape />
-                  <UserIcon />
-                </UserAvatar>
-              </WizardUserGroup>
-            )}
-            <CommawidowGroup>
-              {showCommawidow && (
-                <CommawidowAvatar isDamaged={false}>
-                  <SpiderLegs>
-                    <div className="leg leg1"></div>
-                    <div className="leg leg2"></div>
-                    <div className="leg leg3"></div>
-                    <div className="leg leg4"></div>
-                    <div className="leg leg5"></div>
-                    <div className="leg leg6"></div>
-                    <div className="leg leg7"></div>
-                    <div className="leg leg8"></div>
-                  </SpiderLegs>
-                  <SpiderMarkings />
-                  <CommawidowIcon />
-                </CommawidowAvatar>
-              )}
-            </CommawidowGroup>
-          </SpritesRow>
-          <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
-            <NameTag>{dialogueSequence[currentDialogue].speaker}</NameTag>
-            <Typography variant="h6" gutterBottom style={{ marginTop: 18, fontFamily: 'monospace' }}>
-              {dialogueSequence[currentDialogue].text}
-            </Typography>
-            {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
-          </DialogueBox>
-        </>
-      ) : (
-        <>
-          <BattleSpritesRow>
-            <UserAvatar isDamaged={userDamaged}>
-              <UserCape />
-              <UserIcon />
-            </UserAvatar>
-            <VS>VS</VS>
-            <MonsterSpriteWrapper>
-              <MonsterHPText>Commawidow HP</MonsterHPText>
-              <MonsterHPBar>
-                <MonsterHPFill hp={monsterHP} />
-              </MonsterHPBar>
-              <CommawidowAvatar isDamaged={monsterDamaged}>
-                <SpiderLegs>
-                  <div className="leg leg1"></div>
-                  <div className="leg leg2"></div>
-                  <div className="leg leg3"></div>
-                  <div className="leg leg4"></div>
-                  <div className="leg leg5"></div>
-                  <div className="leg leg6"></div>
-                  <div className="leg leg7"></div>
-                  <div className="leg leg8"></div>
-                </SpiderLegs>
-                <SpiderMarkings />
-                <CommawidowIcon />
-              </CommawidowAvatar>
-            </MonsterSpriteWrapper>
-          </BattleSpritesRow>
-          <BattleBottomBar>
-            <QuestionText>
-              {questions[currentQuestion].question}
-            </QuestionText>
-            <ChoicesGrid count={questions[currentQuestion].options.length}>
-              {questions[currentQuestion].options.map((option, idx) => (
-                <MoveButton
-                  key={idx}
-                  selected={selectedAnswer === idx}
-                  onClick={() => handleAnswer(idx)}
-                  disableRipple
-                  style={{ fontFamily: 'monospace' }}
-                  disabled={showResult}
-                >
-                  {option}
-                </MoveButton>
-              ))}
-            </ChoicesGrid>
-          </BattleBottomBar>
-        </>
-      )}
-      <Dialog open={showQuit} onClose={() => setShowQuit(false)}>
-        <DialogContent>
-          <Typography variant="h6" align="center">Are you sure you want to quit?</Typography>
+      {content}
+      <Dialog 
+        open={showQuit} 
+        onClose={() => setShowQuit(false)}
+        PaperProps={{
+          style: {
+            background: 'linear-gradient(145deg, #fffbe6 0%, #f5f0e6 50%, #e8dcc6 100%)',
+            borderRadius: '24px',
+            border: '4px solid #b48a6e',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            minWidth: '300px',
+            padding: '16px'
+          }
+        }}
+      >
+        <DialogContent style={{ padding: '24px 24px 16px 24px' }}>
+          <Typography 
+            variant="h5" 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              color: '#3a2a1a',
+              marginBottom: '16px',
+              textShadow: '0 2px 4px rgba(180,138,110,0.3)'
+            }}
+          >
+            Are you sure you want to quit?
+          </Typography>
+          <Typography 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              color: '#5a4a3a',
+              fontSize: '1rem'
+            }}
+          >
+            Your progress in this level will be lost.
+          </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowQuit(false)} color="primary">Cancel</Button>
-          <Button onClick={() => navigate('/jungle-lush')} color="error">Quit</Button>
+        <DialogActions style={{ padding: '16px 24px 24px 24px', gap: '12px', justifyContent: 'center' }}>
+          <Button 
+            onClick={() => setShowQuit(false)} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '10px 24px',
+              border: '2px solid #2e7d32',
+              boxShadow: '0 4px 12px rgba(76,175,80,0.3)',
+              textTransform: 'none',
+              minWidth: '100px'
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => navigate('/jungle-lush')} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #f44336 0%, #e53935 50%, #d32f2f 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '10px 24px',
+              border: '2px solid #c62828',
+              boxShadow: '0 4px 12px rgba(244,67,54,0.3)',
+              textTransform: 'none',
+              minWidth: '100px'
+            }}
+          >
+            Quit
+          </Button>
         </DialogActions>
       </Dialog>
       {/* Game over dialog only (not for victory) */}
-      <Dialog open={gameOver && hearts === 0} onClose={() => {}}>
-        <DialogContent>
-          <Typography variant="h5" align="center">Game Over! Try again?</Typography>
+      <Dialog 
+        open={gameOver && hearts === 0} 
+        onClose={() => {}}
+        PaperProps={{
+          style: {
+            background: 'linear-gradient(145deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%)',
+            borderRadius: '24px',
+            border: '4px solid #d84315',
+            boxShadow: '0 8px 32px rgba(216,67,21,0.4)',
+            minWidth: '350px',
+            padding: '16px'
+          }
+        }}
+      >
+        <DialogContent style={{ padding: '24px 24px 16px 24px', textAlign: 'center' }}>
+          <Typography 
+            style={{
+              fontSize: '4rem',
+              marginBottom: '16px',
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))'
+            }}
+          >
+            💀
+          </Typography>
+          <Typography 
+            variant="h4" 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 900,
+              color: '#d84315',
+              marginBottom: '12px',
+              textShadow: '0 2px 8px rgba(216,67,21,0.3)'
+            }}
+          >
+            Game Over!
+          </Typography>
+          <Typography 
+            variant="h6"
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 600,
+              color: '#5d4037',
+              marginBottom: '8px'
+            }}
+          >
+            The monsters have defeated you!
+          </Typography>
+          <Typography 
+            align="center"
+            style={{
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              color: '#6d4c41',
+              fontSize: '1rem'
+            }}
+          >
+            Would you like to try again?
+          </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleRetryBattle} color="primary">Retry</Button>
-          <Button onClick={() => navigate('/jungle-lush')} color="error">Quit</Button>
+        <DialogActions style={{ padding: '16px 24px 24px 24px', gap: '12px', justifyContent: 'center' }}>
+          <Button 
+            onClick={handleRetryBattle} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #2196F3 0%, #1976D2 50%, #1565C0 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '12px 24px',
+              border: '2px solid #0d47a1',
+              boxShadow: '0 4px 12px rgba(33,150,243,0.3)',
+              textTransform: 'none',
+              minWidth: '100px',
+              fontSize: '1.1rem'
+            }}
+          >
+            🔄 Retry
+          </Button>
+          <Button 
+            onClick={() => navigate('/jungle-lush')} 
+            variant="contained"
+            style={{
+              background: 'linear-gradient(145deg, #757575 0%, #616161 50%, #424242 100%)',
+              color: '#fff',
+              fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+              fontWeight: 700,
+              borderRadius: '16px',
+              padding: '12px 24px',
+              border: '2px solid #212121',
+              boxShadow: '0 4px 12px rgba(117,117,117,0.3)',
+              textTransform: 'none',
+              minWidth: '100px',
+              fontSize: '1.1rem'
+            }}
+          >
+            🚪 Quit
+          </Button>
         </DialogActions>
       </Dialog>
       {victory && (
         <VictoryOverlay>
           <VictoryContainer elevation={12}>
-            {/* Star rating */}
-            <Typography style={{ color: '#3a2a1a', fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem', marginBottom: 2, textAlign: 'center', letterSpacing: 1 }}>Battle Rating</Typography>
+            <Typography 
+              style={{ 
+                color: '#3a2a1a', 
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', 
+                fontWeight: 700, 
+                fontSize: '1.2rem', 
+                marginBottom: 8, 
+                textAlign: 'center', 
+                letterSpacing: '0.5px',
+                textShadow: '0 2px 4px rgba(58,42,26,0.2)'
+              }}
+            >
+              Battle Rating
+            </Typography>
             <StarRow>
               {[1,2,3].map(i => (
-                <Star key={i} filled={hearts >= i} style={newRecord && hearts >= i ? { animation: 'popIn 0.5s' } : {}}>
-                  ★
+                <Star key={i} filled={hearts >= i}>
+                  ⭐
                 </Star>
               ))}
             </StarRow>
-            {newRecord && (
-              <Typography style={{ color: '#d32f2f', fontWeight: 900, fontFamily: 'monospace', fontSize: '1.3rem', marginBottom: 8, textAlign: 'center', letterSpacing: 1, animation: 'popIn 0.7s' }}>
-                New Record!
-              </Typography>
-            )}
-            <VictoryTitle>Victory!<br />You've defeated Commawidow!</VictoryTitle>
-            <Typography style={{ color: '#3a2a1a', fontFamily: 'monospace', marginBottom: 24, fontSize: '1.1rem', textAlign: 'center' }}>
-              The web is broken, and the path forward is clear.
+            <Typography 
+              variant="h3"
+              style={{
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 900,
+                color: '#2e7d32',
+                marginBottom: '12px',
+                marginTop: '16px',
+                textAlign: 'center',
+                textShadow: '0 4px 8px rgba(46,125,50,0.3)',
+                fontSize: '3rem'
+              }}
+            >
+              🎉 Victory! 🎉
             </Typography>
-            <VictoryButton variant="contained" color="success" onClick={() => navigate('/jungle-lush/level2')}>Go to Next Level</VictoryButton>
-            <VictoryButton variant="outlined" color="primary" onClick={handleRetryBattle}>Retry Level</VictoryButton>
-            <VictoryButton variant="outlined" color="error" onClick={() => navigate('/jungle-lush')}>Quit</VictoryButton>
+            <Typography 
+              variant="h5"
+              style={{
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                color: '#388e3c',
+                marginBottom: '8px',
+                textAlign: 'center',
+                textShadow: '0 2px 4px rgba(56,142,60,0.3)'
+              }}
+            >
+              You've defeated Commawidow!
+            </Typography>
+            <Typography 
+              style={{ 
+                color: '#5d4037', 
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', 
+                marginBottom: 32, 
+                fontSize: '1.2rem', 
+                textAlign: 'center',
+                fontWeight: 500,
+                lineHeight: 1.5
+              }}
+            >
+              🕸️ The web is broken, and the path forward is clear! 🕸️
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate('/jungle-lush/level2')}
+              style={{
+                background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
+                color: '#fff',
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                borderRadius: '20px',
+                padding: '14px 32px',
+                margin: '8px 0',
+                minWidth: '200px',
+                fontSize: '1.1rem',
+                border: '3px solid #2e7d32',
+                boxShadow: '0 6px 20px rgba(76,175,80,0.4), 0 3px 10px rgba(0,0,0,0.2)',
+                textTransform: 'none',
+                letterSpacing: '0.5px'
+              }}
+            >
+              🚀 Go to Next Level
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={handleRetryWholeLevel}
+              style={{
+                background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 50%, #e0e0e0 100%)',
+                color: '#1976d2',
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                borderRadius: '20px',
+                padding: '14px 32px',
+                margin: '8px 0',
+                minWidth: '200px',
+                fontSize: '1.1rem',
+                border: '3px solid #1976d2',
+                boxShadow: '0 4px 16px rgba(25,118,210,0.3), 0 2px 8px rgba(0,0,0,0.1)',
+                textTransform: 'none',
+                letterSpacing: '0.5px'
+              }}
+            >
+              🔄 Retry Level
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/jungle-lush')}
+              style={{
+                background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 50%, #e0e0e0 100%)',
+                color: '#d32f2f',
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                borderRadius: '20px',
+                padding: '14px 32px',
+                margin: '8px 0',
+                minWidth: '200px',
+                fontSize: '1.1rem',
+                border: '3px solid #d32f2f',
+                boxShadow: '0 4px 16px rgba(211,47,47,0.3), 0 2px 8px rgba(0,0,0,0.1)',
+                textTransform: 'none',
+                letterSpacing: '0.5px'
+              }}
+            >
+              🏠 Return to Hub
+            </Button>
           </VictoryContainer>
         </VictoryOverlay>
       )}
