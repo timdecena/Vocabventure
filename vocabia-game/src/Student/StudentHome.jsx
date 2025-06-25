@@ -201,18 +201,21 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
 
 
   useEffect(() => {
-    api.get("/api/user-progress/student-info")
-      .then(res => setStudentInfo(res.data))
-      .catch(err => {
-        console.error("Failed to load student info", err);
-        // Use fallback data if API fails
-        setStudentInfo({
-          firstName: localStorage.getItem('firstName') || "Student",
-          lastName: localStorage.getItem('lastName') || "",
-          profileImageUrl: localStorage.getItem('profileImageUrl') || ""
-        });
+  api.get("/api/users/me")
+    .then(res => {
+      console.log("User profile loaded:", res.data);
+      setStudentInfo(res.data);
+    })
+    .catch(err => {
+      console.error("Failed to load user profile", err);
+      // Use fallback data
+      setStudentInfo({
+        firstName: localStorage.getItem('firstName') || "Student",
+        lastName: localStorage.getItem('lastName') || "",
+        profileImageBase64: null
       });
-  }, []);
+    });
+}, []);
 
 
   useEffect(() => {
@@ -341,7 +344,19 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
 
             {/* Top Row: Avatar + Name/Subtitle + Stats */}
             <Box className="arcade-profile-header" sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 3 }}>
-              <Avatar className="arcade-profile-avatar" sx={{ width: 90, height: 90, mr: 4 }} />
+              <Avatar
+  className="arcade-profile-avatar"
+  src={
+    studentInfo.profileImageBase64
+      ? `data:image/png;base64,${studentInfo.profileImageBase64}`
+      : '/default-avatar.png'
+  }
+  sx={{ width: 90, height: 90, mr: 4 }}
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = '/default-avatar.png';
+  }}
+/>
               <Box sx={{ flexGrow: 1 }}>
                 <div className="arcade-profile-name">
   {`${studentInfo.firstName?.charAt(0).toUpperCase() + studentInfo.firstName?.slice(1) || ''} ${studentInfo.lastName?.charAt(0).toUpperCase() + studentInfo.lastName?.slice(1) || ''}`}
@@ -378,8 +393,7 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
                     classes.map(cls => (
                       <div key={cls.id} className="arcade-class-item">
                         <div className="arcade-class-info">
-                          <span className="arcade-class-name">{cls.name}</span>
-                          <span className="arcade-class-details">Teacher: {cls.teacherName || 'Mr. Smith'}</span>
+                          <span className="arcade-class-name">Class Name: {cls.name}</span>
                         </div>
                         <button className="arcade-view-btn" onClick={() => navigate(`/student/classes/${cls.id}/spelling-levels`)}>View</button>
                       </div>
