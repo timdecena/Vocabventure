@@ -40,6 +40,12 @@ import SoldierIdle3 from '../AdventureAssets/Adventurer/Soldier-Idle_3.png';
 import SoldierIdle4 from '../AdventureAssets/Adventurer/Soldier-Idle_4.png';
 import SoldierIdle5 from '../AdventureAssets/Adventurer/Soldier-Idle_5.png';
 import SoldierIdle6 from '../AdventureAssets/Adventurer/Soldier-Idle_6.png';
+import SoldierAttack1 from '../AdventureAssets/Adventurer/Soldier-Attack02_1.png';
+import SoldierAttack2 from '../AdventureAssets/Adventurer/Soldier-Attack02_2.png';
+import SoldierAttack3 from '../AdventureAssets/Adventurer/Soldier-Attack02_3.png';
+import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png';
+import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
+import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
 
 // Tensaphant Animation Frames
 import TensaphantIdle1 from '../AdventureAssets/Tensaphant/Idle_1.png';
@@ -64,6 +70,26 @@ import TensaphantDeath5 from '../AdventureAssets/Tensaphant/Death_5.png';
 import TensaphantDeath6 from '../AdventureAssets/Tensaphant/Death_6.png';
 
 const JUNGLE_BG = 'https://png.pngtree.com/background/20220727/original/pngtree-jungle-game-background-arcade-art-picture-image_1829537.jpg';
+
+// Character positioning constants - adjust these to position characters
+const CHARACTER_POSITIONS = {
+  WIZARD_LEFT: '100px',
+  WIZARD_BOTTOM: '100px',
+  ADVENTURER_LEFT: '180px',
+  ADVENTURER_BOTTOM: '5px',
+  // Dialogue scene positioning - separate for each monster
+  DIALOGUE_ORC_RIGHT: '50px',
+  DIALOGUE_ORC_BOTTOM: '-20px', // ⭐ ADJUST THIS for Orc in dialogue
+  DIALOGUE_TENSAPHANT_RIGHT: '50px',
+  DIALOGUE_TENSAPHANT_BOTTOM: '120px', // ⭐ ADJUST THIS for Tensaphant in dialogue
+  // Battle scene positioning
+  BATTLE_ADVENTURER_LEFT: '500px',
+  BATTLE_ADVENTURER_BOTTOM: '120px',
+  BATTLE_ORC_RIGHT: '420px',
+  BATTLE_ORC_BOTTOM: '90px', // ⭐ ADJUST THIS for Orc in battle
+  BATTLE_TENSAPHANT_RIGHT: '420px',
+  BATTLE_TENSAPHANT_BOTTOM: '250px', // ⭐ ADJUST THIS for Tensaphant in battle
+};
 
 const bounce = keyframes`
   0%, 100% { transform: translateY(0); }
@@ -129,37 +155,39 @@ const SpritesRow = styled(Box)(({ theme }) => ({
 // Individual character positioning
 const PositionedWizard = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  left: '100px', // Fixed position from left edge
-  bottom: '100px', // Directly on the platform (90px + 40px)
+  left: CHARACTER_POSITIONS.WIZARD_LEFT,
+  bottom: CHARACTER_POSITIONS.WIZARD_BOTTOM,
   zIndex: 4,
 }));
 
 const PositionedAdventurer = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  left: '180px', // Position next to wizard
-  bottom: '5px', // Directly on the platform (90px + 40px)
+  left: CHARACTER_POSITIONS.ADVENTURER_LEFT,
+  bottom: CHARACTER_POSITIONS.ADVENTURER_BOTTOM,
   zIndex: 4,
 }));
 
-const PositionedMonster = styled(Box)(({ theme }) => ({
+// Dynamic dialogue monster positioning based on monster type
+const PositionedMonster = styled(Box)(({ theme, monster }) => ({
   position: 'absolute',
-  right: '50px', // Closer to edge for better battle composition
-  bottom: '-20px', // Directly on the platform (90px + 40px)
+  right: monster === 'orc' ? CHARACTER_POSITIONS.DIALOGUE_ORC_RIGHT : CHARACTER_POSITIONS.DIALOGUE_TENSAPHANT_RIGHT,
+  bottom: monster === 'orc' ? CHARACTER_POSITIONS.DIALOGUE_ORC_BOTTOM : CHARACTER_POSITIONS.DIALOGUE_TENSAPHANT_BOTTOM,
   zIndex: 4,
 }));
 
 // Battle-specific positioning components
 const BattleAdventurer = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  left: '500px', // Adjust as needed for battle
-  bottom: '120px', // Adjust as needed for battle
+  left: CHARACTER_POSITIONS.BATTLE_ADVENTURER_LEFT,
+  bottom: CHARACTER_POSITIONS.BATTLE_ADVENTURER_BOTTOM,
   zIndex: 4,
 }));
 
-const BattleMonster = styled(Box)(({ theme }) => ({
+// Dynamic battle monster positioning based on monster type
+const BattleMonster = styled(Box)(({ theme, monster }) => ({
   position: 'absolute',
-  right: '420px', // Adjust as needed for battle
-  bottom: '90px', // Match adventurer's ground level
+  right: monster === 'orc' ? CHARACTER_POSITIONS.BATTLE_ORC_RIGHT : CHARACTER_POSITIONS.BATTLE_TENSAPHANT_RIGHT,
+  bottom: monster === 'orc' ? CHARACTER_POSITIONS.BATTLE_ORC_BOTTOM : CHARACTER_POSITIONS.BATTLE_TENSAPHANT_BOTTOM,
   zIndex: 4,
 }));
 
@@ -185,27 +213,44 @@ const WizardSprite = ({ ...props }) => {
   return <WizardImg src={currentFrame === 0 ? WizardIdle1 : WizardIdle2} {...props} />;
 };
 
-// Animated Adventurer Component with idle cycling
-const AdventurerSprite = ({ isDamaged, ...props }) => {
+// Animated Adventurer Component with idle cycling and attack state
+const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentFrame(prev => (prev + 1) % 6); // Cycle through 6 frames
-    }, 800); // Switch frames every 0.8 seconds for smooth animation
+      if (state === 'idle') {
+        setCurrentFrame(prev => (prev + 1) % 6); // Cycle through 6 frames
+      } else if (state === 'attack') {
+        setCurrentFrame(prev => (prev + 1) % 6); // 6 attack frames
+      }
+    }, state === 'attack' ? 400 : 800); // Faster animation for attacks
     
     return () => clearInterval(interval);
-  }, []);
+  }, [state]);
 
   const getAdventurerFrame = () => {
-    switch (currentFrame) {
-      case 0: return SoldierIdle1;
-      case 1: return SoldierIdle2;
-      case 2: return SoldierIdle3;
-      case 3: return SoldierIdle4;
-      case 4: return SoldierIdle5;
-      case 5: return SoldierIdle6;
-      default: return SoldierIdle1;
+    if (state === 'attack') {
+      switch (currentFrame) {
+        case 0: return SoldierAttack1;
+        case 1: return SoldierAttack2;
+        case 2: return SoldierAttack3;
+        case 3: return SoldierAttack4;
+        case 4: return SoldierAttack5;
+        case 5: return SoldierAttack6;
+        default: return SoldierAttack1;
+      }
+    } else {
+      // idle state
+      switch (currentFrame) {
+        case 0: return SoldierIdle1;
+        case 1: return SoldierIdle2;
+        case 2: return SoldierIdle3;
+        case 3: return SoldierIdle4;
+        case 4: return SoldierIdle5;
+        case 5: return SoldierIdle6;
+        default: return SoldierIdle1;
+      }
     }
   };
 
@@ -281,15 +326,15 @@ const OrcSprite = ({ state, isDamaged, ...props }) => {
     }
   };
 
-  const OrcImg = styled('img')(({ isDamaged }) => ({
+  const OrcImg = styled('img')(({ isDamaged, state }) => ({
     width: '350px', // Orc size
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
     animation: isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none',
-    transform: 'scaleX(-1)', // Flip horizontally to face the adventurer
+    transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face adventurer when hurt, face away normally
   }));
 
-  return <OrcImg src={getOrcFrame()} isDamaged={isDamaged} {...props} />;
+  return <OrcImg src={getOrcFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Animated Tensaphant Sprite Component
@@ -353,14 +398,15 @@ const TensaphantSprite = ({ state, isDamaged, ...props }) => {
     }
   };
 
-  const TensaphantImg = styled('img')(({ isDamaged }) => ({
-    width: '380px', // Tensaphant size
+  const TensaphantImg = styled('img')(({ isDamaged, state }) => ({
+    width: '420px', // Larger Tensaphant size for boss
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
     animation: isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none',
+    transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(1)', // Face adventurer when hurt, face left normally
   }));
 
-  return <TensaphantImg src={getTensaphantFrame()} isDamaged={isDamaged} {...props} />;
+  return <TensaphantImg src={getTensaphantFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Monster Sprite Wrapper Component
@@ -413,49 +459,182 @@ const DialogueBox = styled(Paper)(({ theme }) => ({
   left: '50%',
   bottom: 0,
   transform: 'translateX(-50%)',
-  width: '900px',
+  width: '800px',
   maxWidth: '90vw',
   minWidth: '320px',
+  height: '160px', // Fixed height to match your reference
   padding: theme.spacing(3, 4),
-  backgroundColor: FLESH_BROWN,
+  background: 'linear-gradient(145deg, #f4e4c1 0%, #e8d5a6 50%, #dcc48a 100%)',
   color: '#3a2a1a',
   textAlign: 'left',
-  borderRadius: '18px 18px 0 0',
-  zIndex: 10,
-  boxShadow: '0 -2px 16px 2px rgba(0,0,0,0.18)',
-  border: '3px solid #b48a6e',
-  fontFamily: 'monospace',
+  borderRadius: '20px 20px 0 0',
+  zIndex: 10, // Increased z-index but still below name tag
+  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.25), 0 -8px 32px 2px rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.6)',
+  border: '3px solid #b8956f',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-between',
+  justifyContent: 'flex-start',
   boxSizing: 'border-box',
+  overflow: 'visible', // Allow name tag to be visible outside the box
+  backdropFilter: 'blur(2px)',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
+    borderRadius: '20px 20px 0 0',
+    pointerEvents: 'none',
+  },
 }));
 const NameTag = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  top: '-22px',
-  left: '18px',
-  background: NAME_BG,
-  color: '#3a2a1a',
-  borderRadius: '16px',
-  padding: '4px 18px',
-  fontWeight: 700,
-  fontSize: '1.1rem',
-  boxShadow: '0 2px 8px #b48a6e44',
-  border: '2px solid #b48a6e',
-  fontFamily: 'monospace',
-  zIndex: 2,
+  top: '-25px',
+  left: '24px',
+  background: 'linear-gradient(145deg, #d4a574 0%, #c19956 50%, #a8834a 100%)',
+  color: '#2c1810',
+  borderRadius: '18px',
+  padding: '8px 20px',
+  fontWeight: 800,
+  fontSize: '1rem',
+  boxShadow: '0 4px 16px rgba(168,131,74,0.5), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.6)',
+  border: '3px solid #9a7a4a',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  zIndex: 100, // High but reasonable z-index
+  letterSpacing: '0.5px',
+  textShadow: '0 1px 2px rgba(255,255,255,0.4)',
+  minWidth: '80px',
+  textAlign: 'center',
+  display: 'block', // Ensure it's visible
+  visibility: 'visible', // Force visibility
 }));
+const DialogueWrapper = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  zIndex: 20,
+  isolation: 'isolate',
+}));
+
+const DialogueText = styled(Typography)(({ theme }) => ({
+  marginTop: 18,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1.2rem',
+  fontWeight: 600,
+  lineHeight: 1.4,
+  letterSpacing: '0.3px',
+  color: '#2c1810',
+  textShadow: '0 1px 1px rgba(255,255,255,0.3)',
+  zIndex: 12,
+  position: 'relative',
+}));
+
 const ClickPrompt = styled(Box)(({ theme }) => ({
   position: 'absolute',
   bottom: '16px',
   right: '32px',
-  color: '#00996b',
-  fontSize: '1.1rem',
+  color: '#2e7d32',
+  fontSize: '1rem',
   fontWeight: 700,
-  opacity: 0.85,
+  opacity: 0.9,
   pointerEvents: 'none',
-  zIndex: 5,
-  fontFamily: 'monospace',
+  zIndex: 16,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  letterSpacing: '0.3px',
+  textShadow: '0 1px 2px rgba(255,255,255,0.5)',
+  animation: 'pulse 2s infinite',
+  '@keyframes pulse': {
+    '0%': { opacity: 0.7 },
+    '50%': { opacity: 1 },
+    '100%': { opacity: 0.7 },
+  },
+}));
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialog-paper': {
+    background: 'linear-gradient(145deg, #f4e4c1 0%, #e8d5a6 50%, #dcc48a 100%)',
+    borderRadius: '20px',
+    border: '3px solid #b8956f',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.6)',
+    minWidth: '400px',
+    padding: '16px',
+    position: 'relative',
+    overflow: 'visible',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
+      borderRadius: '20px',
+      pointerEvents: 'none',
+    },
+  },
+}));
+
+const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
+  textAlign: 'center',
+  padding: '24px 32px 16px 32px',
+  position: 'relative',
+  zIndex: 2,
+  '& .MuiTypography-root': {
+    color: '#2c1810',
+    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+    fontWeight: 700,
+    fontSize: '1.3rem',
+    textShadow: '0 1px 2px rgba(255,255,255,0.4)',
+    letterSpacing: '0.3px',
+  },
+}));
+
+const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
+  padding: '16px 32px 24px 32px',
+  justifyContent: 'center',
+  gap: '16px',
+  position: 'relative',
+  zIndex: 2,
+}));
+
+const DialogButton = styled(Button)(({ variant }) => ({
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontWeight: 700,
+  fontSize: '1rem',
+  borderRadius: '16px',
+  padding: '10px 24px',
+  textTransform: 'none',
+  letterSpacing: '0.5px',
+  minWidth: '120px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  ...(variant === 'cancel' ? {
+    background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%)',
+    color: '#2c3e50',
+    border: '2px solid #dee2e6',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
+    '&:hover': {
+      background: 'linear-gradient(145deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9)',
+      border: '2px solid #adb5bd',
+    },
+  } : {
+    background: 'linear-gradient(145deg, #ff6b6b 0%, #ee5a52 50%, #d63031 100%)',
+    color: '#fff',
+    border: '2px solid #c23616',
+    boxShadow: '0 4px 12px rgba(214,48,49,0.4), 0 2px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
+    '&:hover': {
+      background: 'linear-gradient(145deg, #ff5252 0%, #e53935 50%, #c62828 100%)',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 16px rgba(214,48,49,0.5), 0 3px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+      border: '2px solid #b71c1c',
+    },
+  }),
+  '&:active': {
+    transform: 'translateY(1px)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)',
+  },
 }));
 const HeartRow = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -468,18 +647,58 @@ const HeartRow = styled(Box)(({ theme }) => ({
   zIndex: 20,
 }));
 const TimerBox = styled(Box)(({ theme }) => ({
-  background: '#fffbe6',
+  background: 'linear-gradient(145deg, #fff9c4 0%, #f5e15b 50%, #e8d547 100%)',
   color: '#3a2a1a',
-  borderRadius: '12px',
-  padding: '6px 18px',
-  fontWeight: 700,
-  fontFamily: 'monospace',
-  fontSize: '1.2rem',
-  boxShadow: '0 2px 8px #b48a6e44',
-  border: '2px solid #b48a6e',
+  borderRadius: '16px',
+  padding: '8px 20px',
+  fontWeight: 800,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1.1rem',
+  boxShadow: '0 6px 16px rgba(212,165,116,0.4), 0 3px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8)',
+  border: '3px solid #d4a574',
   zIndex: 20,
   marginLeft: 16,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minWidth: '90px',
+  transition: 'all 0.3s ease',
+  textAlign: 'center',
+  letterSpacing: '0.5px',
+  '&:hover': {
+    transform: 'translateY(-1px)',
+    boxShadow: '0 8px 20px rgba(212,165,116,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)',
+  },
 }));
+const QuitButton = styled(Button)(({ theme }) => ({
+  background: 'linear-gradient(145deg, #ff6b6b 0%, #ee5a52 50%, #d63031 100%)',
+  color: '#fff',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1rem',
+  fontWeight: 700,
+  borderRadius: '16px',
+  padding: '10px 20px',
+  border: '3px solid #c23616',
+  boxShadow: '0 6px 16px rgba(214,48,49,0.4), 0 3px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
+  textTransform: 'none',
+  letterSpacing: '0.5px',
+  marginRight: 48,
+  marginTop: 12,
+  minWidth: '100px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #ff5252 0%, #e53935 50%, #c62828 100%)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 8px 20px rgba(214,48,49,0.5), 0 4px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
+    border: '3px solid #b71c1c',
+  },
+  '&:active': {
+    transform: 'translateY(1px)',
+    boxShadow: '0 4px 12px rgba(214,48,49,0.4), 0 2px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
+  },
+}));
+
 const VS = styled(Box)(({ theme }) => ({
   fontSize: '2.5rem',
   fontWeight: 900,
@@ -532,8 +751,8 @@ const MonsterSpriteWrapper = styled(Box)(({ theme }) => ({
 }));
 const BattleBottomBar = styled(Box)(({ theme }) => ({
   width: '100vw',
-  background: 'rgba(122,62,46,0.97)',
-  minHeight: '100px',
+  background: 'linear-gradient(180deg, rgba(139,69,19,0.95) 0%, rgba(101,67,33,0.98) 50%, rgba(62,39,35,1) 100%)',
+  minHeight: '180px', // Increased height to match dialogue box
   padding: '38px 0 18px 0',
   display: 'flex',
   flexDirection: 'column',
@@ -542,23 +761,44 @@ const BattleBottomBar = styled(Box)(({ theme }) => ({
   zIndex: 30,
   borderTopLeftRadius: '32px',
   borderTopRightRadius: '32px',
-  boxShadow: '0 -2px 24px 2px rgba(0,0,0,0.32)',
+  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.4), 0 -8px 32px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+  border: '2px solid rgba(139,69,19,0.8)',
+  borderBottom: 'none',
   position: 'absolute',
   left: 0,
   bottom: 0,
+  backdropFilter: 'blur(8px)',
+  overflow: 'visible',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+    borderRadius: '32px 32px 0 0',
+    pointerEvents: 'none',
+  },
 }));
 const QuestionText = styled(Typography)(({ theme }) => ({
-  color: 'white',
-  fontWeight: 600,
-  fontSize: '1.35rem',
-  marginBottom: '22px',
+  color: '#fff',
+  fontWeight: 700,
+  fontSize: '1.3rem',
+  marginBottom: '24px',
   textAlign: 'center',
-  textShadow: '0 2px 8px #000',
+  textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1)',
+  letterSpacing: '0.3px',
+  lineHeight: 1.4,
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  position: 'relative',
+  zIndex: 12,
+  filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.1))',
 }));
 const TIMER_DURATION = 30;
 const MonsterHPBar = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  top: '-30px',
+  top: '100px',
   left: '50%',
   transform: 'translateX(-50%)',
   width: '120px',
@@ -577,7 +817,7 @@ const MonsterHPFill = styled(Box)(({ hp }) => ({
 }));
 const MonsterHPText = styled(Typography)(({ theme }) => ({
   position: 'absolute',
-  top: '-48px',
+  top: '55px',
   left: '50%',
   transform: 'translateX(-50%)',
   color: '#fff',
@@ -587,39 +827,75 @@ const MonsterHPText = styled(Typography)(({ theme }) => ({
   zIndex: 10,
 }));
 const ChoicesGrid = styled(Box)(({ theme, count }) => ({
-  width: count === 3 ? '520px' : '520px',
+  width: count === 3 ? '580px' : '580px',
+  maxWidth: '90vw',
   margin: '0 auto',
   display: 'grid',
   gridTemplateColumns: count === 3 ? '1fr 1fr 1fr' : '1fr 1fr',
   gridTemplateRows: count === 3 ? '1fr' : '1fr 1fr',
-  gap: '18px',
+  gap: '20px',
   justifyItems: 'stretch',
   alignItems: 'stretch',
   justifyContent: 'center',
 }));
 const MoveButton = styled(Button)(({ selected }) => ({
   width: '100%',
-  minHeight: '64px',
-  background: '#f8f8f8',
-  color: '#222',
-  fontFamily: 'monospace',
-  fontSize: '1.1rem',
-  border: selected ? '2.5px solid #d32f2f' : '2.5px solid #444',
-  borderRadius: '4px',
-  boxShadow: selected ? '0 0 0 2px #ffbdbd' : '0 0 0 2px #222',
-  outline: selected ? '2px solid #d32f2f' : 'none',
+  minHeight: '68px',
+  background: selected 
+    ? 'linear-gradient(145deg, #fff9c4 0%, #f5e15b 50%, #e8d547 100%)' 
+    : 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%)',
+  color: selected ? '#8b4513' : '#2c3e50',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  fontSize: '1.05rem',
+  fontWeight: selected ? 700 : 600,
+  border: selected 
+    ? '3px solid #d4a574' 
+    : '2px solid #dee2e6',
+  borderRadius: '16px',
+  boxShadow: selected 
+    ? '0 8px 16px rgba(212,165,116,0.4), 0 4px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)' 
+    : '0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
   textAlign: 'center',
   whiteSpace: 'normal',
   wordBreak: 'break-word',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '8px 12px',
-  transition: 'border 0.1s, box-shadow 0.1s',
+  padding: '12px 16px',
+  position: 'relative',
+  overflow: 'hidden',
+  textTransform: 'none',
+  letterSpacing: '0.3px',
+  lineHeight: 1.3,
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: '-100%',
+    width: '100%',
+    height: '100%',
+    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+    transition: 'left 0.6s ease',
+  },
   '&:hover': {
-    border: '2.5px solid #d32f2f',
-    boxShadow: '0 0 0 2px #ffbdbd',
-    background: '#fff3f3',
+    transform: 'translateY(-2px)',
+    border: '3px solid #d4a574',
+    boxShadow: '0 8px 20px rgba(212,165,116,0.3), 0 4px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.9)',
+    background: 'linear-gradient(145deg, #fff9c4 0%, #f5e15b 30%, #e8d547 100%)',
+    color: '#8b4513',
+    '&::before': {
+      left: '100%',
+    },
+  },
+  '&:active': {
+    transform: 'translateY(1px)',
+    boxShadow: '0 4px 8px rgba(212,165,116,0.3), 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8)',
+  },
+  '&:disabled': {
+    opacity: 0.7,
+    cursor: 'not-allowed',
+    transform: 'none',
   },
 }));
 const StarRow = styled(Box)(({ theme }) => ({
@@ -688,14 +964,14 @@ const orcQuestions = [
 
 // Pre-Tensaphant battle dialogue
 const preTensaphantDialogue = [
-  { speaker: 'Orc Minion', text: "GRAAAH! You... you actually beat me?! IMPOSSIBLE!" },
+  { speaker: 'Orc Minion', text: "GRAAAH! You... you actually beat me?! IMPOSSIBLE! *faints" },
   { speaker: 'Tensaphant', text: "You've disrupted my rhythm!" },
   { speaker: 'User', text: "Then I'll break the rest of your clock!" },
   { speaker: 'Tensaphant', text: "Let's see how well you handle me, time meddler!" },
 ];
 
 // Questions for Tensaphant (5)
-const tensephantQuestions = [
+const tensaphantQuestions = [
   {
     question: 'Which sentence is in the simple past tense?',
     options: [
@@ -801,6 +1077,7 @@ const JungleLushLevel2 = () => {
   const [monsterHP, setMonsterHP] = useState(MONSTER_MAX_HP);
   const [monster, setMonster] = useState('orc'); // 'orc' or 'tensephant'
   const [monsterState, setMonsterState] = useState('idle'); // idle, attack, hurt, death
+  const [adventurerState, setAdventurerState] = useState('idle'); // idle, attack
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showResult, setShowResult] = useState(false);
@@ -866,7 +1143,7 @@ const JungleLushLevel2 = () => {
       } else {
         // Start Tensephant battle
         setPhase('tensephant');
-        setMonster('tensephant');
+        setMonster('tensaphant');
         setMonsterHP(MONSTER_MAX_HP);
         setCurrentQuestion(0);
         setTimeLeft(TIMER_DURATION);
@@ -880,14 +1157,20 @@ const JungleLushLevel2 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setShowResult(true);
-    const questions = monster === 'orc' ? orcQuestions : tensephantQuestions;
+    const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
     if (idx === questions[currentQuestion].correctAnswer) {
-      setMonsterDamaged(true);
-      setMonsterState('hurt');
+      // Adventurer attacks first
+      setAdventurerState('attack');
       setTimeout(() => {
-        setMonsterDamaged(false);
-        setMonsterState('idle');
-      }, 500);
+        setAdventurerState('idle');
+        // Then monster gets hurt
+        setMonsterDamaged(true);
+        setMonsterState('hurt');
+        setTimeout(() => {
+          setMonsterDamaged(false);
+          setMonsterState('idle');
+        }, 500);
+      }, 300); // Small delay to show attack animation
       setMonsterHP(hp => {
         const newHP = Math.max(0, hp - Math.floor(MONSTER_MAX_HP / questions.length));
         if (currentQuestion === questions.length - 1 || newHP === 0) {
@@ -950,12 +1233,13 @@ const JungleLushLevel2 = () => {
     // Only reset the current battle phase, not the whole level
     if (phase === 'tensephant') {
       setPhase('tensephant');
-      setMonster('tensephant');
+      setMonster('tensaphant');
     } else {
       setPhase('orc');
       setMonster('orc');
     }
     setMonsterState('idle');
+    setAdventurerState('idle');
   };
 
   // Retry handler for whole level (used on victory)
@@ -973,6 +1257,7 @@ const JungleLushLevel2 = () => {
     setPreTenseDialogueIdx(0);
     setMonster('orc');
     setMonsterState('idle');
+    setAdventurerState('idle');
   };
 
   // Persist progress: save stars on victory
@@ -1007,31 +1292,31 @@ const JungleLushLevel2 = () => {
           <WizardSprite />
         </PositionedWizard>
         <PositionedAdventurer>
-          <AdventurerSprite />
+          <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        <PositionedMonster>
+        <PositionedMonster monster={d.speaker === 'Tensaphant' ? 'tensaphant' : 'orc'}>
           {d.speaker === 'Tensaphant' && <MonsterSprite monster="tensaphant" state="idle" />}
           {d.speaker === 'Orc Minion' && <MonsterSprite monster="orc" state="idle" />}
         </PositionedMonster>
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
-          <Typography variant="h6" gutterBottom style={{ marginTop: 18, fontFamily: 'monospace' }}>
+          <DialogueText variant="h6" gutterBottom>
             {d.text}
-          </Typography>
+          </DialogueText>
           {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
         </DialogueBox>
       </>
     );
   } else if (phase === 'orc' || phase === 'tensephant') {
-    const questions = monster === 'orc' ? orcQuestions : tensephantQuestions;
+    const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
     const monsterName = monster === 'orc' ? 'Orc Minion' : 'Tensaphant';
     content = (
       <>
         <>
           <BattleAdventurer>
-            <AdventurerSprite isDamaged={userDamaged} />
+            <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
           </BattleAdventurer>
-          <BattleMonster>
+          <BattleMonster monster={monster}>
             <MonsterHPText>{monsterName} HP</MonsterHPText>
             <MonsterHPBar>
               <MonsterHPFill hp={monsterHP} />
@@ -1051,7 +1336,7 @@ const JungleLushLevel2 = () => {
                 selected={selectedAnswer === idx}
                 onClick={() => handleAnswer(idx)}
                 disableRipple
-                style={{ fontFamily: 'monospace' }}
+                style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
                 disabled={showResult}
               >
                 {option}
@@ -1069,17 +1354,17 @@ const JungleLushLevel2 = () => {
           <WizardSprite />
         </PositionedWizard>
         <PositionedAdventurer>
-          <AdventurerSprite />
+          <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        <PositionedMonster>
+        <PositionedMonster monster={d.speaker === 'Tensaphant' ? 'tensaphant' : 'orc'}>
           {d.speaker === 'Tensaphant' && <MonsterSprite monster="tensaphant" state="idle" />}
           {d.speaker === 'Orc Minion' && <MonsterSprite monster="orc" state="idle" />}
         </PositionedMonster>
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
-          <Typography variant="h6" gutterBottom style={{ marginTop: 18, fontFamily: 'monospace' }}>
+          <DialogueText variant="h6" gutterBottom>
             {d.text}
-          </Typography>
+          </DialogueText>
           {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
         </DialogueBox>
       </>
@@ -1100,34 +1385,34 @@ const JungleLushLevel2 = () => {
         <div style={{ flex: 1 }} />
         {(phase === 'orc' || phase === 'tensephant') ? (
           <TimerBox>
-            <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>TIMER</Typography>
-            <Typography style={{ fontWeight: 700, fontSize: '1.1rem', fontFamily: 'monospace' }}>{timeLeft}s</Typography>
+            <Typography style={{ fontWeight: 800, fontSize: '0.9rem', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', letterSpacing: '1px', lineHeight: 1 }}>TIMER</Typography>
+            <Typography style={{ fontWeight: 900, fontSize: '1.3rem', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', letterSpacing: '0.5px', lineHeight: 1, marginTop: '2px' }}>{timeLeft}s</Typography>
           </TimerBox>
         ) : <div style={{ width: 90 }} />}
-        <Button variant="contained" color="error" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />} style={{ fontWeight: 700, fontFamily: 'monospace', borderRadius: 18, marginRight: 48, marginTop: 12 }}>
+        <QuitButton variant="contained" onClick={() => setShowQuit(true)} startIcon={<CloseIcon />}>
           Quit
-        </Button>
+        </QuitButton>
       </TopBar>
       {content}
-      <Dialog open={showQuit} onClose={() => setShowQuit(false)}>
-        <DialogContent>
-          <Typography variant="h6" align="center">Are you sure you want to quit?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowQuit(false)} color="primary">Cancel</Button>
-          <Button onClick={() => navigate('/jungle-lush')} color="error">Quit</Button>
-        </DialogActions>
-      </Dialog>
+      <StyledDialog open={showQuit} onClose={() => setShowQuit(false)}>
+        <StyledDialogContent>
+          <Typography variant="h6">Are you sure you want to quit?</Typography>
+        </StyledDialogContent>
+        <StyledDialogActions>
+          <DialogButton variant="cancel" onClick={() => setShowQuit(false)}>Cancel</DialogButton>
+          <DialogButton variant="quit" onClick={() => navigate('/jungle-lush')}>Quit</DialogButton>
+        </StyledDialogActions>
+      </StyledDialog>
       {/* Game over dialog only (not for victory) */}
-      <Dialog open={gameOver && hearts === 0} onClose={() => {}}>
-        <DialogContent>
-          <Typography variant="h5" align="center">Game Over! Try again?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleRetryBattle} color="primary">Retry</Button>
-          <Button onClick={() => navigate('/jungle-lush')} color="error">Quit</Button>
-        </DialogActions>
-      </Dialog>
+      <StyledDialog open={gameOver && hearts === 0} onClose={() => {}}>
+        <StyledDialogContent>
+          <Typography variant="h5">Game Over! Try again?</Typography>
+        </StyledDialogContent>
+        <StyledDialogActions>
+          <DialogButton variant="cancel" onClick={handleRetryBattle}>Retry</DialogButton>
+          <DialogButton variant="quit" onClick={() => navigate('/jungle-lush')}>Quit</DialogButton>
+        </StyledDialogActions>
+      </StyledDialog>
       {victory && (
         <VictoryOverlay>
           <VictoryContainer elevation={12}>
@@ -1158,6 +1443,6 @@ const JungleLushLevel2 = () => {
       <button className="jl-return-btn" style={{ marginTop: 32 }} onClick={() => navigate('/jungle-lush')}>Return to Jungle Lush</button>
     </SceneContainer>
   );
-};
-
-export default JungleLushLevel2; 
+  };
+  
+  export default JungleLushLevel2; 
