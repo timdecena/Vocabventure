@@ -198,24 +198,33 @@ const [leaderboardLoading, setLeaderboardLoading] = useState(true);
     });
 }, []);
 
+useEffect(() => {
+  Promise.all([
+    api.get("/api/users/me"),
+    api.get("/api/user-progress/student-info")
+  ])
+    .then(([profileRes, progressRes]) => {
+      const profile = profileRes.data;
+      const progress = progressRes.data;
 
-
-  useEffect(() => {
-  api.get("/api/users/me")
-    .then(res => {
-      console.log("User profile loaded:", res.data);
-      setStudentInfo(res.data);
+      setStudentInfo({
+        firstName: profile.firstName || "Student",
+        lastName: profile.lastName || "",
+        profileImageBase64: profile.profileImageBase64 || null,
+        correctAnswers: progress.correctAnswers || 0,
+        progressPoints: progress.progressPoints || 0,
+        gold: progress.gold || 0
+      });
     })
     .catch(err => {
-      console.error("Failed to load user profile", err);
-      // Use fallback data
+      console.error("Failed to load combined student info", err);
       setStudentInfo({
         firstName: localStorage.getItem('firstName') || "Student",
         lastName: localStorage.getItem('lastName') || "",
         profileImageBase64: null,
         correctAnswers: 0,
-  progressPoints: 0,
-  gold: 0
+        progressPoints: 0,
+        gold: 0
       });
     });
 }, []);
