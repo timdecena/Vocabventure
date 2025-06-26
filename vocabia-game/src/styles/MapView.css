@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Pirate+One&family=Cinzel:wght@400;600;700&family=UnifrakturMaguntia&family=MedievalSharp&family=Aclonica&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -5,91 +11,737 @@ html, body, #root {
   overflow: hidden;
 }
 
-.map-bg {
+.adventure-map {
   position: relative;
   width: 100vw;
-  height: calc(100vh - 64px); /* adjust if your navbar height is different */
+  height: 100vh;
+  background-image: url("https://cdna.artstation.com/p/assets/images/images/061/904/456/large/milan-vasek-worldmap-wip.jpg?1681900161");
   background-size: cover;
   background-position: center;
+  font-family: 'Cinzel', serif;
   overflow: hidden;
 }
 
-.map-heading {
+/* Parchment Overlay */
+.parchment-overlay {
   position: absolute;
-  top: 2%;
-  right: 5%;
-  font-size: 3rem;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: 0.1em;
-  text-shadow: 0 4px 24px #000, 0 0 2px #000;
-  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(139, 69, 19, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(160, 82, 45, 0.1) 0%, transparent 50%),
+    linear-gradient(45deg, rgba(222, 184, 135, 0.05) 0%, rgba(210, 180, 140, 0.08) 100%);
+  pointer-events: none;
+  z-index: 1;
 }
 
-.map-buttons {
+/* Adventurous VOCABIA Header */
+.adventure-header {
+  position: absolute;
+  top: 2%;
+  right: 3%;
+  text-align: center;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vocabia-title {
+  font-family: 'Cinzel', serif;
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: #DAA520;
+  margin: 0;
+  text-shadow: 
+    2px 2px 0px #8B4513,
+    4px 4px 8px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(218, 165, 32, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.6);
+  letter-spacing: 0.1em;
+  position: relative;
+  z-index: 2;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+.vocabia-title::after {
+  content: '⚔️';
+  position: absolute;
+  top: -15px;
+  right: -30px;
+  font-size: 2rem;
+  animation: swordGlint 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 15px rgba(218, 165, 32, 0.8));
+}
+
+.adventure-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  color: #CD853F;
+  margin: 0.5rem 0 0 0;
+  text-shadow: 
+    2px 2px 0px #8B4513,
+    4px 4px 8px rgba(0, 0, 0, 0.8),
+    0 0 15px rgba(205, 133, 63, 0.9),
+    0 0 30px rgba(218, 165, 32, 0.6);
+  letter-spacing: 0.15em;
+  font-style: normal;
+  opacity: 1;
+  text-transform: uppercase;
+  font-weight: 600;
+  animation: subtitleGlow 4s ease-in-out infinite alternate;
+  text-align: center;
+  width: 100%;
+}
+
+@keyframes epicGlow {
+  0% { 
+    box-shadow: 
+      0 12px 35px rgba(139, 0, 0, 0.7),
+      0 0 50px rgba(255, 69, 0, 0.5),
+      inset 0 3px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.5);
+    text-shadow: 
+      3px 3px 0px #8B0000,
+      6px 6px 0px #5D0000,
+      9px 9px 0px #3D0000,
+      12px 12px 30px rgba(0, 0, 0, 0.9),
+      0 0 40px rgba(255, 215, 0, 0.8),
+      0 0 80px rgba(255, 69, 0, 0.6);
+  }
+  100% { 
+    box-shadow: 
+      0 12px 35px rgba(139, 0, 0, 0.9),
+      0 0 80px rgba(255, 69, 0, 0.8),
+      inset 0 3px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -3px 0 rgba(0, 0, 0, 0.6);
+    text-shadow: 
+      3px 3px 0px #8B0000,
+      6px 6px 0px #5D0000,
+      9px 9px 0px #3D0000,
+      12px 12px 30px rgba(0, 0, 0, 0.9),
+      0 0 60px rgba(255, 215, 0, 1),
+      0 0 120px rgba(255, 69, 0, 0.9);
+  }
+}
+
+@keyframes fireFrame {
+  0% { 
+    background-position: 0% 50%;
+    box-shadow: 0 20px 50px rgba(255, 69, 0, 0.6);
+  }
+  50% { 
+    background-position: 100% 50%;
+    box-shadow: 0 20px 50px rgba(255, 69, 0, 0.9);
+  }
+  100% { 
+    background-position: 0% 50%;
+    box-shadow: 0 20px 50px rgba(255, 69, 0, 0.6);
+  }
+}
+
+@keyframes titleGlow {
+  0% { 
+    text-shadow: 
+      2px 2px 0px #8B4513,
+      4px 4px 8px rgba(0, 0, 0, 0.8),
+      0 0 20px rgba(218, 165, 32, 0.8),
+      0 0 40px rgba(255, 215, 0, 0.6);
+  }
+  100% { 
+    text-shadow: 
+      2px 2px 0px #8B4513,
+      4px 4px 8px rgba(0, 0, 0, 0.8),
+      0 0 30px rgba(218, 165, 32, 1),
+      0 0 60px rgba(255, 215, 0, 0.9);
+  }
+}
+
+@keyframes subtitleGlow {
+  0% { 
+    text-shadow: 
+      2px 2px 0px #8B4513,
+      4px 4px 8px rgba(0, 0, 0, 0.8),
+      0 0 15px rgba(205, 133, 63, 0.9),
+      0 0 30px rgba(218, 165, 32, 0.6);
+  }
+  100% { 
+    text-shadow: 
+      2px 2px 0px #8B4513,
+      4px 4px 8px rgba(0, 0, 0, 0.8),
+      0 0 20px rgba(205, 133, 63, 1),
+      0 0 40px rgba(218, 165, 32, 0.8);
+  }
+}
+
+
+
+@keyframes swordGlint {
+  0%, 90% { 
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(218, 165, 32, 0.8));
+  }
+  95% { 
+    opacity: 0.7;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.9));
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(218, 165, 32, 0.8));
+  }
+}
+
+/* Adventure Log - Brown & Green Theme */
+.adventure-log {
+  position: absolute;
+  bottom: 5%;
+  left: 5%;
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.95), rgba(101, 67, 33, 0.9));
+  border: 4px solid #8B4513;
+  border-radius: 20px;
+  padding: 1.2rem;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.7),
+    inset 0 3px 0 rgba(205, 133, 63, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(139, 69, 19, 0.6);
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  width: 240px;
+  max-width: 240px;
+  overflow: hidden;
+}
+
+.adventure-log::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  background: linear-gradient(45deg, #654321, #8B4513, #A0522D, #654321);
+  border-radius: 23px;
+  z-index: -1;
+  animation: borderGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes borderGlow {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.log-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px solid rgba(139, 69, 19, 0.6);
+  text-align: center;
+  position: relative;
+}
+
+.log-title {
+  font-family: 'Pirate One', cursive;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #CD853F;
+  text-shadow: 
+    2px 2px 0px #654321,
+    4px 4px 8px rgba(0, 0, 0, 0.9),
+    0 0 20px rgba(205, 133, 63, 0.8);
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.log-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #CD853F, transparent);
+  box-shadow: 0 0 10px rgba(205, 133, 63, 0.8);
+}
+
+.log-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  background: linear-gradient(135deg, rgba(34, 139, 34, 0.8), rgba(85, 107, 47, 0.7));
+  border-radius: 12px;
+  border: 2px solid rgba(34, 139, 34, 0.6);
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(144, 238, 144, 0.3);
+}
+
+.log-item:hover {
+  background: linear-gradient(135deg, rgba(34, 139, 34, 0.9), rgba(85, 107, 47, 0.8));
+  border-color: rgba(34, 139, 34, 0.8);
+  transform: translateX(5px) scale(1.02);
+  box-shadow: 
+    0 6px 18px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(144, 238, 144, 0.4);
+}
+
+.log-text {
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.02em;
+}
+
+.log-item .log-text:first-child {
+  color: #FFFFFF;
+  font-family: 'Cinzel', serif;
+}
+
+.log-item .log-text:last-child {
+  color: #FFFFFF;
+  font-weight: 700;
+  font-family: 'Pirate One', cursive;
+  text-shadow: 
+    1px 1px 0px #000000,
+    0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Adventure Controls */
+.adventure-controls {
   position: absolute;
   bottom: 5%;
   right: 5%;
   display: flex;
   gap: 1rem;
-  z-index: 11;
+  z-index: 10;
 }
 
-.map-btn {
-  padding: 0.6rem 1.3rem;
-  background: #4caf50;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
+.adventure-btn {
+  padding: 1rem 1.8rem;
+  border: 3px solid;
+  border-radius: 12px;
+  font-family: 'Cinzel', serif;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.map-btn:hover {
-  background: #388e3c;
-  transform: translateY(-2px) scale(1.04);
+.adventure-btn.primary {
+  background: linear-gradient(135deg, #228B22, #32CD32);
+  border-color: #DAA520;
+  color: #FFF;
 }
 
-.map-paths {
+.adventure-btn.secondary {
+  background: linear-gradient(135deg, #B8860B, #DAA520);
+  border-color: #8B4513;
+  color: #FFF;
+}
+
+.adventure-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.adventure-btn:hover::before {
+  left: 100%;
+}
+
+.adventure-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Adventure Paths */
+.adventure-paths {
   position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
 }
 
-.island-img {
+/* Adventure Islands */
+.adventure-island {
   position: absolute;
-  width: 120px;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 18px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-  z-index: 2;
-  transition: transform 0.2s, filter 0.3s, opacity 0.3s;
+  width: 160px;
+  height: 160px;
   cursor: pointer;
+  transition: all 0.4s ease;
+  z-index: 5;
 }
 
-.island-img.locked {
-  filter: grayscale(1) brightness(0.7);
-  opacity: 0.7;
+.adventure-island:hover {
+  z-index: 100000 !important;
+}
+
+.adventure-island.undiscovered {
   cursor: not-allowed;
 }
 
-.island-label {
+.island-frame {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: 4px solid #8B4513;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #654321;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.adventure-island.discovered .island-frame {
+  border-color: #DAA520;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(218, 165, 32, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+.island-picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.adventure-island.discovered .island-picture {
+  filter: brightness(1.1) saturate(1.2);
+}
+
+.adventure-island.undiscovered .island-picture {
+  filter: grayscale(0.8) brightness(0.6) sepia(0.3);
+}
+
+.biome-indicator {
   position: absolute;
-  width: 140px;
-  margin-top: 4px;
-  text-align: center;
-  font-size: 1.1rem;
+  top: -8px;
+  left: -8px;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #DAA520, #B8860B);
+  border: 2px solid #8B4513;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+.undiscovered-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+}
+
+.mystery-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+.fog-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  animation: fogDrift 4s ease-in-out infinite;
+}
+
+@keyframes fogDrift {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.completed-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  background: rgba(34, 139, 34, 0.9);
+  color: #FFF;
+  padding: 0.3rem 0.8rem;
+  border: 2px solid #228B22;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 15;
+}
+
+/* Island Nameplate */
+.island-nameplate {
+  position: absolute;
+  bottom: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.nameplate-bg {
+  background: linear-gradient(135deg, #8B4513, #A0522D);
+  border: 2px solid #DAA520;
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.island-title {
+  font-family: 'Cinzel', serif;
   font-weight: 600;
-  color: #fff;
-  text-shadow: 0 2px 8px #000, 0 0 2px #000;
-  z-index: 3;
+  color: #FFD700;
+  font-size: 0.9rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+
+/* Adventure Tooltip */
+.adventure-tooltip {
+  position: fixed !important;
+  bottom: -250px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999 !important;
+  animation: tooltipAppear 0.3s ease;
   pointer-events: none;
+}
+
+@keyframes tooltipAppear {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.tooltip-scroll {
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.98), rgba(160, 82, 45, 0.98)) !important;
+  border: 3px solid #DAA520;
+  border-radius: 15px;
+  padding: 1.5rem;
+  min-width: 280px;
+  box-shadow: 
+    0 30px 70px rgba(0, 0, 0, 0.9),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  pointer-events: auto;
+  position: relative;
+  z-index: 999999 !important;
+}
+
+.scroll-header {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(218, 165, 32, 0.3);
+}
+
+.location-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #FFD700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.location-biome {
+  font-size: 0.9rem;
+  color: #DEB887;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.scroll-content {
+  text-align: left;
+}
+
+.location-desc {
+  color: #F4E4BC;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+  font-style: italic;
+}
+
+.action-prompt, .locked-prompt {
+  text-align: center;
+  padding: 0.8rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.action-prompt {
+  background: rgba(34, 139, 34, 0.3);
+  color: #90EE90;
+  border: 1px solid rgba(34, 139, 34, 0.5);
+}
+
+.locked-prompt {
+  background: rgba(178, 34, 34, 0.3);
+  color: #F08080;
+  border: 1px solid rgba(178, 34, 34, 0.5);
+}
+
+/* Hover Effects */
+.adventure-island:hover {
+  transform: scale(1.05);
+}
+
+.adventure-island.discovered:hover .island-frame {
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.5),
+    0 0 25px rgba(218, 165, 32, 0.5),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.adventure-island.highlighted .island-frame {
+  animation: islandGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes islandGlow {
+  0%, 100% { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(218, 165, 32, 0.3); }
+  50% { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(218, 165, 32, 0.6); }
+}
+
+/* Modal */
+.adventure-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Design */
+  @media (max-width: 768px) {
+    .vocabia-title {
+      font-size: 3.2rem;
+      padding: 0.4rem 0.8rem;
+    }
+    
+    .adventure-subtitle {
+      font-size: 1rem;
+    }
+    
+    .adventure-log {
+      padding: 1rem;
+      width: 200px;
+      max-width: 200px;
+    }
+  
+  .adventure-island {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .island-frame {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .adventure-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .adventure-btn {
+    padding: 0.8rem 1.4rem;
+    font-size: 0.9rem;
+  }
+  
+  .tooltip-scroll {
+    min-width: 240px;
+    padding: 1rem;
+  }
+}
+
+  @media (max-width: 480px) {
+    .vocabia-title {
+      font-size: 2.5rem;
+      padding: 0.3rem 0.6rem;
+    }
+  
+  .adventure-island {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .island-frame {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .biome-indicator {
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
+  }
+  
+      .adventure-log {
+      padding: 0.7rem;
+      width: 160px;
+      max-width: 160px;
+    }
+    
+    .log-title {
+      font-size: 0.9rem;
+    }
+    
+    .log-text {
+      font-size: 0.7rem;
+    }
 }

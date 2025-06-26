@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api/api";
+import { 
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  CircularProgress,
+  Button,
+  Paper,
+  Divider
+} from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function StudentClassmatesPage() {
   const { id } = useParams();
   const [classmates, setClassmates] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -35,30 +46,67 @@ export default function StudentClassmatesPage() {
   }, [id]);
 
   return (
-    <div>
-      <h2>Classmates</h2>
-      {loading ? (
-        <p>Loading classmates...</p>
-      ) : error ? (
-        <div>
-          <p>Error: {error}</p>
-          <Link to={`/student/classes/${id}`}>Back to Class</Link>
-        </div>
-      ) : classmates.length === 0 ? (
-        <div>
-          <p>No classmates found in this class.</p>
-          <Link to={`/student/classes/${id}`}>Back to Class</Link>
-        </div>
-      ) : (
-        <>
-          <ul>
-            {classmates.map(s => (
-              <li key={s.id}>{s.firstName} {s.lastName} ({s.email})</li>
-            ))}
-          </ul>
-          <Link to={`/student/classes/${id}`}>Back to Class</Link>
-        </>
-      )}
-    </div>
+    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+      <Paper elevation={0} sx={{ p: 3, borderRadius: 2 }}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Classmates
+        </Typography>
+        
+        <Divider sx={{ my: 2 }} />
+
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Box>
+            <Typography color="error" paragraph>{error}</Typography>
+            <Button 
+              component={Link}
+              to={`/student/classes/${id}`}
+              startIcon={<ArrowBackIcon />}
+              variant="outlined"
+            >
+              Back to Class
+            </Button>
+          </Box>
+        ) : classmates.length === 0 ? (
+          <Box>
+            <Typography paragraph>No classmates found in this class.</Typography>
+            <Button 
+              component={Link}
+              to={`/student/classes/${id}`}
+              startIcon={<ArrowBackIcon />}
+              variant="outlined"
+            >
+              Back to Class
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <List>
+              {classmates.map(student => (
+                <ListItem key={student.id} divider>
+                  <ListItemText 
+                    primary={`${student.firstName} ${student.lastName}`}
+                    secondary={student.email}
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ mt: 2 }}>
+              <Button 
+                component={Link}
+                to={`/student/classes/${id}`}
+                startIcon={<ArrowBackIcon />}
+                variant="outlined"
+              >
+                Back to Class
+              </Button>
+            </Box>
+          </>
+        )}
+      </Paper>
+    </Box>
   );
 }

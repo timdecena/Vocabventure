@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../api/api";
 import {
   Box,
+<<<<<<< HEAD
   Button,
   Typography,
   Avatar,
@@ -17,6 +18,19 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import GamepadIcon from "@mui/icons-material/SportsEsports";
 import GroupIcon from "@mui/icons-material/Group";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+=======
+  Typography,
+  Paper,
+  Link as MuiLink,
+  Button,
+  CircularProgress,
+  Alert,
+  Divider,
+  Card,
+  CardContent
+} from "@mui/material";
+import { Home, People, Games } from "@mui/icons-material";
+>>>>>>> c2e8485b9e9a0fcb45b4faf9a48ef28328a1348e
 
 export default function StudentViewClassPage() {
   const { id } = useParams();
@@ -51,6 +65,7 @@ export default function StudentViewClassPage() {
   }, [id]);
 
   if (loading) return (
+<<<<<<< HEAD
     <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Typography
         sx={{
@@ -287,6 +302,107 @@ export default function StudentViewClassPage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
       `}</style>
+=======
+    <Box display="flex" justifyContent="center" mt={4}>
+      <CircularProgress />
+    </Box>
+  );
+
+  if (error) return (
+    <Box p={3}>
+      <Alert severity="error">
+        {error}
+      </Alert>
+      <Box mt={2}>
+        <Button 
+          component={Link} 
+          to="/student/classes" 
+          variant="outlined" 
+          startIcon={<Home />}
+        >
+          Back to My Classes
+        </Button>
+      </Box>
+    </Box>
+  );
+
+  if (!classroom) return (
+    <Box p={3}>
+      <Alert severity="warning">
+        Class not found
+      </Alert>
+      <Box mt={2}>
+        <Button 
+          component={Link} 
+          to="/student/classes" 
+          variant="outlined" 
+          startIcon={<Home />}
+        >
+          Back to My Classes
+        </Button>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          {classroom.name}
+        </Typography>
+        
+        <Typography variant="body1" paragraph>
+          {classroom.description}
+        </Typography>
+        
+        <Typography variant="subtitle1" color="text.secondary">
+          Teacher: {classroom.teacher?.firstName} {classroom.teacher?.lastName}
+        </Typography>
+      </Paper>
+
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Class Actions
+          </Typography>
+          <Divider sx={{ my: 2 }} />
+          
+          <Box display="flex" flexDirection="column" gap={2}>
+            <Button
+              component={Link}
+              to={`/student/classes/${id}/classmates`}
+              variant="contained"
+              color="primary"
+              startIcon={<People />}
+              fullWidth
+            >
+              View Classmates
+            </Button>
+            
+            <Button
+              component={Link}
+              to={`/student/classes/${id}/4pic1word`}
+              variant="contained"
+              color="secondary"
+              startIcon={<Games />}
+              fullWidth
+            >
+              Play 4 Pics 1 Word Game
+            </Button>
+            
+            <Button
+              component={Link}
+              to="/student/classes"
+              variant="outlined"
+              startIcon={<Home />}
+              fullWidth
+            >
+              Back to My Classes
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+>>>>>>> c2e8485b9e9a0fcb45b4faf9a48ef28328a1348e
     </Box>
   );
 }
