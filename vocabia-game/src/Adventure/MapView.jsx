@@ -222,13 +222,13 @@ export default function MapView() {
         </div>
         <div className="log-stats">
           <div className="log-item">
-            <span className="log-text">Islands Explored: 1/5</span>
+            <span className="log-text">Islands Explored: 0/5</span>
           </div>
           <div className="log-item">
             <span className="log-text">Scrolls Earned: 0</span>
           </div>
           <div className="log-item">
-            <span className="log-text">Total Progress: 20%</span>
+            <span className="log-text">Total Progress: 0%</span>
           </div>
         </div>
       </div>
