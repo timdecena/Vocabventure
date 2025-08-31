@@ -12,5 +12,6 @@ public interface SpellingChallengeScoreRepository extends JpaRepository<Spelling
     Optional<SpellingChallengeScore> findByStudentAndChallenge(User student, SpellingChallenge challenge);
     List<SpellingChallengeScore> findAllByStudent(User student);
         List<SpellingChallengeScore> findAllByStudentAndCorrect(User student, boolean correct);
+long countByStudentAndChallenge(User student, SpellingChallenge challenge);
 
 }

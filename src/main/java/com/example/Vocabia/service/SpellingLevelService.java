@@ -23,6 +23,7 @@ public class SpellingLevelService {
         SpellingLevel level = new SpellingLevel();
         level.setTitle(dto.getTitle());
         level.setClassroom(classroom);
+        level.setMaxAttempts(dto.getMaxAttempts());
         level = levelRepo.save(level);
 
         List<SpellingChallenge> challenges = new ArrayList<>();

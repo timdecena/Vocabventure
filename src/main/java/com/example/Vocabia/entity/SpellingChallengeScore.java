@@ -21,4 +21,7 @@ public class SpellingChallengeScore {
 
     @Column(nullable = false)
     private int score;
+
+    @Column(nullable = false)
+    private int attempt; // 1-based attempt number for this challenge
 }

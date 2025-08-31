@@ -39,6 +39,7 @@ export default function TeacherCreateSpellingLevel() {
   const [recordingIndex, setRecordingIndex] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [maxAttempts, setMaxAttempts] = useState(1);
 
   useEffect(() => {
     api.get("/api/teacher/classes")
@@ -173,13 +174,17 @@ export default function TeacherCreateSpellingLevel() {
         return { ...word, audioUrl };
       }));
 
-      await api.post("/api/spelling-level/create", {
-        title,
-        classroomId,
-        words: uploads.map(({ word, definition, sentence, audioUrl }) => ({
-          word, definition, sentence, audioUrl
-        }))
-      });
+    await api.post("/api/spelling-level/create", {
+      title,
+      classroomId: Number(classroomId),   // ✅ force numeric
+      maxAttempts: Number(maxAttempts),   // ✅ ensure numeric
+      words: uploads.map((w) => ({
+        word: w.word,
+        definition: w.definition,
+        sentence: w.sentence,
+        audioUrl: w.audioUrl
+      }))
+    });
 
       setMessage({ text: "Level created successfully!", severity: "success" });
       setWords([]);
@@ -233,17 +238,29 @@ export default function TeacherCreateSpellingLevel() {
             </Grid>
             <Grid item xs={12} md={6}>
               <Select
-                fullWidth
-                value={classroomId}
-                onChange={(e) => setClassroomId(e.target.value)}
-                displayEmpty
-                required
-              >
+  fullWidth
+  value={classroomId}
+  onChange={(e) => setClassroomId(Number(e.target.value))}   // ✅ ensure numeric
+  displayEmpty
+  required
+>
                 <MenuItem value="" disabled>Select Classroom</MenuItem>
                 {classrooms.map(c => (
                   <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
                 ))}
               </Select>
+            </Grid>
+
+             <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Maximum Attempts"
+                value={maxAttempts}
+                onChange={(e) => setMaxAttempts(Number(e.target.value))}
+                inputProps={{ min: 1 }}
+                required
+              />
             </Grid>
           </Grid>
 
@@ -315,6 +332,7 @@ export default function TeacherCreateSpellingLevel() {
                         rows={2}
                         sx={{ mb: 2 }}
                       />
+
                     </Box>
 
                     <Box sx={{ width: "100%" }}>

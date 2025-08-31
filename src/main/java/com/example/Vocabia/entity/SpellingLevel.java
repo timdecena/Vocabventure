@@ -14,6 +14,8 @@ public class SpellingLevel {
 
     private String title;
 
+    private int maxAttempts;
+
     @ManyToOne
     private Classroom classroom;
 

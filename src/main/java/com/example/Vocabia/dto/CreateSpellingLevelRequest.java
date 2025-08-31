@@ -9,6 +9,8 @@ public class CreateSpellingLevelRequest {
     private String title;
     private Long classroomId;
     private List<WordEntry> words;
+    private int maxAttempts; // teacher-chosen attempts for this level
+
 
     @Data
     public static class WordEntry {
@@ -16,5 +18,6 @@ public class CreateSpellingLevelRequest {
         private String definition;
         private String sentence;
         private String audioUrl;
+
     }
 }
