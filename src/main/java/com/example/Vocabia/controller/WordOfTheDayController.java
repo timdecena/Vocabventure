@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 import java.security.Principal;
 import java.util.Map;
 
@@ -24,17 +24,14 @@ public class WordOfTheDayController {
     @GetMapping
 public Map<String, Object> getToday(Principal principal) {
     User user = userService.findByEmail(principal.getName())
-            .orElseThrow(() -> new RuntimeException("User not found: " + principal.getName()));
+        .orElseThrow(() -> new RuntimeException("User not found: " + principal.getName()));
     WordOfTheDay word = wotdService.getTodayWord();
     boolean hasPlayed = wotdService.hasPlayed(user, word);
 
-    List<String> choices = wotdService.generateChoices(word.getWord());
-
     return Map.of(
-            "definition", word.getDefinition(),
-            "hasPlayed", hasPlayed,
-            "imageUrl", word.getImageUrl(),
-            "choices", choices // ✅ send multiple choice options
+        "definition", word.getDefinition(),
+        "hasPlayed", hasPlayed,
+        "imageUrl", word.getImageUrl() // ✅ Add this line
     );
 }
 
