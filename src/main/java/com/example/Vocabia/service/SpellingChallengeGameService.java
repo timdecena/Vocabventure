@@ -22,20 +22,19 @@ public class SpellingChallengeGameService {
     }
 
     public boolean hasPlayed(User student, SpellingChallenge challenge) {
-        return scoreRepo.findByStudentAndChallenge(student, challenge).isPresent();
-    }
+    int allowed = (challenge.getLevel() != null) ? challenge.getLevel().getMaxAttempts() : 1;
+    long used = scoreRepo.countByStudentAndChallenge(student, challenge);
+    return used >= allowed; // ✅ only true if max attempts reached
+}
 
 public SpellingChallengeScore submitAnswer(User student, Long challengeId, String guess, double elapsedTime) {
     SpellingChallenge challenge = challengeRepo.findById(challengeId)
         .orElseThrow(() -> new RuntimeException("Challenge not found"));
 
-    // ✅ Get allowed attempts from the level (default 1 if null)
     int allowed = (challenge.getLevel() != null) ? challenge.getLevel().getMaxAttempts() : 1;
-
-    // ✅ Count how many attempts this student already made for this challenge
     long used = scoreRepo.countByStudentAndChallenge(student, challenge);
 
-    // ✅ Block if max attempts reached
+    // ❌ Prevent only if already maxed out
     if (used >= allowed) {
         throw new RuntimeException("Maximum attempts reached");
     }
@@ -47,24 +46,21 @@ public SpellingChallengeScore submitAnswer(User student, Long challengeId, Strin
     score.setChallenge(challenge);
     score.setCorrect(correct);
     score.setScore(correct ? 1 : 0);
-    score.setAttempt((int) used + 1); // ✅ store attempt number (1-based)
+    score.setAttempt((int) used + 1); // store attempt numbers
 
     if (correct) {
-        // ✅ Reward gold only if answered within 5 seconds
+        // reward system
         if (elapsedTime <= 5.0) {
             student.setGold(student.getGold() + 10);
         }
-
-        // ✅ Always update progress tracking if correct
         student.setCorrectAnswers(student.getCorrectAnswers() + 1);
         student.setProgressPoints(student.getProgressPoints() + 10);
-
-        // ✅ Persist all updates together
         userRepo.save(student);
     }
 
-    return scoreRepo.save(score);
+    return scoreRepo.save(score); // ✅ always save attempt
 }
+
 
 
     public List<Long> getCompletedChallengeIds(User student) {

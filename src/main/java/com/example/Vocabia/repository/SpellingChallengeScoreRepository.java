@@ -6,10 +6,9 @@ import com.example.Vocabia.entity.SpellingChallenge;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-import java.util.Optional;
 
 public interface SpellingChallengeScoreRepository extends JpaRepository<SpellingChallengeScore, Long> {
-    Optional<SpellingChallengeScore> findByStudentAndChallenge(User student, SpellingChallenge challenge);
+List<SpellingChallengeScore> findAllByStudentAndChallenge(User student, SpellingChallenge challenge);
     List<SpellingChallengeScore> findAllByStudent(User student);
         List<SpellingChallengeScore> findAllByStudentAndCorrect(User student, boolean correct);
 long countByStudentAndChallenge(User student, SpellingChallenge challenge);
