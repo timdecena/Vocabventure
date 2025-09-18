@@ -43,12 +43,15 @@ export default function StudentWordOfTheDay() {
 const [gold, setGold] = useState(loadState("gold", null));
   const [streak, setStreak] = useState(loadState("streak", 0));
   const [lastPlayedDate, setLastPlayedDate] = useState(loadState("lastPlayedDate", null));
+  const [choices, setChoices] = useState([]);
+
 
 
 
 
 
   const fetchWordData = async () => {
+    
     try {
       const res = await api.get("/api/game/word-of-the-day");
       setDefinition(res.data.definition);
@@ -65,7 +68,8 @@ const [gold, setGold] = useState(loadState("gold", null));
       }
       
       setImageUrl(`http://localhost:8080${res.data.imageUrl}`);
-      
+      setChoices(res.data.choices || []);
+
       // Only update gold/streak if they're different from server
       if (res.data.gold !== undefined && res.data.gold !== gold) {
         setGold(res.data.gold);
@@ -385,59 +389,22 @@ const [gold, setGold] = useState(loadState("gold", null));
               gap: "16px"
             }}
           >
-            <TextField
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              placeholder="Enter your guess..."
-              variant="outlined"
-              fullWidth
-              InputProps={{
-                sx: {
-                  fontFamily: "'Press Start 2P', cursive",
-                  color: "#fff",
-                  background: "#18181b",
-                  border: "2px solid #00eaff",
-                  borderRadius: "8px",
-                  "&:hover": {
-                    borderColor: "#ff00c8"
-                  },
-                  "&.Mui-focused": {
-                    borderColor: "#ff00c8",
-                    boxShadow: "0 0 16px #ff00c8"
-                  }
-                }
-              }}
-              InputLabelProps={{
-                sx: {
-                  fontFamily: "'Press Start 2P', cursive",
-                  color: "#00eaff"
-                }
-              }}
-            />
-            <Button
-              onClick={submitGuess}
-              disabled={!guess.trim()}
-              sx={{
-                fontFamily: "'Press Start 2P', cursive",
-                fontSize: "0.9rem",
-                color: "#00eaff",
-                background: "#18181b",
-                border: "2px solid #00eaff",
-                borderRadius: "8px",
-                p: "12px 24px",
-                boxShadow: "0 0 8px #00eaff80",
-                "&:hover": {
-                  background: "#00eaff22",
-                  borderColor: "#ff00c8",
-                  boxShadow: "0 0 16px #ff00c8"
-                },
-                "&:disabled": {
-                  opacity: 0.5
-                }
-              }}
-            >
-              SUBMIT GUESS
-            </Button>
+            {choices.map((choice, index) => (
+  <Button
+    key={index}
+    onClick={() => setGuess(choice)}
+    variant={guess === choice ? "contained" : "outlined"}
+  >
+    {choice}
+  </Button>
+))}
+<Button
+  onClick={submitGuess}
+  disabled={!guess}
+>
+  SUBMIT GUESS
+</Button>
+
           </Box>
         )}
 

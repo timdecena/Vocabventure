@@ -8,10 +8,14 @@ import com.example.Vocabia.repository.WordOfTheDayScoreRepository;
 import com.example.Vocabia.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+
 
 @Service
 @RequiredArgsConstructor
@@ -81,4 +85,24 @@ public class WordOfTheDayService {
         LocalTime current = LocalTime.now(zone);
         return current.isBefore(LocalTime.of(7, 0)) ? now.minusDays(1) : now;
     }
+
+    public List<String> generateChoices(String correctWord) {
+    List<String> allWords = wordRepo.findAll()
+            .stream()
+            .map(WordOfTheDay::getWord)
+            .collect(Collectors.toList());
+
+    List<String> distractors = allWords.stream()
+            .filter(w -> !w.equalsIgnoreCase(correctWord))
+            .collect(Collectors.toList());
+
+    Collections.shuffle(distractors);
+
+    List<String> choices = new ArrayList<>();
+    choices.add(correctWord);
+    choices.addAll(distractors.subList(0, Math.min(3, distractors.size())));
+
+    Collections.shuffle(choices);
+    return choices;
+}
 }
