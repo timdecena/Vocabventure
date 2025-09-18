@@ -35,11 +35,15 @@ public class SpellingLevelController {
     }
 
     @GetMapping("/classroom/{classroomId}")
-    public List<SpellingLevelDTO> getLevels(@PathVariable Long classroomId) {
-        return levelService.getLevelsForClassroom(classroomId).stream()
-                .map(level -> new SpellingLevelDTO(level.getId(), level.getTitle()))
-                .collect(Collectors.toList());
-    }
+public List<SpellingLevelDTO> getLevels(@PathVariable Long classroomId) {
+    return levelService.getLevelsForClassroom(classroomId).stream()
+            .map(level -> new SpellingLevelDTO(
+                level.getId(),
+                level.getTitle(),
+                level.getMaxAttempts()  // <-- include here
+            ))
+            .collect(Collectors.toList());
+}
 
     @GetMapping("/{levelId}/challenges")
     public List<SpellingChallenge> getChallenges(@PathVariable Long levelId) {

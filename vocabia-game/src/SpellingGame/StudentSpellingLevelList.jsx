@@ -75,7 +75,7 @@ export default function StudentSpellingLevelList() {
           api.get(`/api/spelling-level/classroom/${classId}`),
           api.get(`/api/game/spelling/correct`)
         ]);
-
+        console.log("Levels response:", levelsRes.data);
         if (Array.isArray(levelsRes.data)) {
           setLevels(levelsRes.data.sort((a, b) => a.order - b.order));
         } else {
@@ -188,7 +188,9 @@ export default function StudentSpellingLevelList() {
                     <Typography variant="body2" color="text.secondary">
                       {level.description || "Test your spelling skills"}
                     </Typography>
-                    
+                    <Typography variant="body2" color="text.secondary">
+                      Attempts Allowed: {level.maxAttempts}
+                    </Typography>
                     {total > 0 && (
                       <ProgressBarContainer>
                         <Box width="100%" mr={1}>
