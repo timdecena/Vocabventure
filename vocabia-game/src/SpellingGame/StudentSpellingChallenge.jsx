@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react"; // ✅ add useCallback
 import api from "../api/api";
 import { useLocation } from "react-router-dom";
 
@@ -57,35 +57,9 @@ const [completedIds, setCompletedIds] = useState([]);
     setMaxWaterLevel(0);
   }, [current]);
 
-  // Timer countdown + water rising
-  useEffect(() => {
-    if (timerStarted && !isSubmitted && timer > 0) {
-      const t = setTimeout(() => {
-        setTimer((t) => t - 1);
-        const newWater = Math.min(waterLevel + waterRiseSpeed, 100);
-        setWaterLevel(newWater);
-        setMaxWaterLevel((prev) => Math.max(prev, newWater));
-      }, 1000);
-      return () => clearTimeout(t);
-    }
-
-    if (timer === 0 && !isSubmitted) {
-      setWaterLevel(100);
-      setTimeout(() => handleSubmit(), 500);
-    }
-  }, [timerStarted, timer, isSubmitted, waterLevel]);
-
-  const handlePlayAudio = () => {
-    if (audioRef.current?.src) {
-      audioRef.current.play();
-      setTimerStarted(true);
-      setStartTime(Date.now());
-    }
-  };
-
-  const handleSubmit = async () => {
-  if (isSubmitted) return; // 🚀 prevent duplicate submissions
-  setIsSubmitted(true);   // lock before API call
+  const handleSubmit = useCallback(async () => {
+  if (isSubmitted) return; 
+  setIsSubmitted(true);   
 
   const endTime = Date.now();
   const elapsedTime = (endTime - startTime) / 1000;
@@ -113,7 +87,34 @@ const [completedIds, setCompletedIds] = useState([]);
   } finally {
     setTimeout(() => nextChallenge(), 2000);
   }
-};
+}, [isSubmitted, startTime, challenges, current, answer]); // ✅ proper deps
+
+  // Timer countdown + water rising
+  useEffect(() => {
+  if (timerStarted && !isSubmitted && timer > 0) {
+    const t = setTimeout(() => {
+      setTimer((t) => t - 1);
+      const newWater = Math.min(waterLevel + waterRiseSpeed, 100);
+      setWaterLevel(newWater);
+      setMaxWaterLevel((prev) => Math.max(prev, newWater));
+    }, 1000);
+    return () => clearTimeout(t);
+  }
+
+  if (timer === 0 && !isSubmitted) {
+    setWaterLevel(100);
+    setTimeout(() => handleSubmit(), 500);
+  }
+}, [timerStarted, timer, isSubmitted, waterLevel, waterRiseSpeed, handleSubmit]); // ✅ fixed
+
+  const handlePlayAudio = () => {
+    if (audioRef.current?.src) {
+      audioRef.current.play();
+      setTimerStarted(true);
+      setStartTime(Date.now());
+    }
+  };
+
 
 
   const nextChallenge = () => {
