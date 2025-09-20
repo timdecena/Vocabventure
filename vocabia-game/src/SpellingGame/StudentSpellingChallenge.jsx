@@ -28,21 +28,27 @@ export default function StudentSpellingChallenge() {
   const difficultyFactor = Math.min(1 + current * 0.1, 1.5);
   const baseTime = 15;
   const waterRiseSpeed = difficultyFactor * (100 / baseTime);
+const [completedIds, setCompletedIds] = useState([]);
 
   // Fetch challenges
   useEffect(() => {
-    const fetchChallenges = async () => {
-      try {
-        const res = await api.get(`/api/spelling-level/${levelId}/challenges`);
-        setChallenges(Array.isArray(res.data) ? res.data : []);
-      } catch {
-        setError("Error loading challenges or unauthorized.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchChallenges();
-  }, [levelId]);
+  const fetchData = async () => {
+    try {
+      const [challengesRes, completedRes] = await Promise.all([
+        api.get(`/api/spelling-level/${levelId}/challenges`),
+        api.get(`/api/game/spelling/completed`)
+      ]);
+
+      setChallenges(Array.isArray(challengesRes.data) ? challengesRes.data : []);
+      setCompletedIds(Array.isArray(completedRes.data) ? completedRes.data : []);
+    } catch {
+      setError("Error loading challenges or unauthorized.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, [levelId]);
 
   // Reset challenge state when moving to next
   useEffect(() => {
@@ -122,17 +128,28 @@ export default function StudentSpellingChallenge() {
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   if (!challenges.length) return <p>No challenges available.</p>;
 
-  if (current >= challenges.length) {
-    return (
-      <div>
-        <h3>All challenges completed!</h3>
-        <p>Your Score: {score} / {challenges.length}</p>
-        <p>Highest water level reached: {Math.round(maxWaterLevel)}%</p>
-      </div>
-    );
-  }
+ if (current >= challenges.length) {
+  return (
+    <div>
+      <h3>All challenges completed!</h3>
+      <p>Your Score: {score} / {challenges.length}</p>
+      <p>Highest water level reached: {Math.round(maxWaterLevel)}%</p>
+    </div>
+  );
+}
 
-  const currentChallenge = challenges[current];
+const currentChallenge = challenges[current];
+if (completedIds.includes(currentChallenge.id)) {
+  return (
+    <div>
+      <h2>Spelling Challenge</h2>
+      <p>Challenge {current + 1} of {challenges.length}</p>
+      <p>Score: {score}</p>
+      <p style={{ color: "orange" }}>You already answered this challenge.</p>
+      <button onClick={nextChallenge}>Next Challenge</button>
+    </div>
+  );
+}
 
   return (
     <div>
