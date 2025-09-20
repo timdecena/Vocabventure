@@ -18,9 +18,9 @@ public class UserProgressService {
     private final UserProgressRepository repo;
 
     // XP curve
-    private int xpRequiredForNextLevel(int level) {
-        return 50 * level * (level + 1) / 2;
-    }
+   // private int xpRequiredForNextLevel(int level) {
+  //      return 50 * level * (level + 1) / 2;
+   // }
 
     public UserProgress getOrCreateProgress(User user, String category) {
         return repo.findByUserAndCategory(user, category).orElseGet(() -> {

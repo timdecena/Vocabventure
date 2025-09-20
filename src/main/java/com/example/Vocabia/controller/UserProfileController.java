@@ -2,7 +2,6 @@ package com.example.Vocabia.controller;
 
 import com.example.Vocabia.dto.UserProfileResponse;
 import com.example.Vocabia.dto.UserProfileUpdateRequest;
-import com.example.Vocabia.entity.User;
 import com.example.Vocabia.service.UserService;
 import com.example.Vocabia.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
