@@ -186,8 +186,9 @@ export default function StudentSpellingLevelList() {
                       {level.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {level.description || "Test your spelling skills"}
+                      Attempts allowed: {level.maxAttempts}
                     </Typography>
+
                     
                     {total > 0 && (
                       <ProgressBarContainer>
