@@ -35,15 +35,30 @@ public class SpellingLevelController {
     }
 
    @GetMapping("/classroom/{classroomId}")
-public List<SpellingLevelDTO> getLevels(@PathVariable Long classroomId) {
+public List<SpellingLevelDTO> getLevels(@PathVariable Long classroomId, Principal principal) {
+    User student = getCurrentUser(principal);
+
     return levelService.getLevelsForClassroom(classroomId).stream()
-            .map(level -> new SpellingLevelDTO(
-                    level.getId(),
-                    level.getTitle(),
-                    level.getMaxAttempts()   // 👈 include attempts
-            ))
+            .map(level -> {
+                int allowed = level.getMaxAttempts();
+
+                // Count all attempts student has used in this level
+                long used = level.getChallenges().stream()
+                        .mapToLong(ch -> levelService.countAttemptsByStudentAndChallenge(student, ch))
+                        .sum();
+
+                int remaining = Math.max(allowed - (int) used, 0);
+
+                return new SpellingLevelDTO(
+                        level.getId(),
+                        level.getTitle(),
+                        allowed,
+                        remaining
+                );
+            })
             .collect(Collectors.toList());
 }
+
 
     @GetMapping("/{levelId}/challenges")
     public List<SpellingChallenge> getChallenges(@PathVariable Long levelId) {

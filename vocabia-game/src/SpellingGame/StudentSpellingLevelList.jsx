@@ -65,6 +65,8 @@ export default function StudentSpellingLevelList() {
   const [levelChallengeCounts, setLevelChallengeCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [remainingAttempts, setRemainingAttempts] = useState({});
+
 
   // Fetch levels and completed challenge IDs
   useEffect(() => {
@@ -96,37 +98,50 @@ export default function StudentSpellingLevelList() {
 
   // Determine which levels are fully completed & calculate scores
   useEffect(() => {
-    const checkCompletedLevelsAndScores = async () => {
-      const completed = [];
-      const scores = {};
-      const challengeCounts = {};
+  const checkCompletedLevelsAndScores = async () => {
+    const completed = [];
+    const scores = {};
+    const challengeCounts = {};
+    const attemptsLeft = {}; // ✅ new
 
-      for (const level of levels) {
-        try {
-          const res = await api.get(`/api/spelling-level/${level.id}/challenges`);
-          const challengeIds = res.data.map((c) => c.id);
-          const correctAnswered = challengeIds.filter(id => completedChallengeIds.includes(id));
-          const isCompleted = challengeIds.length > 0 && correctAnswered.length === challengeIds.length;
+    for (const level of levels) {
+      try {
+        const res = await api.get(`/api/spelling-level/${level.id}/challenges`);
+        const challengeIds = res.data.map((c) => c.id);
 
-          if (isCompleted) completed.push(level.id);
-          scores[level.id] = correctAnswered.length;
-          challengeCounts[level.id] = challengeIds.length;
-        } catch (err) {
-          console.warn(`⚠️ Could not fetch challenges for level ${level.id}`);
-          scores[level.id] = 0;
-          challengeCounts[level.id] = 0;
-        }
+        const correctAnswered = challengeIds.filter(id =>
+          completedChallengeIds.includes(id)
+        );
+        const isCompleted =
+          challengeIds.length > 0 &&
+          correctAnswered.length === challengeIds.length;
+
+        if (isCompleted) completed.push(level.id);
+
+        scores[level.id] = correctAnswered.length;
+        challengeCounts[level.id] = challengeIds.length;
+
+        // ✅ compute remaining attempts
+        const usedAttempts = correctAnswered.length; // (replace if you have an API tracking all attempts)
+        attemptsLeft[level.id] = Math.max(level.maxAttempts - usedAttempts, 0);
+      } catch (err) {
+        console.warn(`⚠️ Could not fetch challenges for level ${level.id}`);
+        scores[level.id] = 0;
+        challengeCounts[level.id] = 0;
+        attemptsLeft[level.id] = level.maxAttempts; // fallback
       }
-
-      setCompletedLevelIds(completed);
-      setLevelScores(scores);
-      setLevelChallengeCounts(challengeCounts);
-    };
-
-    if (levels.length && completedChallengeIds.length) {
-      checkCompletedLevelsAndScores();
     }
-  }, [levels, completedChallengeIds]);
+
+    setCompletedLevelIds(completed);
+    setLevelScores(scores);
+    setLevelChallengeCounts(challengeCounts);
+    setRemainingAttempts(attemptsLeft); // ✅ save in state
+  };
+
+  if (levels.length && completedChallengeIds.length) {
+    checkCompletedLevelsAndScores();
+  }
+}, [levels, completedChallengeIds]);
 
   const calculateProgress = (levelId) => {
     const score = levelScores[levelId] || 0;
@@ -188,6 +203,9 @@ export default function StudentSpellingLevelList() {
                     <Typography variant="body2" color="text.secondary">
                       Attempts allowed: {level.maxAttempts}
                     </Typography>
+                    <Typography variant="body2" color={remainingAttempts[level.id] === 0 ? "error" : "text.primary"}>
+                      Remaining attempts: {remainingAttempts[level.id] ?? level.maxAttempts}
+                    </Typography>
 
                     
                     {total > 0 && (
@@ -214,19 +232,22 @@ export default function StudentSpellingLevelList() {
                     />
                   ) : (
                     <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => navigate(`/student/classes/${classId}/spelling-challenge?levelId=${level.id}`)}
-                      sx={{
-                        minWidth: "140px",
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        borderRadius: "8px",
-                        padding: "8px 16px"
-                      }}
-                    >
-                      Start
-                    </Button>
+  variant="contained"
+  color="primary"
+  onClick={() => navigate(`/student/classes/${classId}/spelling-challenge?levelId=${level.id}`)}
+  disabled={remainingAttempts[level.id] === 0} // ✅ disable if no attempts left
+  sx={{
+    minWidth: "140px",
+    textTransform: "none",
+    fontWeight: "bold",
+    borderRadius: "8px",
+    padding: "8px 16px",
+    backgroundColor: remainingAttempts[level.id] === 0 ? "#ccc" : undefined, // optional gray out
+    cursor: remainingAttempts[level.id] === 0 ? "not-allowed" : "pointer", // optional cursor
+  }}
+>
+  {remainingAttempts[level.id] === 0 ? "No Attempts Left" : "Start"} 
+</Button>
                   )}
                 </Box>
               </CardContent>

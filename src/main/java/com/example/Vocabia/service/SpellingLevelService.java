@@ -4,6 +4,8 @@ import com.example.Vocabia.dto.CreateSpellingLevelRequest;
 import com.example.Vocabia.entity.*;
 import com.example.Vocabia.repository.*;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,13 @@ public class SpellingLevelService {
         classroom.setId(classroomId);
         return levelRepo.findByClassroom(classroom);
     }
+    @Autowired
+private SpellingChallengeScoreRepository scoreRepo;
+
+public long countAttemptsByStudentAndChallenge(User student, SpellingChallenge challenge) {
+    return scoreRepo.countByStudentAndChallenge(student, challenge);
+}
+
 
     public List<SpellingChallenge> getChallengesForLevel(Long levelId) {
         return challengeRepo.findAll().stream()
