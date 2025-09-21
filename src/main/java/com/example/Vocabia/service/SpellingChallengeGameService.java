@@ -31,25 +31,18 @@ public SpellingChallengeScore submitAnswer(User student, Long challengeId, Strin
     SpellingChallenge challenge = challengeRepo.findById(challengeId)
         .orElseThrow(() -> new RuntimeException("Challenge not found"));
 
-    int allowed = (challenge.getLevel() != null) ? challenge.getLevel().getMaxAttempts() : 1;
-    long used = scoreRepo.countByStudentAndChallenge(student, challenge);
-
-    // ❌ Prevent only if already maxed out
-    if (used >= allowed) {
-        throw new RuntimeException("Maximum attempts reached");
-    }
-
     boolean correct = challenge.getWord().equalsIgnoreCase(guess.trim());
+
+    long used = scoreRepo.countByStudentAndChallenge(student, challenge);
 
     SpellingChallengeScore score = new SpellingChallengeScore();
     score.setStudent(student);
     score.setChallenge(challenge);
     score.setCorrect(correct);
     score.setScore(correct ? 1 : 0);
-    score.setAttempt((int) used + 1); // store attempt numbers
+    score.setAttempt((int) used + 1);
 
     if (correct) {
-        // reward system
         if (elapsedTime <= 5.0) {
             student.setGold(student.getGold() + 10);
         }
@@ -58,8 +51,9 @@ public SpellingChallengeScore submitAnswer(User student, Long challengeId, Strin
         userRepo.save(student);
     }
 
-    return scoreRepo.save(score); // ✅ always save attempt
+    return scoreRepo.save(score);
 }
+
 
 
 

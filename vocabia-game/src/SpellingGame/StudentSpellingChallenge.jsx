@@ -140,56 +140,52 @@ const [completedIds, setCompletedIds] = useState([]);
 }
 
 const currentChallenge = challenges[current];
-if (completedIds.includes(currentChallenge.id)) {
-  return (
-    <div>
-      <h2>Spelling Challenge</h2>
-      <p>Challenge {current + 1} of {challenges.length}</p>
-      <p>Score: {score}</p>
-      <p style={{ color: "orange" }}>You already answered this challenge.</p>
-      <button onClick={nextChallenge}>Next Challenge</button>
-    </div>
-  );
-}
+const alreadyAnswered = completedIds.includes(currentChallenge.id);
 
-  return (
-    <div>
-      <h2>Spelling Challenge</h2>
-      <p>Challenge {current + 1} of {challenges.length}</p>
-      <p>Score: {score}</p>
-      <p>Timer: {timer}s</p>
-      <p>Water Level: {Math.round(waterLevel)}%</p>
+return (
+  <div>
+    <h2>Spelling Challenge</h2>
+    <p>Challenge {current + 1} of {challenges.length}</p>
+    <p>Score: {score}</p>
+    <p>Timer: {timer}s</p>
+    <p>Water Level: {Math.round(waterLevel)}%</p>
 
-      {currentChallenge.audioUrl && (
-        <>
-          <audio ref={audioRef} src={`http://localhost:8080${currentChallenge.audioUrl}`} preload="auto" />
-          <audio ref={attackSoundRef} src="/sounds/spell-attack.mp3" preload="auto" />
-          <audio ref={drowningSoundRef} src="/sounds/drowning-alarm.mp3" preload="auto" />
-          <button onClick={handlePlayAudio} disabled={timerStarted}>
-            Play Word ({timer}s left)
-          </button>
-        </>
-      )}
+    {alreadyAnswered && (
+      <p style={{ color: "orange" }}>
+        You already answered this challenge, but you can try again.
+      </p>
+    )}
 
-      {!isSubmitted ? (
-        <div>
-          <input
-            type="text"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            placeholder="Type your answer"
-            disabled={!timerStarted}
-          />
-          <button onClick={handleSubmit} disabled={!timerStarted || !answer.trim()}>
-            Submit
-          </button>
-        </div>
-      ) : (
-        <div>
-          <p>{feedback}</p>
-          {current < challenges.length - 1 && <p>Next challenge in 2 seconds...</p>}
-        </div>
-      )}
-    </div>
-  );
+    {currentChallenge.audioUrl && (
+      <>
+        <audio ref={audioRef} src={`http://localhost:8080${currentChallenge.audioUrl}`} preload="auto" />
+        <audio ref={attackSoundRef} src="/sounds/spell-attack.mp3" preload="auto" />
+        <audio ref={drowningSoundRef} src="/sounds/drowning-alarm.mp3" preload="auto" />
+        <button onClick={handlePlayAudio} disabled={timerStarted}>
+          Play Word ({timer}s left)
+        </button>
+      </>
+    )}
+
+    {!isSubmitted ? (
+      <div>
+        <input
+          type="text"
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder="Type your answer"
+          disabled={!timerStarted}
+        />
+        <button onClick={handleSubmit} disabled={!timerStarted || !answer.trim()}>
+          Submit
+        </button>
+      </div>
+    ) : (
+      <div>
+        <p>{feedback}</p>
+        {current < challenges.length - 1 && <p>Next challenge in 2 seconds...</p>}
+      </div>
+    )}
+  </div>
+);
 }
