@@ -205,8 +205,8 @@ const WizardSprite = ({ ...props }) => {
 
   const WizardImg = styled('img')({
     width: '180px', // Perfect size
-    height: 'auto',
-    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+  height: 'auto',
+  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
     // No bouncing - standing still
   });
 
@@ -256,8 +256,8 @@ const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
 
   const AdventurerImg = styled('img')(({ isDamaged }) => ({
     width: '280px', // Bigger to match better with wizard
-    height: 'auto',
-    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+  height: 'auto',
+  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
     animation: isDamaged ? `${shake} 0.5s ease-in-out, ${userFlash} 0.5s ease-in-out` : 'none',
     marginBottom: '0px', // Ensure it's aligned with the platform
   }));
@@ -328,8 +328,8 @@ const OrcSprite = ({ state, isDamaged, ...props }) => {
 
   const OrcImg = styled('img')(({ isDamaged, state }) => ({
     width: '350px', // Orc size
-    height: 'auto',
-    filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
+  height: 'auto',
+  filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
     animation: isDamaged ? `${hit} 0.5s ease-in-out, ${monsterFlash} 0.5s ease-in-out` : 'none',
     transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face adventurer when hurt, face away normally
   }));
@@ -1164,7 +1164,7 @@ const JungleLushLevel2 = () => {
       setTimeout(() => {
         setAdventurerState('idle');
         // Then monster gets hurt
-        setMonsterDamaged(true);
+      setMonsterDamaged(true);
         setMonsterState('hurt');
         setTimeout(() => {
           setMonsterDamaged(false);
@@ -1178,8 +1178,8 @@ const JungleLushLevel2 = () => {
             // Pre-Tensephant dialogue
             setMonsterState('death');
             setTimeout(() => {
-              setPhase('pretense');
-              setPreTenseDialogueIdx(0);
+            setPhase('pretense');
+            setPreTenseDialogueIdx(0);
               setMonsterState('idle');
             }, 1000);
           } else {
@@ -1612,7 +1612,7 @@ const JungleLushLevel2 = () => {
               }}
             >
               🎉 Victory! 🎉
-            </Typography>
+              </Typography>
             <Typography 
               variant="h5"
               style={{
@@ -1708,6 +1708,6 @@ const JungleLushLevel2 = () => {
       <button className="jl-return-btn" style={{ marginTop: 32 }} onClick={() => navigate('/jungle-lush')}>Return to Jungle Lush</button>
     </SceneContainer>
   );
-  };
-  
-  export default JungleLushLevel2; 
+};
+
+export default JungleLushLevel2; 

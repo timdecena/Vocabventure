@@ -1015,7 +1015,7 @@ const JungleLushLevel1 = () => {
       setTimeout(() => {
         setAdventurerState('idle');
         // Then monster gets hurt
-        setMonsterDamaged(true);
+      setMonsterDamaged(true);
         setMonsterState('hurt');
         setTimeout(() => {
           setMonsterDamaged(false);
@@ -1032,10 +1032,10 @@ const JungleLushLevel1 = () => {
       });
       if (currentQuestion < questions.length - 1) {
         setTimeout(() => {
-          setCurrentQuestion(prev => prev + 1);
-          setSelectedAnswer(null);
-          setShowResult(false);
-          setTimeLeft(TIMER_DURATION);
+        setCurrentQuestion(prev => prev + 1);
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setTimeLeft(TIMER_DURATION);
         }, 600);
       }
     } else {
@@ -1131,14 +1131,14 @@ const JungleLushLevel1 = () => {
             <CommawidowSprite state="idle" />
           </PositionedMonster>
         )}
-        <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
+          <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
           <DialogueText variant="h6" gutterBottom>
             {d.text}
           </DialogueText>
-          {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
-        </DialogueBox>
-      </>
+            {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
+          </DialogueBox>
+        </>
     );
   } else if (phase === 'battle') {
     content = (
@@ -1148,34 +1148,34 @@ const JungleLushLevel1 = () => {
             <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
           </BattleAdventurer>
           <BattleMonster>
-            <MonsterHPText>Commawidow HP</MonsterHPText>
-            <MonsterHPBar>
-              <MonsterHPFill hp={monsterHP} />
-            </MonsterHPBar>
+              <MonsterHPText>Commawidow HP</MonsterHPText>
+              <MonsterHPBar>
+                <MonsterHPFill hp={monsterHP} />
+              </MonsterHPBar>
             <CommawidowSprite state={monsterState} isDamaged={monsterDamaged} />
           </BattleMonster>
           <VS style={{ position: 'absolute', left: '50%', bottom: '250px', transform: 'translateX(-50%)', zIndex: 5 }}>VS</VS>
         </>
-        <BattleBottomBar>
-          <QuestionText>
-            {questions[currentQuestion].question}
-          </QuestionText>
-          <ChoicesGrid count={questions[currentQuestion].options.length}>
-            {questions[currentQuestion].options.map((option, idx) => (
-              <MoveButton
-                key={idx}
-                selected={selectedAnswer === idx}
-                onClick={() => handleAnswer(idx)}
-                disableRipple
+          <BattleBottomBar>
+            <QuestionText>
+              {questions[currentQuestion].question}
+            </QuestionText>
+            <ChoicesGrid count={questions[currentQuestion].options.length}>
+              {questions[currentQuestion].options.map((option, idx) => (
+                <MoveButton
+                  key={idx}
+                  selected={selectedAnswer === idx}
+                  onClick={() => handleAnswer(idx)}
+                  disableRipple
                 style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
-                disabled={showResult}
-              >
-                {option}
-              </MoveButton>
-            ))}
-          </ChoicesGrid>
-        </BattleBottomBar>
-      </>
+                  disabled={showResult}
+                >
+                  {option}
+                </MoveButton>
+              ))}
+            </ChoicesGrid>
+          </BattleBottomBar>
+        </>
     );
   }
 
@@ -1420,7 +1420,7 @@ const JungleLushLevel1 = () => {
               }}
             >
               🎉 Victory! 🎉
-            </Typography>
+              </Typography>
             <Typography 
               variant="h5"
               style={{
