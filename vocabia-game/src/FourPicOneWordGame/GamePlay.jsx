@@ -17,6 +17,7 @@ import {
 } from '@mui/icons-material';
 import confetti from 'canvas-confetti';
 import api from '../api/api';
+import { STRINGS, formatters } from './strings';
 
 // Keyframe animations
 const shimmer = keyframes`
@@ -303,6 +304,7 @@ const initialState = {
   showGoldAnimation: false,
   completionStatus: null,
   totalLevels: 0,
+  categoryComplete: false,
   score: 0,
   efficiency: 100
 };
@@ -415,6 +417,8 @@ function gameReducer(state, action) {
       return { ...state, completionStatus: action.payload };
     case 'SET_TOTAL_LEVELS':
       return { ...state, totalLevels: Number(action.payload) || 0 };
+    case 'SET_CATEGORY_COMPLETE':
+      return { ...state, categoryComplete: !!action.payload };
     case 'UPDATE_SCORE':
       return { ...state, score: action.payload };
     default: 
@@ -480,6 +484,23 @@ function updateHighestLevel(category, level) {
     }
   } catch (e) {
     console.error("Error updating highest level:", e);
+  }
+}
+
+// Read completed levels for a category from localStorage (offline support)
+function getCompletedLevelsLocal(category) {
+  try {
+    const userId = localStorage.getItem("userId") || "anonymous";
+    const storageKey = `vocabVenture_${userId}_${category}_completed`;
+    const existingData = localStorage.getItem(storageKey);
+    const completedLevels = existingData ? JSON.parse(existingData) : {};
+    return Object.keys(completedLevels)
+      .filter(k => completedLevels[k])
+      .map(n => Number(n))
+      .filter(n => Number.isFinite(n));
+  } catch (e) {
+    console.warn('Could not read local completed levels:', e);
+    return [];
   }
 }
 
@@ -636,6 +657,7 @@ const GamePlay = () => {
     
     let backendSuccess = false;
     let errorMessage = null;
+    let isCategoryComplete = false;
     
     // Try to submit to backend first
     try {
@@ -664,6 +686,16 @@ const GamePlay = () => {
       );
       
       const goldEarned = calculateGoldEarned(statusResponse.data.completionCount);
+      // Update latest completion status in state
+      dispatch({ type: 'SET_COMPLETION_STATUS', payload: statusResponse.data });
+      // Determine if the category is now complete
+      try {
+        const completedList = Array.isArray(statusResponse.data.completedLevels) ? statusResponse.data.completedLevels : [];
+        if (state.totalLevels && completedList.length >= state.totalLevels) {
+          isCategoryComplete = true;
+          dispatch({ type: 'SET_CATEGORY_COMPLETE', payload: true });
+        }
+      } catch (_) {}
       
       console.log('💰 Gold balance after completion:', goldResponse.data.goldBalance);
       console.log('🏆 Gold earned this completion:', goldEarned);
@@ -720,13 +752,27 @@ const GamePlay = () => {
     } catch (localError) {
       console.error('❌ Failed to save to localStorage:', localError);
     }
+    // If backend did not succeed, determine category completion using local data
+    if (!backendSuccess) {
+      const localCompleted = getCompletedLevelsLocal(category);
+      if (state.totalLevels && localCompleted.length >= state.totalLevels) {
+        isCategoryComplete = true;
+        dispatch({ type: 'SET_CATEGORY_COMPLETE', payload: true });
+      }
+    }
     
     // Stop loading and show success
     dispatch({ type: 'SET_LOADING', payload: false });
     dispatch({ type: 'SET_SUCCESS' });
     
-    // Play success animation with confetti
-    confetti({ particleCount: 70, spread: 90, origin: { y: 0.6 } });
+    // Play success animation with confetti (bigger celebration on category completion)
+    if (isCategoryComplete) {
+      confetti({ particleCount: 120, spread: 100, origin: { y: 0.6 } });
+      confetti({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.6 } });
+      confetti({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.6 } });
+    } else {
+      confetti({ particleCount: 70, spread: 90, origin: { y: 0.6 } });
+    }
     
     // Show appropriate success/warning message
     if (backendSuccess) {
@@ -1065,8 +1111,14 @@ const GamePlay = () => {
                 animation: `${glow} 2s ease-in-out infinite`
               }}>
                 <EmojiEventsIcon sx={{ fontSize: 80, color: 'white', mb: 2 }} />
-                <Typography variant="h3" color="white" fontWeight={800} textAlign="center" mb={3}>
-                  LEVEL COMPLETE!
+                <Typography variant="h3" color="white" fontWeight={800} textAlign="center" mb={1.5}>
+                  {state.categoryComplete ? STRINGS.CATEGORY_COMPLETE_TITLE : STRINGS.LEVEL_COMPLETE_TITLE}
+                </Typography>
+                <Typography variant="h6" color="white" fontWeight={600} textAlign="center" mb={3}>
+                  {state.categoryComplete 
+                    ? formatters.categoryCompleteSubtext(category)
+                    : formatters.levelCompleteSubtext()
+                  }
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <Button 
@@ -1085,7 +1137,7 @@ const GamePlay = () => {
                       }
                     }}
                   >
-                    {state.totalLevels && Number(level) >= state.totalLevels ? 'Back to Levels' : 'Next Level'}
+                    {state.totalLevels && Number(level) >= state.totalLevels ? formatters.backToLevelsButton() : formatters.nextLevelButton()}
                   </Button>
                   <Button 
                     variant="outlined" 

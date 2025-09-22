@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
+
 import {
   Box,
   Typography,
@@ -21,6 +22,7 @@ import {
 import { keyframes } from '@mui/system';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import { LEVEL_LIST_STRINGS } from './strings';
 
 // Enhanced level themes with gradients and animations
 const LEVEL_THEMES = [
@@ -334,14 +336,14 @@ export default function LevelList() {
                 letterSpacing: '1px'
               }}
             >
-              Choose your challenge
+              {LEVEL_LIST_STRINGS.chooseChallenge}
             </Typography>
             
             {/* Progress indicator */}
             <Box sx={{ mt: 3, maxWidth: 400, mx: 'auto' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="body2" color="rgba(255,255,255,0.7)">
-                  Progress
+                  {LEVEL_LIST_STRINGS.progress}
                 </Typography>
                 <Typography variant="body2" color="rgba(255,255,255,0.7)">
                   {completedLevels.length}/{levels.length}
@@ -366,17 +368,17 @@ export default function LevelList() {
         
         {levels.length === 0 ? (
           <Alert severity="info" sx={{ maxWidth: 600, mx: 'auto' }}>
-            No levels available for this category.
+            {LEVEL_LIST_STRINGS.noLevels}
           </Alert>
         ) : (
           <Grid container spacing={4} justifyContent="center">
             {levels.map((level, i) => {
               const theme = LEVEL_THEMES[i % LEVEL_THEMES.length];
               const isUnlocked = Boolean(unlocked[Number(level)]);
-              
+
               return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={level}>
-                  <Zoom in timeout={600 + (i * 100)}>
+                  <Zoom in timeout={600 + i * 100}>
                     <Card
                       sx={{
                         background: theme.gradient,
@@ -525,47 +527,60 @@ export default function LevelList() {
                             }}
                           />
                         </Box>
-                        
-                        {/* Action Button */}
-                        <Button
-                          variant="contained"
-                          startIcon={isUnlocked ? <PlayArrowIcon /> : <Box sx={{ fontSize: '1.2rem' }}>🔒</Box>}
-                          fullWidth
-                          disabled={!isUnlocked}
-                          sx={{
-                            mt: 2,
-                            py: 1.5,
-                            fontWeight: 700,
-                            fontSize: '1rem',
-                            borderRadius: 3,
-                            background: isUnlocked 
-                              ? 'linear-gradient(45deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7))'
-                              : 'linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))',
-                            color: isUnlocked ? theme.primaryColor : 'rgba(255,255,255,0.6)',
-                            boxShadow: isUnlocked ? '0 6px 20px rgba(0,0,0,0.2)' : 'none',
-                            textTransform: 'uppercase',
-                            letterSpacing: '1px',
-                            zIndex: 2,
-                            position: 'relative',
-                            '&:hover': isUnlocked ? {
-                              background: 'linear-gradient(45deg, rgba(255,255,255,1), rgba(255,255,255,0.9))',
-                              transform: 'translateY(-2px)',
-                              boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
-                            } : {},
-                            '&:disabled': {
-                              background: 'linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                              color: 'rgba(255,255,255,0.4)'
-                            },
-                            transition: 'all 0.3s ease'
-                          }}
-                          onClick={() => isUnlocked && handlePlay(level)}
-                        >
-                          {isUnlocked ? 'Play Level' : 'Locked'}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Zoom>
-                </Grid>
+                      
+                      {/* Action Button */}
+                      <Button
+                        variant="contained"
+                        startIcon={isUnlocked ? <PlayArrowIcon /> : <Box sx={{ fontSize: '1.2rem' }}>🔒</Box>}
+                        fullWidth
+                        disabled={!isUnlocked}
+                        aria-label={isUnlocked ? `Play level ${level}` : LEVEL_LIST_STRINGS.locked}
+                        sx={{
+                          mt: 2,
+                          py: 1.6,
+                          fontWeight: 800,
+                          fontSize: '1.05rem',
+                          borderRadius: 999,
+                          background: isUnlocked
+                            ? 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)'
+                            : 'linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.12))',
+                          color: isUnlocked ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                          boxShadow: isUnlocked 
+                            ? '0 10px 30px rgba(255, 193, 7, 0.45), 0 2px 8px rgba(0,0,0,0.25)'
+                            : 'none',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1.2px',
+                          zIndex: 2,
+                          position: 'relative',
+                          textShadow: isUnlocked ? '0 2px 6px rgba(0,0,0,0.25)' : 'none',
+                          border: isUnlocked ? '2px solid rgba(255,255,255,0.85)' : '1px solid rgba(255,255,255,0.2)',
+                          '& .MuiButton-startIcon': {
+                            color: isUnlocked ? '#ffffff' : 'rgba(255,255,255,0.6)'
+                          },
+                          '&:hover': isUnlocked ? {
+                            background: 'linear-gradient(135deg, #FFDF4D 0%, #FFB300 100%)',
+                            transform: 'translateY(-3px) scale(1.02)',
+                            boxShadow: '0 14px 36px rgba(255, 193, 7, 0.55), 0 4px 12px rgba(0,0,0,0.3)'
+                          } : {},
+                          '&:focus-visible': isUnlocked ? {
+                            outline: '3px solid rgba(255,255,255,0.9)',
+                            outlineOffset: '2px'
+                          } : {},
+                          '&:disabled': {
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.08))',
+                            color: 'rgba(255,255,255,0.45)',
+                            border: '1px solid rgba(255,255,255,0.18)'
+                          },
+                          transition: 'all 0.25s ease'
+                        }}
+                        onClick={() => isUnlocked && handlePlay(level)}
+                      >
+                        {isUnlocked ? LEVEL_LIST_STRINGS.play : LEVEL_LIST_STRINGS.locked}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Zoom>
+              </Grid>
               );
             })}
           </Grid>
