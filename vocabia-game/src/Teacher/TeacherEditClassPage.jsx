@@ -19,6 +19,8 @@ import {
   School as ClassIcon
 } from "@mui/icons-material";
 import api from "../api/api";
+import PageHeader from "./components/PageHeader";
+import { t } from "./utils/i18n";
 
 export default function TeacherEditClassPage() {
   const theme = useTheme();
@@ -96,7 +98,7 @@ export default function TeacherEditClassPage() {
           startIcon={<BackIcon />}
           onClick={() => navigate("/teacher/classes")}
         >
-          Back to Classes
+          {t('Back to Classes')}
         </Button>
       </Box>
     );
@@ -106,19 +108,16 @@ export default function TeacherEditClassPage() {
     <Box sx={{ p: 3 }}>
       <Box sx={{ maxWidth: 800, mx: "auto" }}>
         {/* Header */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-          <Button
-            variant="text"
-            startIcon={<BackIcon />}
-            onClick={() => navigate("/teacher/classes")}
-            sx={{ mr: 2 }}
-          >
-            Back
-          </Button>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            Edit Class
-          </Typography>
-        </Box>
+        <PageHeader
+          backTo="/teacher/classes"
+          backLabel={t('Back to Classes')}
+          title={
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ClassIcon sx={{ mr: 1.5, color: 'primary.main' }} />
+              {t('Edit Class')}
+            </Box>
+          }
+        />
 
         {/* Form Card */}
         <Card elevation={0} sx={{ 
@@ -128,7 +127,7 @@ export default function TeacherEditClassPage() {
           <CardContent>
             {success && (
               <Alert severity="success" sx={{ mb: 3 }}>
-                Class updated successfully!
+                {t('Class updated successfully!')}
               </Alert>
             )}
             
@@ -137,7 +136,7 @@ export default function TeacherEditClassPage() {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Class Name"
+                    label={t('Class Name')}
                     variant="outlined"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -150,7 +149,7 @@ export default function TeacherEditClassPage() {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Description"
+                    label={t('Description')}
                     variant="outlined"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -174,7 +173,7 @@ export default function TeacherEditClassPage() {
                       onClick={() => navigate("/teacher/classes")}
                       disabled={submitting}
                     >
-                      Cancel
+                      {t('Cancel')}
                     </Button>
                     <Button
                       type="submit"
@@ -183,7 +182,7 @@ export default function TeacherEditClassPage() {
                       startIcon={submitting ? <CircularProgress size={20} /> : <SaveIcon />}
                       disabled={submitting || !name.trim()}
                     >
-                      {submitting ? "Saving..." : "Save Changes"}
+                      {submitting ? t('Saving...') : t('Save Changes')}
                     </Button>
                   </Box>
                 </Grid>
@@ -195,7 +194,7 @@ export default function TeacherEditClassPage() {
         {/* Class Preview */}
         <Box sx={{ mt: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Preview
+            {t('Preview')}
           </Typography>
           <Paper elevation={0} sx={{ 
             p: 3, 
@@ -206,10 +205,10 @@ export default function TeacherEditClassPage() {
               <ClassIcon color="primary" sx={{ mr: 2, fontSize: 40 }} />
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  {name || "Class Name"}
+                  {name || t('Class Name')}
                 </Typography>
                 <Typography color="text.secondary">
-                  {description || "Class description will appear here"}
+                  {description || t('Class description will appear here')}
                 </Typography>
               </Box>
             </Box>

@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import {
   Container, Grid, Paper, Typography, Box, Card, CardContent,
-  CircularProgress, Alert, Button, Divider, List, ListItem, ListItemText
+  CircularProgress, Alert, Divider, List, ListItem, ListItemText
 } from "@mui/material";
 import { 
   LineChart, Line, BarChart, Bar, RadarChart, PolarGrid, 
   PolarAngleAxis, PolarRadiusAxis, Radar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from "recharts";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import api from "../api/api";
+import PageHeader from "./components/PageHeader";
+import { t } from "./utils/i18n";
 
 export default function TeacherStudentFPOWProgressPage() {
   const { classId, studentId } = useParams();
@@ -64,12 +65,7 @@ export default function TeacherStudentFPOWProgressPage() {
     recentActivity: [] // Will be populated from actual data if available
   };
 
-  useEffect(() => {
-    fetchStudentData();
-    fetchClassName();
-  }, [classId, studentId]);
-
-  const fetchClassName = async () => {
+  const fetchClassName = useCallback(async () => {
     try {
       const response = await api.get(`/api/teacher/classes/${classId}`);
       setClassName(response.data.name);
@@ -77,9 +73,9 @@ export default function TeacherStudentFPOWProgressPage() {
       console.error("Error fetching class name:", err);
       setClassName("Class");
     }
-  };
+  }, [classId]);
 
-  const fetchStudentData = async () => {
+  const fetchStudentData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -225,7 +221,12 @@ export default function TeacherStudentFPOWProgressPage() {
       setLoading(false);
       console.error("Error in fetchStudentData:", err);
     }
-  };
+  }, [classId, studentId]);
+
+  useEffect(() => {
+    fetchStudentData();
+    fetchClassName();
+  }, [fetchStudentData, fetchClassName]);
 
   if (loading) return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -237,24 +238,12 @@ export default function TeacherStudentFPOWProgressPage() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Box>
-          <Typography variant="h4">
-            {studentData.firstName} {studentData.lastName}'s Progress
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            Four Pic One Word - {className}
-          </Typography>
-        </Box>
-        <Button 
-          variant="outlined" 
-          startIcon={<ArrowBackIcon />}
-          component={Link}
-          to={`/teacher/classes/${classId}/fpow-progress`}
-        >
-          Back to Class Progress
-        </Button>
-      </Box>
+      <PageHeader
+        backTo={`/teacher/classes/${classId}/fpow-progress`}
+        backLabel={t('Back to Class Progress')}
+        title={`${studentData.firstName} ${studentData.lastName}${t("'s Progress")}`}
+        subtitle={`${t('Four Pic One Word')} - ${className}`}
+      />
 
       <Grid container spacing={3}>
         {/* Summary Cards */}
@@ -264,14 +253,14 @@ export default function TeacherStudentFPOWProgressPage() {
               <Box display="flex" alignItems="center" mb={1}>
                 <EmojiEventsIcon color="primary" sx={{ mr: 1 }} />
                 <Typography variant="h6" color="text.secondary">
-                  Completion
+                  {t('Completion')}
                 </Typography>
               </Box>
               <Typography variant="h3" color="primary">
                 {progressData.summary.levelsCompleted}/{progressData.summary.totalLevels}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {Math.round((progressData.summary.levelsCompleted / progressData.summary.totalLevels) * 100)}% of levels completed
+                {Math.round((progressData.summary.levelsCompleted / progressData.summary.totalLevels) * 100)}% {t('of levels completed')}
               </Typography>
             </CardContent>
           </Card>
@@ -282,14 +271,14 @@ export default function TeacherStudentFPOWProgressPage() {
               <Box display="flex" alignItems="center" mb={1}>
                 <TrendingUpIcon color="secondary" sx={{ mr: 1 }} />
                 <Typography variant="h6" color="text.secondary">
-                  Accuracy
+                  {t('Accuracy')}
                 </Typography>
               </Box>
               <Typography variant="h3" color="secondary">
                 {progressData.summary.accuracy}%
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Correct answers ratio
+                {t('Correct answers ratio')}
               </Typography>
             </CardContent>
           </Card>
@@ -300,14 +289,14 @@ export default function TeacherStudentFPOWProgressPage() {
               <Box display="flex" alignItems="center" mb={1}>
                 <LightbulbIcon color="warning" sx={{ mr: 1 }} />
                 <Typography variant="h6" color="text.secondary">
-                  Hint Usage
+                  {t('Hint Usage')}
                 </Typography>
               </Box>
               <Typography variant="h3" color="warning.main">
                 {progressData.summary.hintUsage}%
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Levels with hints used
+                {t('Levels with hints used')}
               </Typography>
             </CardContent>
           </Card>
@@ -318,14 +307,14 @@ export default function TeacherStudentFPOWProgressPage() {
               <Box display="flex" alignItems="center" mb={1}>
                 <AccessTimeIcon color="info" sx={{ mr: 1 }} />
                 <Typography variant="h6" color="text.secondary">
-                  Avg. Time
+                  {t('Avg. Time')}
                 </Typography>
               </Box>
               <Typography variant="h3" color="info.main">
                 {progressData.summary.averageTime}s
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Per level completion
+                {t('Per level completion')}
               </Typography>
             </CardContent>
           </Card>
@@ -334,7 +323,7 @@ export default function TeacherStudentFPOWProgressPage() {
         {/* Progress Over Time */}
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>Progress Over Time</Typography>
+            <Typography variant="h6" gutterBottom>{t('Progress Over Time')}</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={progressData.progressOverTime}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -343,8 +332,8 @@ export default function TeacherStudentFPOWProgressPage() {
                 <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
                 <Tooltip />
                 <Legend />
-                <Line yAxisId="left" type="monotone" dataKey="levelsCompleted" name="Levels Completed" stroke="#8884d8" activeDot={{ r: 8 }} />
-                <Line yAxisId="right" type="monotone" dataKey="accuracy" name="Accuracy %" stroke="#82ca9d" />
+                <Line yAxisId="left" type="monotone" dataKey="levelsCompleted" name={t('Levels Completed')} stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line yAxisId="right" type="monotone" dataKey="accuracy" name={t('Accuracy %')} stroke="#82ca9d" />
               </LineChart>
             </ResponsiveContainer>
           </Paper>
@@ -353,13 +342,13 @@ export default function TeacherStudentFPOWProgressPage() {
         {/* Skill Radar */}
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2, height: '100%' }}>
-            <Typography variant="h6" gutterBottom>Skill Analysis</Typography>
+            <Typography variant="h6" gutterBottom>{t('Skill Analysis')}</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <RadarChart outerRadius={90} data={progressData.skillRadar}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="subject" />
                 <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                <Radar name="Skills" dataKey="A" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                <Radar name={t('Skills')} dataKey="A" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
                 <Legend />
               </RadarChart>
             </ResponsiveContainer>
@@ -369,7 +358,7 @@ export default function TeacherStudentFPOWProgressPage() {
         {/* Category Performance */}
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>Category Performance</Typography>
+            <Typography variant="h6" gutterBottom>{t('Category Performance')}</Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={progressData.categoryPerformance}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -377,9 +366,9 @@ export default function TeacherStudentFPOWProgressPage() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="accuracy" name="Accuracy %" fill="#8884d8" />
-                <Bar dataKey="completionRate" name="Completion %" fill="#82ca9d" />
-                <Bar dataKey="averageTime" name="Avg. Time (sec)" fill="#ffc658" />
+                <Bar dataKey="accuracy" name={t('Accuracy %')} fill="#8884d8" />
+                <Bar dataKey="completionRate" name={t('Completion %')} fill="#82ca9d" />
+                <Bar dataKey="averageTime" name={t('Avg. Time (sec)')} fill="#ffc658" />
               </BarChart>
             </ResponsiveContainer>
           </Paper>
@@ -388,7 +377,7 @@ export default function TeacherStudentFPOWProgressPage() {
         {/* Recent Activity */}
         <Grid item xs={12} md={7}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>Recent Activity</Typography>
+            <Typography variant="h6" gutterBottom>{t('Recent Activity')}</Typography>
             <List>
               {progressData.recentActivity.map((activity, index) => (
                 <React.Fragment key={index}>
@@ -411,11 +400,11 @@ export default function TeacherStudentFPOWProgressPage() {
                       secondary={
                         <>
                           <Typography component="span" variant="body2" color="text.primary">
-                            {activity.correct ? 'Correct' : 'Incorrect'} • {activity.attempts} attempt{activity.attempts !== 1 ? 's' : ''} • {activity.timeSpent}s
+                            {activity.correct ? t('Correct') : t('Incorrect')} • {activity.attempts} {t(activity.attempts !== 1 ? 'attempts' : 'attempt')} • {activity.timeSpent}s
                           </Typography>
                           {activity.usedHint && 
                             <Typography component="span" variant="body2" color="warning.main" sx={{ ml: 1 }}>
-                              Used hint
+                              {t('Used hint')}
                             </Typography>
                           }
                         </>
@@ -432,39 +421,35 @@ export default function TeacherStudentFPOWProgressPage() {
         {/* Strengths and Areas for Improvement */}
         <Grid item xs={12} md={5}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>Analysis & Recommendations</Typography>
+            <Typography variant="h6" gutterBottom>{t('Analysis & Recommendations')}</Typography>
             
             <Typography variant="subtitle1" fontWeight={500} gutterBottom>
-              Strengths
+              {t('Strengths')}
             </Typography>
             <List dense>
               {progressData.summary.bestCategory && progressData.categoryPerformance.find(c => c.category === progressData.summary.bestCategory) && (
                 <ListItem>
                   <ListItemText 
-                    primary={`Strong performance in ${progressData.summary.bestCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.bestCategory)?.accuracy}% accuracy)`} 
+                    primary={t(`Strong performance in ${progressData.summary.bestCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.bestCategory)?.accuracy}% accuracy)`)} 
                   />
                 </ListItem>
               )}
               
               {progressData.summary.streak > 0 && (
                 <ListItem>
-                  <ListItemText 
-                    primary={`Current learning streak: ${progressData.summary.streak} days`} 
-                  />
+                  <ListItemText primary={t(`Current learning streak: ${progressData.summary.streak} days`)} />
                 </ListItem>
               )}
               
               {progressData.categoryPerformance.some(c => c.completionRate > 75) && (
                 <ListItem>
-                  <ListItemText 
-                    primary={`Good completion rate for ${progressData.categoryPerformance.find(c => c.completionRate > 75)?.category || 'vocabulary'} words`} 
-                  />
+                  <ListItemText primary={t(`Good completion rate for ${progressData.categoryPerformance.find(c => c.completionRate > 75)?.category || 'vocabulary'} words`)} />
                 </ListItem>
               )}
               
               {!progressData.summary.bestCategory && !progressData.categoryPerformance.some(c => c.completionRate > 75) && (
                 <ListItem>
-                  <ListItemText primary="No specific strengths identified yet. Keep practicing!" />
+                  <ListItemText primary={t('No specific strengths identified yet. Keep practicing!')} />
                 </ListItem>
               )}
             </List>
@@ -472,26 +457,26 @@ export default function TeacherStudentFPOWProgressPage() {
             <Divider sx={{ my: 2 }} />
             
             <Typography variant="subtitle1" fontWeight={500} gutterBottom>
-              Areas for Improvement
+              {t('Areas for Improvement')}
             </Typography>
             <List dense>
               {progressData.summary.worstCategory && progressData.categoryPerformance.find(c => c.category === progressData.summary.worstCategory) && (
                 <ListItem>
                   <ListItemText 
-                    primary={`Struggles with ${progressData.summary.worstCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.worstCategory)?.accuracy}% accuracy)`} 
+                    primary={t(`Struggles with ${progressData.summary.worstCategory} category (${progressData.categoryPerformance.find(c => c.category === progressData.summary.worstCategory)?.accuracy}% accuracy)`)} 
                   />
                 </ListItem>
               )}
               
               {progressData.summary.hintUsage > 30 && (
                 <ListItem>
-                  <ListItemText primary={`High hint usage (${progressData.summary.hintUsage}%). Try to solve puzzles without hints.`} />
+                  <ListItemText primary={t(`High hint usage (${progressData.summary.hintUsage}%). Try to solve puzzles without hints.`)} />
                 </ListItem>
               )}
               
               {!progressData.summary.worstCategory && progressData.summary.hintUsage <= 30 && (
                 <ListItem>
-                  <ListItemText primary="No specific areas of concern identified. Keep up the good work!" />
+                  <ListItemText primary={t('No specific areas of concern identified. Keep up the good work!')} />
                 </ListItem>
               )}
             </List>
@@ -499,16 +484,16 @@ export default function TeacherStudentFPOWProgressPage() {
             <Divider sx={{ my: 2 }} />
             
             <Typography variant="subtitle1" fontWeight={500} gutterBottom>
-              Recommendations
+              {t('Recommendations')}
             </Typography>
             {progressData.summary.worstCategory && (
               <Alert severity="info" sx={{ mb: 2 }}>
-                Assign additional practice with {progressData.summary.worstCategory} vocabulary words to improve performance in this category.
+                {t('Assign additional practice with')} {progressData.summary.worstCategory} {t('vocabulary words to improve performance in this category.')}
               </Alert>
             )}
             {progressData.summary.bestCategory && (
               <Alert severity="success">
-                Encourage continued practice in the {progressData.summary.bestCategory} category where the student shows strong performance.
+                {t('Encourage continued practice in the')} {progressData.summary.bestCategory} {t('category where the student shows strong performance.')}
               </Alert>
             )}
           </Paper>

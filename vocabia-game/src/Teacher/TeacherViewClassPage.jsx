@@ -15,7 +15,11 @@ import {
   Chip,
   Paper,
   Snackbar,
-  useTheme
+  useTheme,
+  Avatar,
+  List,
+  ListItem,
+  ListItemText
 } from "@mui/material";
 import {
   ArrowBack as BackIcon,
@@ -26,6 +30,9 @@ import {
   Assignment as AssignmentIcon
 } from "@mui/icons-material";
 import api from "../api/api";
+import PageHeader from "./components/PageHeader";
+import EmptyState from "./components/EmptyState";
+import { t } from "./utils/i18n";
 
 export default function TeacherViewClassPage() {
   const theme = useTheme();
@@ -34,6 +41,8 @@ export default function TeacherViewClassPage() {
   const [classroom, setClassroom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [students, setStudents] = useState([]);
+  const [studentsLoading, setStudentsLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -62,6 +71,20 @@ export default function TeacherViewClassPage() {
     };
     
     fetchClassData();
+    
+    const fetchStudents = async () => {
+      try {
+        setStudentsLoading(true);
+        const res = await api.get(`/api/teacher/classes/${id}/students`);
+        setStudents(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch students:", err);
+        setStudents([]);
+      } finally {
+        setStudentsLoading(false);
+      }
+    };
+    fetchStudents();
   }, [id]);
 
   const copyJoinCode = () => {
@@ -101,7 +124,7 @@ export default function TeacherViewClassPage() {
           startIcon={<BackIcon />}
           onClick={() => navigate("/teacher/classes")}
         >
-          Back to My Classes
+          {t('Back to My Classes')}
         </Button>
       </Box>
     );
@@ -118,7 +141,7 @@ export default function TeacherViewClassPage() {
           startIcon={<BackIcon />}
           onClick={() => navigate("/teacher/classes")}
         >
-          Back to My Classes
+          {t('Back to My Classes')}
         </Button>
       </Box>
     );
@@ -128,36 +151,34 @@ export default function TeacherViewClassPage() {
     <Box sx={{ p: 3 }}>
       <Box sx={{ maxWidth: 1200, mx: "auto" }}>
         {/* Header */}
-        <Box sx={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center", 
-          mb: 4 
-        }}>
-          <Box>
-            <Button
-              variant="text"
-              startIcon={<BackIcon />}
-              onClick={() => navigate("/teacher/classes")}
-              sx={{ mb: 1 }}
-            >
-              Back to Classes
-            </Button>
-            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+        <PageHeader
+          backTo="/teacher/classes"
+          backLabel={t('Back to Classes')}
+          title={
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <ClassIcon sx={{ mr: 1.5, color: 'primary.main' }} />
               {classroom.name}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {classroom.description || "No description"}
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<EditIcon />}
-            onClick={() => navigate(`/teacher/classes/${id}/edit`)}
-          >
-            Edit Class
-          </Button>
-        </Box>
+            </Box>
+          }
+          subtitle={classroom.description || t('No description')}
+          actions={
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate(`/teacher/classes/${id}/fpow-progress`)}
+              >
+                {t('FPOW Progress')}
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<EditIcon />}
+                onClick={() => navigate(`/teacher/classes/${id}/edit`)}
+              >
+                {t('Edit Class')}
+              </Button>
+            </Box>
+          }
+        />
 
         <Grid container spacing={3}>
           {/* Class Info Card */}
@@ -168,14 +189,14 @@ export default function TeacherViewClassPage() {
             }}>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                  Class Information
+                  {t('Class Information')}
                 </Typography>
                 <Divider sx={{ mb: 3 }} />
                 
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <Typography variant="subtitle2" color="text.secondary">
-                      Join Code
+                      {t('Join Code')}
                     </Typography>
                     <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                       <Chip
@@ -186,19 +207,27 @@ export default function TeacherViewClassPage() {
                           backgroundColor: "grey.100"
                         }}
                       />
-                      <Tooltip title="Copy join code">
+                      <Tooltip title={t('Copy join code')}>
                         <IconButton onClick={copyJoinCode}>
                           <CopyIcon />
                         </IconButton>
                       </Tooltip>
                     </Box>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item xs={12} sm={3}>
                     <Typography variant="subtitle2" color="text.secondary">
-                      Created On
+                      {t('Created On')}
                     </Typography>
                     <Typography sx={{ mt: 1 }}>
                       {new Date(classroom.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={3}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      {t('Students')}
+                    </Typography>
+                    <Typography sx={{ mt: 1, fontWeight: 600 }}>
+                      {studentsLoading ? '—' : students.length}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -214,7 +243,7 @@ export default function TeacherViewClassPage() {
             }}>
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                  Quick Actions
+                  {t('Quick Actions')}
                 </Typography>
                 <Divider sx={{ mb: 3 }} />
                 
@@ -227,7 +256,7 @@ export default function TeacherViewClassPage() {
                       onClick={() => navigate(`/teacher/classes/${id}/students`)}
                       sx={{ justifyContent: "flex-start" }}
                     >
-                      View Students
+                      {t('View Students')}
                     </Button>
                   </Grid>
                   <Grid item xs={12}>
@@ -235,10 +264,21 @@ export default function TeacherViewClassPage() {
                       fullWidth
                       variant="outlined"
                       startIcon={<AssignmentIcon />}
-                      onClick={() => navigate(`/teacher/classes/${id}/assignments`)}
+                      onClick={() => navigate(`/teacher/assignments`)}
                       sx={{ justifyContent: "flex-start" }}
                     >
-                      View Assignments
+                      {t('View Assignments')}
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<AssignmentIcon />}
+                      onClick={() => navigate(`/teacher/classes/${id}/fpow-progress`)}
+                      sx={{ justifyContent: "flex-start" }}
+                    >
+                      {t('FPOW Progress')}
                     </Button>
                   </Grid>
                 </Grid>
@@ -247,10 +287,55 @@ export default function TeacherViewClassPage() {
           </Grid>
         </Grid>
 
+        {/* Students Preview */}
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            {t('Students')}
+          </Typography>
+          <Paper elevation={0} sx={{ p: 2, border: `1px solid ${theme.palette.divider}`, borderRadius: 2 }}>
+            {studentsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress size={28} />
+              </Box>
+            ) : students.length === 0 ? (
+              <EmptyState
+                icon={<StudentsIcon sx={{ fontSize: 48 }} />}
+                title={t('No students yet')}
+                description={t('Share the class join code to invite students.')}
+                action={<Button variant="contained" onClick={copyJoinCode}>{t('Copy Join Code')}</Button>}
+              />
+            ) : (
+              <List>
+                {students.slice(0, 6).map((s, idx) => (
+                  <ListItem key={s.id || idx} divider={idx < Math.min(6, students.length) - 1} secondaryAction={
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button 
+                        size="small" 
+                        variant="outlined" 
+                        onClick={() => navigate(`/teacher/classes/${id}/students/${s.id}/fpow-progress`)}
+                      >
+                        {t('FPOW Progress')}
+                      </Button>
+                      {idx === 0 && (
+                        <Button size="small" variant="outlined" onClick={() => navigate(`/teacher/classes/${id}/students`)}>
+                          {t('View all')}
+                        </Button>
+                      )}
+                    </Box>
+                  }>
+                    <Avatar sx={{ mr: 2 }}>{(s.firstName?.[0] || '?')}{(s.lastName?.[0] || '')}</Avatar>
+                    <ListItemText primary={`${s.firstName || t('Student')} ${s.lastName || ''}`} secondary={s.email || ''} />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Paper>
+        </Box>
+
         {/* Recent Activity Section */}
         <Box sx={{ mt: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Recent Activity
+            {t('Recent Activity')}
           </Typography>
           <Paper elevation={0} sx={{ 
             p: 3, 
@@ -258,7 +343,7 @@ export default function TeacherViewClassPage() {
             borderRadius: 2
           }}>
             <Typography color="text.secondary" sx={{ textAlign: "center" }}>
-              Activity feed will appear here
+              {t('Activity feed will appear here')}
             </Typography>
           </Paper>
         </Box>

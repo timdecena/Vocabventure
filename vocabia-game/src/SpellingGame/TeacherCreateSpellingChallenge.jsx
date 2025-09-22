@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import {
   Box,
   Typography,
@@ -18,6 +19,7 @@ import {
   List,
   ListItem
 } from "@mui/material";
+
 import {
   Add as AddIcon,
   Mic as MicIcon,
@@ -29,6 +31,7 @@ import {
   Class as ClassIcon
 } from "@mui/icons-material";
 import api from "../api/api";
+import { t } from "../Teacher/utils/i18n";
 
 export default function TeacherCreateSpellingLevel() {
   const [classrooms, setClassrooms] = useState([]);
@@ -36,7 +39,6 @@ export default function TeacherCreateSpellingLevel() {
   const [title, setTitle] = useState("");
   const [words, setWords] = useState([]);
   const [message, setMessage] = useState({ text: "", severity: "info" });
-  const [recordingIndex, setRecordingIndex] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [maxAttempts, setMaxAttempts] = useState(1);
@@ -44,7 +46,7 @@ export default function TeacherCreateSpellingLevel() {
   useEffect(() => {
     api.get("/api/teacher/classes")
       .then((res) => setClassrooms(res.data))
-      .catch(() => setMessage({ text: "Failed to load classrooms", severity: "error" }));
+      .catch(() => setMessage({ text: t("Failed to load classrooms"), severity: "error" }));
   }, []);
 
   const handleWordChange = (index, field, value) => {
@@ -99,10 +101,9 @@ export default function TeacherCreateSpellingLevel() {
         audioUrl: null
       };
       setWords(updated);
-      setRecordingIndex(index);
       setMediaRecorder(mr);
     } catch (err) {
-      setMessage({ text: "Microphone access denied", severity: "error" });
+      setMessage({ text: t("Microphone access denied"), severity: "error" });
     }
   };
 
@@ -110,7 +111,6 @@ export default function TeacherCreateSpellingLevel() {
     if (mediaRecorder) {
       mediaRecorder.stop();
       setMediaRecorder(null);
-      setRecordingIndex(null);
     }
   };
 
@@ -152,7 +152,7 @@ export default function TeacherCreateSpellingLevel() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) {
-      setMessage({ text: "Please complete all fields and ensure every word has audio", severity: "error" });
+      setMessage({ text: t("Please complete all fields and ensure every word has audio"), severity: "error" });
       return;
     }
     
@@ -186,12 +186,12 @@ export default function TeacherCreateSpellingLevel() {
       }))
     });
 
-      setMessage({ text: "Level created successfully!", severity: "success" });
+      setMessage({ text: t("Level created successfully!"), severity: "success" });
       setWords([]);
       setTitle("");
       setClassroomId("");
     } catch (err) {
-      setMessage({ text: "Failed to create level", severity: "error" });
+      setMessage({ text: t("Failed to create level"), severity: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -209,13 +209,13 @@ export default function TeacherCreateSpellingLevel() {
   };
 
   return (
-    <Box sx={{ maxWidth: 800, margin: "auto", p: 0.5 }}>
+    <Box sx={{ maxWidth: 720, margin: "auto", p: 0.5 }}>
       <Card sx={{ borderRadius: 3 }}>
         <CardContent>
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <ClassIcon color="primary" sx={{ fontSize: 40, mr: 2 }} />
             <Typography variant="h4" sx={{ fontWeight: 600 }}>
-              Create Spelling Challenge
+              {t('Create Spelling Challenge')}
             </Typography>
           </Box>
 
@@ -226,17 +226,17 @@ export default function TeacherCreateSpellingLevel() {
           )}
 
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Level Title"
+                label={t('Level Title')}
                 variant="outlined"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <Select
   fullWidth
   value={classroomId}
@@ -244,18 +244,17 @@ export default function TeacherCreateSpellingLevel() {
   displayEmpty
   required
 >
-                <MenuItem value="" disabled>Select Classroom</MenuItem>
+                <MenuItem value="" disabled>{t('Select Classroom')}</MenuItem>
                 {classrooms.map(c => (
                   <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
                 ))}
               </Select>
             </Grid>
-
-             <Grid item xs={12} md={4}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 type="number"
-                label="Maximum Attempts"
+                label={t('Maximum Attempts')}
                 value={maxAttempts}
                 onChange={(e) => setMaxAttempts(Number(e.target.value))}
                 inputProps={{ min: 1 }}
@@ -267,14 +266,16 @@ export default function TeacherCreateSpellingLevel() {
           <Divider sx={{ my: 3 }} />
 
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-            Words ({words.length})
+            {t('Words')} ({words.length})
           </Typography>
 
           <Paper sx={{ maxHeight: 500, overflow: "auto", p: 2, mb: 2 }}>
             {words.length === 0 ? (
-              <Box sx={{ textAlign: "center", p: 3 }}>
+              <Box sx={{ textAlign: "center", p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <AddIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{t('No words added yet')}</Typography>
                 <Typography color="text.secondary">
-                  No words added yet
+                  {t("Click 'Add Word' below to build your spelling list.")}
                 </Typography>
               </Box>
             ) : (
@@ -295,7 +296,7 @@ export default function TeacherCreateSpellingLevel() {
                     <Box sx={{ width: "100%", mb: 2 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                          Word {index + 1}
+                          {t('Word')} {index + 1}
                         </Typography>
                         <IconButton onClick={() => removeWordRow(index)}>
                           <DeleteIcon color="error" />
@@ -304,7 +305,7 @@ export default function TeacherCreateSpellingLevel() {
                       
                       <TextField
                         fullWidth
-                        label="Word"
+                        label={t('Word')}
                         value={word.word}
                         onChange={(e) => handleWordChange(index, "word", e.target.value)}
                         required
@@ -313,7 +314,7 @@ export default function TeacherCreateSpellingLevel() {
                       
                       <TextField
                         fullWidth
-                        label="Definition"
+                        label={t('Definition')}
                         value={word.definition}
                         onChange={(e) => handleWordChange(index, "definition", e.target.value)}
                         required
@@ -324,7 +325,7 @@ export default function TeacherCreateSpellingLevel() {
                       
                       <TextField
                         fullWidth
-                        label="Sentence"
+                        label={t('Sentence')}
                         value={word.sentence}
                         onChange={(e) => handleWordChange(index, "sentence", e.target.value)}
                         required
@@ -337,7 +338,7 @@ export default function TeacherCreateSpellingLevel() {
 
                     <Box sx={{ width: "100%" }}>
                       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                        Audio
+                        {t('Audio')}
                       </Typography>
                       
                       {/* Upload option */}
@@ -348,7 +349,7 @@ export default function TeacherCreateSpellingLevel() {
                           startIcon={<UploadIcon />}
                           sx={{ mr: 2, mb: 2 }}
                         >
-                          Upload MP3
+                          {t('Upload MP3')}
                           <input
                             type="file"
                             accept=".mp3,audio/mp3,audio/mpeg"
@@ -367,7 +368,7 @@ export default function TeacherCreateSpellingLevel() {
                           color={word.isRecording ? "error" : "primary"}
                           sx={{ mb: 2 }}
                         >
-                          {word.isRecording ? "Stop Recording" : "Record"}
+                          {word.isRecording ? t('Stop Recording') : t('Record')}
                         </Button>
                       )}
 
@@ -386,7 +387,7 @@ export default function TeacherCreateSpellingLevel() {
                       {word.recordingUrl && (
                         <Box sx={{ mt: 2 }}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                            <Typography variant="body2">Recording Preview:</Typography>
+                            <Typography variant="body2">{t('Recording Preview')}:</Typography>
                             <audio controls src={word.recordingUrl} />
                           </Box>
                           <Box sx={{ display: "flex", gap: 1 }}>
@@ -396,7 +397,7 @@ export default function TeacherCreateSpellingLevel() {
                               startIcon={<CheckIcon />}
                               onClick={() => handleUseRecording(index)}
                             >
-                              Use This
+                              {t('Use This')}
                             </Button>
                             <Button
                               variant="outlined"
@@ -404,7 +405,7 @@ export default function TeacherCreateSpellingLevel() {
                               startIcon={<CloseIcon />}
                               onClick={() => handleWordChange(index, "recordingUrl", null)}
                             >
-                              Discard
+                              {t('Discard')}
                             </Button>
                           </Box>
                         </Box>
@@ -413,7 +414,7 @@ export default function TeacherCreateSpellingLevel() {
                       {word.audioUrl && !word.file && (
                         <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                           <Chip
-                            label="Recording"
+                            label={t('Recording')}
                             onDelete={() => handleWordChange(index, "audioUrl", null)}
                             sx={{ mr: 2 }}
                           />
@@ -433,7 +434,7 @@ export default function TeacherCreateSpellingLevel() {
             onClick={addWordRow}
             sx={{ mr: 2 }}
           >
-            Add Word
+            {t('Add Word')}
           </Button>
 
           <Button
@@ -444,7 +445,7 @@ export default function TeacherCreateSpellingLevel() {
             sx={{ mt: 2 }}
             startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
           >
-            {isSubmitting ? "Creating..." : "Create Level"}
+            {isSubmitting ? t('Creating...') : t('Create Level')}
           </Button>
         </CardContent>
       </Card>

@@ -1,5 +1,7 @@
 // File: src/App.js
 import React, { useState, useEffect } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import TokenRefresher from './utils/TokenRefresher';
@@ -22,6 +24,10 @@ import TeacherEditClassPage from './Teacher/TeacherEditClassPage';
 import TeacherViewClassPage from './Teacher/TeacherViewClassPage';
 import TeacherFPOWProgressPage from './Teacher/TeacherFPOWProgressPage';
 import TeacherStudentFPOWProgressPage from './Teacher/TeacherStudentFPOWProgressPage';
+import TeacherAnalyticsPage from './Teacher/TeacherAnalyticsPage';
+import TeacherStudentsPage from './Teacher/TeacherStudentsPage';
+import TeacherAssignmentsPage from './Teacher/TeacherAssignmentsPage';
+import TeacherWordListsPage from './Teacher/TeacherWordListsPage';
 
 // Student
 import StudentHome from './Student/StudentHome';
@@ -58,6 +64,8 @@ import Tutorial from "./Adventure/tutorial/Tutorial";
 import Profile from './components/Profile';
 
 import './App.css';
+import theme from './theme/theme';
+import TeacherLayout from './Teacher/components/TeacherLayout';
 import { UserProvider } from './UserContext';
 
 function App() {
@@ -137,21 +145,24 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <TokenRefresher />
-      <BrowserRouter>
-        <UserProvider>
-          <AppContent
-            isAuthenticated={isAuthenticated}
-            setIsAuthenticated={setIsAuthenticated}
-            role={role}
-            setRole={setRole}
-            needsNavPadding={needsNavPadding}
-            handleLogout={handleLogout}
-          />
-        </UserProvider>
-      </BrowserRouter>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="App">
+        <TokenRefresher />
+        <BrowserRouter>
+          <UserProvider>
+            <AppContent
+              isAuthenticated={isAuthenticated}
+              setIsAuthenticated={setIsAuthenticated}
+              role={role}
+              setRole={setRole}
+              needsNavPadding={needsNavPadding}
+              handleLogout={handleLogout}
+            />
+          </UserProvider>
+        </BrowserRouter>
+      </div>
+    </ThemeProvider>
   );
 }
 
@@ -167,9 +178,11 @@ function AppContent({ isAuthenticated, setIsAuthenticated, role, setRole, needsN
     "/jungle-lush",
     "/tutorial"
   ];
-  const hideNavbar = adventurePrefixes.some(path =>
+  const isAdventurePage = adventurePrefixes.some(path =>
     location.pathname === path || location.pathname.startsWith(path + "/")
   );
+  const isTeacherPage = location.pathname === '/teacher-home' || location.pathname.startsWith('/teacher/');
+  const hideNavbar = isAdventurePage || isTeacherPage;
 
   const shouldAddPadding = needsNavPadding && !hideNavbar;
 
@@ -225,17 +238,73 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       {/* TEACHER ROUTES */}
       <Route path="/teacher-home" element={
         isAuthenticated && role === 'TEACHER'
-          ? <TeacherHome setIsAuthenticated={setIsAuthenticated} />
+          ? (
+              <TeacherLayout>
+                <TeacherHome />
+              </TeacherLayout>
+            )
           : <Navigate to="/" replace />
       } />
-      <Route path="/teacher/classes" element={isAuthenticated && role === 'TEACHER' ? <TeacherClassListPage /> : <Navigate to="/" replace />} />
-      <Route path="/teacher/classes/create" element={isAuthenticated && role === 'TEACHER' ? <TeacherCreateClassPage /> : <Navigate to="/" replace />} />
-      <Route path="/teacher/classes/:id/edit" element={isAuthenticated && role === 'TEACHER' ? <TeacherEditClassPage /> : <Navigate to="/" replace />} />
-      <Route path="/teacher/classes/:id" element={isAuthenticated && role === 'TEACHER' ? <TeacherViewClassPage /> : <Navigate to="/" replace />} />
-      <Route path="/teacher/classes/:id/students" element={isAuthenticated && role === 'TEACHER' ? <TeacherClassStudentsPage /> : <Navigate to="/" replace />} />
-      <Route path="/teacher/classes/:classId/fpow-progress" element={isAuthenticated && role === 'TEACHER' ? <TeacherFPOWProgressPage /> : <Navigate to="/" replace />} />
-      <Route path="/teacher/classes/:classId/students/:studentId/fpow-progress" element={isAuthenticated && role === 'TEACHER' ? <TeacherStudentFPOWProgressPage /> : <Navigate to="/" replace />} />
-      <Route path="/teacher/profile" element={isAuthenticated && role === 'TEACHER' ? <Profile /> : <Navigate to="/" replace />} />
+      <Route path="/teacher/classes" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherClassListPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/classes/create" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherCreateClassPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/classes/:id/edit" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherEditClassPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/classes/:id" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherViewClassPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/classes/:id/students" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherClassStudentsPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/classes/:classId/fpow-progress" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherFPOWProgressPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/classes/:classId/students/:studentId/fpow-progress" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherStudentFPOWProgressPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/analytics" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherAnalyticsPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/students" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherStudentsPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/assignments" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherAssignmentsPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/word-lists" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherWordListsPage /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/profile" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><Profile /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
 
       {/* STUDENT ROUTES */}
       <Route path="/student-home" element={
@@ -267,7 +336,11 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       />
 
       {/* SPELLING GAME */}
-      <Route path="/teacher/spelling/create" element={isAuthenticated && role === 'TEACHER' ? <TeacherCreateSpellingChallenge /> : <Navigate to="/" replace />} />
+      <Route path="/teacher/spelling/create" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherCreateSpellingChallenge /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
       <Route path="/student/classes/:classId/spelling-challenge" element={isAuthenticated && role === 'STUDENT' ? <StudentSpellingChallenge /> : <Navigate to="/" replace />} />
       <Route path="/student/classes/:classId/spelling-levels" element={isAuthenticated && role === 'STUDENT' ? <StudentSpellingLevelList /> : <Navigate to="/" replace />} />
 

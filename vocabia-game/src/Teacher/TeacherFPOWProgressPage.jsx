@@ -8,11 +8,12 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
 import { LineChart, Line } from "recharts";
-import { CSVLink } from "react-csv";
 import api from "../api/api";
 import authService from "../services/authService";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
+import PageHeader from "./components/PageHeader";
+import { t } from "./utils/i18n";
 
 export default function TeacherFPOWProgressPage() {
   const params = useParams();
@@ -30,7 +31,6 @@ export default function TeacherFPOWProgressPage() {
   const [className, setClassName] = useState("");
   const [activeTab, setActiveTab] = useState(0);
   const [exportLoading, setExportLoading] = useState(false);
-  const [redirectToLogin, setRedirectToLogin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
   // Default data structure for when API data is not available
@@ -60,7 +60,6 @@ export default function TeacherFPOWProgressPage() {
     if (!authService.isAuthenticated()) {
       console.error("User is not authenticated");
       setError("You must be logged in to view this page.");
-      setRedirectToLogin(true);
       setLoading(false);
       setAuthChecked(true);
       return false;
@@ -81,6 +80,7 @@ export default function TeacherFPOWProgressPage() {
     return true;
   };
   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     
     // Enhanced debugging for URL parameters and state
@@ -468,36 +468,39 @@ export default function TeacherFPOWProgressPage() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">
-          Four Pic One Word - {className} Progress
-        </Typography>
-        <Box>
-          <Button 
-            variant="outlined" 
-            startIcon={<DownloadIcon />} 
-            sx={{ mr: 2 }}
-            onClick={handleExportReport}
-            disabled={exportLoading}
-          >
-            {exportLoading ? "Exporting..." : "Export Report"}
-          </Button>
-          <Button 
-            variant="outlined" 
-            startIcon={<ArrowBackIcon />}
-            component={Link}
-            to={`/teacher/classes/${classId}`}
-          >
-            Back to Class
-          </Button>
-        </Box>
-      </Box>
+      <PageHeader
+        backTo={`/teacher/classes/${classId}`}
+        backLabel={t('Back to Class')}
+        title={t('Four Pic One Word')}
+        subtitle={`${className} ${t('Progress')}`}
+        actions={
+          <Box>
+            <Button 
+              variant="outlined" 
+              startIcon={<DownloadIcon />} 
+              sx={{ mr: 2 }}
+              onClick={handleExportReport}
+              disabled={exportLoading}
+            >
+              {exportLoading ? t('Exporting...') : t('Export Report')}
+            </Button>
+            <Button 
+              variant="outlined" 
+              startIcon={<ArrowBackIcon />}
+              component={Link}
+              to={`/teacher/classes/${classId}`}
+            >
+              {t('Back to Class')}
+            </Button>
+          </Box>
+        }
+      />
       
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={activeTab} onChange={handleTabChange}>
-          <Tab label="Class Overview" />
-          <Tab label="Student Performance" />
-          <Tab label="Difficulty Analysis" />
+          <Tab label={t('Class Overview')} />
+          <Tab label={t('Student Performance')} />
+          <Tab label={t('Difficulty Analysis')} />
         </Tabs>
       </Box>
       
@@ -509,7 +512,7 @@ export default function TeacherFPOWProgressPage() {
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                  Completion Rate
+                  {t('Completion Rate')}
                 </Typography>
                 <Box display="flex" alignItems="center">
                   <Typography variant="h3" color="primary" sx={{ mr: 1 }}>
@@ -517,7 +520,7 @@ export default function TeacherFPOWProgressPage() {
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Average class completion
+                  {t('Average class completion')}
                 </Typography>
               </CardContent>
             </Card>
@@ -526,7 +529,7 @@ export default function TeacherFPOWProgressPage() {
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                  Accuracy
+                  {t('Accuracy')}
                 </Typography>
                 <Box display="flex" alignItems="center">
                   <Typography variant="h3" color="secondary" sx={{ mr: 1 }}>
@@ -534,7 +537,7 @@ export default function TeacherFPOWProgressPage() {
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Correct answers ratio
+                  {t('Correct answers ratio')}
                 </Typography>
               </CardContent>
             </Card>
@@ -543,7 +546,7 @@ export default function TeacherFPOWProgressPage() {
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                  Hint Usage
+                  {t('Hint Usage')}
                 </Typography>
                 <Box display="flex" alignItems="center">
                   <Typography variant="h3" color="warning.main" sx={{ mr: 1 }}>
@@ -551,7 +554,7 @@ export default function TeacherFPOWProgressPage() {
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Levels with hints used
+                  {t('Levels with hints used')}
                 </Typography>
               </CardContent>
             </Card>
@@ -560,7 +563,7 @@ export default function TeacherFPOWProgressPage() {
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                  Avg. Time
+                  {t('Avg. Time')}
                 </Typography>
                 <Box display="flex" alignItems="center">
                   <Typography variant="h3" color="info.main" sx={{ mr: 1 }}>
@@ -568,7 +571,7 @@ export default function TeacherFPOWProgressPage() {
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Per level completion
+                  {t('Per level completion')}
                 </Typography>
               </CardContent>
             </Card>
@@ -577,7 +580,7 @@ export default function TeacherFPOWProgressPage() {
           {/* Progress Chart */}
           <Grid item xs={12} md={8}>
             <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6" gutterBottom>Class Progress Over Time</Typography>
+              <Typography variant="h6" gutterBottom>{t('Class Progress Over Time')}</Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={classData.progressOverTime}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -585,8 +588,8 @@ export default function TeacherFPOWProgressPage() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="completionRate" name="Completion %" stroke="#8884d8" activeDot={{ r: 8 }} />
-                  <Line type="monotone" dataKey="accuracy" name="Accuracy %" stroke="#82ca9d" />
+                  <Line type="monotone" dataKey="completionRate" name={t('Completion %')} stroke="#8884d8" activeDot={{ r: 8 }} />
+                  <Line type="monotone" dataKey="accuracy" name={t('Accuracy %')} stroke="#82ca9d" />
                 </LineChart>
               </ResponsiveContainer>
             </Paper>
@@ -595,7 +598,7 @@ export default function TeacherFPOWProgressPage() {
           {/* Category Completion */}
           <Grid item xs={12} md={4}>
             <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6" gutterBottom>Category Completion</Typography>
+              <Typography variant="h6" gutterBottom>{t('Category Completion')}</Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -624,18 +627,18 @@ export default function TeacherFPOWProgressPage() {
       {/* Student Performance Tab */}
       {activeTab === 1 && (
         <Paper sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>Student Performance</Typography>
+          <Typography variant="h6" gutterBottom>{t('Student Performance')}</Typography>
           <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Student</TableCell>
-                  <TableCell align="right">Levels Completed</TableCell>
-                  <TableCell align="right">Accuracy</TableCell>
-                  <TableCell align="right">Avg. Time (sec)</TableCell>
-                  <TableCell align="right">Hint Usage</TableCell>
-                  <TableCell align="right">Last Active</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell>{t('Student')}</TableCell>
+                  <TableCell align="right">{t('Levels Completed')}</TableCell>
+                  <TableCell align="right">{t('Accuracy')}</TableCell>
+                  <TableCell align="right">{t('Avg. Time (sec)')}</TableCell>
+                  <TableCell align="right">{t('Hint Usage')}</TableCell>
+                  <TableCell align="right">{t('Last Active')}</TableCell>
+                  <TableCell align="right">{t('Actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -688,7 +691,7 @@ export default function TeacherFPOWProgressPage() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={7}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Most Challenging Words</Typography>
+              <Typography variant="h6" gutterBottom>{t('Most Challenging Words')}</Typography>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={difficultyData.challengingWords}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -696,8 +699,8 @@ export default function TeacherFPOWProgressPage() {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="failureRate" name="Failure Rate %" fill="#ff6b6b" />
-                  <Bar dataKey="hintUsage" name="Hint Usage %" fill="#feca57" />
+                  <Bar dataKey="failureRate" name={t('Failure Rate %')} fill="#ff6b6b" />
+                  <Bar dataKey="hintUsage" name={t('Hint Usage %')} fill="#feca57" />
                 </BarChart>
               </ResponsiveContainer>
             </Paper>
@@ -705,7 +708,7 @@ export default function TeacherFPOWProgressPage() {
           
           <Grid item xs={12} md={5}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Category Difficulty</Typography>
+              <Typography variant="h6" gutterBottom>{t('Category Difficulty')}</Typography>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={difficultyData.categoryDifficulty} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
@@ -713,7 +716,7 @@ export default function TeacherFPOWProgressPage() {
                   <YAxis dataKey="category" type="category" width={150} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="averageAttempts" name="Avg. Attempts" fill="#8884d8" />
+                  <Bar dataKey="averageAttempts" name={t('Avg. Attempts')} fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
             </Paper>
@@ -721,7 +724,7 @@ export default function TeacherFPOWProgressPage() {
           
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" gutterBottom>Recommendations</Typography>
+              <Typography variant="h6" gutterBottom>{t('Recommendations')}</Typography>
               {difficultyData.challengingWords && difficultyData.challengingWords.length > 0 && (
                 <Alert severity="info" sx={{ mb: 2 }}>
                   Based on the data, students are struggling most with words like 
