@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class UserProgressDTO {
     private Long id;
     private String category;
@@ -27,4 +28,5 @@ public class UserProgressDTO {
     private int gold;
     private int progressPoints;
     private int correctAnswers;
+    private int levelGoldEarned; // Gold earned specifically from Four Pics One Word levels
 }

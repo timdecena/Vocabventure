@@ -65,6 +65,23 @@ public class UserProgress {
     @Builder.Default
     private int livesLeft = 3;
 
+    // Fix: Map DB column that is NOT NULL with no default in schema
+    // to avoid SQL error "Field 'level_gold_earned' doesn't have a default value"
+    @Column(name = "level_gold_earned", nullable = false)
+    @Builder.Default
+    private int levelGoldEarned = 0;
+
+    // Some databases may still have this legacy column present and marked NOT NULL.
+    // Mapping it here with a default value prevents insert failures like:
+    // "Field 'level_gold_awarded' doesn't have a default value".
+    @Column(name = "level_gold_awarded", nullable = false)
+    @Builder.Default
+    private int levelGoldAwarded = 0;
+
+    // Store level completion counts as JSON string (e.g., "1:2,2:1,3:3" means level 1 completed 2 times, level 2 once, level 3 three times)
+    @Column(name = "level_completion_counts", columnDefinition = "TEXT")
+    private String levelCompletionCounts;
+
     @Column(name = "last_played_level")
     private Integer lastPlayedLevel;
 

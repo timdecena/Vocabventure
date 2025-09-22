@@ -1,99 +1,282 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container, Box, Button, Typography, CircularProgress,
-  IconButton, Alert, Chip, Snackbar, Paper, Grid
+  Alert, Chip, Snackbar, Paper, Card,
+  Fade, Zoom, Slide
 } from '@mui/material';
-import {
+import { keyframes } from '@mui/system';
+import { 
   ArrowBack as ArrowBackIcon,
-  ArrowForward as ArrowForwardIcon,
-  Refresh as RefreshIcon,
   EmojiEvents as EmojiEventsIcon,
-  Replay as ReplayIcon,
   Star as StarIcon,
   AccessTime as AccessTimeIcon,
-  Lightbulb as LightbulbIcon
+  Lightbulb as LightbulbIcon,
+  Cancel as CancelIcon,
+  MonetizationOn as GoldIcon
 } from '@mui/icons-material';
 import confetti from 'canvas-confetti';
 import api from '../api/api';
 
-// ---- Image Grid ----
-const ImageGrid = ({ imageUrls }) => {
-  // Fixed dimensions for a professional game look
+// Keyframe animations
+const shimmer = keyframes`
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+`;
+
+const bounce = keyframes`
+  0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+  40%, 43% { transform: translate3d(0, -15px, 0); }
+  70% { transform: translate3d(0, -7px, 0); }
+  90% { transform: translate3d(0, -2px, 0); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
+const slideInUp = keyframes`
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+`;
+
+const glow = keyframes`
+  0%, 100% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(76, 175, 80, 0.8), 0 0 40px rgba(76, 175, 80, 0.6); }
+`;
+
+const goldPulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+`;
+
+// Enhanced Image Grid with loading states and animations
+const ImageGrid = ({ imageUrls, isLoading }) => {
+  const [loadedImages, setLoadedImages] = useState(new Set());
+  const [imageErrors, setImageErrors] = useState(new Set());
+
+  const handleImageLoad = useCallback((index) => {
+    setLoadedImages(prev => new Set([...prev, index]));
+  }, []);
+
+  const handleImageError = useCallback((index) => {
+    setImageErrors(prev => new Set([...prev, index]));
+  }, []);
+
   return (
     <Box sx={{
       width: '100%',
-      maxWidth: '400px',
+      maxWidth: '450px',
       margin: '0 auto',
-      mb: 3,
-      padding: 1,
-      backgroundColor: '#f8f8f8',
-      borderRadius: 2,
-      boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+      mb: 4,
+      position: 'relative'
     }}>
-      <Box sx={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gridTemplateRows: 'repeat(2, 1fr)',
-        gap: 1,
-        aspectRatio: '1/1',
+      <Card sx={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: 4,
+        p: 2,
+        boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+        border: '2px solid rgba(255,255,255,0.1)'
       }}>
-        {/* Render exactly 4 boxes, using images where available */}
-        {[0, 1, 2, 3].map(i => {
-          const hasImage = i < imageUrls.length;
-          return (
-            <Box 
-              key={i} 
-              sx={{
-                width: '100%',
-                paddingTop: '100%', // This creates a perfect square regardless of content
-                position: 'relative',
-                borderRadius: 1,
-                overflow: 'hidden',
-                border: '2px solid #e0e0e0',
-                boxShadow: 'inset 0 0 10px rgba(0,0,0,0.1)',
-                backgroundColor: hasImage ? '#ffffff' : '#f0f0f0',
-              }}
-            >
-              {hasImage && (
-                <Box
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateRows: 'repeat(2, 1fr)',
+          gap: 2,
+          aspectRatio: '1/1',
+        }}>
+          {[0, 1, 2, 3].map(i => {
+            const hasImage = i < imageUrls.length;
+            const isImageLoaded = loadedImages.has(i);
+            const hasImageError = imageErrors.has(i);
+            
+            return (
+              <Zoom in timeout={300 + (i * 100)} key={i}>
+                <Box 
                   sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
                     width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    paddingTop: '100%',
+                    position: 'relative',
+                    borderRadius: 3,
                     overflow: 'hidden',
+                    backgroundColor: '#ffffff',
+                    boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+                    border: '3px solid rgba(255,255,255,0.9)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'scale(1.02)',
+                      boxShadow: '0 12px 35px rgba(0,0,0,0.25)'
+                    }
                   }}
                 >
-                  <img
-                    src={imageUrls[i]}
-                    alt={`Clue ${i+1}`}
-                    style={{
+                  {/* Loading skeleton */}
+                  {(isLoading || (!isImageLoaded && hasImage && !hasImageError)) && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: `linear-gradient(
+                        90deg,
+                        #f0f0f0 0px,
+                        #e0e0e0 40px,
+                        #f0f0f0 80px
+                      )`,
+                      backgroundSize: '200px',
+                      animation: `${shimmer} 1.5s ease-in-out infinite`
+                    }}>
+                      <CircularProgress size={30} sx={{ color: '#667eea' }} />
+                    </Box>
+                  )}
+                  
+                  {/* Actual image */}
+                  {hasImage && !hasImageError && (
+                    <Fade in={isImageLoaded} timeout={500}>
+                      <Box sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                      }}>
+                        <img
+                          src={imageUrls[i]}
+                          alt={`Clue ${i+1}`}
+                          onLoad={() => handleImageLoad(i)}
+                          onError={() => handleImageError(i)}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: 'transform 0.3s ease'
+                          }}
+                        />
+                      </Box>
+                    </Fade>
+                  )}
+                  
+                  {/* Error state */}
+                  {hasImageError && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#f5f5f5',
+                      color: '#999'
+                    }}>
+                      <CancelIcon sx={{ fontSize: 40, mb: 1 }} />
+                      <Typography variant="caption">Failed to load</Typography>
+                    </Box>
+                  )}
+                  
+                  {/* Empty slot */}
+                  {!hasImage && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#f8f8f8',
+                      color: '#ccc',
+                      fontSize: '2rem'
+                    }}>
+                      ?
+                    </Box>
+                  )}
+                  
+                  {/* Image number badge */}
+                  <Box sx={{
+                    position: 'absolute',
+                    top: 8,
+                    left: 8,
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(102, 126, 234, 0.9)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                  }}>
+                    {i + 1}
+                  </Box>
                 </Box>
-              )}
-            </Box>
-          );
-        })}
-      </Box>
+              </Zoom>
+            );
+          })}
+        </Box>
+      </Card>
     </Box>
   );
 };
 
-// ---- Styles ----
-const containerStyles = { py: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' };
-const paperStyles = { p: 3, width: '100%', borderRadius: 3, boxShadow: 3 };
-const imageStyles = { width: '100%', height: 140, objectFit: 'cover', borderRadius: 2, border: '1px solid #e0e0e0' };
+// Enhanced Letter Button Component
+const LetterButton = ({ letter, onClick, isSelected, isCorrect, isWrong, disabled }) => {
+  return (
+    <Button
+      onClick={() => onClick(letter)}
+      disabled={disabled}
+      sx={{
+        minWidth: { xs: 45, sm: 50 },
+        height: { xs: 45, sm: 50 },
+        borderRadius: 2,
+        fontSize: { xs: '1.1rem', sm: '1.3rem' },
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        background: isSelected
+          ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+          : isCorrect
+          ? 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)'
+          : isWrong
+          ? 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        color: isSelected || isCorrect || isWrong ? 'white' : '#333',
+        border: `2px solid ${isSelected ? '#667eea' : isCorrect ? '#4caf50' : isWrong ? '#f44336' : '#e0e0e0'}`,
+        boxShadow: isSelected || isCorrect || isWrong
+          ? '0 6px 20px rgba(0,0,0,0.3)'
+          : '0 2px 8px rgba(0,0,0,0.1)',
+        animation: isCorrect ? `${bounce} 0.6s ease` : isWrong ? `${pulse} 0.3s ease` : 'none',
+        '&:hover': {
+          transform: disabled ? 'none' : 'translateY(-2px) scale(1.05)',
+          boxShadow: disabled ? 'none' : '0 8px 25px rgba(0,0,0,0.2)'
+        },
+        '&:disabled': {
+          opacity: 0.6,
+          cursor: 'not-allowed'
+        }
+      }}
+    >
+      {letter}
+    </Button>
+  );
+};
 
-// ---- Initial State ----
+// ---- Enhanced Initial State with Gold Integration ----
 const initialState = {
   puzzle: null,
   loading: true,
@@ -104,7 +287,23 @@ const initialState = {
   hintShown: false,
   success: false,
   disableInput: false,
-  snackbar: { open: false, message: '' }
+  snackbar: { open: false, message: '' },
+  timeElapsed: 0,
+  streak: 0,
+  showHint: false,
+  gameStarted: false,
+  correctLetters: [],
+  wrongLetters: [],
+  isSubmitting: false,
+  // Enhanced gold and progress tracking
+  goldBalance: 0,
+  canAffordHint: false,
+  hintCost: 25,
+  goldEarned: 0,
+  showGoldAnimation: false,
+  completionStatus: null,
+  score: 0,
+  efficiency: 100
 };
 
 // Load attempts from localStorage if available
@@ -132,6 +331,15 @@ const saveAttempts = (category, level, attempts) => {
     console.error('Error saving attempts:', e);
   }
 };
+
+// Helper function to calculate gold earned based on completion count
+function calculateGoldEarned(completionCount) {
+  switch (completionCount) {
+    case 1: return 10; // First completion
+    case 2: return 5;  // Second completion (replay)
+    default: return 0; // Third+ completions
+  }
+}
 
 // ---- Reducer ----
 function gameReducer(state, action) {
@@ -185,6 +393,26 @@ function gameReducer(state, action) {
       return { ...state, hintShown: true };
     case 'SET_SNACKBAR': 
       return { ...state, snackbar: action.payload };
+    // Enhanced gold-related actions
+    case 'UPDATE_GOLD_BALANCE':
+      return {
+        ...state,
+        goldBalance: action.payload.goldBalance,
+        canAffordHint: action.payload.canAffordHint,
+        hintCost: action.payload.hintCost || 25
+      };
+    case 'SHOW_GOLD_EARNED':
+      return {
+        ...state,
+        goldEarned: action.payload,
+        showGoldAnimation: true
+      };
+    case 'HIDE_GOLD_ANIMATION':
+      return { ...state, showGoldAnimation: false };
+    case 'SET_COMPLETION_STATUS':
+      return { ...state, completionStatus: action.payload };
+    case 'UPDATE_SCORE':
+      return { ...state, score: action.payload };
     default: 
       return state;
   }
@@ -298,6 +526,53 @@ const GamePlay = () => {
     return () => clearInterval(t);
   }, [state.loading, state.success, timerStart]);
 
+  // ---- Load Gold Balance and Completion Status ----
+  useEffect(() => {
+    const loadGameData = async () => {
+      try {
+        // Load gold balance
+        const goldResponse = await api.get('/api/user-progress/gold-balance');
+        dispatch({ 
+          type: 'UPDATE_GOLD_BALANCE', 
+          payload: goldResponse.data 
+        });
+
+        // Load completion status for this level
+        const statusResponse = await api.get(
+          `/api/user-progress/level-completion-status?category=${category}&level=${level}`
+        );
+        dispatch({ 
+          type: 'SET_COMPLETION_STATUS', 
+          payload: statusResponse.data 
+        });
+
+        console.log('💰 Gold balance loaded:', goldResponse.data.goldBalance);
+        console.log('📊 Completion status loaded:', statusResponse.data);
+      } catch (error) {
+        console.warn('Failed to load game data:', error);
+        // Set default values if API fails
+        dispatch({ 
+          type: 'UPDATE_GOLD_BALANCE', 
+          payload: { goldBalance: 0, canAffordHint: false, hintCost: 25 }
+        });
+      }
+    };
+
+    if (category && level) {
+      loadGameData();
+    }
+  }, [category, level]);
+
+  // ---- Auto-hide Gold Animation ----
+  useEffect(() => {
+    if (state.showGoldAnimation) {
+      const timer = setTimeout(() => {
+        dispatch({ type: 'HIDE_GOLD_ANIMATION' });
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.showGoldAnimation]);
+
   // ---- Letter Input Handlers ----
   const handleLetterClick = (letter) => {
     if (state.disableInput || state.success || state.selectedLetters.length >= state.puzzle.answer.length) return;
@@ -319,58 +594,135 @@ const GamePlay = () => {
 
   // ---- Submit Progress to Backend and Local Storage ----
   async function handleCorrect() {
+    console.log('🎯 Level completed! Starting progress submission...');
+    
+    // Don't show success immediately - wait for backend confirmation
+    dispatch({ type: 'SET_LOADING', payload: true });
+    
+    const cleanCategory = category ? category.trim() : "";
+    const payload = {
+      category: cleanCategory,
+      level: Number(level),
+      answer: state.puzzle.answer || "",
+      usedHint: Boolean(state.hintShown)
+    };
+    
+    console.log('📤 Submitting progress with payload:', payload);
+    
+    let backendSuccess = false;
+    let errorMessage = null;
+    
+    // Try to submit to backend first
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      // Submit progress to backend
+      const submitResponse = await api.post('/api/user-progress/submit', payload);
+      console.log('✅ Backend submission successful:', submitResponse.data);
+      
+      // Validate backend response
+      if (!submitResponse.data || !submitResponse.data.success) {
+        throw new Error(submitResponse.data?.error || 'Backend returned unsuccessful response');
+      }
+      
+      console.log('📊 Progress data from backend:', submitResponse.data.progress);
+      
+      // Get updated gold balance after submission
+      const goldResponse = await api.get('/api/user-progress/gold-balance');
+      
+      // Get completion status for reward info
+      const statusResponse = await api.get(
+        `/api/user-progress/level-completion-status?category=${cleanCategory}&level=${Number(level)}`
+      );
+      
+      const goldEarned = calculateGoldEarned(statusResponse.data.completionCount);
+      
+      console.log('💰 Gold balance after completion:', goldResponse.data.goldBalance);
+      console.log('🏆 Gold earned this completion:', goldEarned);
+      console.log('📈 Completion count:', statusResponse.data.completionCount);
+      
+      // Update gold balance in state
+      dispatch({
+        type: 'UPDATE_GOLD_BALANCE',
+        payload: {
+          goldBalance: goldResponse.data.goldBalance,
+          canAffordHint: goldResponse.data.canAffordHint,
+          hintCost: goldResponse.data.hintCost
+        }
+      });
+      
+      // Show gold animation if gold was earned
+      if (goldEarned > 0) {
+        dispatch({ type: 'SHOW_GOLD_EARNED', payload: goldEarned });
+      }
+      
+      backendSuccess = true;
+      
+    } catch (error) {
+      console.error('❌ Backend submission failed:', error);
+      
+      // Determine error message based on error type
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        errorMessage = 'Authentication failed. Please log in again.';
+      } else if (error.response?.status === 400) {
+        // Handle validation errors from backend
+        const backendError = error.response?.data?.error || 'Invalid data sent to server';
+        errorMessage = `Validation error: ${backendError}`;
+        console.error('🔍 Backend validation error:', error.response.data);
+      } else if (error.response?.status >= 500) {
+        // Handle server errors
+        const backendError = error.response?.data?.error || 'Internal server error';
+        errorMessage = `Server error: ${backendError}`;
+        console.error('🔍 Backend server error:', error.response.data);
+      } else if (error.message.includes('No authentication token')) {
+        errorMessage = 'Not logged in. Progress saved locally only.';
+      } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+        errorMessage = 'Network connection failed. Progress saved locally only.';
+      } else {
+        errorMessage = `Unexpected error: ${error.message}. Progress saved locally only.`;
+      }
+      
+      console.warn('⚠️ Will save to localStorage as fallback');
+    }
+    
+    // Always save to localStorage as backup (even if backend succeeded)
+    try {
+      saveCompletedLevel(category, Number(level));
+      console.log('💾 Progress saved to localStorage');
+    } catch (localError) {
+      console.error('❌ Failed to save to localStorage:', localError);
+    }
+    
+    // Stop loading and show success
+    dispatch({ type: 'SET_LOADING', payload: false });
     dispatch({ type: 'SET_SUCCESS' });
+    
     // Play success animation with confetti
     confetti({ particleCount: 70, spread: 90, origin: { y: 0.6 } });
     
-    // Save progress to local storage first (this always works)
-    saveCompletedLevel(category, Number(level));
-    
-    // Try to submit to backend if authenticated
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        // Ensure all fields match the ProgressSubmissionRequest DTO exactly
-        // Make sure category is a string with no extra whitespace
-        const cleanCategory = category ? category.trim() : "";
-        
-        const payload = {
-          category: cleanCategory,
-          level: Number(level),
-          answer: state.puzzle.answer || "",
-          usedHint: Boolean(state.hintShown)
-        };
-        
-        // Log the payload for debugging
-        console.log("Submitting progress with payload:", payload);
-        
-        // First try to get the current progress to check if it exists
-        try {
-          // Remove duplicate '/api' prefix since it's already in the baseURL
-          await api.post('/api/user-progress/submit', payload);
-          console.log("Progress saved successfully");
-        } catch (innerError) {
-          // If we get a non-unique result error, try a different approach
-          if (innerError.response?.data?.includes("unique result")) {
-            console.warn("Handling non-unique result error by using a different endpoint");
-            // Fall back to local storage only in this case
-            // The backend needs to be fixed to handle this case properly
-          } else {
-            // Re-throw other errors
-            throw innerError;
-          }
+    // Show appropriate success/warning message
+    if (backendSuccess) {
+      dispatch({
+        type: 'SET_SNACKBAR',
+        payload: { 
+          open: true, 
+          message: '🎉 Level completed! Progress saved to your account.', 
+          severity: 'success' 
         }
-      }
-    } catch (error) {
-      // More detailed error logging
-      console.warn("Could not save progress to server:", error.response?.data || error.message);
-      // Continue with local storage only
+      });
+    } else {
+      dispatch({
+        type: 'SET_SNACKBAR',
+        payload: { 
+          open: true, 
+          message: `⚠️ Level completed! ${errorMessage}`, 
+          severity: 'warning' 
+        }
+      });
     }
-    
-    dispatch({
-      type: 'SET_SNACKBAR',
-      payload: { open: true, message: 'Correct! Level completed.', severity: 'success' }
-    });
   }
 
   async function handleWrong() {
@@ -457,12 +809,46 @@ const GamePlay = () => {
         console.log(`Sending hint usage: category=${cleanCategory}, level=${levelNum}`);
         
         // The API base URL already includes '/api'
-        await api.post(`/api/user-progress/use-hint?category=${encodeURIComponent(cleanCategory)}&level=${levelNum}`);
-        console.log('Hint usage recorded successfully');
+        const resp = await api.post(`/api/user-progress/use-hint?category=${encodeURIComponent(cleanCategory)}&level=${levelNum}`);
+        console.log('Hint usage recorded successfully', resp.data);
+
+        // If backend returned newGoldBalance, update UI immediately
+        const newGold = resp?.data?.newGoldBalance;
+        const hintCost = resp?.data?.hintCost ?? state.hintCost ?? 25;
+        if (typeof newGold === 'number') {
+          dispatch({
+            type: 'UPDATE_GOLD_BALANCE',
+            payload: {
+              goldBalance: newGold,
+              hintCost,
+              canAffordHint: newGold >= hintCost
+            }
+          });
+        } else {
+          // Fallback: re-fetch gold from server
+          try {
+            const goldResponse = await api.get('/api/user-progress/gold-balance');
+            dispatch({ type: 'UPDATE_GOLD_BALANCE', payload: goldResponse.data });
+          } catch (e) {
+            console.warn('Could not refresh gold balance after hint', e);
+          }
+        }
       }
     } catch (error) {
-      // Log error but don't affect user erience - hint is already shown
+      // Log error but don't affect user experience - hint is already shown
       console.warn("Could not record hint usage:", error.response?.data || error.message);
+      // If insufficient gold, surface a warning and refresh displayed balance
+      if (error.response?.status === 400 || error.response?.status === 500) {
+        const errMsg = error.response?.data?.error || 'Failed to use hint on server';
+        dispatch({
+          type: 'SET_SNACKBAR',
+          payload: { open: true, message: `Hint not deducted: ${errMsg}`, severity: 'warning' }
+        });
+        try {
+          const goldResponse = await api.get('/api/user-progress/gold-balance');
+          dispatch({ type: 'UPDATE_GOLD_BALANCE', payload: goldResponse.data });
+        } catch (e) {}
+      }
       // Continue with local hint display only
     }
   };
@@ -481,142 +867,435 @@ const GamePlay = () => {
   const handleNext = () => navigate(`/student/classes/${id}/4pic1word/${category}/level/${Number(level) + 1}`);
 
   // ---- Renders ----
-  if (state.loading) return <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh"><CircularProgress /></Box>;
-  if (state.error) return (
-    <Container maxWidth="sm" sx={containerStyles}>
-      <Paper sx={paperStyles}>
-        <Typography variant="h6" color="error" gutterBottom>Error</Typography>
-        <Typography variant="body1" paragraph>{state.error}</Typography>
-        <Button variant="contained" onClick={handleBack} startIcon={<ArrowBackIcon />}>Back to Levels</Button>
-      </Paper>
-    </Container>
-  );
+  if (state.loading) {
+    return (
+      <Box sx={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column'
+      }}>
+        <CircularProgress size={60} sx={{ color: 'white', mb: 3 }} />
+        <Typography variant="h6" color="white" sx={{ textAlign: 'center' }}>
+          Loading your challenge...
+        </Typography>
+      </Box>
+    );
+  }
+    
+  if (state.error) {
+    return (
+      <Box sx={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 3
+      }}>
+        <Card sx={{ maxWidth: 500, p: 4, textAlign: 'center' }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            Oops! Something went wrong
+          </Typography>
+          <Typography variant="body1" paragraph color="text.secondary">
+            {state.error}
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={handleBack} 
+            startIcon={<ArrowBackIcon />}
+            sx={{ mt: 2 }}
+          >
+            Back to Levels
+          </Button>
+        </Card>
+      </Box>
+    );
+  }
 
   return (
-    <Container maxWidth="sm" sx={containerStyles}>
-      <Paper sx={paperStyles}>
-        {/* Header */}
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={1.5}>
-          <Button variant="text" onClick={handleBack} startIcon={<ArrowBackIcon />}>Back</Button>
-          <Chip label={state.puzzle.difficulty || 'EASY'}
-            color={
-              state.puzzle.difficulty === 'HARD' ? 'error'
-                : state.puzzle.difficulty === 'MEDIUM' ? 'warning'
-                : 'success'
-            }
-            size="small"
-            sx={{ fontWeight: 500 }}
-          />
-        </Box>
-        {/* Image Grid */}
-        <ImageGrid imageUrls={state.puzzle.imageUrls} />
-        {/* Stat Bar */}
-        <Box display="flex" gap={2} mb={2}>
-          <Chip icon={<StarIcon fontSize="small" />} label={`Attempts: ${state.attempts}`} variant="outlined" size="small" />
-          {state.hintShown && <Chip icon={<LightbulbIcon />} label="Hint Used" color="warning" size="small" variant="outlined" />}
-          <Chip icon={<AccessTimeIcon fontSize="small" />} label={`${Math.floor(elapsedTime / 1000)}s`} color="primary" size="small" variant="outlined" />
-        </Box>
-        {/* Hint */}
-        {state.hintShown && state.puzzle.hint && (
-          <Alert severity="info" sx={{ mb: 2 }}>Hint: {state.puzzle.hint}</Alert>
-        )}
-        {/* Answer Slots */}
-        <Box display="flex" justifyContent="center" mb={2} gap={1.5} flexWrap="wrap">
-          {Array.from({ length: state.puzzle.answer.length }).map((_, i) => (
-            <Paper
-              key={i}
-              elevation={state.selectedLetters[i] ? 3 : 1}
+    <Box sx={{
+      background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+      minHeight: '100vh',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+    {/* Animated background elements */}
+    <Box sx={{
+      position: 'absolute',
+      top: '10%',
+      right: '5%',
+      width: 200,
+      height: 200,
+      borderRadius: '50%',
+      background: 'rgba(255,255,255,0.05)',
+      animation: `${slideInUp} 6s ease-in-out infinite`
+    }} />
+    
+    <Container maxWidth="md" sx={{ py: 4, position: 'relative', zIndex: 2 }}>
+      {/* Header */}
+      <Fade in timeout={600}>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 4,
+          background: 'rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 3,
+          p: 2,
+          border: '1px solid rgba(255,255,255,0.2)'
+        }}>
+          <Button 
+            onClick={handleBack} 
+            startIcon={<ArrowBackIcon />}
+            sx={{
+              color: 'white',
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Back to Levels
+          </Button>
+          
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            {/* Gold Balance Display */}
+            <Chip 
+              icon={<GoldIcon sx={{ color: '#FFD700 !important' }} />}
+              label={state.goldBalance}
               sx={{
-                width: 46, height: 46, fontSize: 22, fontWeight: 700, borderRadius: 2.2,
-                backgroundColor: state.selectedLetters[i] ? "#e0f2fe" : "#f5f5f5",
-                border: state.selectedLetters[i] ? "2px solid #22d3ee" : "2px solid #ddd",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: state.selectedLetters[i] ? "pointer" : "default",
-                transition: "all 0.15s"
+                backgroundColor: 'rgba(255,215,0,0.2)',
+                color: '#FFD700',
+                fontWeight: 700,
+                border: '1px solid rgba(255,215,0,0.3)',
+                animation: state.showGoldAnimation ? `${goldPulse} 1s ease` : 'none',
+                '& .MuiChip-icon': { color: '#FFD700 !important' }
               }}
-              onClick={() => state.selectedLetters[i] && handleRemoveLetter(i)}
-            >
-              {state.selectedLetters[i]?.value || ""}
-            </Paper>
-          ))}
-        </Box>
-        {/* Letter Tiles */}
-        <Box 
-          display="flex" 
-          flexWrap="wrap" 
-          justifyContent="center"
-          gap={2.5} 
-          sx={{ 
-            background: "#f1f5fd", 
-            p: 3, 
-            borderRadius: 3, 
-            mb: 2, 
-            boxShadow: 1 
-          }}
-        >
-          {state.availableLetters.map(letter => (
-            <Button
-              key={letter.id}
-              variant="contained"
-              disableElevation
-              onClick={() => handleLetterClick(letter)}
-              disabled={letter.used || state.selectedLetters.length >= state.puzzle.answer.length || state.success}
+            />
+            
+            <Chip 
+              icon={<AccessTimeIcon />}
+              label={`${Math.floor(elapsedTime / 1000)}s`}
               sx={{
-                width: 52, 
-                height: 52, 
-                minWidth: 52,
-                fontWeight: 900, 
-                fontSize: 22, 
-                borderRadius: 2,
-                margin: '2px',
-                background: letter.used ? '#c0c0c0' : "linear-gradient(135deg,#4756ff 60%,#38d7f9 100%)", 
-                color: "white",
-                letterSpacing: 0,
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s ease',
-                "&:hover": { 
-                  background: letter.used ? '#c0c0c0' : "linear-gradient(135deg,#2c3187 60%,#35bddf 100%)", 
-                  transform: "translateY(-3px)",
-                  boxShadow: '0 6px 10px rgba(0,0,0,0.15)'
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                fontWeight: 600
+              }}
+            />
+            <Chip 
+              icon={<StarIcon />}
+              label={`Level ${level}`}
+              sx={{
+                background: 'linear-gradient(45deg, #ff6b6b, #feca57)',
+                color: 'white',
+                fontWeight: 700
+              }}
+            />
+          </Box>
+        </Box>
+      </Fade>
+      
+      {/* Game Area */}
+      <Zoom in timeout={800}>
+        <Card sx={{
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: 6,
+          p: 4,
+          boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(255,255,255,0.3)',
+          position: 'relative',
+          overflow: 'visible'
+        }}>
+          {/* Success Overlay */}
+          {state.success && (
+            <Fade in>
+              <Box sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.9) 0%, rgba(139, 195, 74, 0.9) 100%)',
+                borderRadius: 6,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10,
+                animation: `${glow} 2s ease-in-out infinite`
+              }}>
+                <EmojiEventsIcon sx={{ fontSize: 80, color: 'white', mb: 2 }} />
+                <Typography variant="h3" color="white" fontWeight={800} textAlign="center" mb={3}>
+                  LEVEL COMPLETE!
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <Button 
+                    variant="contained" 
+                    size="large"
+                    onClick={handleNext}
+                    sx={{
+                      background: 'rgba(255,255,255,0.9)',
+                      color: '#2e7d32',
+                      fontWeight: 700,
+                      px: 4,
+                      py: 1.5,
+                      '&:hover': {
+                        background: 'white',
+                        transform: 'translateY(-2px)'
+                      }
+                    }}
+                  >
+                    Next Level
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    size="large"
+                    onClick={handleReplay}
+                    sx={{
+                      borderColor: 'white',
+                      color: 'white',
+                      fontWeight: 700,
+                      px: 4,
+                      py: 1.5,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        transform: 'translateY(-2px)'
+                      }
+                    }}
+                  >
+                    Replay
+                  </Button>
+                </Box>
+              </Box>
+            </Fade>
+          )}
+          
+          {/* Stats Bar */}
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 4,
+            p: 2,
+            background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+            borderRadius: 3,
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Chip 
+                icon={<StarIcon />} 
+                label={`Attempts: ${state.attempts}`} 
+                color="primary" 
+                variant="outlined"
+              />
+              {state.hintShown && (
+                <Chip 
+                  icon={<LightbulbIcon />} 
+                  label="Hint Used" 
+                  color="warning" 
+                  variant="filled"
+                />
+              )}
+            </Box>
+            
+            <Button
+              startIcon={<LightbulbIcon />}
+              onClick={handleHint}
+              variant="contained"
+              color={state.canAffordHint && !state.hintShown ? "warning" : "inherit"}
+              disabled={state.hintShown || state.success || !state.canAffordHint}
+              sx={{
+                fontWeight: 600,
+                px: 3,
+                backgroundColor: state.canAffordHint && !state.hintShown ? '#FF9800' : 'rgba(0,0,0,0.12)',
+                color: state.canAffordHint && !state.hintShown ? 'white' : 'rgba(0,0,0,0.26)',
+                '&:hover': {
+                  backgroundColor: state.canAffordHint && !state.hintShown ? '#F57C00' : 'rgba(0,0,0,0.12)',
                 },
-                "&:disabled": {
-                  background: '#c0c0c0',
-                  color: '#ffffff'
+                '&:disabled': {
+                  opacity: 0.6,
+                  backgroundColor: 'rgba(0,0,0,0.12)',
+                  color: 'rgba(0,0,0,0.26)'
                 }
               }}
+              title={
+                state.hintShown 
+                  ? "Hint already used" 
+                  : !state.canAffordHint 
+                    ? `Need ${state.hintCost} gold (you have ${state.goldBalance})`
+                    : `Use hint for ${state.hintCost} gold`
+              }
             >
-              {letter.value}
+              {state.hintShown 
+                ? 'Hint Used' 
+                : !state.canAffordHint 
+                  ? `Need ${state.hintCost} Gold`
+                  : `Hint (${state.hintCost} Gold)`
+              }
             </Button>
-          ))}
-        </Box>
-        {/* Hint Button */}
-        <Box display="flex" justifyContent="center" mb={2}>
-          <Button startIcon={<LightbulbIcon />} onClick={handleHint} variant="outlined" color="warning"
-            size="small" disabled={state.hintShown || state.success}>Hint</Button>
-        </Box>
-        {/* Success */}
-        {state.success && (
-          <Box textAlign="center" mt={2}>
-            <Alert severity="success" icon={<EmojiEventsIcon />} sx={{ mb: 2, fontWeight: 700, background: "#e0ffd9" }}>
-              Correct! Level completed.
-            </Alert>
-            <Grid container spacing={2} justifyContent="center">
-              <Grid xs={12} sm="auto">
-                <Button variant="contained" color="success" onClick={handleNext} sx={{ borderRadius: 2, px: 5, py: 1.5 }} endIcon={<StarIcon />}>Next Level</Button>
-              </Grid>
-              <Grid xs={12} sm="auto">
-                <Button variant="contained" color="primary" onClick={handleReplay} sx={{ borderRadius: 2, px: 5, py: 1.5 }} endIcon={<ReplayIcon />}>Replay Level</Button>
-              </Grid>
-              <Grid xs={12} sm="auto">
-                <Button variant="contained" color="error" onClick={handleBack} sx={{ borderRadius: 2, px: 5, py: 1.5 }} endIcon={<ArrowBackIcon />}>Back to Levels</Button>
-              </Grid>
-            </Grid>
           </Box>
-        )}
-      </Paper>
-      <Snackbar open={state.snackbar.open} autoHideDuration={2200} onClose={() => dispatch({ type: 'SET_SNACKBAR', payload: { ...state.snackbar, open: false } })}
-        message={state.snackbar.message} anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />
+          
+          {/* Image Grid */}
+          <ImageGrid imageUrls={state.puzzle.imageUrls} isLoading={state.loading} />
+          
+          {/* Hint Display */}
+          {state.hintShown && state.puzzle.hint && (
+            <Slide in direction="up" timeout={500}>
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  mb: 3,
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+                  border: '2px solid #2196f3'
+                }}
+              >
+                💡 Hint: {state.puzzle.hint}
+              </Alert>
+            </Slide>
+          )}
+          
+          {/* Answer Slots */}
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            mb: 4,
+            gap: 2,
+            flexWrap: 'wrap'
+          }}>
+            {Array.from({ length: state.puzzle.answer.length }).map((_, i) => (
+              <Zoom in timeout={300 + (i * 50)} key={i}>
+                <Paper
+                  elevation={state.selectedLetters[i] ? 8 : 2}
+                  sx={{
+                    width: { xs: 50, sm: 60 },
+                    height: { xs: 50, sm: 60 },
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: { xs: '1.5rem', sm: '2rem' },
+                    fontWeight: 800,
+                    borderRadius: 3,
+                    cursor: state.selectedLetters[i] ? 'pointer' : 'default',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    background: state.selectedLetters[i] 
+                      ? 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)'
+                      : 'linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%)',
+                    color: state.selectedLetters[i] ? 'white' : '#666',
+                    border: `3px solid ${state.selectedLetters[i] ? '#4caf50' : '#ddd'}`,
+                    '&:hover': state.selectedLetters[i] ? {
+                      transform: 'scale(1.1) rotate(5deg)',
+                      boxShadow: '0 10px 25px rgba(76, 175, 80, 0.4)'
+                    } : {}
+                  }}
+                  onClick={() => state.selectedLetters[i] && handleRemoveLetter(i)}
+                >
+                  {state.selectedLetters[i]?.value || ''}
+                </Paper>
+              </Zoom>
+            ))}
+          </Box>
+          
+          {/* Letter Selection */}
+          <Box sx={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: 4,
+            p: 3,
+            mb: 2
+          }}>
+            <Typography 
+              variant="h6" 
+              color="white" 
+              textAlign="center" 
+              mb={3}
+              fontWeight={700}
+            >
+              Choose Your Letters
+            </Typography>
+            
+            <Box sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 1.5
+            }}>
+              {state.availableLetters.map((letter, index) => (
+                <Zoom in timeout={400 + (index * 30)} key={letter.id}>
+                  <div>
+                    <LetterButton
+                      letter={letter.value}
+                      onClick={() => handleLetterClick(letter)}
+                      disabled={letter.used || state.selectedLetters.length >= state.puzzle.answer.length || state.success}
+                      isSelected={false}
+                      isCorrect={false}
+                      isWrong={false}
+                    />
+                  </div>
+                </Zoom>
+              ))}
+            </Box>
+          </Box>
+        </Card>
+      </Zoom>
+      
+      {/* Snackbar */}
+      <Snackbar 
+        open={state.snackbar.open} 
+        autoHideDuration={3000} 
+        onClose={() => dispatch({ type: 'SET_SNACKBAR', payload: { ...state.snackbar, open: false } })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          severity={state.snackbar.severity || 'info'} 
+          sx={{ 
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            minWidth: 300
+          }}
+        >
+          {state.snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Gold Earned Animation */}
+      {state.showGoldAnimation && state.goldEarned > 0 && (
+        <Zoom in timeout={300}>
+          <Box sx={{
+            position: 'fixed',
+            top: '20%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            pointerEvents: 'none'
+          }}>
+            <Card sx={{
+              background: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)',
+              color: 'white',
+              px: 3,
+              py: 2,
+              borderRadius: 3,
+              boxShadow: '0 10px 30px rgba(255,215,0,0.5)',
+              animation: `${goldPulse} 1s ease-in-out`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}>
+              <GoldIcon sx={{ fontSize: 32 }} />
+              <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                +{state.goldEarned}
+              </Typography>
+            </Card>
+          </Box>
+        </Zoom>
+      )}
     </Container>
+  </Box>
   );
 };
 

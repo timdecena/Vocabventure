@@ -71,13 +71,21 @@ const TokenRefresher = () => {
               console.error('Token refresh failed');
               localStorage.removeItem('token');
               localStorage.removeItem('role');
-              // Optionally redirect to login page
-              // window.location.href = '/login';
+              localStorage.removeItem('userId');
+              // Trigger storage event to update app state
+              window.dispatchEvent(new Event('storage'));
+              // Redirect to login page
+              window.location.href = '/';
             }
           } catch (refreshError) {
             console.error('Error refreshing token:', refreshError);
             localStorage.removeItem('token');
             localStorage.removeItem('role');
+            localStorage.removeItem('userId');
+            // Trigger storage event to update app state
+            window.dispatchEvent(new Event('storage'));
+            // Redirect to login page
+            window.location.href = '/';
           }
         }
       } catch (error) {

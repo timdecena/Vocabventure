@@ -6,34 +6,24 @@ import {
   Typography,
   Box,
   Button,
-  Grid,
   Card,
   CardContent,
-  LinearProgress,
   Badge,
-  Tooltip,
   CircularProgress,
-  Alert,
-  Container,
   Avatar,
-  Chip,
-  useMediaQuery,
-  IconButton,
+  LinearProgress,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+// import { useTheme } from "@mui/material/styles"; // Removed as not used in optimized version
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import SchoolIcon from "@mui/icons-material/School";
 import PetsIcon from "@mui/icons-material/Pets";
-import LocalFloristIcon from "@mui/icons-material/LocalFlorist";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
-import HomeIcon from "@mui/icons-material/Home";
+import SchoolIcon from "@mui/icons-material/School";
+import LocalFloristIcon from "@mui/icons-material/LocalFlorist";
 import api from "../api/api";
 import { Zoom } from "@mui/material";
 
@@ -97,18 +87,26 @@ function CategoryList() {
   const { id } = useParams(); // classroom id
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userProgress, setUserProgress] = useState({});
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState(null);
+  const [categoryProgress, setCategoryProgress] = useState({});
+  const [, setIsAuthenticated] = useState(false);
+  const [, setError] = useState(null);
   const [animationReady, setAnimationReady] = useState(false);
   const navigate = useNavigate();
-  const theme = useTheme();
+  // const theme = useTheme(); // Removed as not used in optimized version
   
-  // Responsive breakpoints
-  const isXs = useMediaQuery(theme.breakpoints.down('sm'));
-  const isSm = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  const isMd = useMediaQuery(theme.breakpoints.between('md', 'lg'));
-  const isLg = useMediaQuery(theme.breakpoints.up('lg'));
+
+  // Function to refresh category progress
+  const refreshCategoryProgress = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const progressRes = await api.get("/api/user-progress/category-progress");
+        setCategoryProgress(progressRes.data || {});
+      } catch (progressError) {
+        console.warn("Error refreshing category progress:", progressError);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,64 +122,43 @@ function CategoryList() {
         const categoriesData = categoriesRes.data || [];
         setCategories(categoriesData);
 
-        // Initialize progress object
-        const progressData = {};
-
-        // If authenticated, try to get progress from server
+        // If authenticated, fetch category progress with totals
         if (token) {
           try {
-            // Fetch all user progress
-            const progressRes = await api.get("/api/user-progress/all");
-
-            // Process server data
-            if (progressRes.data && Array.isArray(progressRes.data)) {
-              progressRes.data.forEach(progress => {
-                const category = progress.category;
-                if (category) {
-                  progressData[category] = {
-                    completedLevels: progress.puzzlesSolved || 0,
-                    Level: progress.Level || 1,
-                  };
-                }
-              });
-            }
+            const progressRes = await api.get("/api/user-progress/category-progress");
+            setCategoryProgress(progressRes.data || {});
           } catch (progressError) {
-            console.warn("Error fetching user progress:", progressError);
-            // Continue with local storage as fallback
+            console.warn("Error fetching category progress:", progressError);
+            // Initialize empty progress for all categories
+            const emptyProgress = {};
+            categoriesData.forEach(category => {
+              emptyProgress[category] = {
+                completedLevels: 0,
+                totalLevels: 0,
+                currentLevel: 1,
+                progressPercentage: 0
+              };
+            });
+            setCategoryProgress(emptyProgress);
           }
-        }
-
-        // Only use localStorage as fallback when not authenticated
-        if (!token) {
-          categoriesData.forEach(category => {
-            if (!progressData[category]) {
-              // Add user ID to localStorage keys to ensure per-user progress
-              const userId = localStorage.getItem("userId") || "anonymous";
-              const completedKey = `vocabVenture_${userId}_${category}_completed`;
-              const highestKey = `vocabVenture_${userId}_${category}_highest`;
-
-              const completedLevels = localStorage.getItem(completedKey);
-              const highestLevel = localStorage.getItem(highestKey) || "1";
-
-              progressData[category] = {
-                completedLevels: completedLevels ? JSON.parse(completedLevels) : [],
-                Level: parseInt(highestLevel, 10),
-              };
-            }
-          });
         } else {
-          // For authenticated users without progress, initialize empty progress
+          // For non-authenticated users, use localStorage fallback
+          const localProgress = {};
           categoriesData.forEach(category => {
-            if (!progressData[category]) {
-              progressData[category] = {
-                completedLevels: [],
-                Level: 1,
-              };
-            }
+            const userId = localStorage.getItem("userId") || "anonymous";
+            const completedKey = `vocabVenture_${userId}_${category}_completed`;
+            const completedLevels = localStorage.getItem(completedKey);
+            const completedCount = completedLevels ? Object.keys(JSON.parse(completedLevels)).length : 0;
+            
+            localProgress[category] = {
+              completedLevels: completedCount,
+              totalLevels: 5, // Default fallback
+              currentLevel: 1,
+              progressPercentage: 0
+            };
           });
+          setCategoryProgress(localProgress);
         }
-
-        setUserProgress(progressData);
         // Set animation ready after a short delay for staggered entrance
         setTimeout(() => setAnimationReady(true), 100);
       } catch (err) {
@@ -195,14 +172,30 @@ function CategoryList() {
 
     fetchData();
   }, []);
+
+  // Refresh progress when user returns to this page
+  useEffect(() => {
+    const handleFocus = () => {
+      refreshCategoryProgress();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    
+    // Also refresh when component becomes visible (for navigation)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        refreshCategoryProgress();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
   
-  // Determine grid columns based on screen size
-  const getGridColumns = () => {
-    if (isXs) return 12; // 1 column on mobile
-    if (isSm) return 6;  // 2 columns on tablet
-    if (isMd) return 4;  // 3 columns on medium screens
-    return 3;            // 4 columns on large screens
-  };
 
   if (loading)
     return (
@@ -299,173 +292,184 @@ function CategoryList() {
             </Typography>
           </Box>
     
-          {/* Category Grid */}
-          <Grid container spacing={4} justifyContent="center" sx={{ mt: 2 }}>
+          {/* Category Grid - CSS Grid for Perfect Uniformity */}
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)'
+            },
+            gap: 4,
+            mt: 2,
+            justifyItems: 'center'
+          }}>
             {categories.map((cat, idx) => {
-              const theme =
-                categoryThemes[cat] || categoryThemes.default;
+              const cardTheme = categoryThemes[cat] || categoryThemes.default;
               return (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={cat}>
-                  <Zoom in={animationReady} style={{ transitionDelay: `${idx * 100}ms` }}>
-                    <Card
-                      sx={{
-                        background: theme.gradient,
-                        color: theme.color,
-                        borderRadius: 6,
-                        boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-                        position: "relative",
-                        overflow: "visible",
-                        minHeight: 370,
+                <Zoom in={animationReady} style={{ transitionDelay: `${idx * 100}ms` }} key={cat}>
+                  <Card
+                    sx={{
+                      background: cardTheme.gradient,
+                      color: cardTheme.color,
+                      borderRadius: 6,
+                      boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+                      position: "relative",
+                      overflow: "visible",
+                      width: { xs: 280, sm: 260, md: 240, lg: 220 },
+                      height: 370,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      '&:hover': {
+                        transform: 'translateY(-8px) scale(1.02)',
+                        boxShadow: '0 12px 40px rgba(0,0,0,0.2)'
+                      }
+                    }}
+                    elevation={5}
+                    onClick={() => navigate(`/student/classes/${id}/4pic1word/${cat}`)}
+                  >
+                    <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                      {/* Icon with Badge */}
+                      <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'relative',
+                        mb: 2,
+                        mt: 1
+                      }}>
+                        <Box sx={{
+                          width: 100,
+                          height: 100,
+                          borderRadius: '50%',
+                          background: 'rgba(255,255,255,0.25)',
+                          position: 'absolute',
+                          animation: 'pulse 2s infinite',
+                          '@keyframes pulse': {
+                            '0%': { transform: 'scale(0.95)', boxShadow: '0 0 0 0 rgba(255,255,255,0.5)' },
+                            '70%': { transform: 'scale(1)', boxShadow: '0 0 0 10px rgba(255,255,255,0)' },
+                            '100%': { transform: 'scale(0.95)', boxShadow: '0 0 0 0 rgba(255,255,255,0)' }
+                          }
+                        }} />
+                        <Avatar sx={{
+                          width: 80,
+                          height: 80,
+                          backgroundColor: 'rgba(255,255,255,0.9)',
+                          color: cardTheme.secondaryColor,
+                          boxShadow: '0 8px 16px rgba(0,0,0,0.2)'
+                        }}>
+                          {cardTheme.icon}
+                        </Avatar>
+                        <Badge
+                          badgeContent={categoryProgress[cat]?.completedLevels || 0}
+                          color="error"
+                          max={99}
+                          overlap="circular"
+                          sx={{
+                            position: 'absolute',
+                            bottom: -5,
+                            right: -5,
+                            '& .MuiBadge-badge': {
+                              fontSize: '0.9rem',
+                              height: 28,
+                              minWidth: 28,
+                              borderRadius: '50%',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                            }
+                          }}
+                        />
+                      </Box>
+                      
+                      {/* Category Name */}
+                      <Typography
+                        variant="h5"
+                        fontWeight={700}
+                        textAlign="center"
+                        sx={{
+                          fontSize: '1.4rem',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                          letterSpacing: '0.5px',
+                          mb: 2,
+                          lineHeight: 1.2,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </Typography>
+                      
+                      {/* Stats Section */}
+                      <Box sx={{
+                        flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'space-between',
+                        justifyContent: 'center',
+                        mb: 3,
                         p: 2,
-                      }}
-                      elevation={5}
-                    >
-                      <CardContent>
-                        {/* Icon */}
-                        <Box
-                          sx={{
-                            mb: 2,
-                            mt: 1,
-                            position: 'relative',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Box
+                        borderRadius: 3,
+                        backgroundColor: 'rgba(255,255,255,0.15)',
+                        backdropFilter: 'blur(5px)'
+                      }}>
+                        <Box sx={{ textAlign: 'center' }}>
+                          <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
+                            {categoryProgress[cat]?.completedLevels || 0}/{categoryProgress[cat]?.totalLevels || 0}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
+                            LEVELS COMPLETED
+                          </Typography>
+                          <LinearProgress
+                            variant="determinate"
+                            value={categoryProgress[cat]?.progressPercentage || 0}
                             sx={{
-                              width: 100,
-                              height: 100,
-                              borderRadius: '50%',
-                              background: 'rgba(255,255,255,0.25)',
-                              position: 'absolute',
-                              animation: 'pulse 2s infinite',
-                              '@keyframes pulse': {
-                                '0%': {
-                                  transform: 'scale(0.95)',
-                                  boxShadow: '0 0 0 0 rgba(255,255,255,0.5)',
-                                },
-                                '70%': {
-                                  transform: 'scale(1)',
-                                  boxShadow: '0 0 0 10px rgba(255,255,255,0)',
-                                },
-                                '100%': {
-                                  transform: 'scale(0.95)',
-                                  boxShadow: '0 0 0 0 rgba(255,255,255,0)',
-                                },
-                              },
-                            }}
-                          />
-                          <Avatar
-                            sx={{
-                              width: 80,
-                              height: 80,
-                              backgroundColor: 'rgba(255,255,255,0.9)',
-                              color: theme.secondaryColor,
-                              boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                            }}
-                          >
-                            {theme.icon}
-                          </Avatar>
-                          <Badge
-                            badgeContent={userProgress[cat]?.completedLevels || 0}
-                            color="error"
-                            max={99}
-                            overlap="circular"
-                            sx={{
-                              position: 'absolute',
-                              bottom: -5,
-                              right: -5,
-                              '& .MuiBadge-badge': {
-                                fontSize: '0.9rem',
-                                height: 28,
-                                minWidth: 28,
-                                borderRadius: '50%',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                              mt: 1,
+                              height: 6,
+                              borderRadius: 3,
+                              backgroundColor: 'rgba(255,255,255,0.2)',
+                              '& .MuiLinearProgress-bar': {
+                                backgroundColor: 'rgba(255,255,255,0.8)',
+                                borderRadius: 3
                               }
                             }}
                           />
                         </Box>
-                        {/* Category Name */}
-                        <Typography
-                          variant="h5"
-                          fontWeight={700}
-                          gutterBottom
-                          fontSize={{ xs: '1.3rem', sm: '1.5rem' }}
-                          textAlign="center"
-                          sx={{
-                            textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            letterSpacing: '0.5px',
-                            mb: 2,
-                          }}
-                        >
-                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </Typography>
-                        {/* Stats Section */}
-                        <Box
-                          sx={{
-                            width: '100%',
-                            mb: 3,
-                            p: 2,
-                            borderRadius: 3,
-                            backgroundColor: 'rgba(255,255,255,0.15)',
-                            backdropFilter: 'blur(5px)',
-                          }}
-                        >
-                          {/* Stats Grid */}
-                          <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            mt: 1.5,
-                          }}>
-                            <Box sx={{ textAlign: 'center' }}>
-                              <Typography variant="h6" fontWeight={800} sx={{ color: 'inherit' }}>
-                                {userProgress[cat]?.completedLevels || 0}
-                              </Typography>
-                              <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.8, fontSize: '0.7rem' }}>
-                                COMPLETED
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </Box>
-                        {/* Play Button */}
-                        <Button
-                          variant="contained"
-                          endIcon={<ArrowForwardIosIcon />}
-                          size="large"
-                          fullWidth
-                          sx={{
-                            fontWeight: 700,
-                            borderRadius: 8,
-                            px: { xs: 2, sm: 3, md: 4 },
-                            py: { xs: 1.5, sm: 1.8 },
-                            fontSize: { xs: '1rem', sm: '1.1rem' },
-                            backgroundColor: 'rgba(255,255,255,0.9)',
-                            color: theme.secondaryColor,
-                            boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '1px',
-                            '&:hover': {
-                              backgroundColor: 'rgba(255,255,255,1)',
-                              boxShadow: '0 12px 20px rgba(0,0,0,0.2)',
-                              transform: 'translateY(-3px)'
-                            },
-                            transition: 'all 0.3s ease'
-                          }}
-                          onClick={() => navigate(`/student/classes/${id}/4pic1word/${cat}`)}
-                        >
-                          Play Now
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Zoom>
-                </Grid>
+                      </Box>
+                      
+                      {/* Play Button */}
+                      <Button
+                        variant="contained"
+                        endIcon={<ArrowForwardIosIcon />}
+                        size="large"
+                        fullWidth
+                        sx={{
+                          fontWeight: 700,
+                          borderRadius: 8,
+                          py: 1.5,
+                          fontSize: '1rem',
+                          backgroundColor: 'rgba(255,255,255,0.9)',
+                          color: cardTheme.secondaryColor,
+                          boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255,255,255,1)',
+                            boxShadow: '0 12px 20px rgba(0,0,0,0.2)',
+                            transform: 'translateY(-3px)'
+                          },
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        Play Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Zoom>
               );
             })}
-          </Grid>
+          </Box>
         </Box>
       </Box>
     );    

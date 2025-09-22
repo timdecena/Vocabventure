@@ -14,6 +14,8 @@ public class SpellingChallengeGameService {
     private final SpellingChallengeRepository challengeRepo;
     private final SpellingChallengeScoreRepository scoreRepo;
     private final UserRepository userRepo;
+    private final UserProgressService userProgressService;
+    private final SpellingLevelRepository levelRepo;
 
     public List<SpellingChallenge> getAllForClassroom(Long classroomId) {
         Classroom classroom = new Classroom();
@@ -70,5 +72,15 @@ public SpellingChallengeScore submitAnswer(User student, Long challengeId, Strin
             .filter(SpellingChallengeScore::isCorrect)
             .map(score -> score.getChallenge().getId())
             .toList();
+    }
+
+    public void recordLevelAttempt(User student, Long levelId) {
+        // Verify the level exists
+        levelRepo.findById(levelId)
+            .orElseThrow(() -> new RuntimeException("Spelling level not found"));
+        
+        // Record the attempt in user progress with "spelling" category
+        // This will create progress if it doesn't exist and update last active time
+        userProgressService.getOrCreateProgress(student, "spelling");
     }
 }

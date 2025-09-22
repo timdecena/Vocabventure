@@ -61,8 +61,9 @@ import './App.css';
 import { UserProvider } from './UserContext';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
-  const [role, setRole] = useState(authService.getRole());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [role, setRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const updateAuthStatus = () => {
     setIsAuthenticated(authService.isAuthenticated());
@@ -70,6 +71,40 @@ function App() {
   };
 
   useEffect(() => {
+    // Initial authentication check with token validation
+    const initializeAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setIsAuthenticated(false);
+          setRole(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Validate the token before considering user authenticated
+        const validationResult = await authService.validateToken();
+        if (validationResult.valid) {
+          setIsAuthenticated(true);
+          setRole(authService.getRole());
+        } else {
+          // Token is invalid, clear it
+          authService.clearAuth();
+          setIsAuthenticated(false);
+          setRole(null);
+        }
+      } catch (error) {
+        console.error('Error during authentication initialization:', error);
+        authService.clearAuth();
+        setIsAuthenticated(false);
+        setRole(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+
     window.addEventListener('storage', updateAuthStatus);
     return () => window.removeEventListener('storage', updateAuthStatus);
   }, []);
@@ -85,6 +120,21 @@ function App() {
 
   // For passing to children
   const needsNavPadding = role === 'STUDENT' || role === 'TEACHER';
+
+  // Show loading screen while validating authentication
+  if (isLoading) {
+    return (
+      <div className="App" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Validating authentication...
+      </div>
+    );
+  }
 
   return (
     <div className="App">

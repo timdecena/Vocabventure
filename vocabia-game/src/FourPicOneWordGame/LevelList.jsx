@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
 import {
   Box,
   Typography,
   Grid,
-  Paper,
   Card,
   CardContent,
   Button,
@@ -13,17 +12,72 @@ import {
   Container,
   Alert,
   CircularProgress,
-  Tooltip,
+  Zoom,
+  Fade,
+  Avatar,
+  LinearProgress,
+  IconButton
 } from "@mui/material";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import VideogameAssetIcon from "@mui/icons-material/VideogameAsset";
+import { keyframes } from '@mui/system';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import StarRateIcon from "@mui/icons-material/StarRate";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
-const LEVEL_BG = [
-  "#D0F8EF", "#F0E7FF", "#F9F3D2", "#FFDDE4", "#D6E4FF", "#FFEEBC"
+// Enhanced level themes with gradients and animations
+const LEVEL_THEMES = [
+  {
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    glowColor: '#667eea',
+    icon: '🎯',
+    difficulty: 'Beginner'
+  },
+  {
+    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    glowColor: '#f093fb', 
+    icon: '🚀',
+    difficulty: 'Easy'
+  },
+  {
+    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    glowColor: '#4facfe',
+    icon: '⚡',
+    difficulty: 'Medium'
+  },
+  {
+    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    glowColor: '#43e97b',
+    icon: '🔥',
+    difficulty: 'Hard'
+  },
+  {
+    gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    glowColor: '#fa709a',
+    icon: '💎',
+    difficulty: 'Expert'
+  },
+  {
+    gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    glowColor: '#a8edea',
+    icon: '👑',
+    difficulty: 'Master'
+  }
 ];
+
+// Keyframe animations
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+`;
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
+const glow = keyframes`
+  0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.8), 0 0 40px rgba(102, 126, 234, 0.6); }
+`;
 
 // Capitalize
 function capitalize(str) {
@@ -36,11 +90,12 @@ export default function LevelList() {
   const [unlocked, setUnlocked] = useState(() => ({ 1: true })); // level 1 always unlocked
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [userProgress, setUserProgress] = useState(null);
+  // Removed unused userProgress state
+  const [completedLevels, setCompletedLevels] = useState([]); // unique completed levels for progress display
   const navigate = useNavigate();
 
   // Load completed levels from localStorage or initialize empty object
-  const loadCompletedLevels = () => {
+  const loadCompletedLevels = useCallback(() => {
     try {
       // Get user ID from localStorage or use anonymous if not available
       const userId = localStorage.getItem("userId") || "anonymous";
@@ -50,18 +105,9 @@ export default function LevelList() {
       console.error("Error loading completed levels:", e);
       return {};
     }
-  };
+  }, [category]);
 
-  // Save completed level to localStorage
-  const saveCompletedLevel = (level) => {
-    try {
-      const completed = loadCompletedLevels();
-      completed[level] = true;
-      localStorage.setItem(`vocabVenture_${category}_completed`, JSON.stringify(completed));
-    } catch (e) {
-      console.error("Error saving completed level:", e);
-    }
-  };
+  // Removed local saveCompletedLevel (handled by GamePlay and backend)
 
   useEffect(() => {
     let isMounted = true;
@@ -86,7 +132,7 @@ export default function LevelList() {
         // First try to get authenticated user progress from server
         let serverHighestLevel = 0;
         let localHighestLevel = 0;
-        let serverCompletedLevels = {};
+        let serverCompletedLevelsList = [];
         let localCompletedLevels = {};
         let isAuthenticated = false;
         
@@ -101,25 +147,13 @@ export default function LevelList() {
           const token = localStorage.getItem("token");
           if (token) {
             isAuthenticated = true;
-            // Get user progress from server
-            // Remove duplicate '/api' prefix since it's already in the baseURL
-            const progressRes = await api.get(`/api/user-progress/category/${category}`);
-            
-            if (progressRes.data && Array.isArray(progressRes.data)) {
-              // Process server data to get completed levels
-              progressRes.data.forEach(progress => {
-                const levelNum = Number(progress.level);
-                if (levelNum > 0) {
-                  serverCompletedLevels[levelNum] = true;
-                  if (levelNum > serverHighestLevel) {
-                    serverHighestLevel = levelNum;
-                  }
-                }
-              });
-              
-              console.log("Server completed levels:", serverCompletedLevels);
-              console.log("Server highest level:", serverHighestLevel);
-            }
+            // Use dedicated endpoint that returns unique completed levels and next unlocked
+            const completedRes = await api.get(`/api/user-progress/completed-levels`, { params: { category } });
+            const completedArr = (completedRes.data && Array.isArray(completedRes.data.completedLevels)) ? completedRes.data.completedLevels : [];
+            serverCompletedLevelsList = completedArr.map(Number);
+            serverHighestLevel = Math.max(...serverCompletedLevelsList, 0);
+            console.log("Server completed levels:", serverCompletedLevelsList);
+            console.log("Server highest level:", serverHighestLevel);
           }
         } catch (progressError) {
           console.warn("Error fetching user progress from server:", progressError);
@@ -127,7 +161,7 @@ export default function LevelList() {
         }
         
         // Determine which data source to use (server takes priority if available)
-        const useServerData = isAuthenticated && Object.keys(serverCompletedLevels).length > 0;
+        const useServerData = isAuthenticated && serverCompletedLevelsList.length > 0;
         
         // Calculate the effective highest level from either server or local data
         const effectiveHighestLevel = useServerData ? 
@@ -147,16 +181,21 @@ export default function LevelList() {
             }
           });
         } else {
-          // For accounts with progress, unlock completed levels and the next one
-          const completedLevels = useServerData ? serverCompletedLevels : localCompletedLevels;
-          
-          // Mark all completed levels as unlocked
-          Object.keys(completedLevels).forEach(lvl => {
-            unlockMap[Number(lvl)] = true;
+          // For accounts with progress, unlock all levels up to highestCompleted + 1 (progression model)
+          const completedArray = useServerData 
+            ? serverCompletedLevelsList 
+            : Object.keys(localCompletedLevels).map(Number);
+
+          // Persist completed levels for rendering and progress bar
+          if (isMounted) setCompletedLevels(completedArray);
+
+          // Determine threshold to unlock: highest completed + 1
+          const threshold = Math.min(effectiveHighestLevel + 1, Math.max(...sortedLevels, 1));
+          sortedLevels.forEach(lvlVal => {
+            if (lvlVal <= threshold) {
+              unlockMap[lvlVal] = true;
+            }
           });
-          
-          // Unlock the next level after the highest completed
-          unlockMap[effectiveHighestLevel + 1] = true;
         }
         
         // Always ensure level 1 is unlocked
@@ -179,44 +218,14 @@ export default function LevelList() {
     return () => {
       isMounted = false;
     };
-  }, [category, id]);
+  }, [category, id, loadCompletedLevels]);
 
   const handlePlay = lvl => {
     if (!unlocked[lvl]) return; // guard against playing locked levels
     navigate(`/student/classes/${id}/4pic1word/${category}/level/${lvl}`);
   };
   
-  // This function would be called when a level is completed
-  // It should be passed to the GamePlay component
-  const handleLevelComplete = (level) => {
-    // Mark the current level as completed
-    saveCompletedLevel(level);
-    
-    // Get the numeric level
-    const currentLevel = Number(level);
-    
-    // Update local state for unlocking levels properly
-    setUnlocked(prev => {
-      // Create a copy of the current unlock state
-      const newUnlocked = { ...prev };
-      
-      // Always mark the current level as unlocked
-      newUnlocked[currentLevel] = true;
-      
-      // Only unlock the next level if the current level is the highest completed level
-      // This prevents skipping levels when replaying earlier levels
-      const completedLevels = loadCompletedLevels();
-      const completedLevelNumbers = Object.keys(completedLevels).map(Number);
-      const highestCompletedLevel = Math.max(...completedLevelNumbers, 0);
-      
-      // If this is the highest level completed so far, unlock the next level
-      if (currentLevel >= highestCompletedLevel) {
-        newUnlocked[currentLevel + 1] = true;
-      }
-      
-      return newUnlocked;
-    });
-  };
+  // Removed unused handleLevelComplete function
 
   if (loading) return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
@@ -230,93 +239,338 @@ export default function LevelList() {
   );
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 3, mt: 4, borderRadius: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h4" fontWeight={700}>
-            {capitalize(category)} Levels
-          </Typography>
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            sx={{ fontWeight: 600, borderRadius: 2 }}
-            onClick={() => navigate(`/student/classes/${id}/4pic1word`)}
-          >
-            Categories
-          </Button>
-        </Box>
-        {levels.length === 0 ? (
-          <Alert severity="info">No levels available for this category.</Alert>
-        ) : (
-          <Grid container spacing={3}>
-            {levels.map((level, i) => (
-              <Grid item xs={12} sm={6} md={2.4} key={level}>
-                <Card
-                  elevation={4}
-                  sx={{
-                    background: `linear-gradient(135deg, ${LEVEL_BG[i % LEVEL_BG.length]}, #fff)`,
+    <Box
+      sx={{
+        background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+        minHeight: '100vh',
+        pt: { xs: 2, sm: 3, md: 4 },
+        pb: { xs: 4, sm: 6, md: 8 },
+        overflow: 'hidden',
+        position: 'relative'
+      }}
+    >
+      {/* Animated background elements */}
+      <Box sx={{
+        position: 'absolute',
+        top: '10%',
+        right: '5%',
+        width: 200,
+        height: 200,
+        borderRadius: '50%',
+        background: 'rgba(255,255,255,0.05)',
+        animation: `${float} 6s ease-in-out infinite`
+      }} />
+      <Box sx={{
+        position: 'absolute',
+        bottom: '15%',
+        left: '8%',
+        width: 150,
+        height: 150,
+        borderRadius: '50%',
+        background: 'rgba(255,255,255,0.03)',
+        animation: `${float} 8s ease-in-out infinite reverse`
+      }} />
+      
+      <Container maxWidth="lg">
+        {/* Header Section */}
+        <Fade in timeout={800}>
+          <Box sx={{
+            textAlign: 'center',
+            mb: 6,
+            position: 'relative',
+            zIndex: 2
+          }}>
+            <IconButton
+              onClick={() => navigate(`/student/classes/${id}/4pic1word`)}
+              sx={{
+                position: 'absolute',
+                left: 0,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'white',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  transform: 'translateY(-50%) scale(1.1)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            
+            <Typography
+              variant="h3"
+              component="h1"
+              fontWeight={800}
+              color="white"
+              sx={{
+                textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                mb: 2,
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                background: 'linear-gradient(45deg, #ffffff, #e3f2fd, #ffffff)',
+                backgroundSize: '200% auto',
+                color: 'transparent',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                animation: 'shine 3s linear infinite',
+                '@keyframes shine': {
+                  'to': {
+                    backgroundPosition: '200% center'
+                  }
+                }
+              }}
+            >
+              {capitalize(category)} Levels
+            </Typography>
+            
+            <Typography
+              variant="h6"
+              color="rgba(255,255,255,0.8)"
+              sx={{
+                fontWeight: 400,
+                letterSpacing: '1px'
+              }}
+            >
+              Choose your challenge
+            </Typography>
+            
+            {/* Progress indicator */}
+            <Box sx={{ mt: 3, maxWidth: 400, mx: 'auto' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                  Progress
+                </Typography>
+                <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                  {completedLevels.length}/{levels.length}
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={(completedLevels.length / Math.max(levels.length, 1)) * 100}
+                sx={{
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  '& .MuiLinearProgress-bar': {
                     borderRadius: 4,
-                    transition: "transform 0.21s",
-                    boxShadow: "0 2px 14px rgba(0,0,0,0.10)",
-                    '&:hover': unlocked[level] ? { transform: "scale(1.04)", boxShadow: "0 6px 30px rgba(0,80,160,0.13)" } : {},
-                  }}
-                >
-                  <CardContent sx={{
-                    textAlign: "center",
-                    py: 5,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center"
-                  }}>
-                    {unlocked[level] ? (
-                      <>
-                        <LockOpenIcon sx={{ fontSize: 38, mb: 1, color: "#388e3c" }} />
-                        <Typography variant="h6" fontWeight={600} color="#3b4361" gutterBottom>
-                          Level {level}
-                        </Typography>
-                        <Chip
-                          label={<><StarRateIcon sx={{ fontSize: 18, mr: 0.5 }} />Unlocked</>}
-                          sx={{ mb: 2, fontWeight: 500, bgcolor: "#388e3c", color: "#fff" }}
-                        />
-                        <Tooltip title="Play this level!">
-                          <Button
-                            variant="contained"
-                            style={{
-                              background: "#9900cc",
-                              color: "#fff",
-                              borderRadius: 20,
-                              fontWeight: 700,
-                              marginTop: 12,
-                              boxShadow: "0 3px 10px 0 #cacaca"
+                    background: 'linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)'
+                  }
+                }}
+              />
+            </Box>
+          </Box>
+        </Fade>
+        
+        {levels.length === 0 ? (
+          <Alert severity="info" sx={{ maxWidth: 600, mx: 'auto' }}>
+            No levels available for this category.
+          </Alert>
+        ) : (
+          <Grid container spacing={4} justifyContent="center">
+            {levels.map((level, i) => {
+              const theme = LEVEL_THEMES[i % LEVEL_THEMES.length];
+              const isUnlocked = Boolean(unlocked[Number(level)]);
+              
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={level}>
+                  <Zoom in timeout={600 + (i * 100)}>
+                    <Card
+                      sx={{
+                        background: theme.gradient,
+                        borderRadius: 6,
+                        position: 'relative',
+                        overflow: 'visible',
+                        minHeight: 280,
+                        width: '100%',
+                        maxWidth: 280,
+                        cursor: isUnlocked ? 'pointer' : 'default',
+                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        filter: isUnlocked ? 'none' : 'grayscale(0.8) brightness(0.6)',
+                        opacity: isUnlocked ? 1 : 0.5,
+                        boxShadow: isUnlocked 
+                          ? `0 10px 30px rgba(0,0,0,0.3), 0 0 0 1px ${theme.glowColor}40`
+                          : '0 5px 15px rgba(0,0,0,0.1)',
+                        '&:hover': isUnlocked ? {
+                          transform: 'translateY(-15px) scale(1.02)',
+                          boxShadow: `0 20px 40px rgba(0,0,0,0.4), 0 0 30px ${theme.glowColor}60`,
+                          animation: `${glow} 2s ease-in-out infinite`
+                        } : {
+                          filter: 'grayscale(0.7) brightness(0.7)',
+                          opacity: 0.6
+                        },
+                        '&::before': isUnlocked ? {
+                          content: '""',
+                          position: 'absolute',
+                          top: -2,
+                          left: -2,
+                          right: -2,
+                          bottom: -2,
+                          background: theme.gradient,
+                          borderRadius: 8,
+                          zIndex: -1,
+                          opacity: 0.7,
+                          filter: 'blur(8px)'
+                        } : {},
+                        '&::after': !isUnlocked ? {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%)',
+                          borderRadius: 6,
+                          zIndex: 1,
+                          pointerEvents: 'none'
+                        } : {}
+                      }}
+                      onClick={() => isUnlocked && handlePlay(level)}
+                    >
+                      <CardContent sx={{
+                        textAlign: 'center',
+                        py: 4,
+                        px: 3,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        height: '100%',
+                        position: 'relative'
+                      }}>
+                        {/* Level Icon/Avatar */}
+                        <Box sx={{ position: 'relative', mb: 2 }}>
+                          <Avatar
+                            sx={{
+                              width: 80,
+                              height: 80,
+                              fontSize: '2rem',
+                              backgroundColor: 'rgba(255,255,255,0.2)',
+                              backdropFilter: 'blur(10px)',
+                              border: '2px solid rgba(255,255,255,0.3)',
+                              animation: isUnlocked ? `${pulse} 2s ease-in-out infinite` : 'none',
+                              zIndex: 2,
+                              position: 'relative'
                             }}
-                            startIcon={<VideogameAssetIcon />}
-                            onClick={() => handlePlay(level)}
                           >
-                            PLAY
-                          </Button>
-                        </Tooltip>
-                      </>
-                    ) : (
-                      <>
-                        <LockIcon color="disabled" sx={{ fontSize: 38, mb: 1 }} />
-                        <Typography variant="h6" color="text.secondary" fontWeight={600} gutterBottom>
-                          Level {level}
-                        </Typography>
-                        <Chip
-                          label="Locked"
-                          color="default"
-                          sx={{ fontWeight: 500, mt: 2, cursor: 'pointer' }}
-                          onClick={() => alert('This level is locked! Complete previous levels to unlock.')}
-                        />
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+                            {isUnlocked ? theme.icon : '🔒'}
+                          </Avatar>
+                          
+                          {/* Level number badge */}
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: -10,
+                              right: -10,
+                              width: 32,
+                              height: 32,
+                              borderRadius: '50%',
+                              background: 'linear-gradient(45deg, #ff6b6b, #feca57)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                              border: '2px solid rgba(255,255,255,0.9)',
+                              zIndex: 2
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              fontWeight={800}
+                              color="white"
+                              fontSize="0.8rem"
+                            >
+                              {level}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        {/* Level Info */}
+                        <Box sx={{ mb: 3 }}>
+                          <Typography
+                            variant="h5"
+                            fontWeight={700}
+                            color="white"
+                            gutterBottom
+                            sx={{
+                              textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                              fontSize: { xs: '1.3rem', sm: '1.5rem' }
+                            }}
+                          >
+                            Level {level}
+                          </Typography>
+                          
+                          <Chip
+                            label={isUnlocked ? theme.difficulty : 'Locked'}
+                            size="small"
+                            icon={!isUnlocked ? <Box sx={{ 
+                              fontSize: '1rem',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}>🔒</Box> : undefined}
+                            sx={{
+                              backgroundColor: 'rgba(255,255,255,0.2)',
+                              color: 'white',
+                              fontWeight: 600,
+                              fontSize: '0.75rem',
+                              mt: 1,
+                              zIndex: 2,
+                              position: 'relative',
+                              '& .MuiChip-icon': {
+                                color: 'white',
+                                fontSize: '0.9rem'
+                              }
+                            }}
+                          />
+                        </Box>
+                        
+                        {/* Action Button */}
+                        <Button
+                          variant="contained"
+                          startIcon={isUnlocked ? <PlayArrowIcon /> : <Box sx={{ fontSize: '1.2rem' }}>🔒</Box>}
+                          fullWidth
+                          disabled={!isUnlocked}
+                          sx={{
+                            mt: 2,
+                            py: 1.5,
+                            fontWeight: 700,
+                            fontSize: '1rem',
+                            borderRadius: 3,
+                            background: isUnlocked 
+                              ? 'linear-gradient(45deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7))'
+                              : 'linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))',
+                            color: isUnlocked ? theme.primaryColor : 'rgba(255,255,255,0.6)',
+                            boxShadow: isUnlocked ? '0 6px 20px rgba(0,0,0,0.2)' : 'none',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                            zIndex: 2,
+                            position: 'relative',
+                            '&:hover': isUnlocked ? {
+                              background: 'linear-gradient(45deg, rgba(255,255,255,1), rgba(255,255,255,0.9))',
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
+                            } : {},
+                            '&:disabled': {
+                              background: 'linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+                              color: 'rgba(255,255,255,0.4)'
+                            },
+                            transition: 'all 0.3s ease'
+                          }}
+                          onClick={() => isUnlocked && handlePlay(level)}
+                        >
+                          {isUnlocked ? 'Play Level' : 'Locked'}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Zoom>
+                </Grid>
+              );
+            })}
           </Grid>
         )}
-      </Paper>
-    </Container>
+      </Container>
+    </Box>
   );
 }
