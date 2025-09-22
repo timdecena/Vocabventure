@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardActions,
-  Grid,
   IconButton,
   Tooltip,
   Divider,
@@ -216,20 +215,24 @@ export default function TeacherClassListPage() {
             }
           />
         ) : (
-          <Grid container spacing={3} sx={{ maxWidth: 800, mx: 'auto' }}>
-            {filteredClasses.slice(0, 4).map((cls, index) => {
+          <Box sx={{
+            maxWidth: 1200,
+            mx: 'auto',
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' },
+            gap: 3
+          }}>
+            {filteredClasses.slice(0, 9).map((cls, index) => {
               const isExpanded = !!expanded[cls.id];
               const description = cls.description || t('No description provided');
               const isNewest = index === 0 && highlightNew;
               return (
-                <Grid item xs={6} key={cls.id}>
+                <Box key={cls.id} sx={{ minWidth: 0 }}>
                   <Card sx={{ 
-                    width: 350,
+                    width: '100%',
                     height: 280,
-                    minWidth: 350,
-                    minHeight: 280,
-                    maxWidth: 350,
-                    maxHeight: 280,
+                    minWidth: 0,
+                    overflow: 'hidden',
                     display: "flex",
                     flexDirection: "column",
                     transition: "transform 0.18s, box-shadow 0.18s, background-color 0.5s ease",
@@ -244,29 +247,47 @@ export default function TeacherClassListPage() {
                     })
                   }}>
                     <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5, color: "text.primary" }}>
+                      <Typography variant="h6" sx={{ 
+                        fontWeight: 700, mb: 0.5, color: "text.primary",
+                        overflowWrap: 'anywhere',
+                        wordBreak: 'break-word',
+                        whiteSpace: 'pre-wrap'
+                      }}>
                         {cls.name}
                       </Typography>
                       <Typography
                         variant="body2"
                         sx={{ 
                           color: "text.secondary",
-                          mb: 1,
-                          ...(isExpanded ? {} : {
+                          mb: 0.5,
+                          lineHeight: 1.5,
+                          // reserve space for 2 lines whether clamped or expanded
+                          minHeight: 'calc(1.5em * 2)',
+                          overflowWrap: 'anywhere',
+                          wordBreak: 'break-word',
+                          whiteSpace: isExpanded ? 'pre-wrap' : 'normal',
+                          hyphens: 'auto',
+                          ...(isExpanded ? {
+                            overflow: 'visible'
+                          } : {
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
+                            textOverflow: 'ellipsis'
                           })
                         }}
                       >
                         {description}
                       </Typography>
-                      {description && description.length > 80 && (
-                        <Button size="small" variant="text" onClick={() => setExpanded(prev => ({ ...prev, [cls.id]: !prev[cls.id] }))}>
-                          {isExpanded ? t('Show Less') : t('Show More')}
-                        </Button>
-                      )}
+                      {/* Reserved area for the Show More/Less button to align cards uniformly */}
+                      <Box sx={{ height: 24 }}>
+                        {description && description.length > 80 && (
+                          <Button size="small" variant="text" color="primary" sx={{ p: 0, minWidth: 0, textTransform: 'none' }} onClick={() => setExpanded(prev => ({ ...prev, [cls.id]: !prev[cls.id] }))}>
+                            {isExpanded ? t('Show Less') : t('Show More')}
+                          </Button>
+                        )}
+                      </Box>
 
                       <Divider sx={{ my: 1.5 }} />
 
@@ -322,14 +343,14 @@ export default function TeacherClassListPage() {
                       </Tooltip>
                     </CardActions>
                   </Card>
-                </Grid>
+                </Box>
               );
             })}
-          </Grid>
+          </Box>
         )}
         
-        {/* Show More Button */}
-        {filteredClasses.length > 4 && (
+        {/* View All Button */}
+        {filteredClasses.length > 9 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
             <Button 
               variant="outlined" 

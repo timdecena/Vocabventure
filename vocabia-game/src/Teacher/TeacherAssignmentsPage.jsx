@@ -16,12 +16,10 @@ import {
   Chip,
   CircularProgress,
   Alert,
-  Snackbar,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Fab,
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddIcon from '@mui/icons-material/Add';
@@ -69,49 +67,30 @@ export default function TeacherAssignmentsPage() {
         setLoading(true);
         setError(null);
 
-        // Try multiple endpoints for real data with better error handling
-        const endpoints = [
-          '/api/teacher/assignments', 
-          '/api/assignments', 
-          '/teacher/assignments',
-          '/api/teacher/classes' // Fallback to generate from classes
-        ];
-        let data = null;
-
-        for (const endpoint of endpoints) {
+        // Try multiple endpoints (DB-only). If all fail, show EmptyState.
+        const assignmentEndpoints = ['/api/teacher/assignments', '/teacher/assignments', '/api/assignments'];
+        let loaded = false;
+        for (const endpoint of assignmentEndpoints) {
           try {
             const res = await api.get(endpoint);
-            if (res.data && mounted) {
-              if (endpoint.includes('/classes')) {
-                // Transform class data to assignments (we'll add this function)
-                data = generateMockAssignments(); // For now, use mock data
-              } else if (Array.isArray(res.data)) {
-                data = res.data;
-              }
-              break;
+            if (mounted) {
+              setAssignments(Array.isArray(res.data) ? res.data : []);
             }
-          } catch (endpointError) {
-            console.warn(`Assignments endpoint ${endpoint} failed:`, endpointError?.response?.status);
+            loaded = true;
+            break;
+          } catch (e) {
+            console.warn(`Assignments endpoint ${endpoint} failed:`, e?.response?.status);
             continue;
           }
         }
-
-        if (!data && mounted) {
-          // Generate mock data if no real data available
-          data = generateMockAssignments();
-        }
-
-        if (mounted) {
-          setAssignments(data);
-          // Also fetch classes for the form
-          await fetchClasses();
-        }
+        if (mounted) await fetchClasses();
+        if (!loaded && mounted) setAssignments([]);
       } catch (err) {
         if (mounted) {
           console.error('Failed to load assignments:', err);
           setError('Failed to load assignments');
-          setAssignments(generateMockAssignments());
-          setClasses(generateMockClasses());
+          setAssignments([]);
+          setClasses([]);
         }
       } finally {
         if (mounted) {
@@ -121,15 +100,20 @@ export default function TeacherAssignmentsPage() {
     };
 
     const fetchClasses = async () => {
-      try {
-        const res = await api.get('/api/teacher/classes');
-        if (res.data && Array.isArray(res.data)) {
-          setClasses(res.data);
+      const classEndpoints = ['/api/teacher/classes', '/teacher/classes'];
+      for (const endpoint of classEndpoints) {
+        try {
+          const res = await api.get(endpoint);
+          if (res.data && Array.isArray(res.data)) {
+            setClasses(res.data);
+            return;
+          }
+        } catch (error) {
+          console.warn(`Classes endpoint ${endpoint} failed:`, error?.response?.status);
+          continue;
         }
-      } catch (error) {
-        console.warn('Failed to fetch classes:', error);
-        setClasses(generateMockClasses());
       }
+      setClasses([]);
     };
 
     fetchAssignments();
@@ -145,24 +129,12 @@ export default function TeacherAssignmentsPage() {
 
   const handleCreate = async () => {
     try {
-      const newAssignment = {
-        ...formData,
-        id: Date.now(), // Temporary ID
-        status: 'draft',
-        createdAt: new Date().toISOString()
-      };
-
-      // Try to create via API
-      try {
-        const res = await api.post('/api/teacher/assignments', newAssignment);
-        if (res.data) {
-          setAssignments(prev => [res.data, ...prev]);
-        } else {
-          throw new Error('No data returned');
-        }
-      } catch (apiError) {
-        console.warn('API create failed, using local update:', apiError);
-        setAssignments(prev => [newAssignment, ...prev]);
+      const payload = { ...formData };
+      const res = await api.post('/api/teacher/assignments', payload);
+      if (res.data) {
+        setAssignments(prev => [res.data, ...prev]);
+      } else {
+        throw new Error('No data returned');
       }
 
       setCreateDialogOpen(false);
@@ -181,17 +153,11 @@ export default function TeacherAssignmentsPage() {
         updatedAt: new Date().toISOString()
       };
 
-      // Try to update via API
-      try {
-        const res = await api.put(`/api/teacher/assignments/${selectedAssignment.id}`, updatedAssignment);
-        if (res.data) {
-          setAssignments(prev => prev.map(a => a.id === selectedAssignment.id ? res.data : a));
-        } else {
-          throw new Error('No data returned');
-        }
-      } catch (apiError) {
-        console.warn('API update failed, using local update:', apiError);
-        setAssignments(prev => prev.map(a => a.id === selectedAssignment.id ? updatedAssignment : a));
+      const res = await api.put(`/api/teacher/assignments/${selectedAssignment.id}`, updatedAssignment);
+      if (res.data) {
+        setAssignments(prev => prev.map(a => a.id === selectedAssignment.id ? res.data : a));
+      } else {
+        throw new Error('No data returned');
       }
 
       setEditDialogOpen(false);
@@ -204,13 +170,7 @@ export default function TeacherAssignmentsPage() {
 
   const handleDelete = async () => {
     try {
-      // Try to delete via API
-      try {
-        await api.delete(`/api/teacher/assignments/${selectedAssignment.id}`);
-      } catch (apiError) {
-        console.warn('API delete failed, using local delete:', apiError);
-      }
-
+      await api.delete(`/api/teacher/assignments/${selectedAssignment.id}`);
       setAssignments(prev => prev.filter(a => a.id !== selectedAssignment.id));
       setDeleteDialogOpen(false);
       setSelectedAssignment(null);
@@ -536,51 +496,6 @@ export default function TeacherAssignmentsPage() {
       </Dialog>
     </Container>
   );
-}
-
-function generateMockAssignments() {
-  const now = new Date();
-  const assignmentCount = Math.floor(Math.random() * 8) + 3; // 3-10 assignments
-  const types = ['Spelling Challenge', 'Four Pics One Word', 'Vocabulary Quiz', 'Word Search', 'Reading Comprehension'];
-  const statuses = ['draft', 'ongoing', 'completed'];
-  const classNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
-  const topics = ['Animals', 'Food', 'Nature', 'Technology', 'Sports', 'Science', 'History', 'Geography'];
-  
-  return Array.from({ length: assignmentCount }, (_, i) => {
-    const type = types[Math.floor(Math.random() * types.length)];
-    const topic = topics[Math.floor(Math.random() * topics.length)];
-    const className = classNames[Math.floor(Math.random() * classNames.length)];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    
-    // Generate dynamic due dates
-    const daysOffset = status === 'completed' 
-      ? -(Math.floor(Math.random() * 14) + 1) // 1-14 days ago
-      : Math.floor(Math.random() * 21) + 1;   // 1-21 days from now
-    
-    return {
-      id: i + 1,
-      title: `${type}: ${topic} ${status === 'draft' ? 'Draft' : `Week ${Math.floor(Math.random() * 4) + 1}`}`,
-      type: type,
-      status: status,
-      dueDate: new Date(now.getTime() + daysOffset * 24 * 60 * 60 * 1000).toISOString(),
-      classId: Math.floor(Math.random() * classNames.length) + 1,
-      className: className,
-      description: `${type} focusing on ${topic.toLowerCase()} vocabulary and concepts`,
-      instructions: `Complete all ${topic.toLowerCase()} challenges with at least ${60 + Math.floor(Math.random() * 30)}% accuracy`,
-      maxAttempts: Math.floor(Math.random() * 4) + 2 // 2-5 attempts
-    };
-  });
-}
-
-function generateMockClasses() {
-  const classCount = Math.floor(Math.random() * 5) + 2; // 2-6 classes
-  const classNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'];
-  
-  return Array.from({ length: classCount }, (_, i) => ({
-    id: i + 1,
-    name: classNames[i],
-    studentCount: Math.floor(Math.random() * 25) + 15 // 15-40 students per class
-  }));
 }
 
 function formatDate(iso) {

@@ -45,28 +45,7 @@ import api from '../api/api';
 import PageHeader from './components/PageHeader';
 import EmptyState from './components/EmptyState';
 import { t } from './utils/i18n';
-
-// Helper function to transform class data to analytics format
-const transformClassDataToAnalytics = (classData) => {
-  const classCount = Array.isArray(classData) ? classData.length : 0;
-  
-  return {
-    kpis: {
-      totalStudents: classCount * 8, // Estimate students per class
-      activeClasses: classCount,
-      completionRate: 75,
-      avgScore: 82
-    },
-    classProgress: classData?.slice(0, 5).map((cls, i) => ({
-      name: cls.name || `Class ${i + 1}`,
-      progress: Math.floor(Math.random() * 40) + 60 // 60-100%
-    })) || [],
-    weeklyActivity: Array.from({ length: 7 }, (_, i) => ({
-      day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
-      activities: Math.floor(Math.random() * 20) + 5
-    }))
-  };
-};
+// Using ONLY backend analytics. Removed mock transformations and estimations.
 
 export default function TeacherAnalyticsPage() {
   const [loading, setLoading] = useState(true);
@@ -77,6 +56,7 @@ export default function TeacherAnalyticsPage() {
   const [classFilter, setClassFilter] = useState('all');
   const [gameFilter, setGameFilter] = useState('all');
   const [fpowData, setFpowData] = useState(null);
+  const [classes, setClasses] = useState([]);
 
   useEffect(() => {
     let mounted = true;
@@ -90,8 +70,7 @@ export default function TeacherAnalyticsPage() {
         const endpoints = [
           `/api/teacher/analytics?range=${range}`,
           `/api/analytics?range=${range}`,
-          `/teacher/analytics?range=${range}`,
-          `/api/teacher/classes`, // Fallback to get class data
+          `/teacher/analytics?range=${range}`
         ];
         
         let data = null;
@@ -99,12 +78,7 @@ export default function TeacherAnalyticsPage() {
           try {
             const res = await api.get(endpoint);
             if (res.data && mounted) {
-              // If it's class data, transform it to analytics format
-              if (endpoint.includes('/classes')) {
-                data = transformClassDataToAnalytics(res.data);
-              } else {
-                data = res.data;
-              }
+              data = res.data;
               break;
             }
           } catch (endpointError) {
@@ -113,21 +87,19 @@ export default function TeacherAnalyticsPage() {
           }
         }
         
-        if (!data && mounted) {
-          // Generate realistic mock data based on current date
-          data = buildMockAnalytics(range);
-        }
-        
         if (mounted) {
-          setStats(data);
-          // Fetch FPOW specific data
-          await fetchFPOWData();
+          if (data) {
+            setStats(data);
+          } else {
+            setStats(null);
+            setError(t('No analytics data available'));
+          }
         }
       } catch (err) {
         if (mounted) {
           console.error('Analytics fetch error:', err);
           setError('Failed to load analytics data');
-          setStats(buildMockAnalytics(range));
+          setStats(null);
         }
       } finally {
         if (mounted) {
@@ -146,91 +118,57 @@ export default function TeacherAnalyticsPage() {
       clearInterval(interval);
     };
   }, [range]);
+  // FPOW data fetcher (no mock). Auto-refresh with filters.
+  useEffect(() => {
+    let mounted = true;
+    const fetchFpow = async () => {
+      try {
+        const endpoints = [
+          `/api/teacher/fpow-progress?range=${range}&class=${classFilter}&game=${gameFilter}`,
+          `/api/user-progress/fpow-analytics?range=${range}`,
+          `/teacher/fpow-analytics?range=${range}`
+        ];
+        let data = null;
+        for (const endpoint of endpoints) {
+          try {
+            const res = await api.get(endpoint);
+            if (res.data) { data = res.data; break; }
+          } catch (e) {
+            console.warn(`FPOW endpoint ${endpoint} failed:`, e?.response?.status);
+            continue;
+          }
+        }
+        if (mounted) setFpowData(data);
+      } catch (e) {
+        if (mounted) setFpowData(null);
+      }
+    };
+    fetchFpow();
+    const interval = setInterval(fetchFpow, 30000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, [range, classFilter, gameFilter]);
 
-  const fetchFPOWData = async () => {
-    try {
-      const endpoints = [
-        `/api/teacher/fpow-progress?range=${range}&class=${classFilter}&game=${gameFilter}`,
-        `/api/user-progress/fpow-analytics?range=${range}`,
-        `/teacher/fpow-analytics?range=${range}`
-      ];
-      
+  // Load classes for FPOW Class filter
+  useEffect(() => {
+    let mounted = true;
+    const loadClasses = async () => {
+      const endpoints = ['/api/teacher/classes', '/teacher/classes'];
       for (const endpoint of endpoints) {
         try {
           const res = await api.get(endpoint);
-          if (res.data) {
-            setFpowData(res.data);
-            return;
+          if (Array.isArray(res.data)) {
+            if (mounted) setClasses(res.data);
+            break;
           }
-        } catch (error) {
-          console.warn(`FPOW endpoint ${endpoint} failed:`, error?.response?.status);
+        } catch (e) {
+          console.warn(`Classes endpoint ${endpoint} failed:`, e?.response?.status);
           continue;
         }
       }
-      
-      // Generate mock FPOW data if no real data available
-      setFpowData(generateMockFPOWData());
-    } catch (error) {
-      console.error('Failed to fetch FPOW data:', error);
-      setFpowData(generateMockFPOWData());
-    }
-  };
-
-  const generateMockFPOWData = () => {
-    // Generate dynamic student count and names
-    const studentCount = Math.floor(Math.random() * 12) + 6; // 6-18 students
-    const firstNames = ['Michael', 'Sophia', 'Liam', 'Emma', 'Noah', 'Olivia', 'James', 'Ava', 'Lucas', 'Isabella', 'Mason', 'Charlotte', 'Ethan', 'Amelia', 'Alexander', 'Harper', 'Sebastian', 'Evelyn'];
-    const lastNames = ['Johnson', 'Smith', 'Brown', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'];
-    const classNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
-    
-    return {
-      studentProgress: Array.from({ length: studentCount }, (_, i) => {
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-        return {
-          studentName: `${firstName} ${lastName.charAt(0)}.`,
-          studentId: i + 1,
-          className: classNames[Math.floor(Math.random() * classNames.length)],
-          levelsCompleted: Math.floor(Math.random() * 20) + 3,
-          accuracy: Math.floor(Math.random() * 35) + 65,
-          hintsUsed: Math.floor(Math.random() * 25),
-          timeSpent: Math.floor(Math.random() * 150) + 20, // minutes
-          lastActive: new Date(Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000).toISOString()
-        };
-      }),
-      categoryProgress: [
-        { 
-          category: 'Animals', 
-          completed: Math.floor(Math.random() * 30) + 70, 
-          total: 100, 
-          accuracy: Math.floor(Math.random() * 15) + 85 
-        },
-        { 
-          category: 'Food', 
-          completed: Math.floor(Math.random() * 25) + 55, 
-          total: 80, 
-          accuracy: Math.floor(Math.random() * 12) + 83 
-        },
-        { 
-          category: 'Objects', 
-          completed: Math.floor(Math.random() * 35) + 40, 
-          total: 90, 
-          accuracy: Math.floor(Math.random() * 18) + 78 
-        },
-        { 
-          category: 'Nature', 
-          completed: Math.floor(Math.random() * 20) + 25, 
-          total: 70, 
-          accuracy: Math.floor(Math.random() * 20) + 80 
-        }
-      ],
-      weeklyProgress: Array.from({ length: 7 }, (_, i) => ({
-        day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
-        levelsCompleted: Math.floor(Math.random() * 20) + 8,
-        studentsActive: Math.floor(Math.random() * Math.min(studentCount, 15)) + 2
-      }))
     };
-  };
+    loadClasses();
+    return () => { mounted = false; };
+  }, []);
 
   const hasData = !!stats && (stats?.classProgress?.length || stats?.weeklyActivity?.length);
 
@@ -276,9 +214,9 @@ export default function TeacherAnalyticsPage() {
                     <InputLabel>{t('Class')}</InputLabel>
                     <Select label={t('Class')} value={classFilter} onChange={(e) => setClassFilter(e.target.value)}>
                       <MenuItem value="all">{t('All Classes')}</MenuItem>
-                      <MenuItem value="alpha">{t('Alpha')}</MenuItem>
-                      <MenuItem value="beta">{t('Beta')}</MenuItem>
-                      <MenuItem value="gamma">{t('Gamma')}</MenuItem>
+                      {classes.map((c) => (
+                        <MenuItem key={c.id} value={String(c.id)}>{c.name}</MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                   <FormControl size="small">
@@ -413,7 +351,7 @@ export default function TeacherAnalyticsPage() {
                   </TableHead>
                   <TableBody>
                     {fpowData.studentProgress
-                      .filter(student => classFilter === 'all' || student.className.toLowerCase() === classFilter)
+                      .filter(student => classFilter === 'all' || String(student.classId) === String(classFilter) || (student.className && student.className.toLowerCase() === String(classFilter).toLowerCase()))
                       .map((student, index) => (
                       <TableRow key={student.studentId}>
                         <TableCell>
@@ -476,50 +414,16 @@ export default function TeacherAnalyticsPage() {
             </Grid>
           </>
         )}
+        {tab === 3 && !loading && !fpowData && (
+          <Grid item xs={12}>
+            <EmptyState
+              icon={<InsightsIcon sx={{ fontSize: 56 }} />}
+              title={t('No FPOW analytics yet')}
+              description={t('When students play FPOW, detailed analytics will appear here.')}
+            />
+          </Grid>
+        )}
       </Grid>
       </Container>
   );
-}
-
-function buildMockAnalytics(range) {
-  const dates = range === '7d' ? 7 : range === '30d' ? 8 : 12; // weeks
-  const today = new Date();
-  
-  // Generate dynamic data based on current time
-  const baseStudents = Math.floor(Math.random() * 50) + 20; // 20-70 students
-  const baseClasses = Math.floor(Math.random() * 5) + 2; // 2-7 classes
-  
-  const weeklyActivity = Array.from({ length: dates }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() - (dates - 1 - i) * 7);
-    return {
-      week: `${d.getMonth() + 1}/${d.getDate()}`,
-      completedLevels: Math.floor(Math.random() * 30) + 10,
-      hintsUsed: Math.floor(Math.random() * 15) + 3,
-    };
-  });
-
-  const classProgress = Array.from({ length: dates }, (_, i) => ({
-    date: `W${i + 1}`,
-    completion: Math.floor(Math.random() * 35) + 60,
-    accuracy: Math.floor(Math.random() * 40) + 55,
-  }));
-
-  return {
-    summary: {
-      activeClasses: baseClasses,
-      students: baseStudents,
-      avgAccuracy: Math.floor(Math.random() * 25) + 70,
-      goldEarned: Math.floor(Math.random() * 2000) + 500,
-    },
-    kpis: {
-      activeClasses: baseClasses,
-      totalStudents: baseStudents,
-      avgScore: Math.floor(Math.random() * 25) + 70,
-      goldEarned: Math.floor(Math.random() * 2000) + 500,
-      completionRate: Math.floor(Math.random() * 30) + 65
-    },
-    weeklyActivity,
-    classProgress,
-  };
 }

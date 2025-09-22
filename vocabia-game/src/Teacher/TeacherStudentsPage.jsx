@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -44,7 +44,7 @@ export default function TeacherStudentsPage() {
   const [classFilter, setClassFilter] = useState('all');
   const [view, setView] = useState('grid'); // 'grid' | 'list'
 
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     const endpoints = ['/api/teacher/classes', '/teacher/classes'];
     
     for (const endpoint of endpoints) {
@@ -61,9 +61,45 @@ export default function TeacherStudentsPage() {
     
     // Return empty array if all endpoints fail
     return [];
-  };
+  }, []);
 
-  const fetchStudentsWithProgress = async (classesData) => {
+  // Fetch a single student's progress (DB-only values, no randoms)
+  const fetchStudentProgress = useCallback(async (studentId, classId) => {
+    if (!studentId) return {};
+    const endpoints = [
+      `/api/teacher/classes/${classId}/students/${studentId}/progress`,
+      `/api/user-progress/student/${studentId}`,
+      `/teacher/students/${studentId}/progress`
+    ];
+    for (const endpoint of endpoints) {
+      try {
+        const res = await api.get(endpoint);
+        if (res.data) {
+          return {
+            accuracy: res.data.averageAccuracy ?? res.data.accuracy ?? 0,
+            completion: res.data.completionRate ?? res.data.completion ?? 0,
+            totalLevelsCompleted: res.data.totalLevelsCompleted ?? res.data.levelsCompleted ?? 0,
+            hintsUsed: res.data.hintsUsed ?? 0,
+            goldEarned: res.data.goldEarned ?? res.data.totalGold ?? 0,
+            lastActive: res.data.lastActive || res.data.updatedAt
+          };
+        }
+      } catch (error) {
+        console.warn(`Progress endpoint ${endpoint} failed:`, error?.response?.status);
+        continue;
+      }
+    }
+    return {
+      accuracy: 0,
+      completion: 0,
+      totalLevelsCompleted: 0,
+      hintsUsed: 0,
+      goldEarned: 0,
+      lastActive: null
+    };
+  }, []);
+
+  const fetchStudentsWithProgress = useCallback(async (classesData) => {
     const endpoints = ['/api/teacher/students', '/teacher/students'];
     let studentsData = [];
     
@@ -95,56 +131,18 @@ export default function TeacherStudentsPage() {
           ...student,
           className: studentClass?.name || 'Unknown Class',
           classId: studentClass?.id || null,
-          accuracy: progressData.accuracy || 0,
-          completion: progressData.completion || 0,
-          totalLevelsCompleted: progressData.totalLevelsCompleted || 0,
-          hintsUsed: progressData.hintsUsed || 0,
-          goldEarned: progressData.goldEarned || 0,
-          lastActive: progressData.lastActive || new Date().toISOString()
+          accuracy: progressData?.accuracy ?? 0,
+          completion: progressData?.completion ?? 0,
+          totalLevelsCompleted: progressData?.totalLevelsCompleted ?? 0,
+          hintsUsed: progressData?.hintsUsed ?? 0,
+          goldEarned: progressData?.goldEarned ?? 0,
+          lastActive: progressData?.lastActive || progressData?.updatedAt || null
         };
       })
     );
     
     return enhancedStudents;
-  };
-
-  const fetchStudentProgress = async (studentId, classId) => {
-    if (!studentId) return {};
-    
-    const endpoints = [
-      `/api/teacher/classes/${classId}/students/${studentId}/progress`,
-      `/api/user-progress/student/${studentId}`,
-      `/teacher/students/${studentId}/progress`
-    ];
-    
-    for (const endpoint of endpoints) {
-      try {
-        const res = await api.get(endpoint);
-        if (res.data) {
-          return {
-            accuracy: res.data.averageAccuracy || res.data.accuracy || Math.floor(Math.random() * 40) + 60,
-            completion: res.data.completionRate || res.data.completion || Math.floor(Math.random() * 50) + 50,
-            totalLevelsCompleted: res.data.totalLevelsCompleted || res.data.levelsCompleted || Math.floor(Math.random() * 10),
-            hintsUsed: res.data.hintsUsed || Math.floor(Math.random() * 20),
-            goldEarned: res.data.goldEarned || res.data.totalGold || Math.floor(Math.random() * 500),
-            lastActive: res.data.lastActive || res.data.updatedAt
-          };
-        }
-      } catch (error) {
-        console.warn(`Progress endpoint ${endpoint} failed:`, error?.response?.status);
-        continue;
-      }
-    }
-    
-    // Return default values if no progress data available
-    return {
-      accuracy: Math.floor(Math.random() * 40) + 60,
-      completion: Math.floor(Math.random() * 50) + 50,
-      totalLevelsCompleted: Math.floor(Math.random() * 10),
-      hintsUsed: Math.floor(Math.random() * 20),
-      goldEarned: Math.floor(Math.random() * 500)
-    };
-  };
+  }, [fetchStudentProgress]);
 
   useEffect(() => {
     let mounted = true;
@@ -189,7 +187,7 @@ export default function TeacherStudentsPage() {
       mounted = false; 
       clearInterval(interval);
     };
-  }, []);
+  }, [fetchClasses, fetchStudentsWithProgress]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
