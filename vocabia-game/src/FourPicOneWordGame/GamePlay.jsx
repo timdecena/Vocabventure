@@ -238,7 +238,7 @@ const ImageGrid = ({ imageUrls, isLoading }) => {
 const LetterButton = ({ letter, onClick, isSelected, isCorrect, isWrong, disabled }) => {
   return (
     <Button
-      onClick={() => onClick(letter)}
+      onClick={() => { if (typeof onClick === 'function') onClick(letter); }}
       disabled={disabled}
       sx={{
         minWidth: { xs: 45, sm: 50 },
@@ -302,6 +302,7 @@ const initialState = {
   goldEarned: 0,
   showGoldAnimation: false,
   completionStatus: null,
+  totalLevels: 0,
   score: 0,
   efficiency: 100
 };
@@ -358,6 +359,7 @@ function gameReducer(state, action) {
         availableLetters: action.availableLetters || [],
         success: false,
         disableInput: false,
+        hintShown: false,
       };
     case 'SELECT_LETTER': 
       return {
@@ -411,6 +413,8 @@ function gameReducer(state, action) {
       return { ...state, showGoldAnimation: false };
     case 'SET_COMPLETION_STATUS':
       return { ...state, completionStatus: action.payload };
+    case 'SET_TOTAL_LEVELS':
+      return { ...state, totalLevels: Number(action.payload) || 0 };
     case 'UPDATE_SCORE':
       return { ...state, score: action.payload };
     default: 
@@ -545,6 +549,27 @@ const GamePlay = () => {
           type: 'SET_COMPLETION_STATUS', 
           payload: statusResponse.data 
         });
+
+        // Load total levels for this category (to prevent navigating past last level)
+        try {
+          const completedMeta = await api.get(`/api/user-progress/completed-levels`, { params: { category } });
+          const totalLevels = completedMeta?.data?.totalLevels;
+          if (typeof totalLevels === 'number') {
+            dispatch({ type: 'SET_TOTAL_LEVELS', payload: totalLevels });
+          }
+        } catch (metaErr) {
+          console.warn('Could not load totalLevels metadata:', metaErr);
+          // Fallback: fetch levels list (public endpoint) and derive total
+          try {
+            const levelsRes = await api.get(`/api/fpow/levels`, { params: { category } });
+            if (Array.isArray(levelsRes?.data)) {
+              dispatch({ type: 'SET_TOTAL_LEVELS', payload: levelsRes.data.length });
+            }
+          } catch (e2) {
+            console.warn('Could not load levels for totalLevels fallback:', e2);
+            // leave totalLevels as default 0
+          }
+        }
 
         console.log('💰 Gold balance loaded:', goldResponse.data.goldBalance);
         console.log('📊 Completion status loaded:', statusResponse.data);
@@ -864,7 +889,14 @@ const GamePlay = () => {
   };
   
   // Go to next level with the correct URL structure
-  const handleNext = () => navigate(`/student/classes/${id}/4pic1word/${category}/level/${Number(level) + 1}`);
+  const handleNext = () => {
+    const current = Number(level);
+    if (state.totalLevels && current >= state.totalLevels) {
+      // At or beyond last level – return to levels list
+      return navigate(`/student/classes/${id}/4pic1word/${category}`);
+    }
+    return navigate(`/student/classes/${id}/4pic1word/${category}/level/${current + 1}`);
+  };
 
   // ---- Renders ----
   if (state.loading) {
@@ -967,6 +999,7 @@ const GamePlay = () => {
             <Chip 
               icon={<GoldIcon sx={{ color: '#FFD700 !important' }} />}
               label={state.goldBalance}
+              onClick={() => {}}
               sx={{
                 backgroundColor: 'rgba(255,215,0,0.2)',
                 color: '#FFD700',
@@ -980,6 +1013,7 @@ const GamePlay = () => {
             <Chip 
               icon={<AccessTimeIcon />}
               label={`${Math.floor(elapsedTime / 1000)}s`}
+              onClick={() => {}}
               sx={{
                 backgroundColor: 'rgba(255,255,255,0.2)',
                 color: 'white',
@@ -989,6 +1023,7 @@ const GamePlay = () => {
             <Chip 
               icon={<StarIcon />}
               label={`Level ${level}`}
+              onClick={() => {}}
               sx={{
                 background: 'linear-gradient(45deg, #ff6b6b, #feca57)',
                 color: 'white',
@@ -1050,7 +1085,7 @@ const GamePlay = () => {
                       }
                     }}
                   >
-                    Next Level
+                    {state.totalLevels && Number(level) >= state.totalLevels ? 'Back to Levels' : 'Next Level'}
                   </Button>
                   <Button 
                     variant="outlined" 
@@ -1090,13 +1125,16 @@ const GamePlay = () => {
               <Chip 
                 icon={<StarIcon />} 
                 label={`Attempts: ${state.attempts}`} 
+                onClick={() => {}}
                 color="primary" 
                 variant="outlined"
               />
+              
               {state.hintShown && (
                 <Chip 
                   icon={<LightbulbIcon />} 
                   label="Hint Used" 
+                  onClick={() => {}}
                   color="warning" 
                   variant="filled"
                 />
