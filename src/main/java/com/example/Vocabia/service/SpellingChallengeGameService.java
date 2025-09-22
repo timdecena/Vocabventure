@@ -83,4 +83,20 @@ public SpellingChallengeScore submitAnswer(User student, Long challengeId, Strin
         // This will create progress if it doesn't exist and update last active time
         userProgressService.getOrCreateProgress(student, "spelling");
     }
+
+    public int getRemainingAttemptsForLevel(User student, Long levelId) {
+    SpellingLevel level = levelRepo.findById(levelId)
+            .orElseThrow(() -> new RuntimeException("Spelling level not found"));
+
+    int maxAttempts = level.getMaxAttempts();
+    int usedAttempts = 0;
+
+    // Count all attempts for this student for all challenges in this level
+    for (SpellingChallenge challenge : level.getChallenges()) {
+        usedAttempts += scoreRepo.countByStudentAndChallenge(student, challenge);
+    }
+
+    return Math.max(maxAttempts - usedAttempts, 0);
+}
+
 }

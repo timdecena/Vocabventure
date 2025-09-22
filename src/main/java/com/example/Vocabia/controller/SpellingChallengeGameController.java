@@ -52,6 +52,15 @@ public Map<String, Object> submit(@RequestBody AnswerRequest req, Principal prin
                 .orElseThrow(() -> new RuntimeException("User not found: " + principal.getName()));
         return gameService.getCorrectChallengeIds(student);
     }
+@GetMapping("/level/{levelId}/remaining-attempts")
+public Map<String, Integer> getRemainingAttemptsForLevel(@PathVariable Long levelId, Principal principal) {
+    User student = userService.findByEmail(principal.getName())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    int remaining = gameService.getRemainingAttemptsForLevel(student, levelId);
+    return Map.of("remainingAttempts", remaining);
+}
+    
 
     @Data
     public static class AnswerRequest {

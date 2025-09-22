@@ -105,32 +105,34 @@ export default function StudentSpellingLevelList() {
     const attemptsLeft = {}; // ✅ new
 
     for (const level of levels) {
-      try {
-        const res = await api.get(`/api/spelling-level/${level.id}/challenges`);
-        const challengeIds = res.data.map((c) => c.id);
+  try {
+    const challengesRes = await api.get(`/api/spelling-level/${level.id}/challenges`);
+    const attemptsRes = await api.get(`/api/game/spelling/level/${level.id}/remaining-attempts`);
 
-        const correctAnswered = challengeIds.filter(id =>
-          completedChallengeIds.includes(id)
-        );
-        const isCompleted =
-          challengeIds.length > 0 &&
-          correctAnswered.length === challengeIds.length;
+    const challengeIds = challengesRes.data.map((c) => c.id);
 
-        if (isCompleted) completed.push(level.id);
+    const correctAnswered = challengeIds.filter(id =>
+      completedChallengeIds.includes(id)
+    );
+    const isCompleted =
+      challengeIds.length > 0 &&
+      correctAnswered.length === challengeIds.length;
 
-        scores[level.id] = correctAnswered.length;
-        challengeCounts[level.id] = challengeIds.length;
+    if (isCompleted) completed.push(level.id);
 
-        // ✅ compute remaining attempts
-        const usedAttempts = correctAnswered.length; // (replace if you have an API tracking all attempts)
-        attemptsLeft[level.id] = Math.max(level.maxAttempts - usedAttempts, 0);
-      } catch (err) {
-        console.warn(`⚠️ Could not fetch challenges for level ${level.id}`);
-        scores[level.id] = 0;
-        challengeCounts[level.id] = 0;
-        attemptsLeft[level.id] = level.maxAttempts; // fallback
-      }
-    }
+    scores[level.id] = correctAnswered.length;
+    challengeCounts[level.id] = challengeIds.length;
+
+    // ✅ compute remaining attempts
+    attemptsLeft[level.id] = attemptsRes.data.remainingAttempts;
+
+  } catch (err) {
+    console.warn(`⚠️ Could not fetch challenges for level ${level.id}`);
+    scores[level.id] = 0;
+    challengeCounts[level.id] = 0;
+    attemptsLeft[level.id] = level.maxAttempts; // fallback
+  }
+}
 
     setCompletedLevelIds(completed);
     setLevelScores(scores);
