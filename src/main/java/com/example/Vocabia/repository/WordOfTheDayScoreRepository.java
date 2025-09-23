@@ -5,6 +5,8 @@ import com.example.Vocabia.entity.WordOfTheDay;
 import com.example.Vocabia.entity.WordOfTheDayScore;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 import com.example.Vocabia.dto.WOTDLeaderboardEntryDTO;
 import java.util.Optional;
@@ -12,18 +14,24 @@ import java.util.Optional;
 public interface WordOfTheDayScoreRepository extends JpaRepository<WordOfTheDayScore, Long> {
     Optional<WordOfTheDayScore> findByStudentAndWord(User student, WordOfTheDay word);
 
-    @Query("""
+@Query("""
     SELECT 
         u.id AS studentId,
         CONCAT(u.firstName, ' ', u.lastName) AS studentName,
         SUM(s.playCount) AS totalPlayed,
         SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) AS correctAnswers,
-        ROUND(SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) * 100.0 / SUM(s.playCount), 1) AS accuracyPercent
+        ROUND(
+            (SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) * 100.0) 
+            / NULLIF(SUM(s.playCount), 0),
+            1
+        ) AS accuracyPercent
     FROM WordOfTheDayScore s
     JOIN s.student u
+    WHERE u.id IN :studentIds
     GROUP BY u.id
     ORDER BY correctAnswers DESC, accuracyPercent DESC
 """)
-List<WOTDLeaderboardEntryDTO> fetchWOTDLeaderboard();
+List<WOTDLeaderboardEntryDTO> fetchLeaderboardForStudents(@Param("studentIds") List<Long> studentIds);
+
 
 }

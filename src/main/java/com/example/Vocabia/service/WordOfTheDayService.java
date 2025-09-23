@@ -45,11 +45,14 @@ public class WordOfTheDayService {
     boolean correct = todayWord.getWord().equalsIgnoreCase(guess.trim());
 
     if (score == null) {
-        score = new WordOfTheDayScore();
-        score.setStudent(student);
-        score.setWord(todayWord);
-        score.setPlayCount(1);
-    }
+    score = new WordOfTheDayScore();
+    score.setStudent(student);
+    score.setWord(todayWord);
+    score.setPlayCount(1); // first attempt
+} else {
+    score.setPlayCount(score.getPlayCount() + 1); // increment on every new attempt
+}
+
 
     score.setCorrect(correct);
     score.setScore(correct ? 1 : 0);
