@@ -56,7 +56,7 @@ const TeacherHome = () => {
     };
 
     const fetchTeacherInfo = async () => {
-      const candidates = ['/api/teacher/info', '/api/auth/me', '/api/user/me', '/api/me'];
+      const candidates = ['/api/teacher/profile', '/api/teacher/info', '/api/auth/me', '/api/user/me', '/api/me'];
       for (const url of candidates) {
         try {
           const res = await api.get(url);
@@ -66,7 +66,7 @@ const TeacherHome = () => {
           continue;
         }
       }
-      // Final fallback: decode token to build a minimal profile
+      // Final fallback: decode token to build a minimal profile (no randoms)
       const token = localStorage.getItem('token');
       const payload = token ? decodeJwt(token) : null;
       return payload ? {
@@ -75,79 +75,51 @@ const TeacherHome = () => {
         email: payload.email || '',
         avatar: '/avatars/teacher.png'
       } : {
-        firstName: 'Demo',
-        lastName: 'Teacher',
-        email: 'teacher@example.com',
-        avatar: '/avatars/teacher.png'
+        firstName: 'Teacher',
+        lastName: '',
+        email: ''
       };
     };
 
     const fetchData = async () => {
       try {
-        // Teacher info with fallbacks
+        // Teacher info (DB only, no randoms)
         const info = await fetchTeacherInfo();
         setTeacherInfo(info);
 
-        // Teacher info - try multiple endpoints
+        // Classes list and counts (load first because we may derive students from it)
+        let effectiveClasses = [];
         try {
-          const endpoints = ['/api/teacher/profile', '/api/user/profile', '/teacher/profile'];
-          let teacherData = null;
-          
-          for (const endpoint of endpoints) {
+          const classEndpoints = ['/api/teacher/classes', '/teacher/classes'];
+          let loadedClasses = [];
+          for (const endpoint of classEndpoints) {
             try {
-              const teacherRes = await api.get(endpoint);
-              if (teacherRes.data) {
-                teacherData = teacherRes.data;
-                break;
-              }
-            } catch (endpointError) {
-              console.warn(`Teacher profile endpoint ${endpoint} failed:`, endpointError?.response?.status);
+              const res = await api.get(endpoint);
+              if (Array.isArray(res.data)) { loadedClasses = res.data; break; }
+            } catch (e) {
+              console.warn(`[TeacherHome] Classes endpoint ${endpoint} failed:`, e?.response?.status);
               continue;
             }
           }
-          
-          // If no real data, generate dynamic teacher info
-          if (!teacherData) {
-            const firstNames = ['Sarah', 'Michael', 'Jennifer', 'David', 'Lisa', 'Robert', 'Maria', 'James'];
-            const lastNames = ['Johnson', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor'];
-            const domains = ['school.edu', 'academy.edu', 'institute.edu', 'college.edu'];
-            
-            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-            const domain = domains[Math.floor(Math.random() * domains.length)];
-            
-            teacherData = {
-              firstName: firstName,
-              lastName: lastName,
-              email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domain}`,
-              title: 'Teacher',
-              department: 'English Department'
-            };
-          }
-          
-          setTeacherInfo(teacherData);
+          effectiveClasses = loadedClasses;
+          setClasses(loadedClasses);
         } catch (e) {
-          console.warn('[TeacherHome] Failed to load teacher info:', e?.response?.status, e?.response?.data);
-          setTeacherInfo({
-            firstName: 'Teacher',
-            lastName: '',
-            email: 'teacher@school.edu'
-          });
+          effectiveClasses = [];
+          setClasses([]);
         }
 
-        // Students count - try multiple endpoints for real data
+        // Students count - robust strategy: consolidated endpoint -> sum class.studentCount -> per-class fetch
         try {
           let totalStudents = 0;
+          // 1) Try consolidated endpoints
           const endpoints = ['/api/teacher/students', '/api/students', '/teacher/students'];
-          
           for (const endpoint of endpoints) {
             try {
               const studentsRes = await api.get(endpoint);
-              if (studentsRes.data && Array.isArray(studentsRes.data)) {
+              if (Array.isArray(studentsRes.data)) {
                 totalStudents = studentsRes.data.length;
                 break;
               } else if (studentsRes.data && typeof studentsRes.data === 'object') {
-                // Handle different response formats
                 totalStudents = studentsRes.data.totalStudents || studentsRes.data.count || 0;
                 break;
               }
@@ -156,10 +128,43 @@ const TeacherHome = () => {
               continue;
             }
           }
-          
+
+          // 2) If still 0, and we have classes, try summing class.studentCount
+          if (totalStudents === 0 && Array.isArray(effectiveClasses) && effectiveClasses.length > 0) {
+            const hasCounts = effectiveClasses.some(c => typeof c.studentCount === 'number' || Array.isArray(c.students));
+            if (hasCounts) {
+              totalStudents = effectiveClasses.reduce((sum, c) => sum + (Array.isArray(c.students) ? c.students.length : (typeof c.studentCount === 'number' ? c.studentCount : 0)), 0);
+            }
+          }
+
+          // 3) If still 0, fetch each class's students and sum lengths
+          if (totalStudents === 0 && Array.isArray(effectiveClasses) && effectiveClasses.length > 0) {
+            try {
+              const perClassCounts = await Promise.all(effectiveClasses.map(async (cls) => {
+                const perEndpoints = [
+                  `/api/teacher/classes/${cls.id}/students`,
+                  `/teacher/classes/${cls.id}/students`
+                ];
+                for (const url of perEndpoints) {
+                  try {
+                    const res = await api.get(url);
+                    if (Array.isArray(res.data)) return res.data.length;
+                    if (res.data && typeof res.data === 'object') return res.data.count || res.data.total || 0;
+                  } catch (e) {
+                    continue;
+                  }
+                }
+                return 0;
+              }));
+              totalStudents = perClassCounts.reduce((a, b) => a + b, 0);
+            } catch {
+              // ignore, keep 0
+            }
+          }
+
           setStudentsCount(totalStudents);
         } catch (e) {
-          console.warn('[TeacherHome] All student endpoints failed:', e?.response?.status, e?.response?.data);
+          console.warn('[TeacherHome] Failed to compute students count:', e?.response?.status, e?.response?.data);
           setStudentsCount(0);
         }
 
@@ -174,13 +179,8 @@ const TeacherHome = () => {
         }
       } catch (err) {
         console.error("Failed to fetch data (unhandled)", err);
-        // Fallback to mock data if everything fails
-        setTeacherInfo({
-          firstName: "Demo",
-          lastName: "Teacher",
-          email: "teacher@example.com",
-          avatar: "/avatars/teacher.png"
-        });
+        // Minimal placeholder (no randoms)
+        setTeacherInfo({ firstName: 'Teacher', lastName: '', email: '' });
         setClasses([]);
         setStudentsCount(0);
         setAssignmentsCount(0);

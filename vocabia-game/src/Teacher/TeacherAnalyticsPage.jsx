@@ -57,6 +57,7 @@ export default function TeacherAnalyticsPage() {
   const [gameFilter, setGameFilter] = useState('all');
   const [fpowData, setFpowData] = useState(null);
   const [classes, setClasses] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     let mounted = true;
@@ -123,8 +124,12 @@ export default function TeacherAnalyticsPage() {
     let mounted = true;
     const fetchFpow = async () => {
       try {
+        const qs = new URLSearchParams();
+        qs.set('range', range);
+        if (classFilter && classFilter !== 'all') qs.set('class', classFilter);
+        if (gameFilter) qs.set('game', gameFilter);
         const endpoints = [
-          `/api/teacher/fpow-progress?range=${range}&class=${classFilter}&game=${gameFilter}`,
+          `/api/teacher/fpow-progress?${qs.toString()}`,
           `/api/user-progress/fpow-analytics?range=${range}`,
           `/teacher/fpow-analytics?range=${range}`
         ];
@@ -138,7 +143,12 @@ export default function TeacherAnalyticsPage() {
             continue;
           }
         }
-        if (mounted) setFpowData(data);
+        if (mounted) {
+          setFpowData(data);
+          if (data?.categories && Array.isArray(data.categories)) {
+            setCategories(data.categories);
+          }
+        }
       } catch (e) {
         if (mounted) setFpowData(null);
       }
@@ -223,10 +233,9 @@ export default function TeacherAnalyticsPage() {
                     <InputLabel>{t('Category')}</InputLabel>
                     <Select label={t('Category')} value={gameFilter} onChange={(e) => setGameFilter(e.target.value)}>
                       <MenuItem value="all">{t('All Categories')}</MenuItem>
-                      <MenuItem value="animals">{t('Animals')}</MenuItem>
-                      <MenuItem value="food">{t('Food')}</MenuItem>
-                      <MenuItem value="objects">{t('Objects')}</MenuItem>
-                      <MenuItem value="nature">{t('Nature')}</MenuItem>
+                      {categories.map((cat) => (
+                        <MenuItem key={cat} value={String(cat)}>{cat}</MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </>
@@ -381,7 +390,7 @@ export default function TeacherAnalyticsPage() {
                 <Typography variant="h6" gutterBottom>{t('Category Progress')}</Typography>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={fpowData.categoryProgress.filter(cat => 
-                    gameFilter === 'all' || cat.category.toLowerCase() === gameFilter
+                    gameFilter === 'all' || String(cat.category).toLowerCase() === String(gameFilter).toLowerCase()
                   )}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="category" />
