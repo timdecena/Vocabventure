@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, Button, Paper, Grid, CircularProgress, Dialog, DialogActions, DialogContent, TextField } from '@mui/material';
+import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { styled, keyframes } from '@mui/material/styles';
-import '../../styles/MapView.css';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
@@ -492,26 +491,6 @@ const TopBar = styled(Box)(({ theme }) => ({
   marginTop: '12px',
 }));
 
-const BattleSpritesRow = styled(Box)(({ theme }) => ({
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  justifyContent: 'center',
-  marginBottom: '200px',
-  zIndex: 20,
-  pointerEvents: 'none',
-  minHeight: '300px',
-  position: 'relative',
-}));
-
-const MonsterSpriteWrapper = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-}));
 
 const BattleBottomBar = styled(Box)(({ theme }) => ({
   width: '100vw',
@@ -926,54 +905,50 @@ const victoryDialogue = [
 
 const phase1Questions = [
   {
-    question: 'Which sentence uses punctuation correctly?',
-    options: [
-      'She said, "Let\'s leave now".',
-      'She said "Let\'s leave now."',
-      'She said, "Let\'s leave now".',
-      'She said, "Let\'s leave now."'
-    ],
-    correctAnswer: 3
+    type: "reading_comprehension",
+    passage: "The committee's recommendations were comprehensive and well-researched. However, the board members' responses varied significantly. Some executives' concerns focused on implementation costs, while others questioned the data's validity. The shareholders' meeting would ultimately determine the proposal's fate.",
+    causeOptions: ["Board members disagreed", "Data validity questioned", "Implementation costs high"],
+    effectOptions: ["Varied responses occurred", "Proposal fate uncertain", "Committee worked harder"],
+    correctMatches: [
+      { cause: "Board members disagreed", effect: "Varied responses occurred" },
+      { cause: "Data validity questioned", effect: "Proposal fate uncertain" }
+    ]
   },
   {
-    question: 'Choose the correct subject-verb agreement:',
-    options: [
-      'The data was incorrect.',
-      'The data were incorrect.',
-      'The data is incorrect.',
-      'The data has been incorrect.'
+    type: "4pics1word",
+    images: [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYGFt-v20OBMahAT3o4-m1ZtIPiGXR9__6Rw&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPm_nNMu3nsQ9xdHuMn0hVt3Hhw6hQZS6J_A&s", 
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzcgQ2LkGXLOV7RM7bA_GRssrKUye5FlYdYw&s",
+      "https://t3.ftcdn.net/jpg/16/95/93/00/360_F_1695930033_8UDnIqoQyiWRq9HUxAouiz53VrmBkWxx.jpg"
     ],
-    correctAnswer: 1
+    letters: "OCOLNIMESN",
+    correct: "SEMICOLON"
   },
   {
-    question: 'Identify the grammatically correct sentence:',
-    options: [
-      'Neither the teacher nor the students was present.',
-      'Neither the teacher nor the students were present.',
-      'Neither the teacher or the students were present.',
-      'Neither the teacher nor the student were present.'
-    ],
-    correctAnswer: 1
+    type: "reading_comprehension",
+    passage: "The university's alumni had gathered for their annual reunion. Many alumni shared stories of their academic achievements, while the faculty members discussed curriculum changes. The evening's festivities included presentations about the institution's future initiatives.",
+    causeOptions: ["Alumni gathered annually", "Faculty discussed changes", "Presentations were scheduled"],
+    effectOptions: ["Stories were shared", "Curriculum evolved", "Future was planned"],
+    correctMatches: [
+      { cause: "Alumni gathered annually", effect: "Stories were shared" },
+      { cause: "Faculty discussed changes", effect: "Curriculum evolved" }
+    ]
   },
   {
-    question: 'Where does the semicolon go?',
-    options: [
-      'I have a big test tomorrow; I can\'t go out tonight.',
-      'I have a big test; tomorrow I can\'t go out tonight.',
-      'I have; a big test tomorrow I can\'t go out tonight.',
-      'I have a big test tomorrow, I can\'t go out tonight.'
-    ],
-    correctAnswer: 0
+    type: "spelling",
+    definition: "The past perfect tense of 'write' - used to indicate an action completed before another past action.",
+    correct: "WRITTEN"
   },
   {
-    question: 'Correct sentence with modifiers:',
-    options: [
-      'Running quickly, the finish line was in sight.',
-      'The finish line was in sight, running quickly.',
-      'Running quickly, I saw the finish line.',
-      'I saw the finish line running quickly.'
-    ],
-    correctAnswer: 2
+    type: "reading_comprehension",
+    passage: "The researchers had been analyzing the phenomena for months. Their hypotheses were based on multiple criteria, and the analyses revealed complex patterns. The team's conclusions would influence future studies in the field.",
+    causeOptions: ["Researchers analyzed phenomena", "Hypotheses were formed", "Patterns were complex"],
+    effectOptions: ["Analyses revealed patterns", "Conclusions were drawn", "Future studies influenced"],
+    correctMatches: [
+      { cause: "Researchers analyzed phenomena", effect: "Analyses revealed patterns" },
+      { cause: "Patterns were complex", effect: "Conclusions were drawn" }
+    ]
   }
 ];
 
@@ -1000,6 +975,206 @@ const phase2Questions = [
   }
 ];
 
+// Styled components for diverse gameplay
+const FourPicsContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '24px',
+  alignItems: 'flex-start',
+  width: '100%',
+  maxWidth: '1000px',
+  margin: '0 auto',
+  minHeight: '120px',
+}));
+
+const ImagesSection = styled(Box)(({ theme }) => ({
+  flex: '0 0 320px',
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gridTemplateRows: '1fr 1fr',
+  gap: '8px',
+  height: 'auto',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const GameImage = styled('img')(({ theme }) => ({
+  width: '150px',
+  height: '100px',
+  objectFit: 'cover',
+  borderRadius: '12px',
+  border: '3px solid #fff',
+  boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+  transition: 'transform 0.2s ease',
+  '&:hover': {
+    transform: 'scale(1.03)',
+  },
+}));
+
+const LettersSection = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  alignItems: 'center',
+}));
+
+const SelectedLettersContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '8px',
+  minHeight: '60px',
+  alignItems: 'center',
+  padding: '12px',
+  background: 'rgba(0,0,0,0.3)',
+  borderRadius: '8px',
+  border: '2px dashed rgba(255,255,255,0.3)',
+}));
+
+const AvailableLettersContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '6px',
+  flexWrap: 'nowrap',
+  justifyContent: 'center',
+}));
+
+const LetterButton = styled(Button)(({ theme }) => ({
+  minWidth: '45px',
+  width: '45px',
+  height: '45px',
+  fontSize: '1.1rem',
+  fontWeight: 'bold',
+  background: 'linear-gradient(145deg, #f4e4c1, #e8d5a6)',
+  color: '#5d4037',
+  border: '2px solid #b8956f',
+  borderRadius: '8px',
+  flexShrink: 0,
+  '&:hover': {
+    background: 'linear-gradient(145deg, #e8d5a6, #dcc48a)',
+    transform: 'translateY(-2px)',
+  },
+}));
+
+const SpellingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '20px',
+  width: '100%',
+  maxWidth: '600px',
+  margin: '0 auto',
+}));
+
+const SpellingInput = styled('input')(({ theme }) => ({
+  fontSize: '1.5rem',
+  padding: '12px 20px',
+  borderRadius: '8px',
+  border: '2px solid #b8956f',
+  background: 'rgba(255,255,255,0.9)',
+  textAlign: 'center',
+  letterSpacing: '2px',
+  fontWeight: 'bold',
+  width: '300px',
+  '&:focus': {
+    outline: 'none',
+    borderColor: '#8B4513',
+    boxShadow: '0 0 10px rgba(139,69,19,0.5)',
+  },
+}));
+
+const SoundButton = styled(Button)(({ theme }) => ({
+  padding: '12px 24px',
+  fontSize: '1rem',
+  background: 'linear-gradient(145deg, #4CAF50, #45a049)',
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #45a049, #3d8b40)',
+  },
+}));
+
+const ReadingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
+  width: '100%',
+  maxWidth: '800px',
+  margin: '0 auto',
+}));
+
+const PassageBox = styled(Box)(({ theme }) => ({
+  background: 'rgba(0,0,0,0.3)',
+  padding: '16px',
+  borderRadius: '8px',
+  border: '2px solid rgba(255,255,255,0.2)',
+  fontSize: '1.1rem',
+  lineHeight: '1.6',
+  color: '#f0f0f0',
+}));
+
+const DragDropSection = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '24px',
+}));
+
+const DragDropColumn = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+}));
+
+const DragItem = styled(Box)(({ theme }) => ({
+  padding: '12px',
+  background: 'linear-gradient(145deg, #f4e4c1, #e8d5a6)',
+  color: '#5d4037',
+  borderRadius: '8px',
+  border: '2px solid #b8956f',
+  cursor: 'grab',
+  textAlign: 'center',
+  fontSize: '0.9rem',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #e8d5a6, #dcc48a)',
+  },
+  '&:active': {
+    cursor: 'grabbing',
+  },
+}));
+
+const DropZone = styled(Box)(({ theme }) => ({
+  minHeight: '50px',
+  padding: '12px',
+  border: '2px dashed rgba(255,255,255,0.3)',
+  borderRadius: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'rgba(0,0,0,0.2)',
+  color: '#ccc',
+  fontSize: '0.9rem',
+}));
+
+const SubmitButton = styled(Button)(({ theme }) => ({
+  padding: '12px 32px',
+  fontSize: '1.1rem',
+  fontWeight: 'bold',
+  background: 'linear-gradient(145deg, #8B4513, #A0522D)',
+  color: 'white',
+  border: '2px solid #D4A574',
+  borderRadius: '12px',
+  alignSelf: 'flex-end',
+  marginRight: '20px',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #A0522D, #8B4513)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 20px rgba(139,69,19,0.4)',
+  },
+  '&:disabled': {
+    opacity: 0.6,
+    cursor: 'not-allowed',
+    transform: 'none',
+  },
+}));
+
 const JungleLushLevel5 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
@@ -1019,12 +1194,15 @@ const JungleLushLevel5 = () => {
   const [showClickPrompt, setShowClickPrompt] = useState(false);
   const [showQuit, setShowQuit] = useState(false);
   const idleTimeout = useRef(null);
-  const [newRecord, setNewRecord] = useState(false);
-  const levelNumber = 5;
   const inputRef = useRef(null);
   // Sprite animation states
   const [grammowlState, setGrammowlState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
+  // New states for diverse gameplay
+  const [selectedLetters, setSelectedLetters] = useState([]);
+  const [availableLetters, setAvailableLetters] = useState([]);
+  const [spellingInput, setSpellingInput] = useState('');
+  const [draggedItems, setDraggedItems] = useState({ causes: [], effects: [] });
 
   useEffect(() => {
     setShowClickPrompt(false);
@@ -1058,6 +1236,26 @@ const JungleLushLevel5 = () => {
       inputRef.current.focus();
     }
   }, [phase, currentQuestion]);
+
+  // Gameplay initialization useEffect (only for phase1 multiple choice questions)
+  useEffect(() => {
+    if (phase === 'battle1') {
+      const question = phase1Questions[currentQuestion];
+      if (question) {
+        // Reset states
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setSelectedLetters([]);
+        setSpellingInput('');
+        setDraggedItems({ causes: [], effects: [] });
+        // Initialize based on question type
+        if (question.type === '4pics1word') {
+          const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
+          setAvailableLetters(shuffled);
+        }
+      }
+    }
+  }, [currentQuestion, phase]);
 
   const handleDialogueClick = () => {
     setShowClickPrompt(false);
@@ -1098,11 +1296,110 @@ const JungleLushLevel5 = () => {
     }
   };
 
+  // Answer handler for multiple choice questions (battle1 only)
   const handleAnswer = (idx) => {
     if (phase !== 'battle1') return;
     setSelectedAnswer(idx);
+    // Use setTimeout to ensure state updates properly
+    setTimeout(() => {
+      const question = phase1Questions[currentQuestion];
+      const isCorrect = idx === question.correctAnswer;
+      setShowResult(true);
+      
+      if (isCorrect) {
+        // Adventurer attacks first
+        setAdventurerState('attack');
+        setTimeout(() => {
+          setAdventurerState('idle');
+          // Then Grammowl gets hurt
+          setMonsterDamaged(true);
+          setGrammowlState('hurt');
+          setTimeout(() => {
+            setMonsterDamaged(false);
+            setGrammowlState('idle');
+          }, 500);
+        }, 300);
+        setMonsterHP(hp => {
+          const newHP = Math.max(0, hp - 20); // 5 hits to defeat in phase 1
+          if (currentQuestion === 4) {
+            setGrammowlState('hurt');
+            setTimeout(() => {
+              setPhase('midBattleDialogue');
+              setDialogueIdx(0);
+              setGrammowlState('idle');
+            }, 1000);
+          }
+          return newHP;
+        });
+        if (currentQuestion < phase1Questions.length - 1) {
+          setTimeout(() => {
+            setCurrentQuestion(prev => prev + 1);
+            setSelectedAnswer(null);
+            setShowResult(false);
+            setTimeLeft(TIMER_DURATION);
+          }, 600);
+        }
+      } else {
+        // Wrong answer - lose heart directly
+        setUserDamaged(true);
+        setGrammowlState('attack');
+        setTimeout(() => {
+          setUserDamaged(false);
+          setGrammowlState('idle');
+        }, 500);
+        if (hearts > 1) {
+          setTimeout(() => {
+            setHearts(h => h - 1);
+            setSelectedAnswer(null);
+            setShowResult(false);
+            setTimeLeft(TIMER_DURATION);
+          }, 600);
+        } else {
+          setTimeout(() => {
+            setHearts(0);
+            setGameOver(true);
+          }, 600);
+        }
+      }
+    }, 10);
+  };
+
+  // Generic validation function for diverse gameplay types (battle1 only)
+  const validateAnswer = () => {
+    const question = phase1Questions[currentQuestion];
+    let isCorrect = false;
+    
+    switch (question.type) {
+      case 'multiple_choice':
+        isCorrect = selectedAnswer === question.correctAnswer;
+        break;
+      case 'spelling':
+        isCorrect = spellingInput.toUpperCase().trim() === question.correct.toUpperCase();
+        break;
+      case '4pics1word':
+        isCorrect = selectedLetters.join('') === question.correct;
+        break;
+      case 'reading_comprehension':
+        const userCause = draggedItems.causes[0];
+        const userEffect = draggedItems.effects[0];
+        isCorrect = question.correctMatches.some(match => 
+          match.cause === userCause && match.effect === userEffect
+        );
+        break;
+      default:
+        isCorrect = false;
+    }
+    return isCorrect;
+  };
+
+  // Generic submit handler for diverse gameplay types (battle1 only)
+  const handleSubmitAnswer = () => {
+    if (phase !== 'battle1') return;
+    const isCorrect = validateAnswer();
+    
     setShowResult(true);
-    if (idx === phase1Questions[currentQuestion].correctAnswer) {
+    
+    if (isCorrect) {
       // Adventurer attacks first
       setAdventurerState('attack');
       setTimeout(() => {
@@ -1136,6 +1433,7 @@ const JungleLushLevel5 = () => {
         }, 600);
       }
     } else {
+      // Wrong answer - lose heart directly
       setUserDamaged(true);
       setGrammowlState('attack');
       setTimeout(() => {
@@ -1147,6 +1445,9 @@ const JungleLushLevel5 = () => {
           setHearts(h => h - 1);
           setSelectedAnswer(null);
           setShowResult(false);
+          setSelectedLetters([]);
+          setSpellingInput('');
+          setDraggedItems({ causes: [], effects: [] });
           setTimeLeft(TIMER_DURATION);
         }, 600);
       } else {
@@ -1156,6 +1457,59 @@ const JungleLushLevel5 = () => {
         }, 600);
       }
     }
+  };
+
+  // 4 Pics 1 Word helper functions
+  const handleLetterClick = (letter, index) => {
+    const question = phase1Questions[currentQuestion];
+    if (question && selectedLetters.length < question.correct.length) {
+      setSelectedLetters(prev => [...prev, letter]);
+      setAvailableLetters(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleSelectedLetterClick = (index) => {
+    const letter = selectedLetters[index];
+    setSelectedLetters(prev => prev.filter((_, i) => i !== index));
+    setAvailableLetters(prev => [...prev, letter]);
+  };
+
+  // Spelling helper functions
+  const handleSpellingInputChange = (e) => {
+    setSpellingInput(e.target.value);
+  };
+
+  const speakWord = () => {
+    const question = phase1Questions[currentQuestion];
+    if (question.type === 'spelling') {
+      const utterance = new SpeechSynthesisUtterance(question.correct);
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Reading Comprehension helper functions
+  const handleDragStart = (e, item, type) => {
+    e.dataTransfer.setData('text/plain', item);
+    e.dataTransfer.setData('type', type);
+  };
+
+  const handleDrop = (e, zone) => {
+    e.preventDefault();
+    const item = e.dataTransfer.getData('text/plain');
+    const type = e.dataTransfer.getData('type');
+    
+    if (item && (type === 'any' || zone === type)) {
+      setDraggedItems(prev => ({
+        ...prev,
+        [zone]: [item] // Only allow one item per zone
+      }));
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
   };
 
   const handleInputSubmit = (e) => {
@@ -1227,6 +1581,11 @@ const JungleLushLevel5 = () => {
     setShowResult(false);
     setGameOver(false);
     setVictory(false);
+    // Reset diverse gameplay states
+    setSelectedLetters([]);
+    setAvailableLetters([]);
+    setSpellingInput('');
+    setDraggedItems({ causes: [], effects: [] });
     setPhase('battle1');
     setGrammowlState('idle');
     setAdventurerState('idle');
@@ -1242,6 +1601,11 @@ const JungleLushLevel5 = () => {
     setShowResult(false);
     setGameOver(false);
     setVictory(false);
+    // Reset diverse gameplay states
+    setSelectedLetters([]);
+    setAvailableLetters([]);
+    setSpellingInput('');
+    setDraggedItems({ causes: [], effects: [] });
     setPhase('dialogue');
     setDialogueIdx(0);
     setGrammowlState('idle');
@@ -1369,33 +1733,197 @@ const JungleLushLevel5 = () => {
         </BattleMonster>
         <VS style={{ position: 'absolute', left: '50%', bottom: '250px', transform: 'translateX(-50%)', zIndex: 5 }}>VS</VS>
         <BattleBottomBar>
-          <QuestionText>
-            {phase === 'battle1' ? phase1Questions[currentQuestion].question : phase2Questions[currentQuestion].question}
-          </QuestionText>
           {phase === 'battle1' ? (
-            <ChoicesGrid count={4}>
-              {phase1Questions[currentQuestion].options.map((option, idx) => (
-                <MoveButton
-                  key={idx}
-                  selected={selectedAnswer === idx}
-                  onClick={() => handleAnswer(idx)}
-                  disableRipple
-                  style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
-                  disabled={showResult}
-                >
-                  {option}
-                </MoveButton>
-              ))}
-            </ChoicesGrid>
+            (() => {
+              const question = phase1Questions[currentQuestion];
+              
+              switch (question.type) {
+                case 'multiple_choice':
+                  return (
+                    <>
+                      <QuestionText>{question.question}</QuestionText>
+                      <ChoicesGrid count={question.options.length}>
+                        {question.options.map((option, idx) => (
+                          <MoveButton
+                            key={idx}
+                            selected={selectedAnswer === idx}
+                            onClick={() => handleAnswer(idx)}
+                            disableRipple
+                            style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
+                            disabled={showResult}
+                          >
+                            {option}
+                          </MoveButton>
+                        ))}
+                      </ChoicesGrid>
+                    </>
+                  );
+                  
+                case 'spelling':
+                  return (
+                    <SpellingContainer>
+                      <Typography style={{ color: '#f0f0f0', fontSize: '1.2rem', marginBottom: '16px', textAlign: 'center' }}>
+                        {question.definition}
+                      </Typography>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'center' }}>
+                        <SoundButton onClick={speakWord}>🔊 Play Sound</SoundButton>
+                        <SpellingInput
+                          type="text"
+                          value={spellingInput}
+                          onChange={handleSpellingInputChange}
+                          placeholder="Type your answer..."
+                        />
+                        <SubmitButton
+                          onClick={handleSubmitAnswer}
+                          disabled={showResult || !spellingInput.trim()}
+                          style={{ margin: '0' }}
+                        >
+                          Submit Answer
+                        </SubmitButton>
+                      </div>
+                    </SpellingContainer>
+                  );
+                  
+                case '4pics1word':
+                  return (
+                    <FourPicsContainer>
+                      <ImagesSection>
+                        {question.images.map((img, idx) => (
+                          <GameImage key={idx} src={img} alt={`Clue ${idx + 1}`} />
+                        ))}
+                      </ImagesSection>
+                      <LettersSection>
+                        <Typography style={{ color: '#f0f0f0', fontSize: '1.2rem', marginBottom: '8px', textAlign: 'center' }}>
+                          Find the word that connects all images!
+                        </Typography>
+                        <div style={{ marginBottom: '16px' }}>
+                          <Typography style={{ color: '#f0f0f0', fontSize: '1rem', marginBottom: '8px' }}>
+                            Answer ({question.correct.length} letters):
+                          </Typography>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            {Array.from({ length: question.correct.length }).map((_, idx) => (
+                              <div
+                                key={idx}
+                                style={{
+                                  width: '50px', height: '50px', border: '2px solid #b8956f', borderRadius: '8px',
+                                  background: selectedLetters[idx] ? 'linear-gradient(145deg, #f4e4c1, #e8d5a6)' : 'rgba(255,255,255,0.1)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold',
+                                  color: selectedLetters[idx] ? '#5d4037' : '#ccc', cursor: selectedLetters[idx] ? 'pointer' : 'default',
+                                }}
+                                onClick={() => selectedLetters[idx] && handleSelectedLetterClick(idx)}
+                              >
+                                {selectedLetters[idx] || ''}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'center' }}>
+                          <AvailableLettersContainer style={{ margin: '0' }}>
+                            {availableLetters.map((letter, idx) => (
+                              <LetterButton key={idx} onClick={() => handleLetterClick(letter, idx)}>
+                                {letter}
+                              </LetterButton>
+                            ))}
+                          </AvailableLettersContainer>
+                          <SubmitButton
+                            onClick={handleSubmitAnswer}
+                            disabled={showResult || selectedLetters.length === 0}
+                            style={{ margin: '0' }}
+                          >
+                            Submit Answer
+                          </SubmitButton>
+                        </div>
+                      </LettersSection>
+                    </FourPicsContainer>
+                  );
+                  
+                case 'reading_comprehension':
+                  return (
+                    <ReadingContainer>
+                      <PassageBox>
+                        <Typography style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#f0f0f0' }}>
+                          {question.passage}
+                        </Typography>
+                      </PassageBox>
+                      <Typography style={{ color: '#f0f0f0', fontSize: '1.1rem', textAlign: 'center', marginBottom: '12px' }}>
+                        Drag and drop to match cause and effect:
+                      </Typography>
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center', flexWrap: 'nowrap' }}>
+                        {question.causeOptions.map((cause, idx) => (
+                          <DragItem
+                            key={`cause-${idx}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, cause, 'any')}
+                            style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
+                          >
+                            {cause}
+                          </DragItem>
+                        ))}
+                        {question.effectOptions.map((effect, idx) => (
+                          <DragItem
+                            key={`effect-${idx}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, effect, 'any')}
+                            style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
+                          >
+                            {effect}
+                          </DragItem>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', alignItems: 'flex-start' }}>
+                        <DragDropColumn>
+                          <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
+                            CAUSE
+                          </Typography>
+                          <DropZone
+                            onDrop={(e) => handleDrop(e, 'causes')}
+                            onDragOver={handleDragOver}
+                            style={{ background: draggedItems.causes.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
+                          >
+                            {draggedItems.causes[0] || 'Drop cause here'}
+                          </DropZone>
+                        </DragDropColumn>
+                        <DragDropColumn>
+                          <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
+                            EFFECT
+                          </Typography>
+                          <DropZone
+                            onDrop={(e) => handleDrop(e, 'effects')}
+                            onDragOver={handleDragOver}
+                            style={{ background: draggedItems.effects.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
+                          >
+                            {draggedItems.effects[0] || 'Drop effect here'}
+                          </DropZone>
+                        </DragDropColumn>
+                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                          <SubmitButton
+                            onClick={handleSubmitAnswer}
+                            disabled={showResult || draggedItems.causes.length < 1 || draggedItems.effects.length < 1}
+                            style={{ margin: '0' }}
+                          >
+                            Submit Answer
+                          </SubmitButton>
+                        </div>
+                      </div>
+                    </ReadingContainer>
+                  );
+                  
+                default:
+                  return <Typography style={{ color: '#f0f0f0' }}>Unknown question type</Typography>;
+              }
+            })()
           ) : (
-            <InputField
-              inputRef={inputRef}
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyPress={handleInputSubmit}
-              placeholder="Type your answer..."
-              disabled={showResult}
-            />
+            <>
+              <QuestionText>{phase2Questions[currentQuestion].question}</QuestionText>
+              <InputField
+                inputRef={inputRef}
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyPress={handleInputSubmit}
+                placeholder="Type your answer..."
+                disabled={showResult}
+              />
+            </>
           )}
         </BattleBottomBar>
       </>

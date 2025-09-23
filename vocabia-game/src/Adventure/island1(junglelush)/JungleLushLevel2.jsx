@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
-import '../../styles/MapView.css';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
@@ -91,10 +90,6 @@ const CHARACTER_POSITIONS = {
   BATTLE_TENSAPHANT_BOTTOM: '250px', // ⭐ ADJUST THIS for Tensaphant in battle
 };
 
-const bounce = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-`;
 const shake = keyframes`
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-8px); }
@@ -140,17 +135,6 @@ const Ground = styled(Box)(({ theme }) => ({
   borderTopLeftRadius: '30px',
   borderTopRightRadius: '30px',
   boxShadow: '0 0 16px 2px rgba(0,0,0,0.25)',
-}));
-const SpritesRow = styled(Box)(({ theme }) => ({
-  width: '900px',
-  maxWidth: '90vw',
-  position: 'absolute',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  bottom: '130px', // Position on top of the platform (90px ground + 40px height)
-  height: '250px', // More room for larger sprites
-  zIndex: 3,
-  pointerEvents: 'none',
 }));
 // Individual character positioning
 const PositionedWizard = styled(Box)(({ theme }) => ({
@@ -452,8 +436,6 @@ const HeartIcon = styled(Box)(({ theme, filled }) => ({
     }
   }
 }));
-const FLESH_BROWN = '#e6c7b2';
-const NAME_BG = '#d1a97a';
 const DialogueBox = styled(Paper)(({ theme }) => ({
   position: 'absolute',
   left: '50%',
@@ -511,11 +493,6 @@ const NameTag = styled(Box)(({ theme }) => ({
   display: 'block', // Ensure it's visible
   visibility: 'visible', // Force visibility
 }));
-const DialogueWrapper = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  zIndex: 20,
-  isolation: 'isolate',
-}));
 
 const DialogueText = styled(Typography)(({ theme }) => ({
   marginTop: 18,
@@ -551,91 +528,6 @@ const ClickPrompt = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialog-paper': {
-    background: 'linear-gradient(145deg, #f4e4c1 0%, #e8d5a6 50%, #dcc48a 100%)',
-    borderRadius: '20px',
-    border: '3px solid #b8956f',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.6)',
-    minWidth: '400px',
-    padding: '16px',
-    position: 'relative',
-    overflow: 'visible',
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
-      borderRadius: '20px',
-      pointerEvents: 'none',
-    },
-  },
-}));
-
-const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
-  textAlign: 'center',
-  padding: '24px 32px 16px 32px',
-  position: 'relative',
-  zIndex: 2,
-  '& .MuiTypography-root': {
-    color: '#2c1810',
-    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-    fontWeight: 700,
-    fontSize: '1.3rem',
-    textShadow: '0 1px 2px rgba(255,255,255,0.4)',
-    letterSpacing: '0.3px',
-  },
-}));
-
-const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
-  padding: '16px 32px 24px 32px',
-  justifyContent: 'center',
-  gap: '16px',
-  position: 'relative',
-  zIndex: 2,
-}));
-
-const DialogButton = styled(Button)(({ variant }) => ({
-  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-  fontWeight: 700,
-  fontSize: '1rem',
-  borderRadius: '16px',
-  padding: '10px 24px',
-  textTransform: 'none',
-  letterSpacing: '0.5px',
-  minWidth: '120px',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  ...(variant === 'cancel' ? {
-    background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%)',
-    color: '#2c3e50',
-    border: '2px solid #dee2e6',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.9)',
-    '&:hover': {
-      background: 'linear-gradient(145deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 6px 16px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9)',
-      border: '2px solid #adb5bd',
-    },
-  } : {
-    background: 'linear-gradient(145deg, #ff6b6b 0%, #ee5a52 50%, #d63031 100%)',
-    color: '#fff',
-    border: '2px solid #c23616',
-    boxShadow: '0 4px 12px rgba(214,48,49,0.4), 0 2px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)',
-    '&:hover': {
-      background: 'linear-gradient(145deg, #ff5252 0%, #e53935 50%, #c62828 100%)',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 6px 16px rgba(214,48,49,0.5), 0 3px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)',
-      border: '2px solid #b71c1c',
-    },
-  }),
-  '&:active': {
-    transform: 'translateY(1px)',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1)',
-  },
-}));
 const HeartRow = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
@@ -719,35 +611,6 @@ const TopBar = styled(Box)(({ theme }) => ({
   zIndex: 30,
   padding: '18px 32px',
   marginTop: '12px',
-}));
-const CenterBar = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: 24,
-  left: '50%',
-  transform: 'translateX(-50%)',
-  zIndex: 30,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-const BattleSpritesRow = styled(Box)(({ theme }) => ({
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  justifyContent: 'center',
-  marginBottom: '200px',
-  zIndex: 20,
-  pointerEvents: 'none',
-  minHeight: '300px', // More room for larger sprites
-  position: 'relative',
-}));
-const MonsterSpriteWrapper = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
 }));
 const BattleBottomBar = styled(Box)(({ theme }) => ({
   width: '100vw',
@@ -934,32 +797,31 @@ const dialogueSequence = [
 // Questions for Orc Minion (3)
 const orcQuestions = [
   {
-    question: 'Choose the correct sentence (past tense):',
+    type: "multiple_choice",
+    question: "Which sentence uses the correct past tense?",
     options: [
-      'She eats dinner already.',
-      'She ate dinner already.',
-      'She eat dinner already.'
+      "She walk to school yesterday.",
+      "She walked to school yesterday.",
+      "She walking to school yesterday."
     ],
     correctAnswer: 1
   },
   {
-    question: 'Select the correct future tense:',
-    options: [
-      'They will go to the museum tomorrow.',
-      'They goes to the museum tomorrow.',
-      'They going to the museum tomorrow.'
-    ],
-    correctAnswer: 0
+    type: "spelling",
+    definition: "The past tense of the verb 'run' - to move quickly on foot.",
+    correct: "RAN"
   },
   {
-    question: 'Choose the proper tense:',
-    options: [
-      'He has finish his test.',
-      'He have finished his test.',
-      'He has finished his test.'
+    type: "4pics1word",
+    images: [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8lceIrdpyLdI6JoEwUqETaatxtLuU1PeFZg&s",
+      "https://static01.nyt.com/images/2018/07/03/well/physed-walk/physed-walk-videoSixteenByNineJumbo1600.jpg",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmEhA4kiCt-EniFJcbv55v7oN-xvc8SdNh-g&s",
+      "https://i.ytimg.com/vi/0URr_XkgAIE/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC83IGtr78nTJSHe1pUVVknB7MGAQ"
     ],
-    correctAnswer: 2
-  },
+    letters: "KWALDESWIM",
+    correct: "WALKED"
+  }
 ];
 
 // Pre-Tensaphant battle dialogue
@@ -973,50 +835,52 @@ const preTensaphantDialogue = [
 // Questions for Tensaphant (5)
 const tensaphantQuestions = [
   {
-    question: 'Which sentence is in the simple past tense?',
-    options: [
-      'She has baked a cake.',
-      'She baked a cake.',
-      'She was baking a cake.'
+    type: "4pics1word",
+    images: [
+      "https://cdn.shopify.com/s/files/1/1186/5476/files/LIFESTYLE_2000x2000_48e752d7-2561-4472-831d-f164a3ea7405_1024x1024.jpg?v=1565717897",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnhzW-UZyIoUDYPAHm5KvJ4dnet2xy4TYjLw&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcJ2v_loHOD4mXhbu2TUMZLLLZ1-YmiPA7wQ&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpK1noS9RwpA351YDfG9dRCvSON-j5nZHU0A&s"
     ],
-    correctAnswer: 1
+    letters: "GNIKCOOTAK",
+    correct: "COOKING"
   },
   {
-    question: 'Choose the correct future perfect tense:',
-    options: [
-      'I will have finish my work before lunch.',
-      'I will have finished my work before lunch.',
-      'I had finished my work before lunch.'
+    type: "4pics1word",
+    images: [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrmV0m0SqMN7wGf453XYWSwyKSLg4luK71AQ&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnLaeebR6BGGRtneG3N1YC4U-CQCBWU2kacg&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFN4vopN2P5ANW4xQ2FENFzkV6yQVu8iXlrw&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQF6trBxoeC4sjaaVHpchqvbam89Vc6KgVxwQ&s"
     ],
-    correctAnswer: 1
+    letters: "GDAENIRSTU",
+    correct: "READING"
   },
   {
-    question: 'Which sentence is in the past continuous tense?',
-    options: [
-      'They were play outside.',
-      'They had been playing outside.',
-      'They were playing outside.'
-    ],
-    correctAnswer: 2
+    type: "reading_comprehension",
+    passage: "Yesterday, Sarah walked to the store. She bought some groceries and then returned home. While she was cooking dinner, her phone rang.",
+    causeOptions: ["Sarah walked to the store", "She bought groceries", "Phone rang"],
+    effectOptions: ["She returned home", "She was cooking dinner", "She answered the call"],
+    correctMatches: [
+      { cause: "She bought groceries", effect: "She returned home" },
+      { cause: "Phone rang", effect: "She answered the call" }
+    ]
   },
   {
-    question: 'Pick the correct present perfect continuous sentence:',
+    type: "multiple_choice",
+    question: "Which sentence shows the future perfect tense?",
     options: [
-      'I have been studied all night.',
-      'I have been studying all night.',
-      'I was studying all night.'
+      "I will have finished my homework by 8 PM.",
+      "I am finishing my homework now.",
+      "I finished my homework yesterday."
     ],
-    correctAnswer: 1
+    correctAnswer: 0
   },
   {
-    question: 'Which one is in the future continuous tense?',
-    options: [
-      'She will be sing at the event.',
-      'She will be singing at the event.',
-      'She is singing at the event tomorrow.'
-    ],
-    correctAnswer: 1
-  },
+    type: "spelling",
+    definition: "The past tense of 'write' - to form letters or words on a surface.",
+    correct: "WROTE"
+  }
 ];
 
 const MONSTER_MAX_HP = 100;
@@ -1046,23 +910,189 @@ const VictoryContainer = styled(Paper)(({ theme }) => ({
   zIndex: 1100,
   border: '4px solid #b48a6e',
 }));
-const VictoryTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: 900,
-  fontSize: '2.2rem',
-  color: '#00996b',
-  marginBottom: 18,
-  textShadow: '0 2px 8px #b48a6e44',
-  fontFamily: 'monospace',
-  textAlign: 'center',
+
+// Styled components for diverse gameplay
+const FourPicsContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '24px',
+  alignItems: 'flex-start',
+  width: '100%',
+  maxWidth: '1000px',
+  margin: '0 auto',
+  minHeight: '120px',
 }));
-const VictoryButton = styled(Button)(({ theme }) => ({
-  fontWeight: 700,
-  fontFamily: 'monospace',
+
+const ImagesSection = styled(Box)(({ theme }) => ({
+  flex: '0 0 320px',
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gridTemplateRows: '1fr 1fr',
+  gap: '8px',
+  height: 'auto',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const GameImage = styled('img')(({ theme }) => ({
+  width: '150px',
+  height: '100px',
+  objectFit: 'cover',
+  borderRadius: '12px',
+  border: '3px solid #fff',
+  boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+  transition: 'transform 0.2s ease',
+  '&:hover': {
+    transform: 'scale(1.03)',
+  },
+}));
+
+const LettersSection = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  alignItems: 'center',
+}));
+
+
+const AvailableLettersContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '6px',
+  flexWrap: 'nowrap',
+  justifyContent: 'center',
+}));
+
+const LetterButton = styled(Button)(({ theme }) => ({
+  minWidth: '45px',
+  width: '45px',
+  height: '45px',
   fontSize: '1.1rem',
-  borderRadius: 16,
-  margin: '12px 0',
-  minWidth: 180,
-  boxShadow: '0 2px 8px #b48a6e44',
+  fontWeight: 'bold',
+  background: 'linear-gradient(145deg, #f4e4c1, #e8d5a6)',
+  color: '#5d4037',
+  border: '2px solid #b8956f',
+  borderRadius: '8px',
+  flexShrink: 0,
+  '&:hover': {
+    background: 'linear-gradient(145deg, #e8d5a6, #dcc48a)',
+    transform: 'translateY(-2px)',
+  },
+}));
+
+const SpellingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '20px',
+  width: '100%',
+  maxWidth: '600px',
+  margin: '0 auto',
+}));
+
+const SpellingInput = styled('input')(({ theme }) => ({
+  fontSize: '1.5rem',
+  padding: '12px 20px',
+  borderRadius: '8px',
+  border: '2px solid #b8956f',
+  background: 'rgba(255,255,255,0.9)',
+  textAlign: 'center',
+  letterSpacing: '2px',
+  fontWeight: 'bold',
+  width: '300px',
+  '&:focus': {
+    outline: 'none',
+    borderColor: '#8B4513',
+    boxShadow: '0 0 10px rgba(139,69,19,0.5)',
+  },
+}));
+
+const SoundButton = styled(Button)(({ theme }) => ({
+  padding: '12px 24px',
+  fontSize: '1rem',
+  background: 'linear-gradient(145deg, #4CAF50, #45a049)',
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #45a049, #3d8b40)',
+  },
+}));
+
+const ReadingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
+  width: '100%',
+  maxWidth: '800px',
+  margin: '0 auto',
+}));
+
+const PassageBox = styled(Box)(({ theme }) => ({
+  background: 'rgba(0,0,0,0.3)',
+  padding: '16px',
+  borderRadius: '8px',
+  border: '2px solid rgba(255,255,255,0.2)',
+  fontSize: '1.1rem',
+  lineHeight: '1.6',
+  color: '#f0f0f0',
+}));
+
+const DragDropColumn = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+}));
+
+const DragItem = styled(Box)(({ theme }) => ({
+  padding: '12px',
+  background: 'linear-gradient(145deg, #f4e4c1, #e8d5a6)',
+  color: '#5d4037',
+  borderRadius: '8px',
+  border: '2px solid #b8956f',
+  cursor: 'grab',
+  textAlign: 'center',
+  fontSize: '0.9rem',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #e8d5a6, #dcc48a)',
+  },
+  '&:active': {
+    cursor: 'grabbing',
+  },
+}));
+
+const DropZone = styled(Box)(({ theme }) => ({
+  minHeight: '50px',
+  padding: '12px',
+  border: '2px dashed rgba(255,255,255,0.3)',
+  borderRadius: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'rgba(0,0,0,0.2)',
+  color: '#ccc',
+  fontSize: '0.9rem',
+}));
+
+const SubmitButton = styled(Button)(({ theme }) => ({
+  padding: '12px 32px',
+  fontSize: '1.1rem',
+  fontWeight: 'bold',
+  background: 'linear-gradient(145deg, #8B4513, #A0522D)',
+  color: 'white',
+  border: '2px solid #D4A574',
+  borderRadius: '12px',
+  alignSelf: 'flex-end',
+  marginRight: '20px',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #A0522D, #8B4513)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 20px rgba(139,69,19,0.4)',
+  },
+  '&:disabled': {
+    opacity: 0.6,
+    cursor: 'not-allowed',
+    transform: 'none',
+  },
 }));
 
 const JungleLushLevel2 = () => {
@@ -1086,11 +1116,14 @@ const JungleLushLevel2 = () => {
   const [victory, setVictory] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [showClickPrompt, setShowClickPrompt] = useState(false);
+  // New states for diverse gameplay
+  const [selectedLetters, setSelectedLetters] = useState([]);
+  const [availableLetters, setAvailableLetters] = useState([]);
+  const [spellingInput, setSpellingInput] = useState('');
+  const [draggedItems, setDraggedItems] = useState({ causes: [], effects: [] });
   const [showQuit, setShowQuit] = useState(false);
   const idleTimeout = useRef(null);
   // Star rating state
-  const [newRecord, setNewRecord] = useState(false);
-  const levelNumber = 2; // This is level 2
 
   // Dialogue click/idle logic
   useEffect(() => {
@@ -1120,6 +1153,27 @@ const JungleLushLevel2 = () => {
       }
     }
   }, [phase, timeLeft, victory, gameOver, hearts]);
+
+  // Gameplay initialization useEffect
+  useEffect(() => {
+    if ((phase === 'orc' || phase === 'tensephant')) {
+      const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
+      if (questions[currentQuestion]) {
+        const question = questions[currentQuestion];
+        // Reset states
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setSelectedLetters([]);
+        setSpellingInput('');
+        setDraggedItems({ causes: [], effects: [] });
+        // Initialize based on question type
+        if (question.type === '4pics1word') {
+          const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
+          setAvailableLetters(shuffled);
+        }
+      }
+    }
+  }, [currentQuestion, phase, monster]);
 
   // Dialogue click handler
   const handleDialogueClick = () => {
@@ -1153,33 +1207,152 @@ const JungleLushLevel2 = () => {
     }
   };
 
-  // Answer handler
+  // Answer handler for multiple choice questions
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
-    setShowResult(true);
+    // Use setTimeout to ensure state updates properly
+    setTimeout(() => {
+      const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
+      const question = questions[currentQuestion];
+      const isCorrect = idx === question.correctAnswer;
+      setShowResult(true);
+      
+      if (isCorrect) {
+        // Adventurer attacks first
+        setAdventurerState('attack');
+        setTimeout(() => {
+          setAdventurerState('idle');
+          // Then monster gets hurt
+          setMonsterDamaged(true);
+          setMonsterState('hurt');
+          setTimeout(() => {
+            setMonsterDamaged(false);
+            setMonsterState('idle');
+          }, 500);
+        }, 300);
+        
+        setMonsterHP(hp => {
+          const newHP = Math.max(0, hp - Math.floor(MONSTER_MAX_HP / questions.length));
+          if (currentQuestion === questions.length - 1 || newHP === 0) {
+            if (monster === 'orc') {
+              setMonsterState('death');
+              setTimeout(() => {
+                setPhase('pretense');
+                setPreTenseDialogueIdx(0);
+                setMonsterState('idle');
+              }, 1000);
+            } else {
+              setMonsterState('death');
+              setTimeout(() => setVictory(true), 1000);
+            }
+          }
+          return newHP;
+        });
+        
+        if (currentQuestion < questions.length - 1) {
+          setTimeout(() => {
+            setCurrentQuestion(prev => prev + 1);
+            setSelectedAnswer(null);
+            setShowResult(false);
+            setTimeLeft(TIMER_DURATION);
+          }, 600);
+        }
+      } else {
+        // Wrong answer - deduct time and potentially hearts
+        const newTime = Math.max(0, timeLeft - 5);
+        setTimeLeft(newTime);
+        
+        if (newTime === 0) {
+          // Time ran out, lose heart
+          setUserDamaged(true);
+          setMonsterState('attack');
+          setTimeout(() => {
+            setUserDamaged(false);
+            setMonsterState('idle');
+          }, 500);
+          
+          if (hearts > 1) {
+            setTimeout(() => {
+              setHearts(h => h - 1);
+              setSelectedAnswer(null);
+              setShowResult(false);
+              setTimeLeft(TIMER_DURATION);
+            }, 600);
+          } else {
+            setTimeout(() => {
+              setHearts(0);
+              setGameOver(true);
+            }, 600);
+          }
+        } else {
+          // Just reset the question
+          setTimeout(() => {
+            setSelectedAnswer(null);
+            setShowResult(false);
+          }, 1000);
+        }
+      }
+    }, 10);
+  };
+
+  // Generic validation function for all question types
+  const validateAnswer = () => {
     const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
-    if (idx === questions[currentQuestion].correctAnswer) {
+    const question = questions[currentQuestion];
+    let isCorrect = false;
+    
+    switch (question.type) {
+      case 'multiple_choice':
+        isCorrect = selectedAnswer === question.correctAnswer;
+        break;
+      case 'spelling':
+        isCorrect = spellingInput.toUpperCase().trim() === question.correct.toUpperCase();
+        break;
+      case '4pics1word':
+        isCorrect = selectedLetters.join('') === question.correct;
+        break;
+      case 'reading_comprehension':
+        const userCause = draggedItems.causes[0];
+        const userEffect = draggedItems.effects[0];
+        isCorrect = question.correctMatches.some(match => 
+          match.cause === userCause && match.effect === userEffect
+        );
+        break;
+      default:
+        isCorrect = false;
+    }
+    return isCorrect;
+  };
+
+  // Generic submit handler for all question types
+  const handleSubmitAnswer = () => {
+    const isCorrect = validateAnswer();
+    const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
+    
+    setShowResult(true);
+    
+    if (isCorrect) {
       // Adventurer attacks first
       setAdventurerState('attack');
       setTimeout(() => {
         setAdventurerState('idle');
         // Then monster gets hurt
-      setMonsterDamaged(true);
+        setMonsterDamaged(true);
         setMonsterState('hurt');
         setTimeout(() => {
           setMonsterDamaged(false);
           setMonsterState('idle');
         }, 500);
-      }, 300); // Small delay to show attack animation
+      }, 300);
+      
       setMonsterHP(hp => {
         const newHP = Math.max(0, hp - Math.floor(MONSTER_MAX_HP / questions.length));
         if (currentQuestion === questions.length - 1 || newHP === 0) {
           if (monster === 'orc') {
-            // Pre-Tensephant dialogue
             setMonsterState('death');
             setTimeout(() => {
-            setPhase('pretense');
-            setPreTenseDialogueIdx(0);
+              setPhase('pretense');
+              setPreTenseDialogueIdx(0);
               setMonsterState('idle');
             }, 1000);
           } else {
@@ -1189,6 +1362,7 @@ const JungleLushLevel2 = () => {
         }
         return newHP;
       });
+      
       if (currentQuestion < questions.length - 1) {
         setTimeout(() => {
           setCurrentQuestion(prev => prev + 1);
@@ -1198,26 +1372,108 @@ const JungleLushLevel2 = () => {
         }, 600);
       }
     } else {
-      setUserDamaged(true);
-      setMonsterState('attack');
-      setTimeout(() => {
-        setUserDamaged(false);
-        setMonsterState('idle');
-      }, 500);
-      if (hearts > 1) {
+      // Wrong answer - deduct time and potentially hearts
+      const newTime = Math.max(0, timeLeft - 5);
+      setTimeLeft(newTime);
+      
+      if (newTime === 0) {
+        // Time ran out, lose heart
+        setUserDamaged(true);
+        setMonsterState('attack');
         setTimeout(() => {
-          setHearts(h => h - 1);
+          setUserDamaged(false);
+          setMonsterState('idle');
+        }, 500);
+        
+        if (hearts > 1) {
+          setTimeout(() => {
+            setHearts(h => h - 1);
+            setSelectedAnswer(null);
+            setShowResult(false);
+            setSelectedLetters([]);
+            setSpellingInput('');
+            setDraggedItems({ causes: [], effects: [] });
+            setTimeLeft(TIMER_DURATION);
+          }, 600);
+        } else {
+          setTimeout(() => {
+            setHearts(0);
+            setGameOver(true);
+          }, 600);
+        }
+      } else {
+        // Just reset the question
+        setTimeout(() => {
           setSelectedAnswer(null);
           setShowResult(false);
-          setTimeLeft(TIMER_DURATION);
-        }, 600);
-      } else {
-        setTimeout(() => {
-          setHearts(0);
-          setGameOver(true);
-        }, 600);
+          setSelectedLetters([]);
+          setSpellingInput('');
+          setDraggedItems({ causes: [], effects: [] });
+          // Re-shuffle letters for 4pics1word
+          const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
+          const question = questions[currentQuestion];
+          if (question.type === '4pics1word') {
+            const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
+            setAvailableLetters(shuffled);
+          }
+        }, 1000);
       }
     }
+  };
+
+  // 4 Pics 1 Word helper functions
+  const handleLetterClick = (letter, index) => {
+    const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
+    const question = questions[currentQuestion];
+    if (question && selectedLetters.length < question.correct.length) {
+      setSelectedLetters(prev => [...prev, letter]);
+      setAvailableLetters(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleSelectedLetterClick = (index) => {
+    const letter = selectedLetters[index];
+    setSelectedLetters(prev => prev.filter((_, i) => i !== index));
+    setAvailableLetters(prev => [...prev, letter]);
+  };
+
+  // Spelling helper functions
+  const handleSpellingInputChange = (e) => {
+    setSpellingInput(e.target.value);
+  };
+
+  const speakWord = () => {
+    const questions = monster === 'orc' ? orcQuestions : tensaphantQuestions;
+    const question = questions[currentQuestion];
+    if (question.type === 'spelling') {
+      const utterance = new SpeechSynthesisUtterance(question.correct);
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Reading Comprehension helper functions
+  const handleDragStart = (e, item, type) => {
+    e.dataTransfer.setData('text/plain', item);
+    e.dataTransfer.setData('type', type);
+  };
+
+  const handleDrop = (e, zone) => {
+    e.preventDefault();
+    const item = e.dataTransfer.getData('text/plain');
+    const type = e.dataTransfer.getData('type');
+    
+    if (item && (type === 'any' || zone === type)) {
+      setDraggedItems(prev => ({
+        ...prev,
+        [zone]: [item] // Only allow one item per zone
+      }));
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
   };
 
   // Retry handler for current battle (used on game over)
@@ -1230,6 +1486,11 @@ const JungleLushLevel2 = () => {
     setShowResult(false);
     setGameOver(false);
     setVictory(false);
+    // Reset diverse gameplay states
+    setSelectedLetters([]);
+    setAvailableLetters([]);
+    setSpellingInput('');
+    setDraggedItems({ causes: [], effects: [] });
     // Only reset the current battle phase, not the whole level
     if (phase === 'tensephant') {
       setPhase('tensephant');
@@ -1280,7 +1541,7 @@ const JungleLushLevel2 = () => {
       }
       saveProgress();
     }
-  }, [victory]);
+  }, [victory, hearts]);
 
   // Render logic
   let content = null;
@@ -1326,23 +1587,184 @@ const JungleLushLevel2 = () => {
           <VS style={{ position: 'absolute', left: '50%', bottom: '250px', transform: 'translateX(-50%)', zIndex: 5 }}>VS</VS>
         </>
         <BattleBottomBar>
-          <QuestionText>
-            {questions[currentQuestion].question}
-          </QuestionText>
-          <ChoicesGrid count={questions[currentQuestion].options.length}>
-            {questions[currentQuestion].options.map((option, idx) => (
-              <MoveButton
-                key={idx}
-                selected={selectedAnswer === idx}
-                onClick={() => handleAnswer(idx)}
-                disableRipple
-                style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
-                disabled={showResult}
-              >
-                {option}
-              </MoveButton>
-            ))}
-          </ChoicesGrid>
+          {(() => {
+            const question = questions[currentQuestion];
+            
+            switch (question.type) {
+              case 'multiple_choice':
+                return (
+                  <>
+                    <QuestionText>{question.question}</QuestionText>
+                    <ChoicesGrid count={question.options.length}>
+                      {question.options.map((option, idx) => (
+                        <MoveButton
+                          key={idx}
+                          selected={selectedAnswer === idx}
+                          onClick={() => handleAnswer(idx)}
+                          disableRipple
+                          style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
+                          disabled={showResult}
+                        >
+                          {option}
+                        </MoveButton>
+                      ))}
+                    </ChoicesGrid>
+                  </>
+                );
+                
+              case 'spelling':
+                return (
+                  <SpellingContainer>
+                    <Typography style={{ color: '#f0f0f0', fontSize: '1.2rem', marginBottom: '16px', textAlign: 'center' }}>
+                      {question.definition}
+                    </Typography>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'center' }}>
+                      <SoundButton onClick={speakWord}>🔊 Play Sound</SoundButton>
+                      <SpellingInput
+                        type="text"
+                        value={spellingInput}
+                        onChange={handleSpellingInputChange}
+                        placeholder="Type your answer..."
+                      />
+                      <SubmitButton
+                        onClick={handleSubmitAnswer}
+                        disabled={showResult || !spellingInput.trim()}
+                        style={{ margin: '0' }}
+                      >
+                        Submit Answer
+                      </SubmitButton>
+                    </div>
+                  </SpellingContainer>
+                );
+                
+              case '4pics1word':
+                return (
+                  <FourPicsContainer>
+                    <ImagesSection>
+                      {question.images.map((img, idx) => (
+                        <GameImage key={idx} src={img} alt={`Clue ${idx + 1}`} />
+                      ))}
+                    </ImagesSection>
+                    <LettersSection>
+                      <Typography style={{ color: '#f0f0f0', fontSize: '1.2rem', marginBottom: '8px', textAlign: 'center' }}>
+                        Find the word that connects all images!
+                      </Typography>
+                      <div style={{ marginBottom: '16px' }}>
+                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', marginBottom: '8px' }}>
+                          Answer ({question.correct.length} letters):
+                        </Typography>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          {Array.from({ length: question.correct.length }).map((_, idx) => (
+                            <div
+                              key={idx}
+                              style={{
+                                width: '50px', height: '50px', border: '2px solid #b8956f', borderRadius: '8px',
+                                background: selectedLetters[idx] ? 'linear-gradient(145deg, #f4e4c1, #e8d5a6)' : 'rgba(255,255,255,0.1)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold',
+                                color: selectedLetters[idx] ? '#5d4037' : '#ccc', cursor: selectedLetters[idx] ? 'pointer' : 'default',
+                              }}
+                              onClick={() => selectedLetters[idx] && handleSelectedLetterClick(idx)}
+                            >
+                              {selectedLetters[idx] || ''}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'center' }}>
+                        <AvailableLettersContainer style={{ margin: '0' }}>
+                          {availableLetters.map((letter, idx) => (
+                            <LetterButton key={idx} onClick={() => handleLetterClick(letter, idx)}>
+                              {letter}
+                            </LetterButton>
+                          ))}
+                        </AvailableLettersContainer>
+                        <SubmitButton
+                          onClick={handleSubmitAnswer}
+                          disabled={showResult || selectedLetters.length === 0}
+                          style={{ margin: '0' }}
+                        >
+                          Submit Answer
+                        </SubmitButton>
+                      </div>
+                    </LettersSection>
+                  </FourPicsContainer>
+                );
+                
+              case 'reading_comprehension':
+                return (
+                  <ReadingContainer>
+                    <PassageBox>
+                      <Typography style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#f0f0f0' }}>
+                        {question.passage}
+                      </Typography>
+                    </PassageBox>
+                    <Typography style={{ color: '#f0f0f0', fontSize: '1.1rem', textAlign: 'center', marginBottom: '12px' }}>
+                      Drag and drop to match cause and effect:
+                    </Typography>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center', flexWrap: 'nowrap' }}>
+                      {question.causeOptions.map((cause, idx) => (
+                        <DragItem
+                          key={`cause-${idx}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, cause, 'any')}
+                          style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
+                        >
+                          {cause}
+                        </DragItem>
+                      ))}
+                      {question.effectOptions.map((effect, idx) => (
+                        <DragItem
+                          key={`effect-${idx}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, effect, 'any')}
+                          style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
+                        >
+                          {effect}
+                        </DragItem>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', alignItems: 'flex-start' }}>
+                      <DragDropColumn>
+                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
+                          CAUSE
+                        </Typography>
+                        <DropZone
+                          onDrop={(e) => handleDrop(e, 'causes')}
+                          onDragOver={handleDragOver}
+                          style={{ background: draggedItems.causes.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
+                        >
+                          {draggedItems.causes[0] || 'Drop cause here'}
+                        </DropZone>
+                      </DragDropColumn>
+                      <DragDropColumn>
+                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
+                          EFFECT
+                        </Typography>
+                        <DropZone
+                          onDrop={(e) => handleDrop(e, 'effects')}
+                          onDragOver={handleDragOver}
+                          style={{ background: draggedItems.effects.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
+                        >
+                          {draggedItems.effects[0] || 'Drop effect here'}
+                        </DropZone>
+                      </DragDropColumn>
+                      <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                        <SubmitButton
+                          onClick={handleSubmitAnswer}
+                          disabled={showResult || draggedItems.causes.length < 1 || draggedItems.effects.length < 1}
+                          style={{ margin: '0' }}
+                        >
+                          Submit Answer
+                        </SubmitButton>
+                      </div>
+                    </div>
+                  </ReadingContainer>
+                );
+                
+              default:
+                return <Typography style={{ color: '#f0f0f0' }}>Unknown question type</Typography>;
+            }
+          })()}
         </BattleBottomBar>
       </>
     );

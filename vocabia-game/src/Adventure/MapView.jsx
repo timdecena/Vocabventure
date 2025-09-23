@@ -10,72 +10,55 @@ const islands = [
     id: 1, 
     name: "Jungle Lush", 
     img: "https://img.freepik.com/free-vector/empty-background-nature-scenery_1308-34521.jpg?ga=GA1.1.1216205749.1747720148&semt=ais_items_boosted&w=740", 
-    style: { top: "8%", left: "8%" }, 
+    style: { top: "15%", left: "12%" }, 
     unlocked: true,
-    description: "Begin your vocabulary adventure in the mysterious jungle",
-    treasures: 3,
+    description: "Begin your vocabulary adventure in the lush tropical jungle filled with ancient mysteries",
+    treasures: 5,
     completed: false,
-    biome: "jungle"
+    biome: "jungle",
+    levels: 5,
+    difficulty: "Beginner"
   },
   { 
     id: 2, 
-    name: "Spelling Shores", 
+    name: "Waterside Shores", 
     img: "https://img.freepik.com/premium-vector/cartoon-illustration-beach-scene-with-palm-trees-beach-scene_937058-206.jpg?ga=GA1.1.1216205749.1747720148&semt=ais_items_boosted&w=740", 
-    style: { top: "38%", left: "18%" }, 
+    style: { top: "45%", left: "40%" }, 
     unlocked: false,
-    description: "Discover spelling secrets along the golden shores",
-    treasures: 5,
+    description: "Master spelling challenges along the crystal-clear waterside shores with gentle waves",
+    treasures: 7,
     completed: false,
-    biome: "beach"
+    biome: "beach",
+    levels: 5,
+    difficulty: "Intermediate"
   },
   { 
     id: 3, 
-    name: "Sentence Swamp", 
-    img: "https://img.freepik.com/free-vector/mangrove-forest-outdoor-background_1308-129123.jpg?ga=GA1.1.1216205749.1747720148&semt=ais_items_boosted&w=740", 
-    style: { top: "28%", left: "45%" }, 
-    unlocked: false,
-    description: "Navigate treacherous grammar through the swamplands",
-    treasures: 7,
-    completed: false,
-    biome: "swamp"
-  },
-  { 
-    id: 4, 
-    name: "Focus Forest", 
-    img: "https://img.freepik.com/free-vector/flat-design-winter-landscape_23-2148707345.jpg?ga=GA1.1.1216205749.1747720148&semt=ais_items_boosted&w=740", 
-    style: { top: "60%", left: "60%" }, 
-    unlocked: false,
-    description: "Master advanced language skills in the ancient forest",
-    treasures: 9,
-    completed: false,
-    biome: "forest"
-  },
-  { 
-    id: 5, 
     name: "The Shadow Isles", 
     img: "https://img.freepik.com/premium-vector/sunset-erupting-volcano-vector-landscape-illustration_147887-376.jpg?ga=GA1.1.1216205749.1747720148&semt=ais_items_boosted&w=740", 
-    style: { top: "38%", left: "80%" }, 
+    style: { top: "25%", left: "75%" }, 
     unlocked: false,
-    description: "Face the ultimate vocabulary challenges in the volcanic realm",
-    treasures: 12,
+    description: "Face the ultimate vocabulary challenges in the dark volcanic realm of shadows and fire",
+    treasures: 10,
     completed: false,
-    biome: "volcano"
+    biome: "volcano",
+    levels: 5,
+    difficulty: "Advanced"
   },
 ];
 
 const pathCoords = [
-  [0, 1],
-  [1, 2],
-  [2, 3],
-  [3, 4],
+  [0, 1], // Jungle Lush to Waterside Shores
+  [1, 2], // Waterside Shores to The Shadow Isles
 ];
 
-// Adventure decorations
+// Adventure decorations positioned around the 3 islands
 const treasureMarks = [
-  { id: 1, x: 15, y: 25, type: "treasure" },
-  { id: 2, x: 35, y: 15, type: "compass" },
-  { id: 3, x: 65, y: 70, type: "scroll" },
-  { id: 4, x: 85, y: 45, type: "artifact" },
+  { id: 1, x: 20, y: 30, type: "treasure" },   // Near Jungle Lush
+  { id: 2, x: 50, y: 60, type: "compass" },    // Near Waterside Shores
+  { id: 3, x: 80, y: 40, type: "scroll" },     // Near The Shadow Isles
+  { id: 4, x: 35, y: 20, type: "artifact" },   // Between islands
+  { id: 5, x: 65, y: 50, type: "treasure" },   // Between Waterside and Shadow
 ];
 
 // Particle system for background effects
@@ -222,7 +205,7 @@ export default function MapView() {
         </div>
         <div className="log-stats">
           <div className="log-item">
-            <span className="log-text">Islands Explored: 0/5</span>
+            <span className="log-text">Islands Explored: 0/3</span>
           </div>
           <div className="log-item">
             <span className="log-text">Scrolls Earned: 0</span>
@@ -289,6 +272,10 @@ export default function MapView() {
                 </div>
                 <div className="scroll-content">
                   <p className="location-desc">{island.description}</p>
+                  <div className="island-stats">
+                    <div className="stat-item">🏆 Levels: {island.levels}</div>
+                    <div className="stat-item">⚔️ Difficulty: {island.difficulty}</div>
+                  </div>
                   {island.unlocked ? (
                     <div className="action-prompt">Click to explore!</div>
                   ) : (

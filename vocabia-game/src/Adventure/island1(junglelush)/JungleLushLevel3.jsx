@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, Button, Paper, Grid, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
+import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { styled, keyframes } from '@mui/material/styles';
-import '../../styles/MapView.css';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 
@@ -57,7 +56,6 @@ import PluribogDeath3 from '../AdventureAssets/Pluribog/Toad_Death_3.png';
 import PluribogDeath4 from '../AdventureAssets/Pluribog/Toad_Death_4.png';
 
 const JUNGLE_BG = 'https://png.pngtree.com/background/20220727/original/pngtree-jungle-game-background-arcade-art-picture-image_1829537.jpg';
-const HEART_IMG = 'https://p7.hiclipart.com/preview/28/266/352/pixel-art-heart-8-bit-color-heart-thumbnail.jpg';
 
 // Character positioning constants - adjust these to position characters
 const CHARACTER_POSITIONS = {
@@ -189,11 +187,6 @@ const NameTag = styled(Box)(({ theme }) => ({
   display: 'block', // Ensure it's visible
   visibility: 'visible', // Force visibility
 }));
-const DialogueWrapper = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  zIndex: 20,
-  isolation: 'isolate',
-}));
 
 const DialogueText = styled(Typography)(({ theme }) => ({
   marginTop: 18,
@@ -283,35 +276,6 @@ const TopBar = styled(Box)(({ theme }) => ({
   zIndex: 30,
   padding: '18px 32px',
   marginTop: '12px',
-}));
-const CenterBar = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: 24,
-  left: '50%',
-  transform: 'translateX(-50%)',
-  zIndex: 30,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-const BattleSpritesRow = styled(Box)(({ theme }) => ({
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  justifyContent: 'center',
-  marginBottom: '180px',
-  zIndex: 20,
-  pointerEvents: 'none',
-  minHeight: '220px',
-  position: 'relative',
-}));
-const MonsterSpriteWrapper = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
 }));
 const BattleBottomBar = styled(Box)(({ theme }) => ({
   width: '100vw',
@@ -785,19 +749,26 @@ const dialogueSequence = [
 ];
 const orcQuestions = [
   {
+    type: "multiple_choice",
     question: "Choose the correct plural form: 'There are many ___ in the pond.'",
     options: ['fishs', 'fishes', 'fish'],
     correctAnswer: 2
   },
   {
-    question: "Which sentence is correct?",
-    options: ['The childs is reading.', 'The children are reading.', 'The childrens are reading.'],
-    correctAnswer: 1
+    type: "4pics1word",
+    images: [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIcjVhgU-MNB6bRzGDTKOR7HtutPXA-xjSPA&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcvBdfECXLoN0PTIt7-HNUO9QsfKZ8H3KJiVctQECVM3CZ-OfhZgXZI2_gmmHl8n9nKp4&usqp=CAU",
+      "https://i.pinimg.com/736x/31/a8/27/31a827800e24ade8e24313037a6b70a8.jpg",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvJWsIejMdRhck5ZPOJTEg0t2ESyb5zWrqwA&s"
+    ],
+    letters: "SKCUDKBIR",
+    correct: "DUCKS"
   },
   {
-    question: "What is the plural of 'goose'?",
-    options: ['gooses', 'geese', 'goosen'],
-    correctAnswer: 1
+    type: "spelling",
+    definition: "The plural form of 'child' - young human beings.",
+    correct: "CHILDREN"
   }
 ];
 const prePluribogDialogue = [
@@ -806,26 +777,43 @@ const prePluribogDialogue = [
 ];
 const pluribogQuestions = [
   {
-    question: "Choose the correct sentence:",
-    options: ['The cactuses in the desert are huge.', 'The cactus are growing quickly.', 'The cacti in the desert are huge.'],
-    correctAnswer: 2
+    type: "reading_comprehension",
+    passage: "The farmer counted his animals. He had three sheep, five geese, and two oxen in the field. The children helped him feed all the animals.",
+    causeOptions: ["Farmer counted animals", "Children helped", "Animals were hungry"],
+    effectOptions: ["He knew how many he had", "Animals were fed", "Field was organized"],
+    correctMatches: [
+      { cause: "Farmer counted animals", effect: "He knew how many he had" },
+      { cause: "Children helped", effect: "Animals were fed" }
+    ]
   },
   {
-    question: "Which is correct?",
-    options: ['I saw two sheeps in the field.', 'I saw two sheep in the field.', 'I saw two sheepes in the field.'],
-    correctAnswer: 1
+    type: "4pics1word",
+    images: [
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMJioYqbYRnhG4JeFGO5d1ZcT0aSwwVJZGeg&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSoJNC20IEZg0_ppCIYTWPCugD0dCbMkumBA&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRISm1kCYXogfr47bfj5L0cLI-FRy_ZzOYscQ&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStibwcdKQlPCuhqCjmJcF-35lBGoqMGM7uBw&s"
+    ],
+    letters: "EESEGKIRD",
+    correct: "GEESE"
   },
   {
-    question: "Select the correct plural: 'There were several strange ___ crawling on the log.'",
-    options: ['mices', 'mice', 'mouse'],
-    correctAnswer: 1
+    type: "reading_comprehension",
+    passage: "The mice ran through the house. They found some crumbs in the kitchen. The women screamed when they saw so many mice running around.",
+    causeOptions: ["Mice found crumbs", "Women saw mice", "Mice ran around"],
+    effectOptions: ["They stayed in kitchen", "Women screamed", "House was messy"],
+    correctMatches: [
+      { cause: "Mice found crumbs", effect: "They stayed in kitchen" },
+      { cause: "Women saw mice", effect: "Women screamed" }
+    ]
   },
   {
-    question: "Choose the correct sentence:",
-    options: ['The data are accurate.', 'The datas is accurate.', 'The datum are accurate.'],
-    correctAnswer: 0
+    type: "spelling",
+    definition: "The plural form of 'tooth' - hard structures in the mouth used for biting.",
+    correct: "TEETH"
   },
   {
+    type: "multiple_choice",
     question: "What is the plural of 'phenomenon'?",
     options: ['phenomenons', 'phenomena', 'phenomenae'],
     correctAnswer: 1
@@ -877,6 +865,206 @@ const VictoryButton = styled(Button)(({ theme }) => ({
   boxShadow: '0 2px 8px #b48a6e44',
 }));
 
+// Styled components for diverse gameplay
+const FourPicsContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '24px',
+  alignItems: 'flex-start',
+  width: '100%',
+  maxWidth: '1000px',
+  margin: '0 auto',
+  minHeight: '120px',
+}));
+
+const ImagesSection = styled(Box)(({ theme }) => ({
+  flex: '0 0 320px',
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gridTemplateRows: '1fr 1fr',
+  gap: '8px',
+  height: 'auto',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const GameImage = styled('img')(({ theme }) => ({
+  width: '150px',
+  height: '100px',
+  objectFit: 'cover',
+  borderRadius: '12px',
+  border: '3px solid #fff',
+  boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+  transition: 'transform 0.2s ease',
+  '&:hover': {
+    transform: 'scale(1.03)',
+  },
+}));
+
+const LettersSection = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
+  alignItems: 'center',
+}));
+
+const SelectedLettersContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '8px',
+  minHeight: '60px',
+  alignItems: 'center',
+  padding: '12px',
+  background: 'rgba(0,0,0,0.3)',
+  borderRadius: '8px',
+  border: '2px dashed rgba(255,255,255,0.3)',
+}));
+
+const AvailableLettersContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '6px',
+  flexWrap: 'nowrap',
+  justifyContent: 'center',
+}));
+
+const LetterButton = styled(Button)(({ theme }) => ({
+  minWidth: '45px',
+  width: '45px',
+  height: '45px',
+  fontSize: '1.1rem',
+  fontWeight: 'bold',
+  background: 'linear-gradient(145deg, #f4e4c1, #e8d5a6)',
+  color: '#5d4037',
+  border: '2px solid #b8956f',
+  borderRadius: '8px',
+  flexShrink: 0,
+  '&:hover': {
+    background: 'linear-gradient(145deg, #e8d5a6, #dcc48a)',
+    transform: 'translateY(-2px)',
+  },
+}));
+
+const SpellingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '20px',
+  width: '100%',
+  maxWidth: '600px',
+  margin: '0 auto',
+}));
+
+const SpellingInput = styled('input')(({ theme }) => ({
+  fontSize: '1.5rem',
+  padding: '12px 20px',
+  borderRadius: '8px',
+  border: '2px solid #b8956f',
+  background: 'rgba(255,255,255,0.9)',
+  textAlign: 'center',
+  letterSpacing: '2px',
+  fontWeight: 'bold',
+  width: '300px',
+  '&:focus': {
+    outline: 'none',
+    borderColor: '#8B4513',
+    boxShadow: '0 0 10px rgba(139,69,19,0.5)',
+  },
+}));
+
+const SoundButton = styled(Button)(({ theme }) => ({
+  padding: '12px 24px',
+  fontSize: '1rem',
+  background: 'linear-gradient(145deg, #4CAF50, #45a049)',
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #45a049, #3d8b40)',
+  },
+}));
+
+const ReadingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
+  width: '100%',
+  maxWidth: '800px',
+  margin: '0 auto',
+}));
+
+const PassageBox = styled(Box)(({ theme }) => ({
+  background: 'rgba(0,0,0,0.3)',
+  padding: '16px',
+  borderRadius: '8px',
+  border: '2px solid rgba(255,255,255,0.2)',
+  fontSize: '1.1rem',
+  lineHeight: '1.6',
+  color: '#f0f0f0',
+}));
+
+const DragDropSection = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '24px',
+}));
+
+const DragDropColumn = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+}));
+
+const DragItem = styled(Box)(({ theme }) => ({
+  padding: '12px',
+  background: 'linear-gradient(145deg, #f4e4c1, #e8d5a6)',
+  color: '#5d4037',
+  borderRadius: '8px',
+  border: '2px solid #b8956f',
+  cursor: 'grab',
+  textAlign: 'center',
+  fontSize: '0.9rem',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #e8d5a6, #dcc48a)',
+  },
+  '&:active': {
+    cursor: 'grabbing',
+  },
+}));
+
+const DropZone = styled(Box)(({ theme }) => ({
+  minHeight: '50px',
+  padding: '12px',
+  border: '2px dashed rgba(255,255,255,0.3)',
+  borderRadius: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  background: 'rgba(0,0,0,0.2)',
+  color: '#ccc',
+  fontSize: '0.9rem',
+}));
+
+const SubmitButton = styled(Button)(({ theme }) => ({
+  padding: '12px 32px',
+  fontSize: '1.1rem',
+  fontWeight: 'bold',
+  background: 'linear-gradient(145deg, #8B4513, #A0522D)',
+  color: 'white',
+  border: '2px solid #D4A574',
+  borderRadius: '12px',
+  alignSelf: 'flex-end',
+  marginRight: '20px',
+  '&:hover': {
+    background: 'linear-gradient(145deg, #A0522D, #8B4513)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 20px rgba(139,69,19,0.4)',
+  },
+  '&:disabled': {
+    opacity: 0.6,
+    cursor: 'not-allowed',
+    transform: 'none',
+  },
+}));
+
 const JungleLushLevel3 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
@@ -896,11 +1084,14 @@ const JungleLushLevel3 = () => {
   const [showClickPrompt, setShowClickPrompt] = useState(false);
   const [showQuit, setShowQuit] = useState(false);
   const idleTimeout = useRef(null);
-  const [newRecord, setNewRecord] = useState(false);
-  const levelNumber = 3;
   const [orcState, setOrcState] = useState('idle');
   const [pluribogState, setPluribogState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
+  // New states for diverse gameplay
+  const [selectedLetters, setSelectedLetters] = useState([]);
+  const [availableLetters, setAvailableLetters] = useState([]);
+  const [spellingInput, setSpellingInput] = useState('');
+  const [draggedItems, setDraggedItems] = useState({ causes: [], effects: [] });
 
   useEffect(() => {
     setShowClickPrompt(false);
@@ -927,6 +1118,27 @@ const JungleLushLevel3 = () => {
       }
     }
   }, [phase, timeLeft, victory, gameOver, hearts]);
+
+  // Gameplay initialization useEffect
+  useEffect(() => {
+    if ((phase === 'orc' || phase === 'pluribog')) {
+      const questions = monster === 'orc' ? orcQuestions : pluribogQuestions;
+      if (questions[currentQuestion]) {
+        const question = questions[currentQuestion];
+        // Reset states
+        setSelectedAnswer(null);
+        setShowResult(false);
+        setSelectedLetters([]);
+        setSpellingInput('');
+        setDraggedItems({ causes: [], effects: [] });
+        // Initialize based on question type
+        if (question.type === '4pics1word') {
+          const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
+          setAvailableLetters(shuffled);
+        }
+      }
+    }
+  }, [currentQuestion, phase, monster]);
 
   const handleDialogueClick = () => {
     setShowClickPrompt(false);
@@ -956,12 +1168,134 @@ const JungleLushLevel3 = () => {
     }
   };
 
+  // Answer handler for multiple choice questions
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
-    setShowResult(true);
+    // Use setTimeout to ensure state updates properly
+    setTimeout(() => {
+      const questions = monster === 'orc' ? orcQuestions : pluribogQuestions;
+      const question = questions[currentQuestion];
+      const isCorrect = idx === question.correctAnswer;
+      setShowResult(true);
+      
+      if (isCorrect) {
+        // Correct answer - damage monster
+        setAdventurerState('attack');
+        setTimeout(() => setAdventurerState('idle'), 500);
+        
+        if (monster === 'orc') {
+          setOrcState('hurt');
+          setTimeout(() => setOrcState('idle'), 500);
+        } else {
+          setPluribogState('hurt');
+          setTimeout(() => setPluribogState('idle'), 500);
+        }
+        
+        setMonsterDamaged(true);
+        setTimeout(() => setMonsterDamaged(false), 500);
+        
+        setMonsterHP(hp => {
+          const newHP = Math.max(0, hp - Math.floor(100 / questions.length));
+          if (currentQuestion === questions.length - 1 || newHP === 0) {
+            if (monster === 'orc') {
+              setOrcState('death');
+              setPhase('prepluribog');
+              setPrePluribogDialogueIdx(0);
+            } else {
+              setPluribogState('death');
+              setVictory(true);
+            }
+          }
+          return newHP;
+        });
+        
+        if (currentQuestion < questions.length - 1) {
+          setTimeout(() => {
+            setCurrentQuestion(prev => prev + 1);
+            setSelectedAnswer(null);
+            setShowResult(false);
+            setTimeLeft(TIMER_DURATION);
+          }, 600);
+        }
+      } else {
+        // Wrong answer - deduct time and potentially hearts
+        const newTime = Math.max(0, timeLeft - 5);
+        setTimeLeft(newTime);
+        
+        if (newTime === 0) {
+          // Time ran out, lose heart
+          if (monster === 'orc') {
+            setOrcState('attack');
+            setTimeout(() => setOrcState('idle'), 500);
+          } else {
+            setPluribogState('attack');
+            setTimeout(() => setPluribogState('idle'), 500);
+          }
+          
+          setUserDamaged(true);
+          setTimeout(() => setUserDamaged(false), 500);
+          
+          if (hearts > 1) {
+            setTimeout(() => {
+              setHearts(h => h - 1);
+              setSelectedAnswer(null);
+              setShowResult(false);
+              setTimeLeft(TIMER_DURATION);
+            }, 600);
+          } else {
+            setTimeout(() => {
+              setHearts(0);
+              setGameOver(true);
+            }, 600);
+          }
+        } else {
+          // Just reset the question
+          setTimeout(() => {
+            setSelectedAnswer(null);
+            setShowResult(false);
+          }, 1000);
+        }
+      }
+    }, 10);
+  };
+
+  // Generic validation function for all question types
+  const validateAnswer = () => {
+    const questions = monster === 'orc' ? orcQuestions : pluribogQuestions;
+    const question = questions[currentQuestion];
+    let isCorrect = false;
+    
+    switch (question.type) {
+      case 'multiple_choice':
+        isCorrect = selectedAnswer === question.correctAnswer;
+        break;
+      case 'spelling':
+        isCorrect = spellingInput.toUpperCase().trim() === question.correct.toUpperCase();
+        break;
+      case '4pics1word':
+        isCorrect = selectedLetters.join('') === question.correct;
+        break;
+      case 'reading_comprehension':
+        const userCause = draggedItems.causes[0];
+        const userEffect = draggedItems.effects[0];
+        isCorrect = question.correctMatches.some(match => 
+          match.cause === userCause && match.effect === userEffect
+        );
+        break;
+      default:
+        isCorrect = false;
+    }
+    return isCorrect;
+  };
+
+  // Generic submit handler for all question types
+  const handleSubmitAnswer = () => {
+    const isCorrect = validateAnswer();
     const questions = monster === 'orc' ? orcQuestions : pluribogQuestions;
     
-    if (idx === questions[currentQuestion].correctAnswer) {
+    setShowResult(true);
+    
+    if (isCorrect) {
       // Correct answer - damage monster
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
@@ -981,7 +1315,7 @@ const JungleLushLevel3 = () => {
         const newHP = Math.max(0, hp - Math.floor(100 / questions.length));
         if (currentQuestion === questions.length - 1 || newHP === 0) {
           if (monster === 'orc') {
-            if (monster === 'orc') setOrcState('death');
+            setOrcState('death');
             setPhase('prepluribog');
             setPrePluribogDialogueIdx(0);
           } else {
@@ -1001,32 +1335,112 @@ const JungleLushLevel3 = () => {
         }, 600);
       }
     } else {
-      // Wrong answer - player takes damage
-      if (monster === 'orc') {
-        setOrcState('attack');
-        setTimeout(() => setOrcState('idle'), 500);
+      // Wrong answer - deduct time and potentially hearts
+      const newTime = Math.max(0, timeLeft - 5);
+      setTimeLeft(newTime);
+      
+      if (newTime === 0) {
+        // Time ran out, lose heart
+        if (monster === 'orc') {
+          setOrcState('attack');
+          setTimeout(() => setOrcState('idle'), 500);
+        } else {
+          setPluribogState('attack');
+          setTimeout(() => setPluribogState('idle'), 500);
+        }
+        
+        setUserDamaged(true);
+        setTimeout(() => setUserDamaged(false), 500);
+        
+        if (hearts > 1) {
+          setTimeout(() => {
+            setHearts(h => h - 1);
+            setSelectedAnswer(null);
+            setShowResult(false);
+            setSelectedLetters([]);
+            setSpellingInput('');
+            setDraggedItems({ causes: [], effects: [] });
+            setTimeLeft(TIMER_DURATION);
+          }, 600);
+        } else {
+          setTimeout(() => {
+            setHearts(0);
+            setGameOver(true);
+          }, 600);
+        }
       } else {
-        setPluribogState('attack');
-        setTimeout(() => setPluribogState('idle'), 500);
-      }
-      
-      setUserDamaged(true);
-      setTimeout(() => setUserDamaged(false), 500);
-      
-      if (hearts > 1) {
+        // Just reset the question
         setTimeout(() => {
-          setHearts(h => h - 1);
           setSelectedAnswer(null);
           setShowResult(false);
-          setTimeLeft(TIMER_DURATION);
-        }, 600);
-      } else {
-        setTimeout(() => {
-          setHearts(0);
-          setGameOver(true);
-        }, 600);
+          setSelectedLetters([]);
+          setSpellingInput('');
+          setDraggedItems({ causes: [], effects: [] });
+          // Re-shuffle letters for 4pics1word
+          const questions = monster === 'orc' ? orcQuestions : pluribogQuestions;
+          const question = questions[currentQuestion];
+          if (question.type === '4pics1word') {
+            const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
+            setAvailableLetters(shuffled);
+          }
+        }, 1000);
       }
     }
+  };
+
+  // 4 Pics 1 Word helper functions
+  const handleLetterClick = (letter, index) => {
+    const questions = monster === 'orc' ? orcQuestions : pluribogQuestions;
+    const question = questions[currentQuestion];
+    if (question && selectedLetters.length < question.correct.length) {
+      setSelectedLetters(prev => [...prev, letter]);
+      setAvailableLetters(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleSelectedLetterClick = (index) => {
+    const letter = selectedLetters[index];
+    setSelectedLetters(prev => prev.filter((_, i) => i !== index));
+    setAvailableLetters(prev => [...prev, letter]);
+  };
+
+  // Spelling helper functions
+  const handleSpellingInputChange = (e) => {
+    setSpellingInput(e.target.value);
+  };
+
+  const speakWord = () => {
+    const questions = monster === 'orc' ? orcQuestions : pluribogQuestions;
+    const question = questions[currentQuestion];
+    if (question.type === 'spelling') {
+      const utterance = new SpeechSynthesisUtterance(question.correct);
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Reading Comprehension helper functions
+  const handleDragStart = (e, item, type) => {
+    e.dataTransfer.setData('text/plain', item);
+    e.dataTransfer.setData('type', type);
+  };
+
+  const handleDrop = (e, zone) => {
+    e.preventDefault();
+    const item = e.dataTransfer.getData('text/plain');
+    const type = e.dataTransfer.getData('type');
+    
+    if (item && (type === 'any' || zone === type)) {
+      setDraggedItems(prev => ({
+        ...prev,
+        [zone]: [item] // Only allow one item per zone
+      }));
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
   };
 
   const handleRetryBattle = () => {
@@ -1038,6 +1452,11 @@ const JungleLushLevel3 = () => {
     setShowResult(false);
     setGameOver(false);
     setVictory(false);
+    // Reset diverse gameplay states
+    setSelectedLetters([]);
+    setAvailableLetters([]);
+    setSpellingInput('');
+    setDraggedItems({ causes: [], effects: [] });
     setOrcState('idle');
     setPluribogState('idle');
     setAdventurerState('idle');
@@ -1146,23 +1565,184 @@ const JungleLushLevel3 = () => {
           <VS style={{ position: 'absolute', left: '50%', bottom: '250px', transform: 'translateX(-50%)', zIndex: 5 }}>VS</VS>
         </>
         <BattleBottomBar>
-          <QuestionText>
-            {questions[currentQuestion].question}
-          </QuestionText>
-          <ChoicesGrid count={questions[currentQuestion].options.length}>
-            {questions[currentQuestion].options.map((option, idx) => (
-              <MoveButton
-                key={idx}
-                selected={selectedAnswer === idx}
-                onClick={() => handleAnswer(idx)}
-                disableRipple
-                style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
-                disabled={showResult}
-              >
-                {option}
-              </MoveButton>
-            ))}
-          </ChoicesGrid>
+          {(() => {
+            const question = questions[currentQuestion];
+            
+            switch (question.type) {
+              case 'multiple_choice':
+                return (
+                  <>
+                    <QuestionText>{question.question}</QuestionText>
+                    <ChoicesGrid count={question.options.length}>
+                      {question.options.map((option, idx) => (
+                        <MoveButton
+                          key={idx}
+                          selected={selectedAnswer === idx}
+                          onClick={() => handleAnswer(idx)}
+                          disableRipple
+                          style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}
+                          disabled={showResult}
+                        >
+                          {option}
+                        </MoveButton>
+                      ))}
+                    </ChoicesGrid>
+                  </>
+                );
+                
+              case 'spelling':
+                return (
+                  <SpellingContainer>
+                    <Typography style={{ color: '#f0f0f0', fontSize: '1.2rem', marginBottom: '16px', textAlign: 'center' }}>
+                      {question.definition}
+                    </Typography>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'center' }}>
+                      <SoundButton onClick={speakWord}>🔊 Play Sound</SoundButton>
+                      <SpellingInput
+                        type="text"
+                        value={spellingInput}
+                        onChange={handleSpellingInputChange}
+                        placeholder="Type your answer..."
+                      />
+                      <SubmitButton
+                        onClick={handleSubmitAnswer}
+                        disabled={showResult || !spellingInput.trim()}
+                        style={{ margin: '0' }}
+                      >
+                        Submit Answer
+                      </SubmitButton>
+                    </div>
+                  </SpellingContainer>
+                );
+                
+              case '4pics1word':
+                return (
+                  <FourPicsContainer>
+                    <ImagesSection>
+                      {question.images.map((img, idx) => (
+                        <GameImage key={idx} src={img} alt={`Clue ${idx + 1}`} />
+                      ))}
+                    </ImagesSection>
+                    <LettersSection>
+                      <Typography style={{ color: '#f0f0f0', fontSize: '1.2rem', marginBottom: '8px', textAlign: 'center' }}>
+                        Find the word that connects all images!
+                      </Typography>
+                      <div style={{ marginBottom: '16px' }}>
+                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', marginBottom: '8px' }}>
+                          Answer ({question.correct.length} letters):
+                        </Typography>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          {Array.from({ length: question.correct.length }).map((_, idx) => (
+                            <div
+                              key={idx}
+                              style={{
+                                width: '50px', height: '50px', border: '2px solid #b8956f', borderRadius: '8px',
+                                background: selectedLetters[idx] ? 'linear-gradient(145deg, #f4e4c1, #e8d5a6)' : 'rgba(255,255,255,0.1)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold',
+                                color: selectedLetters[idx] ? '#5d4037' : '#ccc', cursor: selectedLetters[idx] ? 'pointer' : 'default',
+                              }}
+                              onClick={() => selectedLetters[idx] && handleSelectedLetterClick(idx)}
+                            >
+                              {selectedLetters[idx] || ''}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', justifyContent: 'center' }}>
+                        <AvailableLettersContainer style={{ margin: '0' }}>
+                          {availableLetters.map((letter, idx) => (
+                            <LetterButton key={idx} onClick={() => handleLetterClick(letter, idx)}>
+                              {letter}
+                            </LetterButton>
+                          ))}
+                        </AvailableLettersContainer>
+                        <SubmitButton
+                          onClick={handleSubmitAnswer}
+                          disabled={showResult || selectedLetters.length === 0}
+                          style={{ margin: '0' }}
+                        >
+                          Submit Answer
+                        </SubmitButton>
+                      </div>
+                    </LettersSection>
+                  </FourPicsContainer>
+                );
+                
+              case 'reading_comprehension':
+                return (
+                  <ReadingContainer>
+                    <PassageBox>
+                      <Typography style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#f0f0f0' }}>
+                        {question.passage}
+                      </Typography>
+                    </PassageBox>
+                    <Typography style={{ color: '#f0f0f0', fontSize: '1.1rem', textAlign: 'center', marginBottom: '12px' }}>
+                      Drag and drop to match cause and effect:
+                    </Typography>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center', flexWrap: 'nowrap' }}>
+                      {question.causeOptions.map((cause, idx) => (
+                        <DragItem
+                          key={`cause-${idx}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, cause, 'any')}
+                          style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
+                        >
+                          {cause}
+                        </DragItem>
+                      ))}
+                      {question.effectOptions.map((effect, idx) => (
+                        <DragItem
+                          key={`effect-${idx}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, effect, 'any')}
+                          style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
+                        >
+                          {effect}
+                        </DragItem>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', alignItems: 'flex-start' }}>
+                      <DragDropColumn>
+                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
+                          CAUSE
+                        </Typography>
+                        <DropZone
+                          onDrop={(e) => handleDrop(e, 'causes')}
+                          onDragOver={handleDragOver}
+                          style={{ background: draggedItems.causes.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
+                        >
+                          {draggedItems.causes[0] || 'Drop cause here'}
+                        </DropZone>
+                      </DragDropColumn>
+                      <DragDropColumn>
+                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
+                          EFFECT
+                        </Typography>
+                        <DropZone
+                          onDrop={(e) => handleDrop(e, 'effects')}
+                          onDragOver={handleDragOver}
+                          style={{ background: draggedItems.effects.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
+                        >
+                          {draggedItems.effects[0] || 'Drop effect here'}
+                        </DropZone>
+                      </DragDropColumn>
+                      <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                        <SubmitButton
+                          onClick={handleSubmitAnswer}
+                          disabled={showResult || draggedItems.causes.length < 1 || draggedItems.effects.length < 1}
+                          style={{ margin: '0' }}
+                        >
+                          Submit Answer
+                        </SubmitButton>
+                      </div>
+                    </div>
+                  </ReadingContainer>
+                );
+                
+              default:
+                return <Typography style={{ color: '#f0f0f0' }}>Unknown question type</Typography>;
+            }
+          })()}
         </BattleBottomBar>
       </>
     );

@@ -4,20 +4,16 @@ import axios from "axios";
 import Tooltip from "@mui/material/Tooltip";
 import "../../styles/JungleLush.css";
 
-// Jungle-themed CSS background with more color variety
+// Beautiful jungle background with image overlay
 const backgroundStyle = {
-  background: `
-    linear-gradient(135deg, 
-      rgba(139, 69, 19, 0.6) 0%, 
-      rgba(34, 139, 34, 0.7) 25%,
-      rgba(85, 107, 47, 0.8) 50%,
-      rgba(160, 82, 45, 0.6) 75%,
-      rgba(0, 128, 0, 0.7) 100%
-    ),
-    radial-gradient(circle at 20% 80%, rgba(139, 69, 19, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(85, 107, 47, 0.3) 0%, transparent 50%),
-    linear-gradient(45deg, #8B4513 0%, #228B22 50%, #6B8E23 100%)
-  `
+  backgroundImage: `
+    linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)),
+    url("https://i.pinimg.com/736x/7e/cb/41/7ecb415f5f628c28e685a608e1d9a66f.jpg")
+  `,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  minHeight: '100vh'
 };
 
 const levels = [
@@ -113,14 +109,12 @@ export default function JungleLush() {
 
   return (
     <div className="junglelush-bg" style={backgroundStyle}>
-      {/* Jungle decorative elements */}
-      <div className="jungle-vines jungle-vine-1"></div>
-      <div className="jungle-vines jungle-vine-2"></div>
-      <div className="jungle-leaves"></div>
       
-      <div className="jl-bg-overlay">
-        <h1 className="jl-header">🌿 Grammowl's Territory 🌿</h1>
-        <div className="jl-subtitle">Your Adventure Begins Here</div>
+      <div className="jl-content-wrapper">
+        <div className="jl-main-header">
+          <h1 className="jl-title">Grammowl's Territory</h1>
+          <p className="jl-tagline">Begin your journey through the jungle!</p>
+        </div>
 
         <div className="jl-levels-row">
           {levels.map((level, idx) => {
