@@ -43,7 +43,7 @@ export default function StudentWordOfTheDay() {
 const [gold, setGold] = useState(loadState("gold", null));
   const [streak, setStreak] = useState(loadState("streak", 0));
   const [lastPlayedDate, setLastPlayedDate] = useState(loadState("lastPlayedDate", null));
-
+  const [choices, setChoices] = useState([]);
 
 
 
@@ -65,6 +65,7 @@ const [gold, setGold] = useState(loadState("gold", null));
       }
       
       setImageUrl(`http://localhost:8080${res.data.imageUrl}`);
+      setChoices(res.data.choices || []);
       
       // Only update gold/streak if they're different from server
       if (res.data.gold !== undefined && res.data.gold !== gold) {
@@ -385,59 +386,75 @@ const [gold, setGold] = useState(loadState("gold", null));
               gap: "16px"
             }}
           >
-            <TextField
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              placeholder="Enter your guess..."
-              variant="outlined"
-              fullWidth
-              InputProps={{
-                sx: {
-                  fontFamily: "'Press Start 2P', cursive",
-                  color: "#fff",
-                  background: "#18181b",
-                  border: "2px solid #00eaff",
-                  borderRadius: "8px",
-                  "&:hover": {
-                    borderColor: "#ff00c8"
-                  },
-                  "&.Mui-focused": {
-                    borderColor: "#ff00c8",
-                    boxShadow: "0 0 16px #ff00c8"
-                  }
-                }
-              }}
-              InputLabelProps={{
-                sx: {
-                  fontFamily: "'Press Start 2P', cursive",
-                  color: "#00eaff"
-                }
-              }}
-            />
-            <Button
-              onClick={submitGuess}
-              disabled={!guess.trim()}
-              sx={{
-                fontFamily: "'Press Start 2P', cursive",
-                fontSize: "0.9rem",
-                color: "#00eaff",
-                background: "#18181b",
-                border: "2px solid #00eaff",
-                borderRadius: "8px",
-                p: "12px 24px",
-                boxShadow: "0 0 8px #00eaff80",
-                "&:hover": {
-                  background: "#00eaff22",
-                  borderColor: "#ff00c8",
-                  boxShadow: "0 0 16px #ff00c8"
-                },
-                "&:disabled": {
-                  opacity: 0.5
-                }
-              }}
-            >
-              SUBMIT GUESS
-            </Button>
+            <Box
+  sx={{
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "16px",
+    mb: 2,
+  }}
+>
+  {choices.map((choice, index) => (
+    <Box
+      key={index}
+      onClick={() => setGuess(choice)}
+      sx={{
+        cursor: "pointer",
+        background: guess === choice ? "#00eaff33" : "#18181b",
+        border: `2px solid ${guess === choice ? "#ff00c8" : "#00eaff"}`,
+        borderRadius: "12px",
+        boxShadow: guess === choice
+          ? "0 0 16px #ff00c8, 0 0 32px #ff00c880"
+          : "0 0 8px #00eaff80",
+        p: "16px",
+        textAlign: "center",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          background: "#00eaff22",
+          borderColor: "#ff00c8",
+          boxShadow: "0 0 16px #ff00c8",
+        },
+      }}
+    >
+      <Typography
+        sx={{
+          fontFamily: "'Press Start 2P', cursive",
+          fontSize: "0.9rem",
+          color: "#fff",
+          textShadow: "0 0 6px #00eaff",
+        }}
+      >
+        {choice}
+      </Typography>
+    </Box>
+  ))}
+</Box>
+
+<Button
+  onClick={submitGuess}
+  disabled={!guess}
+  sx={{
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: "0.9rem",
+    color: "#00eaff",
+    background: "#18181b",
+    border: "2px solid #00eaff",
+    borderRadius: "8px",
+    p: "12px 24px",
+    boxShadow: "0 0 8px #00eaff80",
+    "&:hover": {
+      background: "#00eaff22",
+      borderColor: "#ff00c8",
+      boxShadow: "0 0 16px #ff00c8",
+    },
+    "&:disabled": {
+      opacity: 0.5,
+    },
+  }}
+>
+  SUBMIT GUESS
+</Button>
+
           </Box>
         )}
 
