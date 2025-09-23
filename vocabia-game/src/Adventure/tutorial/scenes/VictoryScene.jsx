@@ -57,7 +57,7 @@ const SceneContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+  background: 'rgba(0, 0, 0, 0.8)',
   position: 'relative',
   overflow: 'hidden',
   '&::before': {
@@ -94,21 +94,16 @@ const ConfettiParticle = styled('div')(({ color, delay, duration }) => ({
 }));
 
 const VictoryContainer = styled(Paper)(({ theme }) => ({
-  padding: '60px 50px 50px 50px',
-  background: 'linear-gradient(145deg, #2a2a3e 0%, #1e1e2f 50%, #16213e 100%)',
-  color: '#fff',
-  borderRadius: '32px',
+  padding: '32px',
+  background: 'linear-gradient(145deg, #f4e4c1 0%, #e8d5a6 50%, #dcc48a 100%)',
+  color: '#5d4037',
+  borderRadius: '16px',
   textAlign: 'center',
-  maxWidth: '650px',
+  maxWidth: '400px',
   width: '90%',
   position: 'relative',
-  border: '3px solid rgba(255, 215, 0, 0.3)',
-  boxShadow: `
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 10px 30px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1)
-  `,
-  animation: `${fadeInUp} 1s ease-out`,
+  border: '3px solid #b8956f',
+  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
   overflow: 'visible',
   '&::before': {
     content: '""',
@@ -298,37 +293,50 @@ const VictoryScene = ({ results, onClose }) => {
 
   return (
     <SceneContainer>
-      {confettiParticles}
-      
-      <VictoryContainer elevation={24}>
-        <VictoryTitle variant="h1">
+      <VictoryContainer elevation={8}>
+        <Typography variant="h3" style={{ 
+          color: '#8b4513', 
+          fontWeight: 700, 
+          marginBottom: '16px',
+          textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        }}>
           Victory!
-        </VictoryTitle>
+        </Typography>
         
-        {showStars && (
-          <StarRow>
-            {[0, 1, 2].map((index) => (
-              <Star
-                key={index}
-                filled={index < (results?.hearts || 3)}
-                delay={index * 0.3}
-              />
-            ))}
-          </StarRow>
-        )}
+        <div style={{ marginBottom: '20px', fontSize: '1.5rem' }}>
+          ⭐ ⭐ ⭐
+        </div>
         
-        <ScoreContainer>
-          <ScoreText>
-            ⚔️ Score: {results?.score || 5}/{results?.totalQuestions || 5}
-          </ScoreText>
-          <ScoreText>
-            ❤️ Hearts Remaining: {results?.hearts || 3}
-          </ScoreText>
-        </ScoreContainer>
+        <div style={{
+          background: 'rgba(139, 69, 19, 0.1)',
+          borderRadius: '12px',
+          padding: '16px',
+          marginBottom: '20px',
+          border: '2px solid rgba(139, 69, 19, 0.2)'
+        }}>
+          <Typography variant="h6" style={{ 
+            color: '#8b4513', 
+            fontWeight: 600,
+            marginBottom: '8px'
+          }}>
+            🏆 Score: {results?.score || 5}/{results?.totalQuestions || 5}
+          </Typography>
+          <Typography variant="body1" style={{ 
+            color: '#6d4c41', 
+            fontWeight: 500
+          }}>
+            ❤️ Hearts: {results?.hearts || 3}
+          </Typography>
+        </div>
         
-        <FlavorText>
-          "Well done, chosen one. You have mastered the ancient arts of grammar and proven yourself worthy. Now your true journey begins..."
-        </FlavorText>
+        <Typography variant="body1" style={{ 
+          color: '#5d4037', 
+          fontStyle: 'italic',
+          marginBottom: '24px',
+          lineHeight: 1.4
+        }}>
+          "Well done! You have completed the tutorial and are ready for your adventure."
+        </Typography>
         
         <ContinueButton
           variant="contained"

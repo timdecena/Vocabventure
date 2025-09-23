@@ -560,32 +560,61 @@ const QuitButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// 4 Pics 1 Word Components with reduced spacing
-const ImagesGrid = styled(Box)(({ theme }) => ({
+// 4 Pics 1 Word Components - Left side layout
+const FourPicsContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: '24px',
+  alignItems: 'flex-start',
+  width: '100%',
+  maxWidth: '1000px',
+  margin: '0 auto',
+  minHeight: '120px',
+}));
+
+const ImagesSection = styled(Box)(({ theme }) => ({
+  flex: '0 0 320px', // Fixed width for 2x2 grid
   display: 'grid',
-  gridTemplateColumns: 'repeat(3, 1fr)',
-  gap: '12px', // Reduced gap
-  marginBottom: '16px', // Reduced margin
-  maxWidth: '480px', // Smaller max width
-  margin: '0 auto 16px auto',
+  gridTemplateColumns: '1fr 1fr', // 2 columns
+  gridTemplateRows: '1fr 1fr', // 2 rows
+  gap: '8px', // Gap between grid items
+  height: 'auto',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const GameplaySection = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '16px',
 }));
 
 const GameImage = styled('img')(({ theme }) => ({
-  width: '100%',
-  height: '80px', // Reduced height
+  width: '150px', // Square dimensions for grid layout
+  height: '100px', // Rectangular for better image display
   objectFit: 'cover',
-  borderRadius: '8px', // Smaller radius
-  border: '2px solid #fff', // Thinner border
-  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+  borderRadius: '12px',
+  border: '3px solid #fff',
+  boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+  transition: 'transform 0.2s ease',
+  '&:hover': {
+    transform: 'scale(1.03)',
+  },
 }));
+
+// Removed LargeGameImage - using regular GameImage for all 3 images
 
 const LetterBank = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '6px', // Reduced gap
-  justifyContent: 'center',
-  marginBottom: '12px', // Reduced margin
-  minHeight: '50px', // Reduced height
+  gap: '8px',
+  justifyContent: 'flex-start',
+  marginBottom: '16px',
+  minHeight: '60px',
+  padding: '8px',
+  background: 'rgba(0,0,0,0.1)',
+  borderRadius: '8px',
+  border: '1px solid rgba(255,255,255,0.2)',
 }));
 
 const LetterTile = styled(Button)(({ used }) => ({
@@ -608,14 +637,36 @@ const LetterTile = styled(Button)(({ used }) => ({
 
 const AnswerBox = styled(Box)(({ theme }) => ({
   display: 'flex',
-  gap: '4px',
+  gap: '6px',
+  justifyContent: 'flex-start',
+  marginBottom: '16px',
+  minHeight: '50px',
+  padding: '8px',
+  background: 'rgba(255,255,255,0.15)',
+  borderRadius: '10px',
+  border: '2px solid rgba(255,255,255,0.3)',
+  alignItems: 'center',
+}));
+
+const AnswerSlot = styled(Box)(({ filled, theme }) => ({
+  width: '40px',
+  height: '40px',
+  minWidth: '40px',
+  display: 'flex',
+  alignItems: 'center',
   justifyContent: 'center',
-  marginBottom: '12px', // Reduced margin
-  minHeight: '45px', // Reduced height
-  padding: '6px', // Reduced padding
-  background: 'rgba(255,255,255,0.1)',
+  background: filled ? 'rgba(76, 175, 80, 0.8)' : 'rgba(255,255,255,0.2)',
+  border: `2px solid ${filled ? '#4CAF50' : '#fff'}`,
   borderRadius: '8px',
-  border: '2px dashed #fff',
+  color: filled ? '#fff' : '#ccc',
+  fontSize: '1.2rem',
+  fontWeight: 700,
+  cursor: filled ? 'pointer' : 'default',
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    background: filled ? 'rgba(76, 175, 80, 0.9)' : 'rgba(255,255,255,0.3)',
+    transform: filled ? 'scale(1.05)' : 'none',
+  },
 }));
 
 const SelectedLetter = styled(Button)(({ theme }) => ({
@@ -1008,10 +1059,10 @@ const TutorialBattle = ({ onComplete, showQuitButton, onQuit, quitButtonText, in
       type: "intro"
     },
     {
-      title: "4 Pics 1 Word Challenge",
-      content: "Look at the 3 pictures and find the word they have in common. Click the letters below to spell the word. You can click letters in your answer to remove them!",
+      title: "4 Pics 1 Word Challenge", 
+      content: "Look at the 4 pictures and find the word they have in common. Click the letters below to spell the word. You can click letters in your answer to remove them!",
       type: "4pics1word",
-      example: "If you see pictures of an apple, banana, and orange, the answer would be 'FRUIT'!"
+      example: "If you see pictures of an apple, banana, orange, and grapes, the answer would be 'FRUIT'!"
     },
     {
       title: "Spelling Challenge",
@@ -1050,7 +1101,8 @@ const TutorialBattle = ({ onComplete, showQuitButton, onQuit, quitButtonText, in
       images: [
         "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=200&h=200&fit=crop", // Food
         "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=200&h=200&fit=crop", // Pancakes
-        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop"  // Cooking
+        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop", // Cooking
+        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=200&h=200&fit=crop"  // Pizza
       ],
       letters: "FDOOEKOCIN",
       correct: "FOOD"
@@ -1341,11 +1393,19 @@ const TutorialBattle = ({ onComplete, showQuitButton, onQuit, quitButtonText, in
     }
   };
 
+  // Initialize timer when instructions end
   useEffect(() => {
-    if (timeLeft > 0 && !isAnswered && !victory && !gameOver && !showInstructions) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    if (!showInstructions) {
+      setTimeLeft(30); // Reset timer when instructions end
+    }
+  }, [showInstructions]);
+
+  useEffect(() => {
+    // Only start timer if instructions are done and game is active
+    if (!showInstructions && !victory && !gameOver && timeLeft > 0 && !isAnswered) {
+      const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && !isAnswered && !victory && !gameOver && !showInstructions) {
+    } else if (!showInstructions && !victory && !gameOver && timeLeft === 0 && !isAnswered) {
       // Timer reached zero - lose a heart and reset
       const newHearts = hearts - 1;
       setHearts(newHearts);
@@ -1356,8 +1416,8 @@ const TutorialBattle = ({ onComplete, showQuitButton, onQuit, quitButtonText, in
         resetCurrentQuestion();
         setTimeLeft(30);
       }
-    }
-  }, [timeLeft, isAnswered, victory, gameOver, hearts]);
+    }  
+  }, [timeLeft, isAnswered, victory, gameOver, hearts, showInstructions]);
 
   // Save battle state whenever important values change
   useEffect(() => {
@@ -1472,36 +1532,52 @@ const TutorialBattle = ({ onComplete, showQuitButton, onQuit, quitButtonText, in
         {questions[currentQuestionIndex].type === "4pics1word" && (
           <GameplayContainer>
             <QuestionText>Look at the pictures and spell the word!</QuestionText>
-            <ImagesGrid>
-              {questions[currentQuestionIndex].images.map((img, idx) => (
-                <GameImage key={idx} src={img} alt={`Clue ${idx + 1}`} />
-              ))}
-            </ImagesGrid>
-            <AnswerBox>
-              {selectedLetters.map((letter, idx) => (
-                <SelectedLetter
-                  key={`selected-${letter.id}`}
-                  onClick={() => handleLetterRemove(letter.id)}
-                >
-                  {letter.letter}
-                </SelectedLetter>
-              ))}
-            </AnswerBox>
-            <LetterBank>
-              {availableLetters.map((letter) => (
-                <LetterTile
-                  key={letter.id}
-                  used={letter.used}
-                  onClick={() => handleLetterClick(letter.id)}
-                  disabled={letter.used}
-                >
-                  {letter.letter}
-                </LetterTile>
-              ))}
-            </LetterBank>
+            <FourPicsContainer>
+              <ImagesSection>
+                {questions[currentQuestionIndex].images.map((img, idx) => (
+                  <GameImage key={idx} src={img} alt={`Clue ${idx + 1}`} />
+                ))}
+              </ImagesSection>
+              
+              <GameplaySection>
+                <Typography style={{ color: '#fff', fontSize: '1rem', marginBottom: '8px' }}>
+                  Answer ({questions[currentQuestionIndex].correct.length} letters):
+                </Typography>
+                <AnswerBox>
+                  {[...Array(questions[currentQuestionIndex].correct.length)].map((_, idx) => {
+                    const selectedLetter = selectedLetters[idx];
+                    return (
+                      <AnswerSlot
+                        key={idx}
+                        filled={!!selectedLetter}
+                        onClick={() => selectedLetter && handleLetterRemove(selectedLetter.id)}
+                      >
+                        {selectedLetter ? selectedLetter.letter : ''}
+                      </AnswerSlot>
+                    );
+                  })}
+                </AnswerBox>
+                
+                <Typography style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '8px' }}>
+                  Available Letters:
+                </Typography>
+                <LetterBank>
+                  {availableLetters.map((letter) => (
+                    <LetterTile
+                      key={letter.id}
+                      used={letter.used}
+                      onClick={() => handleLetterClick(letter.id)}
+                      disabled={letter.used}
+                    >
+                      {letter.letter}
+                    </LetterTile>
+                  ))}
+                </LetterBank>
+              </GameplaySection>
+            </FourPicsContainer>
             <SubmitButton
               onClick={handleSubmit4Pics}
-              disabled={selectedLetters.length === 0 || isAnswered}
+              disabled={selectedLetters.length !== questions[currentQuestionIndex].correct.length || isAnswered}
             >
               Submit
             </SubmitButton>
@@ -1661,11 +1737,48 @@ const TutorialBattle = ({ onComplete, showQuitButton, onQuit, quitButtonText, in
             border: '3px solid #b8956f',
             boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
           }}>
-            <Typography variant="h3" style={{ color: '#2e7d32', fontWeight: 800, marginBottom: '20px' }}>
-              🎉 Victory! 🎉
+            <Typography variant="h4" style={{ 
+              color: '#8b4513', 
+              fontWeight: 700, 
+              marginBottom: '16px',
+              textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}>
+              Victory!
             </Typography>
-            <Typography variant="h6" style={{ color: '#3a2a1a', marginBottom: '30px' }}>
-              You defeated the Orc Minion!
+            
+            <div style={{ marginBottom: '20px', fontSize: '1.5rem' }}>
+              ⭐ ⭐ ⭐
+            </div>
+            
+            <div style={{
+              background: 'rgba(139, 69, 19, 0.1)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '20px',
+              border: '2px solid rgba(139, 69, 19, 0.2)'
+            }}>
+              <Typography variant="h6" style={{ 
+                color: '#8b4513', 
+                fontWeight: 600,
+                marginBottom: '8px'
+              }}>
+                🏆 Score: {score}/{questions.length}
+              </Typography>
+              <Typography variant="body1" style={{ 
+                color: '#6d4c41', 
+                fontWeight: 500
+              }}>
+                ❤️ Hearts: {hearts}
+              </Typography>
+            </div>
+            
+            <Typography variant="body1" style={{ 
+              color: '#5d4037', 
+              fontStyle: 'italic',
+              marginBottom: '24px',
+              lineHeight: 1.4
+            }}>
+              "Well done! You have completed the tutorial and are ready for your adventure."
             </Typography>
             <Button
               variant="contained"
