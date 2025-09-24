@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 import api from "../api/api";
+
 // Arcade Neon wrapper with animated grid background
 const ArcadeWrapper = styled(Box)({
   minHeight: '100vh',
@@ -159,7 +160,6 @@ const Register = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  import api from "../api/api"; // ✅ add this import
 
 const handleSubmit = async (e) => {
   e.preventDefault();
