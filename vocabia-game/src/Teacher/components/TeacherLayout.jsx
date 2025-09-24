@@ -87,8 +87,7 @@ export default function TeacherLayout({ children }) {
             {[
               { label: t('Home'), to: '/teacher-home' },
               { label: t('Classes'), to: '/teacher/classes' },
-              { label: t('Students'), to: '/teacher/students' },
-              { label: t('Assignments'), to: '/teacher/assignments' },
+              { label: t('Analytics'), to: '/teacher/analytics' },
             ].map((item) => {
               const active = location.pathname === item.to || location.pathname.startsWith(item.to + '/');
               return (

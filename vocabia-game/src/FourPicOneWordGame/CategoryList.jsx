@@ -26,6 +26,8 @@ import SchoolIcon from "@mui/icons-material/School";
 import LocalFloristIcon from "@mui/icons-material/LocalFlorist";
 import api from "../api/api";
 import { Zoom } from "@mui/material";
+import SoundManager from "../sound/SoundManager";
+import AudioControls from "../components/AudioControls";
 
 // Category theme mapping
 const categoryThemes = {
@@ -171,6 +173,22 @@ function CategoryList() {
     };
 
     fetchData();
+  }, []);
+
+  // Preload sound effects and start BGM when this page mounts (user is entering FPOW module)
+  useEffect(() => {
+    SoundManager.preloadEffects();
+    // Try to start BGM immediately, but it may be blocked until user interaction
+    SoundManager.playBgm();
+
+    // Cleanup: Stop music when leaving FPOW completely
+    return () => {
+      // Only stop music if navigating away from FPOW entirely
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('4pic1word')) {
+        SoundManager.stopAllAudio();
+      }
+    };
   }, []);
 
   // Refresh progress when user returns to this page
@@ -329,7 +347,11 @@ function CategoryList() {
                       }
                     }}
                     elevation={5}
-                    onClick={() => navigate(`/student/classes/${id}/4pic1word/${cat}`)}
+                    onClick={() => {
+                      SoundManager.playEffect('button_press');
+                      SoundManager.playBgm(); // Ensure BGM starts on user interaction
+                      navigate(`/student/classes/${id}/4pic1word/${cat}`);
+                    }}
                   >
                     <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
                       {/* Icon with Badge */}
@@ -461,6 +483,12 @@ function CategoryList() {
                           },
                           transition: 'all 0.3s ease'
                         }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          SoundManager.playEffect('button_press');
+                          SoundManager.playBgm(); // Ensure BGM starts on user interaction
+                          navigate(`/student/classes/${id}/4pic1word/${cat}`);
+                        }}
                       >
                         Play Now
                       </Button>
@@ -471,6 +499,9 @@ function CategoryList() {
             })}
           </Box>
         </Box>
+        
+        {/* Floating Audio Controls */}
+        <AudioControls />
       </Box>
     );    
 }

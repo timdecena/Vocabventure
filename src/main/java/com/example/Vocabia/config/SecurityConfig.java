@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 
 import java.util.Arrays;
 
@@ -51,6 +52,8 @@ public class SecurityConfig {
             
             // CRITICAL: Proper request authorization order (most specific first)
             .authorizeHttpRequests(authz -> authz
+                // Actuator health/info for uptime checks
+                .requestMatchers(EndpointRequest.to("health", "info")).permitAll()
                 // CRITICAL: Allow all OPTIONS requests for CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
@@ -60,7 +63,7 @@ public class SecurityConfig {
                 
                 // Authentication endpoints (must be public)
                 .requestMatchers("/api/auth/**").permitAll()
-                
+
                 // Public game metadata
                 .requestMatchers("/api/fpow/categories", "/api/fpow/levels").permitAll()
                 

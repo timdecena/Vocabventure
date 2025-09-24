@@ -25,8 +25,6 @@ import TeacherViewClassPage from './Teacher/TeacherViewClassPage';
 import TeacherFPOWProgressPage from './Teacher/TeacherFPOWProgressPage';
 import TeacherStudentFPOWProgressPage from './Teacher/TeacherStudentFPOWProgressPage';
 import TeacherAnalyticsPage from './Teacher/TeacherAnalyticsPage';
-import TeacherStudentsPage from './Teacher/TeacherStudentsPage';
-import TeacherAssignmentsPage from './Teacher/TeacherAssignmentsPage';
 import TeacherWordListsPage from './Teacher/TeacherWordListsPage';
 
 // Student
@@ -283,16 +281,6 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/teacher/analytics" element={
         isAuthenticated && role === 'TEACHER'
           ? <TeacherLayout><TeacherAnalyticsPage /></TeacherLayout>
-          : <Navigate to="/" replace />
-      } />
-      <Route path="/teacher/students" element={
-        isAuthenticated && role === 'TEACHER'
-          ? <TeacherLayout><TeacherStudentsPage /></TeacherLayout>
-          : <Navigate to="/" replace />
-      } />
-      <Route path="/teacher/assignments" element={
-        isAuthenticated && role === 'TEACHER'
-          ? <TeacherLayout><TeacherAssignmentsPage /></TeacherLayout>
           : <Navigate to="/" replace />
       } />
       <Route path="/teacher/word-lists" element={

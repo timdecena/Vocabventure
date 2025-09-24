@@ -67,7 +67,8 @@ const Navbar = ({ role, onLogout }) => {
         left: 0,
         zIndex: 1000,
         boxShadow: "0 0 20px #00eaff80",
-        borderBottom: "1px solid #00eaff"
+        // Removed bottom border to eliminate blue separator line
+        // borderBottom: "1px solid #00eaff"
       }}
     >
       <span style={logoStyle} onClick={() => navigate(role === 'STUDENT' ? '/student-home' : '/teacher-home')}>VocabVenture</span>

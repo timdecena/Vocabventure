@@ -14,8 +14,6 @@ import SchoolIcon from '@mui/icons-material/School';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import InsightsIcon from '@mui/icons-material/Insights';
-import GroupsIcon from '@mui/icons-material/Groups';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import ClassIcon from '@mui/icons-material/Class';
 import { t } from '../utils/i18n';
 
@@ -28,8 +26,6 @@ export default function TeacherSidebar({ collapsed = false }) {
     { icon: <AddCircleOutlineIcon />, label: t('Create Class'), path: '/teacher/classes/create' },
     { icon: <EditNoteIcon />, label: t('Create Level'), path: '/teacher/spelling/create' },
     { icon: <InsightsIcon />, label: t('Analytics'), path: '/teacher/analytics' },
-    { icon: <GroupsIcon />, label: t('Students'), path: '/teacher/students' },
-    { icon: <AssignmentIcon />, label: t('Assignments'), path: '/teacher/assignments' },
   ];
 
   return (
