@@ -1,7 +1,8 @@
 import axios from "axios";
 
+// Use env variable if available, fallback to localhost
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8080",
   withCredentials: true,
 });
 
@@ -10,25 +11,25 @@ api.interceptors.request.use(
   config => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
-    
+
     console.log("🔐 API Request Interceptor:");
-    console.log("  - URL:", config.url);
+    console.log("  - URL:", config.baseURL + config.url);
     console.log("  - Method:", config.method?.toUpperCase());
     console.log("  - Token exists:", !!token);
     console.log("  - User role:", role);
-    
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       console.log("  - Authorization header set");
     } else {
       console.warn("  - ⚠️ No token found in localStorage");
     }
-    
+
     // Add role header for debugging
     if (role) {
-      config.headers['X-User-Role'] = role;
+      config.headers["X-User-Role"] = role;
     }
-    
+
     return config;
   },
   error => {
@@ -48,7 +49,7 @@ api.interceptors.response.use(
     console.error("  - Status:", error.response?.status);
     console.error("  - URL:", error.config?.url);
     console.error("  - Method:", error.config?.method?.toUpperCase());
-    
+
     if (error.response?.status === 403) {
       console.error("  - 🚫 403 FORBIDDEN: Check user role and permissions");
       console.error("  - Current role:", localStorage.getItem("role"));
@@ -59,7 +60,7 @@ api.interceptors.response.use(
       console.error("  - 🔥 500 SERVER ERROR: Backend processing failed");
       console.error("  - Error data:", error.response?.data);
     }
-    
+
     return Promise.reject(error);
   }
 );

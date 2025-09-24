@@ -10,7 +10,7 @@ import {
   Alert
 } from '@mui/material';
 import { styled } from '@mui/system';
-
+import api from "../api/api"; //
 // Arcade Neon wrapper with animated grid background
 const ArcadeWrapper = styled(Box)({
   minHeight: '100vh',
@@ -138,30 +138,32 @@ const Login = ({ setIsAuthenticated, setRole }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
-        localStorage.setItem('userId', data.userId || data.email || data.sub || 'user-' + Date.now());
-        setIsAuthenticated(true);
-        setRole(data.role);
-        if (data.role === 'STUDENT') navigate('/student-home');
-        else if (data.role === 'TEACHER') navigate('/teacher-home');
-      } else {
-        setError(typeof data === 'string' ? data : (data.message || 'Login failed'));
-      }
-    } catch {
+  e.preventDefault();
+  setError('');
+  try {
+    const res = await api.post("/api/auth/login", form); // 👈 no hardcoded localhost
+    const data = res.data; // axios puts the response JSON here
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', data.role);
+    localStorage.setItem('userId', data.userId || data.email || data.sub || 'user-' + Date.now());
+
+    setIsAuthenticated(true);
+    setRole(data.role);
+    if (data.role === 'STUDENT') navigate('/student-home');
+    else if (data.role === 'TEACHER') navigate('/teacher-home');
+  } catch (err) {
+    if (err.response) {
+      // Server responded with error
+      setError(typeof err.response.data === 'string'
+        ? err.response.data
+        : (err.response.data.message || 'Login failed'));
+    } else {
+      // Network or unexpected error
       setError('Network error');
     }
-  };
+  }
+};
 
   return (
     <ArcadeWrapper>

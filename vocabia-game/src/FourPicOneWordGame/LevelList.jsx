@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
+import SoundManager from "../sound/SoundManager";
+import AudioControls from "../components/AudioControls";
 
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   Button,
@@ -95,6 +96,18 @@ export default function LevelList() {
   // Removed unused userProgress state
   const [completedLevels, setCompletedLevels] = useState([]); // unique completed levels for progress display
   const navigate = useNavigate();
+
+  // Preload effects and try to ensure BGM is running when user is inside the game module
+  useEffect(() => {
+    SoundManager.preloadEffects();
+    SoundManager.playBgm();
+    return () => {
+      const path = window.location.pathname || '';
+      if (!path.includes('4pic1word')) {
+        SoundManager.stopAllAudio();
+      }
+    };
+  }, []);
 
   // Load completed levels from localStorage or initialize empty object
   const loadCompletedLevels = useCallback(() => {
@@ -222,8 +235,10 @@ export default function LevelList() {
     };
   }, [category, id, loadCompletedLevels]);
 
-  const handlePlay = lvl => {
+  const handlePlay = (lvl) => {
     if (!unlocked[lvl]) return; // guard against playing locked levels
+    SoundManager.playEffect('button_press');
+    SoundManager.playBgm();
     navigate(`/student/classes/${id}/4pic1word/${category}/level/${lvl}`);
   };
   
@@ -283,7 +298,10 @@ export default function LevelList() {
             zIndex: 2
           }}>
             <IconButton
-              onClick={() => navigate(`/student/classes/${id}/4pic1word`)}
+              onClick={() => {
+                SoundManager.playEffect('button_press');
+                navigate(`/student/classes/${id}/4pic1word`);
+              }}
               sx={{
                 position: 'absolute',
                 left: 0,
@@ -371,23 +389,32 @@ export default function LevelList() {
             {LEVEL_LIST_STRINGS.noLevels}
           </Alert>
         ) : (
-          <Grid container spacing={4} justifyContent="center">
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(5, minmax(180px, 1fr))',
+              gap: 4,
+              justifyContent: 'center',
+              justifyItems: 'center',
+              alignItems: 'stretch',
+              mx: 'auto',
+              maxWidth: { xs: '100%', lg: 1200 }
+            }}
+          >
             {levels.map((level, i) => {
               const theme = LEVEL_THEMES[i % LEVEL_THEMES.length];
               const isUnlocked = Boolean(unlocked[Number(level)]);
 
               return (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={level}>
-                  <Zoom in timeout={600 + i * 100}>
-                    <Card
+                <Zoom in timeout={600 + i * 100} key={level}>
+                  <Card
                       sx={{
                         background: theme.gradient,
                         borderRadius: 6,
                         position: 'relative',
                         overflow: 'visible',
-                        minHeight: 280,
-                        width: '100%',
-                        maxWidth: 280,
+                        minHeight: 260,
+                        width: 220,
                         cursor: isUnlocked ? 'pointer' : 'default',
                         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                         filter: isUnlocked ? 'none' : 'grayscale(0.8) brightness(0.6)',
@@ -573,19 +600,21 @@ export default function LevelList() {
                           },
                           transition: 'all 0.25s ease'
                         }}
-                        onClick={() => isUnlocked && handlePlay(level)}
+                        onClick={(e) => { e.stopPropagation(); isUnlocked && handlePlay(level); }}
                       >
                         {isUnlocked ? LEVEL_LIST_STRINGS.play : LEVEL_LIST_STRINGS.locked}
                       </Button>
                     </CardContent>
                   </Card>
                 </Zoom>
-              </Grid>
               );
             })}
-          </Grid>
+          </Box>
         )}
       </Container>
+      
+      {/* Floating Audio Controls */}
+      <AudioControls />
     </Box>
   );
 }

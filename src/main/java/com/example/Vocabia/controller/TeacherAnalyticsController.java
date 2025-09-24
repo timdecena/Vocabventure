@@ -107,6 +107,9 @@ public class TeacherAnalyticsController {
             int totalAttempts = 0, correct = 0, hints = 0;
             int levelsCompletedSum = 0;
             LocalDateTime lastActive = null;
+            // Track unfinished categories and levels remaining
+            int unfinishedCategories = 0;
+            int levelsRemaining = 0;
 
             for (UserProgressDTO p : progressList) {
                 totalAttempts += Math.max(0, p.getTotalAttempts());
@@ -116,6 +119,13 @@ public class TeacherAnalyticsController {
                 try {
                     List<Integer> completedLvls = userProgressService.getCompletedLevels(s, p.getCategory());
                     levelsCompletedSum += completedLvls != null ? completedLvls.size() : 0;
+                    // Compute unfinished stats for this category
+                    int totalLevelsForCat = fourPicOneWordService.getLevelsByCategory(p.getCategory()).size();
+                    int completedForCat = completedLvls != null ? completedLvls.size() : 0;
+                    if (totalLevelsForCat > 0 && completedForCat < totalLevelsForCat) {
+                        unfinishedCategories += 1;
+                        levelsRemaining += Math.max(0, totalLevelsForCat - completedForCat);
+                    }
                 } catch (Exception ignore) { }
                 if (p.getLastActive() != null && (lastActive == null || p.getLastActive().isAfter(lastActive))) {
                     lastActive = p.getLastActive();
@@ -123,7 +133,19 @@ public class TeacherAnalyticsController {
             }
 
             int accuracy = totalAttempts > 0 ? (correct * 100) / totalAttempts : 0;
+            int hintRate = totalAttempts > 0 ? (hints * 100) / totalAttempts : 0;
+            // Approximate total time spent in minutes based on attempts (placeholder 45s per attempt)
+            int timeSpentMinutes = (int) Math.round((totalAttempts * 45.0) / 60.0);
             Classroom cls = studentClassMap.get(s.getId());
+
+            // Determine struggling status using simple heuristics
+            List<String> strugglingReasons = new ArrayList<>();
+            if (accuracy < 60) strugglingReasons.add("low_accuracy");
+            if (hintRate > 40) strugglingReasons.add("high_hint_usage");
+            if (lastActive != null && lastActive.isBefore(LocalDateTime.now().minusDays(14))) {
+                strugglingReasons.add("inactive_recently");
+            }
+            boolean struggling = !strugglingReasons.isEmpty();
 
             Map<String, Object> row = new HashMap<>();
             row.put("studentName", s.getFirstName() + " " + s.getLastName());
@@ -133,8 +155,13 @@ public class TeacherAnalyticsController {
             row.put("levelsCompleted", levelsCompletedSum);
             row.put("accuracy", accuracy);
             row.put("hintsUsed", hints);
-            row.put("timeSpent", 0); // Not tracked yet; avoid fake data
+            row.put("timeSpent", timeSpentMinutes);
             row.put("lastActive", lastActive != null ? lastActive.toString() : null);
+            row.put("unfinishedCategories", unfinishedCategories);
+            row.put("levelsRemaining", levelsRemaining);
+            row.put("hintRate", hintRate);
+            row.put("struggling", struggling);
+            row.put("strugglingReasons", strugglingReasons);
             studentProgress.add(row);
 
             // Update weekly active counts based on lastActive real date

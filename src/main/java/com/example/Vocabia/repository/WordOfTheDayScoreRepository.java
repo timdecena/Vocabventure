@@ -14,24 +14,41 @@ import java.util.Optional;
 public interface WordOfTheDayScoreRepository extends JpaRepository<WordOfTheDayScore, Long> {
     Optional<WordOfTheDayScore> findByStudentAndWord(User student, WordOfTheDay word);
 
-@Query("""
-    SELECT 
-        u.id AS studentId,
-        CONCAT(u.firstName, ' ', u.lastName) AS studentName,
-        SUM(s.playCount) AS totalPlayed,
-        SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) AS correctAnswers,
-        ROUND(
-            (SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) * 100.0) 
-            / NULLIF(SUM(s.playCount), 0),
-            1
-        ) AS accuracyPercent
-    FROM WordOfTheDayScore s
-    JOIN s.student u
-    WHERE u.id IN :studentIds
-    GROUP BY u.id
-    ORDER BY correctAnswers DESC, accuracyPercent DESC
-""")
-List<WOTDLeaderboardEntryDTO> fetchLeaderboardForStudents(@Param("studentIds") List<Long> studentIds);
+    @Query("""
+        SELECT 
+            u.id AS studentId,
+            CONCAT(u.firstName, ' ', u.lastName) AS studentName,
+            SUM(s.playCount) AS totalPlayed,
+            SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) AS correctAnswers,
+            ROUND(
+                (SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) * 100.0) 
+                / NULLIF(SUM(s.playCount), 0),
+                1
+            ) AS accuracyPercent
+        FROM WordOfTheDayScore s
+        JOIN s.student u
+        WHERE u.id IN :studentIds
+        GROUP BY u.id
+        ORDER BY correctAnswers DESC, accuracyPercent DESC
+    """)
+    List<WOTDLeaderboardEntryDTO> fetchLeaderboardForStudents(@Param("studentIds") List<Long> studentIds);
 
+    @Query("""
+        SELECT 
+            u.id AS studentId,
+            CONCAT(u.firstName, ' ', u.lastName) AS studentName,
+            SUM(s.playCount) AS totalPlayed,
+            SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) AS correctAnswers,
+            ROUND(
+                (SUM(CASE WHEN s.correct = true THEN 1 ELSE 0 END) * 100.0) 
+                / NULLIF(SUM(s.playCount), 0),
+                1
+            ) AS accuracyPercent
+        FROM WordOfTheDayScore s
+        JOIN s.student u
+        GROUP BY u.id
+        ORDER BY correctAnswers DESC, accuracyPercent DESC
+    """)
+    List<WOTDLeaderboardEntryDTO> fetchWOTDLeaderboard();
 
 }

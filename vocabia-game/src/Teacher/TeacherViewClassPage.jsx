@@ -27,7 +27,6 @@ import {
   People as StudentsIcon,
   Edit as EditIcon,
   School as ClassIcon,
-  Assignment as AssignmentIcon
 } from "@mui/icons-material";
 import api from "../api/api";
 import PageHeader from "./components/PageHeader";
@@ -263,18 +262,6 @@ export default function TeacherViewClassPage() {
                     <Button
                       fullWidth
                       variant="outlined"
-                      startIcon={<AssignmentIcon />}
-                      onClick={() => navigate(`/teacher/assignments`)}
-                      sx={{ justifyContent: "flex-start" }}
-                    >
-                      {t('View Assignments')}
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      startIcon={<AssignmentIcon />}
                       onClick={() => navigate(`/teacher/classes/${id}/fpow-progress`)}
                       sx={{ justifyContent: "flex-start" }}
                     >

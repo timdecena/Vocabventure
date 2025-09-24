@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container, Box, Button, Typography, CircularProgress,
   Alert, Chip, Snackbar, Paper, Card,
-  Fade, Zoom, Slide
+  Fade, Zoom, Slide, Dialog
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import { 
@@ -17,6 +17,8 @@ import {
 } from '@mui/icons-material';
 import confetti from 'canvas-confetti';
 import api from '../api/api';
+import SoundManager from '../sound/SoundManager';
+import AudioControls from '../components/AudioControls';
 import { STRINGS, formatters } from './strings';
 
 // Keyframe animations
@@ -58,6 +60,7 @@ const goldPulse = keyframes`
 const ImageGrid = ({ imageUrls, isLoading }) => {
   const [loadedImages, setLoadedImages] = useState(new Set());
   const [imageErrors, setImageErrors] = useState(new Set());
+  const [lightbox, setLightbox] = useState({ open: false, index: null });
 
   const handleImageLoad = useCallback((index) => {
     setLoadedImages(prev => new Set([...prev, index]));
@@ -66,6 +69,14 @@ const ImageGrid = ({ imageUrls, isLoading }) => {
   const handleImageError = useCallback((index) => {
     setImageErrors(prev => new Set([...prev, index]));
   }, []);
+
+  const openLightbox = useCallback((index) => {
+    if (imageUrls && imageUrls[index]) {
+      setLightbox({ open: true, index });
+    }
+  }, [imageUrls]);
+
+  const closeLightbox = useCallback(() => setLightbox({ open: false, index: null }), []);
 
   return (
     <Box sx={{
@@ -110,8 +121,10 @@ const ImageGrid = ({ imageUrls, isLoading }) => {
                     '&:hover': {
                       transform: 'scale(1.02)',
                       boxShadow: '0 12px 35px rgba(0,0,0,0.25)'
-                    }
+                    },
+                    cursor: hasImage && !hasImageError ? 'zoom-in' : 'default'
                   }}
+                  onClick={() => hasImage && !hasImageError && openLightbox(i)}
                 >
                   {/* Loading skeleton */}
                   {(isLoading || (!isImageLoaded && hasImage && !hasImageError)) && (
@@ -231,6 +244,25 @@ const ImageGrid = ({ imageUrls, isLoading }) => {
           })}
         </Box>
       </Card>
+
+      {/* Lightbox Dialog */}
+      <Dialog open={lightbox.open} onClose={closeLightbox} maxWidth="lg">
+        <Box sx={{ position: 'relative', p: 0, backgroundColor: '#000' }}>
+          {lightbox.index !== null && imageUrls[lightbox.index] && (
+            <img
+              src={imageUrls[lightbox.index]}
+              alt={`Clue ${lightbox.index + 1}`}
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                display: 'block',
+                objectFit: 'contain'
+              }}
+              onClick={closeLightbox}
+            />
+          )}
+        </Box>
+      </Dialog>
     </Box>
   );
 };
@@ -512,6 +544,20 @@ const GamePlay = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerStart, setTimerStart] = useState(Date.now());
 
+  // Preload sound effects when GamePlay loads and cleanup on unmount
+  useEffect(() => {
+    SoundManager.preloadEffects();
+    SoundManager.playBgm();
+    
+    return () => {
+      // Stop audio when leaving GamePlay if not navigating to another FPOW screen
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('4pic1word')) {
+        SoundManager.stopAllAudio();
+      }
+    };
+  }, []);
+
   // ---- Fetch Puzzle & Progress ----
   useEffect(() => {
     let isMounted = true;
@@ -622,10 +668,12 @@ const GamePlay = () => {
   // ---- Letter Input Handlers ----
   const handleLetterClick = (letter) => {
     if (state.disableInput || state.success || state.selectedLetters.length >= state.puzzle.answer.length) return;
+    SoundManager.playEffect('button_press');
     dispatch({ type: 'SELECT_LETTER', letter });
   };
   const handleRemoveLetter = (idx) => {
     if (state.disableInput || state.success) return;
+    SoundManager.playEffect('button_press');
     dispatch({ type: 'REMOVE_LETTER', index: idx });
   };
 
@@ -762,8 +810,15 @@ const GamePlay = () => {
     }
     
     // Stop loading and show success
+    dispatch({ type: 'SET_SUCCESS', payload: true });
     dispatch({ type: 'SET_LOADING', payload: false });
-    dispatch({ type: 'SET_SUCCESS' });
+    
+    // Play completion sound effects
+    if (isCategoryComplete) {
+      SoundManager.playEffect('category_complete');
+    } else {
+      SoundManager.playEffect('level_complete');
+    }
     
     // Play success animation with confetti (bigger celebration on category completion)
     if (isCategoryComplete) {
@@ -802,6 +857,8 @@ const GamePlay = () => {
       category: category,
       level: level
     });
+    // Play wrong answer sound effect
+    SoundManager.playEffect('wrong_answer');
     for (let i = 0; i < state.selectedLetters.length; i++) dispatch({ type: 'REMOVE_LETTER', index: 0 });
     try {
       // The API base URL already includes '/api'
@@ -852,6 +909,9 @@ const GamePlay = () => {
   const handleHint = async () => {
     // Don't show hint again if already shown
     if (state.hintShown) return;
+    
+    // Play hint sound effect
+    SoundManager.playEffect('hint_buy');
     
     // Always show hint locally first for immediate feedback
     dispatch({ type: 'SET_HINT' });
@@ -926,16 +986,21 @@ const GamePlay = () => {
 
   // ---- Navigation ----
   // Go back to levels list
-  const handleBack = () => navigate(`/student/classes/${id}/4pic1word/${category}`);
+  const handleBack = () => {
+    SoundManager.playEffect('button_press');
+    navigate(`/student/classes/${id}/4pic1word/${category}`);
+  };
   
   // Retry current level - use window.location for a full reset
   const handleReplay = () => {
+    SoundManager.playEffect('button_press');
     // Force a complete reload of the component
     window.location.href = `/student/classes/${id}/4pic1word/${category}/level/${level}`;
   };
   
   // Go to next level with the correct URL structure
   const handleNext = () => {
+    SoundManager.playEffect('button_press');
     const current = Number(level);
     if (state.totalLevels && current >= state.totalLevels) {
       // At or beyond last level – return to levels list
@@ -948,48 +1013,22 @@ const GamePlay = () => {
   if (state.loading) {
     return (
       <Box sx={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
         justifyContent: 'center',
-        flexDirection: 'column'
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'
       }}>
-        <CircularProgress size={60} sx={{ color: 'white', mb: 3 }} />
-        <Typography variant="h6" color="white" sx={{ textAlign: 'center' }}>
-          Loading your challenge...
-        </Typography>
+        <CircularProgress size={60} sx={{ color: 'white' }} />
       </Box>
     );
   }
-    
+
   if (state.error) {
     return (
-      <Box sx={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 3
-      }}>
-        <Card sx={{ maxWidth: 500, p: 4, textAlign: 'center' }}>
-          <Typography variant="h5" color="error" gutterBottom>
-            Oops! Something went wrong
-          </Typography>
-          <Typography variant="body1" paragraph color="text.secondary">
-            {state.error}
-          </Typography>
-          <Button 
-            variant="contained" 
-            onClick={handleBack} 
-            startIcon={<ArrowBackIcon />}
-            sx={{ mt: 2 }}
-          >
-            Back to Levels
-          </Button>
-        </Card>
-      </Box>
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error">{state.error}</Alert>
+      </Container>
     );
   }
 
@@ -1217,14 +1256,14 @@ const GamePlay = () => {
                 state.hintShown 
                   ? "Hint already used" 
                   : !state.canAffordHint 
-                    ? `Need ${state.hintCost} gold (you have ${state.goldBalance})`
+                    ? `Need ${state.hintCost} gold (you have ${state.goldBalance})` 
                     : `Use hint for ${state.hintCost} gold`
               }
             >
               {state.hintShown 
                 ? 'Hint Used' 
                 : !state.canAffordHint 
-                  ? `Need ${state.hintCost} Gold`
+                  ? `Need ${state.hintCost} Gold` 
                   : `Hint (${state.hintCost} Gold)`
               }
             </Button>
@@ -1333,6 +1372,9 @@ const GamePlay = () => {
           </Box>
         </Card>
       </Zoom>
+      
+      {/* Floating Audio Controls */}
+      <AudioControls />
       
       {/* Snackbar */}
       <Snackbar 
