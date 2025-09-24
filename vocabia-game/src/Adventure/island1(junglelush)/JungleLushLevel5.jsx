@@ -304,7 +304,9 @@ const GrammowlSprite = ({ state, isDamaged, ...props }) => {
   return <GrammowlImg src={getGrammowlFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
-const HeartIcon = styled(Box)(({ theme, filled }) => ({
+const HeartIcon = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'filled',
+})(({ theme, filled }) => ({
   width: '40px',
   height: '40px',
   display: 'flex',
@@ -806,7 +808,9 @@ const StarRow = styled(Box)(({ theme }) => ({
   marginTop: -10,
 }));
 
-const Star = styled('span')(({ filled }) => ({
+const Star = styled('span', {
+  shouldForwardProp: (prop) => prop !== 'filled',
+})(({ filled }) => ({
   fontSize: '2.2rem',
   color: filled ? '#FFD700' : '#bdbdbd',
   filter: filled ? 'drop-shadow(0 2px 6px #b48a6e88)' : 'none',
@@ -1617,20 +1621,25 @@ const JungleLushLevel5 = () => {
       async function saveProgress() {
         try {
           const token = localStorage.getItem('token');
-          await axios.post('/api/progress/levels/5', {
-            starsEarned: hearts,
-            completed: true
+          console.log('🎯 Saving Grammowl progress:', { levelName: "Grammowl", completed: true, starsEarned: hearts });
+          
+          const response = await axios.post('/api/adventure/level-progress/save', {
+            levelName: "Grammowl",
+            completed: true,
+            starsEarned: hearts
           }, {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true
           });
+          
+          console.log('✅ Grammowl progress saved successfully:', response.data);
         } catch (e) {
-          // handle error (optional)
+          console.error('❌ Failed to save Grammowl progress:', e.response?.data || e.message);
         }
       }
       saveProgress();
     }
-  }, [victory]);
+  }, [victory, hearts]);
 
   let content = null;
   if (phase === 'dialogue') {

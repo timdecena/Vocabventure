@@ -58,6 +58,8 @@ import JungleLushLevel2 from "./Adventure/island1(junglelush)/JungleLushLevel2";
 import JungleLushLevel3 from "./Adventure/island1(junglelush)/JungleLushLevel3";
 import JungleLushLevel4 from "./Adventure/island1(junglelush)/JungleLushLevel4";
 import JungleLushLevel5 from "./Adventure/island1(junglelush)/JungleLushLevel5";
+import WatersideShores from "./Adventure/island2(watersideshores)/WatersideShores";
+import WatersideShoresLevel1 from "./Adventure/island2(watersideshores)/WatersideShoresLevel1";
 import Tutorial from "./Adventure/tutorial/Tutorial";
 
 // Profile
@@ -176,6 +178,7 @@ function AppContent({ isAuthenticated, setIsAuthenticated, role, setRole, needsN
     "/student/adventure",
     "/map",
     "/jungle-lush",
+    "/waterside-shores",
     "/tutorial"
   ];
   const isAdventurePage = adventurePrefixes.some(path =>
@@ -359,6 +362,8 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/jungle-lush/level3" element={<JungleLushLevel3 />} />
       <Route path="/jungle-lush/level4" element={<JungleLushLevel4 />} />
       <Route path="/jungle-lush/level5" element={<JungleLushLevel5 />} />
+      <Route path="/waterside-shores" element={<WatersideShores />} />
+      <Route path="/waterside-shores/level1" element={<WatersideShoresLevel1 />} />
 
       {/* DEBUG */}
       <Route path="/debug/jwt" element={<JwtDebugger />} />
