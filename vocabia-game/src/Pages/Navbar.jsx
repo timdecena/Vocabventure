@@ -1,7 +1,7 @@
 // components/Navbar.js
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api"; 
 
 const Navbar = ({ role, onLogout }) => {
   const navigate = useNavigate();
@@ -16,23 +16,21 @@ const Navbar = ({ role, onLogout }) => {
   const classId = localStorage.getItem("currentClassId");
 
   const handleCustomWordListClick = async () => {
-    if (!classId) {
-      setShowClassPicker(true);
-      setLoadingClasses(true);
-      // Fetch teacher's classes (adjust endpoint if needed)
-      try {
-        const res = await axios.get("http://localhost:8080/api/teacher/classes", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        setClasses(res.data);
-      } catch (err) {
-        alert("Failed to load your classes.");
-      }
-      setLoadingClasses(false);
-      return;
+  if (!classId) {
+    setShowClassPicker(true);
+    setLoadingClasses(true);
+    try {
+      const res = await api.get("/api/teacher/classes"); // 👈 clean call
+      setClasses(res.data);
+    } catch (err) {
+      alert("Failed to load your classes.");
     }
-    navigate(`/teacher/classes/${classId}/wordlists`);
-  };
+    setLoadingClasses(false);
+    return;
+  }
+  navigate(`/teacher/classes/${classId}/wordlists`);
+};
+
 
   const handleClassSelect = (selectedId) => {
     localStorage.setItem("currentClassId", selectedId);

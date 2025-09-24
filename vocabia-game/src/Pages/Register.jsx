@@ -11,7 +11,7 @@ import {
   MenuItem
 } from '@mui/material';
 import { styled } from '@mui/system';
-
+import api from "../api/api";
 // Arcade Neon wrapper with animated grid background
 const ArcadeWrapper = styled(Box)({
   minHeight: '100vh',
@@ -159,29 +159,26 @@ const Register = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    try {
-      const res = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      if (res.ok) {
-        setSuccess('Registration successful! Redirecting to login...');
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
-      } else {
-        const msg = await res.text();
-        setError(msg);
-      }
-    } catch (err) {
-      setError('Network error');
+  import api from "../api/api"; // ✅ add this import
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setSuccess('');
+  try {
+    const res = await api.post("/api/auth/register", form); // 👈 cleaner
+    if (res.status === 200 || res.status === 201) {
+      setSuccess('Registration successful! Redirecting to login...');
+      setTimeout(() => navigate('/'), 2000);
+    } else {
+      setError(res.data?.message || "Registration failed");
     }
-  };
+  } catch (err) {
+    console.error("Register error:", err);
+    setError(err.response?.data?.message || "Network error");
+  }
+};
+
 
   return (
     <ArcadeWrapper>
