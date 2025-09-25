@@ -72,13 +72,24 @@ public class IslandProgressService {
         IslandProgress progress = progressRepo.findByUserAndIslandName(user, islandName)
                 .orElse(new IslandProgress(user, islandName, 0, 0));
         
+        // Store the previous completed level to check if this is a new level
+        int previousCompletedLevel = progress.getCompletedLevel();
+        
         // Update progress - only advance, never regress
         if (completedLevel > progress.getCompletedLevel()) {
             progress.setCompletedLevel(completedLevel);
         }
         
-        // Add stars earned (cumulative)
-        progress.setTotalStars(progress.getTotalStars() + starsEarned);
+        // Only add stars if this is a NEW level completion (not replaying existing levels)
+        // This prevents cumulative star inflation from multiple attempts
+        if (completedLevel > previousCompletedLevel) {
+            // This is a new level completion, add the stars
+            progress.setTotalStars(progress.getTotalStars() + starsEarned);
+            System.out.println("⭐ New level " + completedLevel + " completed! Added " + starsEarned + " stars. Total: " + progress.getTotalStars());
+        } else {
+            // This is replaying an existing level - don't add stars to prevent inflation
+            System.out.println("🔄 Replaying level " + completedLevel + " - stars not added to prevent inflation");
+        }
         
         // Save and return
         IslandProgress saved = progressRepo.save(progress);
@@ -266,6 +277,74 @@ public class IslandProgressService {
         }
     }
     
+    /**
+     * Clean up inflated star counts by recalculating based on completed levels
+     * This fixes users who have cumulative star inflation from multiple attempts
+     */
+    @Transactional
+    public void cleanupInflatedStars(String email) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        
+        System.out.println("🧹 Starting star cleanup for user: " + email);
+        
+        // Load old level attempts to compute BEST stars per level
+        List<LevelProgress> oldProgress = levelProgressRepo.findByUser(user);
+
+        // Track best stars per concrete level name
+        Map<String, Integer> bestStars = new HashMap<>();
+        for (LevelProgress lp : oldProgress) {
+            if (lp.isCompleted()) {
+                String name = lp.getLevelName();
+                int stars = lp.getStarsEarned();
+                bestStars.put(name, Math.max(bestStars.getOrDefault(name, 0), stars));
+            }
+        }
+
+        // Compute Jungle Lush totals based on best stars
+        int jungleCompleted = 0;
+        int jungleStars = 0;
+        if (bestStars.containsKey("Commawidow's Web")) { jungleCompleted = Math.max(jungleCompleted, 1); jungleStars += bestStars.get("Commawidow's Web"); }
+        if (bestStars.containsKey("Tensephant's Domain")) { jungleCompleted = Math.max(jungleCompleted, 2); jungleStars += bestStars.get("Tensephant's Domain"); }
+        if (bestStars.containsKey("Pluribog's Pit")) { jungleCompleted = Math.max(jungleCompleted, 3); jungleStars += bestStars.get("Pluribog's Pit"); }
+        if (bestStars.containsKey("Grammowl's Tower")) { jungleCompleted = Math.max(jungleCompleted, 4); jungleStars += bestStars.get("Grammowl's Tower"); }
+        if (bestStars.containsKey("Grammowl")) { jungleCompleted = Math.max(jungleCompleted, 5); jungleStars += bestStars.get("Grammowl"); }
+
+        // Upsert Jungle Lush
+        Optional<IslandProgress> jl = progressRepo.findByUserAndIslandName(user, IslandNames.JUNGLE_LUSH);
+        if (jungleCompleted > 0) {
+            IslandProgress p = jl.orElse(new IslandProgress(user, IslandNames.JUNGLE_LUSH, 0, 0));
+            p.setCompletedLevel(Math.max(p.getCompletedLevel(), jungleCompleted));
+            p.setTotalStars(jungleStars);
+            p.setLastUpdated(LocalDateTime.now());
+            progressRepo.save(p);
+        }
+
+        // Compute Waterside Shores totals based on best stars
+        int waterCompleted = 0;
+        int waterStars = 0;
+        if (bestStars.containsKey("Scribblash") || bestStars.containsKey("Scribblash's Sandy Scrawl")) {
+            waterCompleted = Math.max(waterCompleted, 1);
+            waterStars += Math.max(bestStars.getOrDefault("Scribblash", 0), bestStars.getOrDefault("Scribblash's Sandy Scrawl", 0));
+        }
+        if (bestStars.containsKey("Corallex")) { waterCompleted = Math.max(waterCompleted, 2); waterStars += bestStars.get("Corallex"); }
+        if (bestStars.containsKey("Silentscale")) { waterCompleted = Math.max(waterCompleted, 3); waterStars += bestStars.get("Silentscale"); }
+        if (bestStars.containsKey("Homophibian")) { waterCompleted = Math.max(waterCompleted, 4); waterStars += bestStars.get("Homophibian"); }
+        if (bestStars.containsKey("Spellisk")) { waterCompleted = Math.max(waterCompleted, 5); waterStars += bestStars.get("Spellisk"); }
+
+        // Upsert Waterside Shores
+        Optional<IslandProgress> ws = progressRepo.findByUserAndIslandName(user, IslandNames.WATERSIDE_SHORES);
+        if (waterCompleted > 0) {
+            IslandProgress p = ws.orElse(new IslandProgress(user, IslandNames.WATERSIDE_SHORES, 0, 0));
+            p.setCompletedLevel(Math.max(p.getCompletedLevel(), waterCompleted));
+            p.setTotalStars(waterStars);
+            p.setLastUpdated(LocalDateTime.now());
+            progressRepo.save(p);
+        }
+
+        System.out.println("🎉 Star cleanup completed using best-per-level scores!");
+    }
+
     /**
      * Reset all island progress for a user (for re-migration)
      */

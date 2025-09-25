@@ -24,22 +24,22 @@ import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png
 import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
 import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
 
-// Scribblash Monster - Placeholder (user will provide actual images)
-const ScribblashIdle1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
+// Homophibian Monster - Frog with homophones theme
+const HomophibianIdle1 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianIdle2 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianIdle3 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianIdle4 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianAttack1 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianAttack2 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianAttack3 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianAttack4 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianHurt1 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianHurt2 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianHurt3 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianDeath1 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianDeath2 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianDeath3 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
+const HomophibianDeath4 = 'https://files.idyllic.app/files/static/2424494?width=256&optimizer=image';
 
 // Waterside Shores Background
 const WATERSIDE_BG = 'https://thumbs.dreamstime.com/b/beach-pixel-art-background-d-backdrop-bit-retro-video-game-style-299969450.jpg'; // Beach/shore background
@@ -51,13 +51,13 @@ const CHARACTER_POSITIONS = {
   ADVENTURER_LEFT: '180px',
   ADVENTURER_BOTTOM: '5px',
   // Dialogue scene positioning
-  DIALOGUE_SCRIBBLASH_RIGHT: '50px',
-  DIALOGUE_SCRIBBLASH_BOTTOM: '120px',
+  DIALOGUE_HOMOPHIBIAN_RIGHT: '50px',
+  DIALOGUE_HOMOPHIBIAN_BOTTOM: '120px',
   // Battle scene positioning
   BATTLE_ADVENTURER_LEFT: '500px',
   BATTLE_ADVENTURER_BOTTOM: '120px',
-  BATTLE_SCRIBBLASH_RIGHT: '420px',
-  BATTLE_SCRIBBLASH_BOTTOM: '180px',
+  BATTLE_HOMOPHIBIAN_RIGHT: '420px',
+  BATTLE_HOMOPHIBIAN_BOTTOM: '180px',
 };
 
 const shake = keyframes`
@@ -494,8 +494,8 @@ const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
   return <AdventurerImg src={getAdventurerFrame()} isDamaged={isDamaged} {...props} />;
 };
 
-// Animated Scribblash Sprite Component
-const ScribblashSprite = ({ state, isDamaged, ...props }) => {
+// Animated Homophibian Sprite Component
+const HomophibianSprite = ({ state, isDamaged, ...props }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   
   useEffect(() => {
@@ -514,43 +514,43 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     return () => clearInterval(interval);
   }, [state]);
 
-  const getScribblashFrame = () => {
+  const getHomophibianFrame = () => {
     switch (state) {
       case 'attack':
         switch (currentFrame) {
-          case 0: return ScribblashAttack1;
-          case 1: return ScribblashAttack2;
-          case 2: return ScribblashAttack3;
-          case 3: return ScribblashAttack4;
-          default: return ScribblashAttack1;
+          case 0: return HomophibianAttack1;
+          case 1: return HomophibianAttack2;
+          case 2: return HomophibianAttack3;
+          case 3: return HomophibianAttack4;
+          default: return HomophibianAttack1;
         }
       case 'hurt':
         switch (currentFrame) {
-          case 0: return ScribblashHurt1;
-          case 1: return ScribblashHurt2;
-          case 2: return ScribblashHurt3;
-          default: return ScribblashHurt1;
+          case 0: return HomophibianHurt1;
+          case 1: return HomophibianHurt2;
+          case 2: return HomophibianHurt3;
+          default: return HomophibianHurt1;
         }
       case 'death':
         switch (currentFrame) {
-          case 0: return ScribblashDeath1;
-          case 1: return ScribblashDeath2;
-          case 2: return ScribblashDeath3;
-          case 3: return ScribblashDeath4;
-          default: return ScribblashDeath1;
+          case 0: return HomophibianDeath1;
+          case 1: return HomophibianDeath2;
+          case 2: return HomophibianDeath3;
+          case 3: return HomophibianDeath4;
+          default: return HomophibianDeath1;
         }
       default: // idle
         switch (currentFrame) {
-          case 0: return ScribblashIdle1;
-          case 1: return ScribblashIdle2;
-          case 2: return ScribblashIdle3;
-          case 3: return ScribblashIdle4;
-          default: return ScribblashIdle1;
+          case 0: return HomophibianIdle1;
+          case 1: return HomophibianIdle2;
+          case 2: return HomophibianIdle3;
+          case 3: return HomophibianIdle4;
+          default: return HomophibianIdle1;
         }
     }
   };
 
-  const ScribblashImg = styled('img')(({ isDamaged, state }) => ({
+  const HomophibianImg = styled('img')(({ isDamaged, state }) => ({
     width: '300px',
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
@@ -558,7 +558,7 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face left
   }));
 
-  return <ScribblashImg src={getScribblashFrame()} isDamaged={isDamaged} state={state} {...props} />;
+  return <HomophibianImg src={getHomophibianFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Character positioning components
@@ -576,10 +576,10 @@ const PositionedAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const PositionedScribblash = styled(Box)(({ theme }) => ({
+const PositionedHomophibian = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.DIALOGUE_HOMOPHIBIAN_RIGHT,
+  bottom: CHARACTER_POSITIONS.DIALOGUE_HOMOPHIBIAN_BOTTOM,
   zIndex: 4,
 }));
 
@@ -590,10 +590,10 @@ const BattleAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const BattleScribblash = styled(Box)(({ theme }) => ({
+const BattleHomophibian = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.BATTLE_HOMOPHIBIAN_RIGHT,
+  bottom: CHARACTER_POSITIONS.BATTLE_HOMOPHIBIAN_BOTTOM,
   zIndex: 4,
 }));
 
@@ -850,96 +850,97 @@ const VictoryContainer = styled(Paper)(({ theme }) => ({
   border: '4px solid #b48a6e',
 }));
 
-// Intermediate level questions for Scribblash (8 questions)
-const scribblashQuestions = [
-  // Question 1: Spelling
+// Homophones questions for Homophibian (8 questions: 4 intermediate, 4 hard spelling)
+const homophibianQuestions = [
+  // Question 1: Spelling (Hard)
   {
     type: "spelling",
-    definition: "A word that means 'to make something clear or easy to understand' - often used in writing and teaching.",
-    correct: "EXPLAIN"
+    definition: "Spell the word that means 'belonging to them' - sounds like 'there' and 'they're' but shows possession.",
+    correct: "THEIR"
   },
-  // Question 2: Spelling
-  {
-    type: "spelling", 
-    definition: "Past tense of 'write' - what you did with a pen yesterday.",
-    correct: "WROTE"
-  },
-  // Question 3: 4 Pics 1 Word
+  // Question 2: 4 Pics 1 Word (Intermediate)
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=1",
-      "https://picsum.photos/150/100?random=2", 
-      "https://picsum.photos/150/100?random=3",
-      "https://picsum.photos/150/100?random=4"
+      "https://picsum.photos/150/100?random=30",
+      "https://picsum.photos/150/100?random=31", 
+      "https://picsum.photos/150/100?random=32",
+      "https://picsum.photos/150/100?random=33"
     ],
-    letters: "RETAWKLO",
-    correct: "WATER"
+    letters: "HEARLISTN",
+    correct: "HEAR"
   },
-  // Question 4: Multiple Choice
+  // Question 3: Spelling (Hard)
+  {
+    type: "spelling", 
+    definition: "Spell the word that means 'also' or 'excessively' - sounds like 'to' and 'two' but means 'as well'.",
+    correct: "TOO"
+  },
+  // Question 4: Multiple Choice (Intermediate)
   {
     type: "multiple_choice",
-    question: "Which sentence uses correct punctuation?",
+    question: "Choose the correct sentence:",
     options: [
-      "Its a beautiful day outside.",
-      "It's a beautiful day outside.",
-      "Its' a beautiful day outside.",
-      "It's a beautiful day outside"
+      "I ate to much cake.",
+      "I ate too much cake.", 
+      "I ate two much cake.",
+      "I ate to many cake."
     ],
     correctAnswer: 1
   },
-  // Question 5: Reading Comprehension
-  {
-    type: "reading_comprehension",
-    passage: "Sarah studied hard for her exam. She reviewed her notes every night for two weeks. When exam day came, she felt confident and well-prepared.",
-    causeOptions: ["Sarah studied hard", "Exam day arrived", "Sarah felt confident"],
-    effectOptions: ["She felt prepared", "She reviewed notes", "She passed the test"],
-    correctMatches: [
-      { cause: "Sarah studied hard", effect: "She felt prepared" }
-    ]
-  },
-  // Question 6: Spelling
-  {
-    type: "spelling",
-    definition: "A word meaning 'to get better' or 'to become healthy again' after being sick or injured.",
-    correct: "RECOVER"
-  },
-  // Question 7: Multiple Choice
-  {
-    type: "multiple_choice", 
-    question: "What is the correct plural form of 'child'?",
-    options: ["childs", "childrens", "children", "child's"],
-    correctAnswer: 2
-  },
-  // Question 8: 4 Pics 1 Word
+  // Question 5: 4 Pics 1 Word (Intermediate)
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=5",
-      "https://picsum.photos/150/100?random=6",
-      "https://picsum.photos/150/100?random=7",
-      "https://picsum.photos/150/100?random=8"
+      "https://picsum.photos/150/100?random=34",
+      "https://picsum.photos/150/100?random=35", 
+      "https://picsum.photos/150/100?random=36",
+      "https://picsum.photos/150/100?random=37"
     ],
-    letters: "KOOBSRED",
-    correct: "BOOKS"
+    letters: "RIGHTLEFT",
+    correct: "RIGHT"
+  },
+  // Question 6: Spelling (Hard)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'in that place' - sounds like 'their' and 'they're' but indicates location.",
+    correct: "THERE"
+  },
+  // Question 7: Spelling (Hard)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'to understand or be aware of' - sounds like 'no' but means to have knowledge.",
+    correct: "KNOW"
+  },
+  // Question 8: Reading Comprehension (Intermediate)
+  {
+    type: "multiple_choice",
+    question: "Read this sentence: 'They're going to their house over there.' Which words are homophones?",
+    options: [
+      "They're, their, there",
+      "going, house, over", 
+      "to, their, there",
+      "They're, going, house"
+    ],
+    correctAnswer: 0
   }
 ];
 
 const dialogueSequence = [
-  { speaker: 'Wizard', text: "This is Spelling Shores. Letters twist and dance here, reshaped by Spellisk's curse. Beware… even the most simple words are not what they seem." },
-  { speaker: 'Adventurer', text: "I beat Grammowl's tricks. A few misspelled words won't stop me." },
-  { speaker: 'Wizard', text: "Pride is dangerous. Even small mistakes can topple great heroes." },
-  { speaker: 'Scribblash', text: "Sssso… the child of prophecy comes to scribble on my shores?" },
-  { speaker: 'Scribblash', text: "Your words will crumble into sand, and your letters will scatter in the wind!" },
+  { speaker: 'Wizard', text: "This is the Dock of Deception. Many adventurers fell here, tricked not by strength… but by sound. Be careful, for every word you hear may be a lie." },
+  { speaker: 'Adventurer', text: "So… I need to listen with my eyes instead of my ears. Got it." },
+  { speaker: 'Homophibian', text: "Ribbit… Rite? Write? Right? Which one will you choose, little hero?" },
+  { speaker: 'Homophibian', text: "I am the master of mimicry. I twist the sound, and fools fall for the wrong word." },
+  { speaker: 'Homophibian', text: "Step wrong, and you'll drown in your own mistakes!" },
 ];
 
 const victoryDialogue = [
-  { speaker: 'Adventurer', text: "Your scribbles… weren't enough." },
-  { speaker: 'Scribblash', text: "Grkhh… my words… lost to the wind…" },
-  { speaker: 'Wizard', text: "Well done. But this was only the beginning. Spellisk's curse grows stronger the deeper we go." },
+  { speaker: 'Adventurer', text: "Nice try. You can croak out all the tricky words you want, but I won't be fooled." },
+  { speaker: 'Homophibian', text: "Nooo… my echoes fade… but the serpent waits… she waits for you in the deep!" },
+  { speaker: 'Wizard', text: "The waters grow restless. Spellisk is near. She is the serpent who weaves confusion across all shores… and she guards the scroll with venomous pride." },
 ];
 
-const WatersideShoresLevel1 = () => {
+const WatersideShoresLevel4 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
   const [dialogueIdx, setDialogueIdx] = useState(0);
@@ -958,7 +959,7 @@ const WatersideShoresLevel1 = () => {
   const [showQuit, setShowQuit] = useState(false);
   const [showVictoryDialogue, setShowVictoryDialogue] = useState(false);
   const idleTimeout = useRef(null);
-  const [scribblashState, setScribblashState] = useState('idle');
+  const [homophibianState, setHomophibianState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
   
   // Diverse gameplay states
@@ -999,7 +1000,7 @@ const WatersideShoresLevel1 = () => {
   // Gameplay initialization
   useEffect(() => {
     if (phase === 'battle') {
-      const question = scribblashQuestions[currentQuestion];
+      const question = homophibianQuestions[currentQuestion];
       if (question) {
         setSelectedAnswer(null);
         setShowResult(false);
@@ -1038,7 +1039,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const validateAnswer = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = homophibianQuestions[currentQuestion];
     let isCorrect = false;
     
     switch (question.type) {
@@ -1067,7 +1068,7 @@ const WatersideShoresLevel1 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setTimeout(() => {
-      const isCorrect = idx === scribblashQuestions[currentQuestion].correctAnswer;
+      const isCorrect = idx === homophibianQuestions[currentQuestion].correctAnswer;
       processAnswer(isCorrect);
     }, 10);
   };
@@ -1085,16 +1086,16 @@ const WatersideShoresLevel1 = () => {
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
       
-      setScribblashState('hurt');
-      setTimeout(() => setScribblashState('idle'), 500);
+      setHomophibianState('hurt');
+      setTimeout(() => setHomophibianState('idle'), 500);
       
       setMonsterDamaged(true);
       setTimeout(() => setMonsterDamaged(false), 500);
       
       setMonsterHP(hp => {
-        const newHP = Math.max(0, hp - Math.floor(100 / scribblashQuestions.length));
-        if (currentQuestion === scribblashQuestions.length - 1 || newHP === 0) {
-          setScribblashState('death');
+        const newHP = Math.max(0, hp - Math.floor(100 / homophibianQuestions.length));
+        if (currentQuestion === homophibianQuestions.length - 1 || newHP === 0) {
+          setHomophibianState('death');
           setShowVictoryDialogue(true);
           setPhase('victory-dialogue');
           setVictoryDialogueIdx(0);
@@ -1102,7 +1103,7 @@ const WatersideShoresLevel1 = () => {
         return newHP;
       });
       
-      if (currentQuestion < scribblashQuestions.length - 1) {
+      if (currentQuestion < homophibianQuestions.length - 1) {
         setTimeout(() => {
           setCurrentQuestion(prev => prev + 1);
           setSelectedAnswer(null);
@@ -1116,8 +1117,8 @@ const WatersideShoresLevel1 = () => {
       setTimeLeft(newTime);
       
       if (newTime === 0) {
-        setScribblashState('attack');
-        setTimeout(() => setScribblashState('idle'), 500);
+        setHomophibianState('attack');
+        setTimeout(() => setHomophibianState('idle'), 500);
         
         setUserDamaged(true);
         setTimeout(() => setUserDamaged(false), 500);
@@ -1146,7 +1147,7 @@ const WatersideShoresLevel1 = () => {
           setSpellingInput('');
           setDraggedItems({ causes: [], effects: [] });
           
-          const question = scribblashQuestions[currentQuestion];
+          const question = homophibianQuestions[currentQuestion];
           if (question.type === '4pics1word') {
             const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
             setAvailableLetters(shuffled);
@@ -1158,7 +1159,7 @@ const WatersideShoresLevel1 = () => {
 
   // 4 Pics 1 Word functions
   const handleLetterClick = (letter, index) => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = homophibianQuestions[currentQuestion];
     if (question && selectedLetters.length < question.correct.length) {
       setSelectedLetters(prev => [...prev, letter]);
       setAvailableLetters(prev => prev.filter((_, i) => i !== index));
@@ -1177,7 +1178,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const speakWord = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = homophibianQuestions[currentQuestion];
     if (question.type === 'spelling') {
       const utterance = new SpeechSynthesisUtterance(question.correct);
       utterance.rate = 0.8;
@@ -1222,7 +1223,7 @@ const WatersideShoresLevel1 = () => {
     setAvailableLetters([]);
     setSpellingInput('');
     setDraggedItems({ causes: [], effects: [] });
-    setScribblashState('idle');
+    setHomophibianState('idle');
     setAdventurerState('idle');
     setPhase('battle');
   };
@@ -1240,7 +1241,7 @@ const WatersideShoresLevel1 = () => {
     setPhase('dialogue');
     setDialogueIdx(0);
     setVictoryDialogueIdx(0);
-    setScribblashState('idle');
+    setHomophibianState('idle');
     setAdventurerState('idle');
   };
 
@@ -1250,7 +1251,7 @@ const WatersideShoresLevel1 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Scribblash",
+            levelName: "Homophibian",
             completed: true,
             starsEarned: hearts
           }, {
@@ -1277,10 +1278,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="idle" />
-          </PositionedScribblash>
+        {d.speaker === 'Homophibian' && (
+          <PositionedHomophibian>
+            <HomophibianSprite state="idle" />
+          </PositionedHomophibian>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1292,25 +1293,25 @@ const WatersideShoresLevel1 = () => {
       </>
     );
   } else if (phase === 'battle') {
-    const question = scribblashQuestions[currentQuestion];
+    const question = homophibianQuestions[currentQuestion];
     content = (
       <>
         <BattleAdventurer>
           <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
         </BattleAdventurer>
-        <BattleScribblash>
-          <ScribblashSprite state={scribblashState} isDamaged={monsterDamaged} />
-        </BattleScribblash>
+        <BattleHomophibian>
+          <HomophibianSprite state={homophibianState} isDamaged={monsterDamaged} />
+        </BattleHomophibian>
         
         {/* HP UI */}
         <Box sx={{
           position: 'absolute',
-          right: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT} + 60px)`,
-          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM} + 220px)`,
+          right: `calc(${CHARACTER_POSITIONS.BATTLE_HOMOPHIBIAN_RIGHT} + 60px)`,
+          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_HOMOPHIBIAN_BOTTOM} + 220px)`,
           zIndex: 10,
           transform: 'translateX(-50%)',
         }}>
-          <MonsterHPText>Scribblash HP</MonsterHPText>
+          <MonsterHPText>Homophibian HP</MonsterHPText>
           <MonsterHPBar>
             <MonsterHPFill hp={monsterHP} />
           </MonsterHPBar>
@@ -1505,10 +1506,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="death" />
-          </PositionedScribblash>
+        {d.speaker === 'Homophibian' && (
+          <PositionedHomophibian>
+            <HomophibianSprite state="death" />
+          </PositionedHomophibian>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1700,7 +1701,7 @@ const WatersideShoresLevel1 = () => {
               marginBottom: '8px'
             }}
           >
-            Scribblash has defeated you!
+            Homophibian has defeated you!
           </Typography>
           <Typography 
             align="center"
@@ -1806,7 +1807,7 @@ const WatersideShoresLevel1 = () => {
                 textShadow: '0 2px 4px rgba(56,142,60,0.3)'
               }}
             >
-              You've defeated Scribblash!
+              You've defeated Homophibian!
             </Typography>
             <Typography 
               style={{ 
@@ -1891,4 +1892,4 @@ const WatersideShoresLevel1 = () => {
   );
 };
 
-export default WatersideShoresLevel1;
+export default WatersideShoresLevel4;

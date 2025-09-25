@@ -28,38 +28,38 @@ const levels = [
   },
   {
     id: 2,
-    name: "Tidecaller's Test",
-    description: "Navigate the tidal pools where words ebb and flow with the ocean's rhythm.",
-    icon: "🌊",
-    theme: "vocabulary",
+    name: "Corallex's Reef of Riddles",
+    description: "Navigate the coral reef where double letters and spelling traps await the unwary.",
+    icon: "🦑",
+    theme: "spelling",
     difficulty: "Intermediate",
     cssTheme: "tide"
   },
   {
     id: 3,
-    name: "Coral Keeper's Challenge",
-    description: "Dive deep into the coral gardens where ancient vocabulary secrets lie hidden.",
-    icon: "🪸",
-    theme: "comprehension",
-    difficulty: "Intermediate",
+    name: "Silentscale's Whispered Words",
+    description: "Navigate the lagoon of whispers where silent letters vanish like ghosts.",
+    icon: "🐍",
+    theme: "silent letters",
+    difficulty: "Hard",
     cssTheme: "coral"
   },
   {
     id: 4,
-    name: "Siren's Spelling Storm",
-    description: "Weather the spelling storm conjured by the mystical siren of the deep waters.",
-    icon: "🧜‍♀️",
-    theme: "spelling",
-    difficulty: "Intermediate",
+    name: "Homophibian's Dock of Deception",
+    description: "Navigate the treacherous dock where homophones trick the unwary adventurer.",
+    icon: "🐸",
+    theme: "homophones",
+    difficulty: "Hard",
     cssTheme: "siren"
   },
   {
     id: 5,
-    name: "Leviathan's Lexicon",
-    description: "Face the ultimate sea beast in the deepest waters where vocabulary mastery is tested.",
-    icon: "🐋",
-    theme: "vocabulary",
-    difficulty: "Advanced",
+    name: "Spellisk's Lair of Spelling",
+    description: "Face the serpent of shattered words in her lair. The Scroll of Spelling awaits the worthy.",
+    icon: "🐍",
+    theme: "spelling mastery",
+    difficulty: "Boss",
     cssTheme: "leviathan"
   }
 ];
@@ -73,21 +73,41 @@ export default function WatersideShores() {
     async function loadProgress() {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get('/api/adventure/island-progress/Waterside Shores', {
+        const res = await axios.get("/api/adventure/level-progress", {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true
+          withCredentials: true,
         });
 
-        const progress = response.data;
-        const completedLevel = progress.completedLevel || 0;
+        // Map progress by level name - using the level names that are saved by the levels
+        const progressMap = {};
+        res.data.forEach(stat => {
+          progressMap[stat.levelName] = stat;
+        });
+
+        // Map our level names to the saved progress
+        const levelNameMap = {
+          "Scribblash's Sandy Scrawl": "Scribblash",
+          "Corallex's Reef of Riddles": "Corallex",
+          "Silentscale's Whispered Words": "Silentscale",
+          "Homophibian's Dock of Deception": "Homophibian",
+          "Spellisk's Lair of Spelling": "Spellisk"
+        };
+
+        const starsArr = levels.map(lvl => {
+          const savedLevelName = levelNameMap[lvl.name];
+          return progressMap[savedLevelName]?.starsEarned || 0;
+        });
         
-        // For now, set all completed levels to 3 stars
-        const starsArr = levels.map((level, idx) => 
-          idx < completedLevel ? 3 : 0
-        );
+        let maxUnlocked = 1;
+        levels.forEach((lvl, idx) => {
+          const savedLevelName = levelNameMap[lvl.name];
+          if (progressMap[savedLevelName]?.completed && idx + 2 > maxUnlocked) {
+            maxUnlocked = idx + 2;
+          }
+        });
         
         setStars(starsArr);
-        setUnlocked(completedLevel + 1); // Next level is unlocked
+        setUnlocked(maxUnlocked);
       } catch (err) {
         console.error("Progress fetch failed", err);
         setUnlocked(1);
@@ -101,6 +121,14 @@ export default function WatersideShores() {
   const handleLevelClick = (id) => {
     if (id === 1) {
       navigate('/waterside-shores/level1');
+    } else if (id === 2) {
+      navigate('/waterside-shores/level2');
+    } else if (id === 3) {
+      navigate('/waterside-shores/level3');
+    } else if (id === 4) {
+      navigate('/waterside-shores/level4');
+    } else if (id === 5) {
+      navigate('/waterside-shores/level5');
     } else {
       alert(`Level ${id} coming soon!`);
     }

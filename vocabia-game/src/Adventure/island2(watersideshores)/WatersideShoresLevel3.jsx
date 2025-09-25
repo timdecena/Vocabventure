@@ -24,22 +24,22 @@ import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png
 import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
 import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
 
-// Scribblash Monster - Placeholder (user will provide actual images)
-const ScribblashIdle1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
+// Silentscale Monster - Snake with silent letters theme
+const SilentscaleIdle1 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleIdle2 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleIdle3 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleIdle4 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleAttack1 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleAttack2 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleAttack3 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleAttack4 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleHurt1 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleHurt2 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleHurt3 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleDeath1 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleDeath2 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleDeath3 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
+const SilentscaleDeath4 = 'https://cdn.vectorstock.com/i/1000v/48/41/pixel-snake-icon-vector-44084841.jpg';
 
 // Waterside Shores Background
 const WATERSIDE_BG = 'https://thumbs.dreamstime.com/b/beach-pixel-art-background-d-backdrop-bit-retro-video-game-style-299969450.jpg'; // Beach/shore background
@@ -51,13 +51,13 @@ const CHARACTER_POSITIONS = {
   ADVENTURER_LEFT: '180px',
   ADVENTURER_BOTTOM: '5px',
   // Dialogue scene positioning
-  DIALOGUE_SCRIBBLASH_RIGHT: '50px',
-  DIALOGUE_SCRIBBLASH_BOTTOM: '120px',
+  DIALOGUE_SILENTSCALE_RIGHT: '50px',
+  DIALOGUE_SILENTSCALE_BOTTOM: '120px',
   // Battle scene positioning
   BATTLE_ADVENTURER_LEFT: '500px',
   BATTLE_ADVENTURER_BOTTOM: '120px',
-  BATTLE_SCRIBBLASH_RIGHT: '420px',
-  BATTLE_SCRIBBLASH_BOTTOM: '180px',
+  BATTLE_SILENTSCALE_RIGHT: '420px',
+  BATTLE_SILENTSCALE_BOTTOM: '180px',
 };
 
 const shake = keyframes`
@@ -494,8 +494,8 @@ const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
   return <AdventurerImg src={getAdventurerFrame()} isDamaged={isDamaged} {...props} />;
 };
 
-// Animated Scribblash Sprite Component
-const ScribblashSprite = ({ state, isDamaged, ...props }) => {
+// Animated Silentscale Sprite Component
+const SilentscaleSprite = ({ state, isDamaged, ...props }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   
   useEffect(() => {
@@ -514,43 +514,43 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     return () => clearInterval(interval);
   }, [state]);
 
-  const getScribblashFrame = () => {
+  const getSilentscaleFrame = () => {
     switch (state) {
       case 'attack':
         switch (currentFrame) {
-          case 0: return ScribblashAttack1;
-          case 1: return ScribblashAttack2;
-          case 2: return ScribblashAttack3;
-          case 3: return ScribblashAttack4;
-          default: return ScribblashAttack1;
+          case 0: return SilentscaleAttack1;
+          case 1: return SilentscaleAttack2;
+          case 2: return SilentscaleAttack3;
+          case 3: return SilentscaleAttack4;
+          default: return SilentscaleAttack1;
         }
       case 'hurt':
         switch (currentFrame) {
-          case 0: return ScribblashHurt1;
-          case 1: return ScribblashHurt2;
-          case 2: return ScribblashHurt3;
-          default: return ScribblashHurt1;
+          case 0: return SilentscaleHurt1;
+          case 1: return SilentscaleHurt2;
+          case 2: return SilentscaleHurt3;
+          default: return SilentscaleHurt1;
         }
       case 'death':
         switch (currentFrame) {
-          case 0: return ScribblashDeath1;
-          case 1: return ScribblashDeath2;
-          case 2: return ScribblashDeath3;
-          case 3: return ScribblashDeath4;
-          default: return ScribblashDeath1;
+          case 0: return SilentscaleDeath1;
+          case 1: return SilentscaleDeath2;
+          case 2: return SilentscaleDeath3;
+          case 3: return SilentscaleDeath4;
+          default: return SilentscaleDeath1;
         }
       default: // idle
         switch (currentFrame) {
-          case 0: return ScribblashIdle1;
-          case 1: return ScribblashIdle2;
-          case 2: return ScribblashIdle3;
-          case 3: return ScribblashIdle4;
-          default: return ScribblashIdle1;
+          case 0: return SilentscaleIdle1;
+          case 1: return SilentscaleIdle2;
+          case 2: return SilentscaleIdle3;
+          case 3: return SilentscaleIdle4;
+          default: return SilentscaleIdle1;
         }
     }
   };
 
-  const ScribblashImg = styled('img')(({ isDamaged, state }) => ({
+  const SilentscaleImg = styled('img')(({ isDamaged, state }) => ({
     width: '300px',
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
@@ -558,7 +558,7 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face left
   }));
 
-  return <ScribblashImg src={getScribblashFrame()} isDamaged={isDamaged} state={state} {...props} />;
+  return <SilentscaleImg src={getSilentscaleFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Character positioning components
@@ -576,10 +576,10 @@ const PositionedAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const PositionedScribblash = styled(Box)(({ theme }) => ({
+const PositionedSilentscale = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.DIALOGUE_SILENTSCALE_RIGHT,
+  bottom: CHARACTER_POSITIONS.DIALOGUE_SILENTSCALE_BOTTOM,
   zIndex: 4,
 }));
 
@@ -590,10 +590,10 @@ const BattleAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const BattleScribblash = styled(Box)(({ theme }) => ({
+const BattleSilentscale = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.BATTLE_SILENTSCALE_RIGHT,
+  bottom: CHARACTER_POSITIONS.BATTLE_SILENTSCALE_BOTTOM,
   zIndex: 4,
 }));
 
@@ -850,96 +850,86 @@ const VictoryContainer = styled(Paper)(({ theme }) => ({
   border: '4px solid #b48a6e',
 }));
 
-// Intermediate level questions for Scribblash (8 questions)
-const scribblashQuestions = [
-  // Question 1: Spelling
+// Silent letters questions for Silentscale (8 questions: 5 intermediate, 3 hard spelling)
+const silentscaleQuestions = [
+  // Question 1: Spelling (Hard)
   {
     type: "spelling",
-    definition: "A word that means 'to make something clear or easy to understand' - often used in writing and teaching.",
-    correct: "EXPLAIN"
+    definition: "Spell the word that means 'a sharp blade' - starts with 'kn' but the 'k' is silent.",
+    correct: "KNIFE"
   },
-  // Question 2: Spelling
+  // Question 2: Spelling (Hard)
   {
     type: "spelling", 
-    definition: "Past tense of 'write' - what you did with a pen yesterday.",
-    correct: "WROTE"
+    definition: "Spell the word that means 'to twist your hands together' - has a silent 'w'.",
+    correct: "WRING"
   },
-  // Question 3: 4 Pics 1 Word
-  {
-    type: "4pics1word",
-    images: [
-      "https://picsum.photos/150/100?random=1",
-      "https://picsum.photos/150/100?random=2", 
-      "https://picsum.photos/150/100?random=3",
-      "https://picsum.photos/150/100?random=4"
-    ],
-    letters: "RETAWKLO",
-    correct: "WATER"
-  },
-  // Question 4: Multiple Choice
+  // Question 3: Reading Comprehension (Intermediate)
   {
     type: "multiple_choice",
-    question: "Which sentence uses correct punctuation?",
+    question: "Read this passage: 'The knight rode through the night, his armor gleaming in the moonlight. He knew the castle was just beyond the hill.' Which words in this passage have silent letters?",
     options: [
-      "Its a beautiful day outside.",
-      "It's a beautiful day outside.",
-      "Its' a beautiful day outside.",
-      "It's a beautiful day outside"
+      "knight, night, knew",
+      "rode, armor, castle", 
+      "through, gleaming, beyond",
+      "moonlight, hill, just"
     ],
-    correctAnswer: 1
+    correctAnswer: 0
   },
-  // Question 5: Reading Comprehension
+  // Question 4: Multiple Choice (Intermediate)
   {
-    type: "reading_comprehension",
-    passage: "Sarah studied hard for her exam. She reviewed her notes every night for two weeks. When exam day came, she felt confident and well-prepared.",
-    causeOptions: ["Sarah studied hard", "Exam day arrived", "Sarah felt confident"],
-    effectOptions: ["She felt prepared", "She reviewed notes", "She passed the test"],
-    correctMatches: [
-      { cause: "Sarah studied hard", effect: "She felt prepared" }
-    ]
+    type: "multiple_choice",
+    question: "Which word has a silent 'b'?",
+    options: ["lamb", "lab", "label", "labor"],
+    correctAnswer: 0
   },
-  // Question 6: Spelling
-  {
-    type: "spelling",
-    definition: "A word meaning 'to get better' or 'to become healthy again' after being sick or injured.",
-    correct: "RECOVER"
-  },
-  // Question 7: Multiple Choice
-  {
-    type: "multiple_choice", 
-    question: "What is the correct plural form of 'child'?",
-    options: ["childs", "childrens", "children", "child's"],
-    correctAnswer: 2
-  },
-  // Question 8: 4 Pics 1 Word
+  // Question 5: 4 Pics 1 Word (Intermediate)
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=5",
-      "https://picsum.photos/150/100?random=6",
-      "https://picsum.photos/150/100?random=7",
-      "https://picsum.photos/150/100?random=8"
+      "https://picsum.photos/150/100?random=20",
+      "https://picsum.photos/150/100?random=21", 
+      "https://picsum.photos/150/100?random=22",
+      "https://picsum.photos/150/100?random=23"
     ],
-    letters: "KOOBSRED",
-    correct: "BOOKS"
+    letters: "THUMBEXTRA",
+    correct: "THUMB"
+  },
+  // Question 6: Spelling (Hard)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'a person who fixes pipes' - ends with 'mb' but the 'b' is silent.",
+    correct: "PLUMBER"
+  },
+  // Question 7: Multiple Choice (Intermediate)
+  {
+    type: "multiple_choice", 
+    question: "Which word does NOT have a silent letter?",
+    options: ["comb", "bomb", "tomb", "room"],
+    correctAnswer: 3
+  },
+  // Question 8: Spelling (Intermediate)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'to move on your knees' - starts with 'kn' but the 'k' is silent.",
+    correct: "KNEEL"
   }
 ];
 
 const dialogueSequence = [
-  { speaker: 'Wizard', text: "This is Spelling Shores. Letters twist and dance here, reshaped by Spellisk's curse. Beware… even the most simple words are not what they seem." },
-  { speaker: 'Adventurer', text: "I beat Grammowl's tricks. A few misspelled words won't stop me." },
-  { speaker: 'Wizard', text: "Pride is dangerous. Even small mistakes can topple great heroes." },
-  { speaker: 'Scribblash', text: "Sssso… the child of prophecy comes to scribble on my shores?" },
-  { speaker: 'Scribblash', text: "Your words will crumble into sand, and your letters will scatter in the wind!" },
+  { speaker: 'Wizard', text: "The lagoon of whispers… here, letters vanish like ghosts. Words lose their sound, yet their weight remains." },
+  { speaker: 'Adventurer', text: "Silent letters? Great. As if spelling wasn't tricky enough already." },
+  { speaker: 'Silentscale', text: "Ssssss… you think you can hear what cannot be spoken? My power is silence… my trap is confusion." },
+  { speaker: 'Silentscale', text: "One wrong sound, one vanished letter… and you will be swallowed by the lagoon!" },
 ];
 
 const victoryDialogue = [
-  { speaker: 'Adventurer', text: "Your scribbles… weren't enough." },
-  { speaker: 'Scribblash', text: "Grkhh… my words… lost to the wind…" },
-  { speaker: 'Wizard', text: "Well done. But this was only the beginning. Spellisk's curse grows stronger the deeper we go." },
+  { speaker: 'Adventurer', text: "Silent… but deadly. You're not so scary once the words fall back into place." },
+  { speaker: 'Silentscale', text: "No… my whispers… fade… but the storm ahead… will silence you forever…" },
+  { speaker: 'Wizard', text: "Well done. Each battle sharpens your wit. But beware—these shores are Spellisk's domain. The sea serpent of spelling won't let her scroll go easily." },
 ];
 
-const WatersideShoresLevel1 = () => {
+const WatersideShoresLevel3 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
   const [dialogueIdx, setDialogueIdx] = useState(0);
@@ -958,7 +948,7 @@ const WatersideShoresLevel1 = () => {
   const [showQuit, setShowQuit] = useState(false);
   const [showVictoryDialogue, setShowVictoryDialogue] = useState(false);
   const idleTimeout = useRef(null);
-  const [scribblashState, setScribblashState] = useState('idle');
+  const [silentscaleState, setSilentscaleState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
   
   // Diverse gameplay states
@@ -999,7 +989,7 @@ const WatersideShoresLevel1 = () => {
   // Gameplay initialization
   useEffect(() => {
     if (phase === 'battle') {
-      const question = scribblashQuestions[currentQuestion];
+      const question = silentscaleQuestions[currentQuestion];
       if (question) {
         setSelectedAnswer(null);
         setShowResult(false);
@@ -1038,7 +1028,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const validateAnswer = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = silentscaleQuestions[currentQuestion];
     let isCorrect = false;
     
     switch (question.type) {
@@ -1067,7 +1057,7 @@ const WatersideShoresLevel1 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setTimeout(() => {
-      const isCorrect = idx === scribblashQuestions[currentQuestion].correctAnswer;
+      const isCorrect = idx === silentscaleQuestions[currentQuestion].correctAnswer;
       processAnswer(isCorrect);
     }, 10);
   };
@@ -1085,16 +1075,16 @@ const WatersideShoresLevel1 = () => {
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
       
-      setScribblashState('hurt');
-      setTimeout(() => setScribblashState('idle'), 500);
+      setSilentscaleState('hurt');
+      setTimeout(() => setSilentscaleState('idle'), 500);
       
       setMonsterDamaged(true);
       setTimeout(() => setMonsterDamaged(false), 500);
       
       setMonsterHP(hp => {
-        const newHP = Math.max(0, hp - Math.floor(100 / scribblashQuestions.length));
-        if (currentQuestion === scribblashQuestions.length - 1 || newHP === 0) {
-          setScribblashState('death');
+        const newHP = Math.max(0, hp - Math.floor(100 / silentscaleQuestions.length));
+        if (currentQuestion === silentscaleQuestions.length - 1 || newHP === 0) {
+          setSilentscaleState('death');
           setShowVictoryDialogue(true);
           setPhase('victory-dialogue');
           setVictoryDialogueIdx(0);
@@ -1102,7 +1092,7 @@ const WatersideShoresLevel1 = () => {
         return newHP;
       });
       
-      if (currentQuestion < scribblashQuestions.length - 1) {
+      if (currentQuestion < silentscaleQuestions.length - 1) {
         setTimeout(() => {
           setCurrentQuestion(prev => prev + 1);
           setSelectedAnswer(null);
@@ -1116,8 +1106,8 @@ const WatersideShoresLevel1 = () => {
       setTimeLeft(newTime);
       
       if (newTime === 0) {
-        setScribblashState('attack');
-        setTimeout(() => setScribblashState('idle'), 500);
+        setSilentscaleState('attack');
+        setTimeout(() => setSilentscaleState('idle'), 500);
         
         setUserDamaged(true);
         setTimeout(() => setUserDamaged(false), 500);
@@ -1146,7 +1136,7 @@ const WatersideShoresLevel1 = () => {
           setSpellingInput('');
           setDraggedItems({ causes: [], effects: [] });
           
-          const question = scribblashQuestions[currentQuestion];
+          const question = silentscaleQuestions[currentQuestion];
           if (question.type === '4pics1word') {
             const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
             setAvailableLetters(shuffled);
@@ -1158,7 +1148,7 @@ const WatersideShoresLevel1 = () => {
 
   // 4 Pics 1 Word functions
   const handleLetterClick = (letter, index) => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = silentscaleQuestions[currentQuestion];
     if (question && selectedLetters.length < question.correct.length) {
       setSelectedLetters(prev => [...prev, letter]);
       setAvailableLetters(prev => prev.filter((_, i) => i !== index));
@@ -1177,7 +1167,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const speakWord = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = silentscaleQuestions[currentQuestion];
     if (question.type === 'spelling') {
       const utterance = new SpeechSynthesisUtterance(question.correct);
       utterance.rate = 0.8;
@@ -1222,7 +1212,7 @@ const WatersideShoresLevel1 = () => {
     setAvailableLetters([]);
     setSpellingInput('');
     setDraggedItems({ causes: [], effects: [] });
-    setScribblashState('idle');
+    setSilentscaleState('idle');
     setAdventurerState('idle');
     setPhase('battle');
   };
@@ -1240,7 +1230,7 @@ const WatersideShoresLevel1 = () => {
     setPhase('dialogue');
     setDialogueIdx(0);
     setVictoryDialogueIdx(0);
-    setScribblashState('idle');
+    setSilentscaleState('idle');
     setAdventurerState('idle');
   };
 
@@ -1250,7 +1240,7 @@ const WatersideShoresLevel1 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Scribblash",
+            levelName: "Silentscale",
             completed: true,
             starsEarned: hearts
           }, {
@@ -1277,10 +1267,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="idle" />
-          </PositionedScribblash>
+        {d.speaker === 'Silentscale' && (
+          <PositionedSilentscale>
+            <SilentscaleSprite state="idle" />
+          </PositionedSilentscale>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1292,25 +1282,25 @@ const WatersideShoresLevel1 = () => {
       </>
     );
   } else if (phase === 'battle') {
-    const question = scribblashQuestions[currentQuestion];
+    const question = silentscaleQuestions[currentQuestion];
     content = (
       <>
         <BattleAdventurer>
           <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
         </BattleAdventurer>
-        <BattleScribblash>
-          <ScribblashSprite state={scribblashState} isDamaged={monsterDamaged} />
-        </BattleScribblash>
+        <BattleSilentscale>
+          <SilentscaleSprite state={silentscaleState} isDamaged={monsterDamaged} />
+        </BattleSilentscale>
         
         {/* HP UI */}
         <Box sx={{
           position: 'absolute',
-          right: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT} + 60px)`,
-          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM} + 220px)`,
+          right: `calc(${CHARACTER_POSITIONS.BATTLE_SILENTSCALE_RIGHT} + 60px)`,
+          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SILENTSCALE_BOTTOM} + 220px)`,
           zIndex: 10,
           transform: 'translateX(-50%)',
         }}>
-          <MonsterHPText>Scribblash HP</MonsterHPText>
+          <MonsterHPText>Silentscale HP</MonsterHPText>
           <MonsterHPBar>
             <MonsterHPFill hp={monsterHP} />
           </MonsterHPBar>
@@ -1505,10 +1495,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="death" />
-          </PositionedScribblash>
+        {d.speaker === 'Silentscale' && (
+          <PositionedSilentscale>
+            <SilentscaleSprite state="death" />
+          </PositionedSilentscale>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1700,7 +1690,7 @@ const WatersideShoresLevel1 = () => {
               marginBottom: '8px'
             }}
           >
-            Scribblash has defeated you!
+            Silentscale has defeated you!
           </Typography>
           <Typography 
             align="center"
@@ -1806,7 +1796,7 @@ const WatersideShoresLevel1 = () => {
                 textShadow: '0 2px 4px rgba(56,142,60,0.3)'
               }}
             >
-              You've defeated Scribblash!
+              You've defeated Silentscale!
             </Typography>
             <Typography 
               style={{ 
@@ -1891,4 +1881,4 @@ const WatersideShoresLevel1 = () => {
   );
 };
 
-export default WatersideShoresLevel1;
+export default WatersideShoresLevel3;

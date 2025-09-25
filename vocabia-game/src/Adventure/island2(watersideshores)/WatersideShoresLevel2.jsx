@@ -24,22 +24,22 @@ import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png
 import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
 import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
 
-// Scribblash Monster - Placeholder (user will provide actual images)
-const ScribblashIdle1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
+// Corallex Monster - Placeholder (user will provide actual images)
+const CorellexIdle1 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexIdle2 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexIdle3 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexIdle4 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexAttack1 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexAttack2 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexAttack3 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexAttack4 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexHurt1 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexHurt2 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexHurt3 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexDeath1 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexDeath2 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexDeath3 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
+const CorellexDeath4 = 'https://www.shutterstock.com/image-vector/vector-pixel-art-monster-coral-260nw-721755148.jpg';
 
 // Waterside Shores Background
 const WATERSIDE_BG = 'https://thumbs.dreamstime.com/b/beach-pixel-art-background-d-backdrop-bit-retro-video-game-style-299969450.jpg'; // Beach/shore background
@@ -51,13 +51,13 @@ const CHARACTER_POSITIONS = {
   ADVENTURER_LEFT: '180px',
   ADVENTURER_BOTTOM: '5px',
   // Dialogue scene positioning
-  DIALOGUE_SCRIBBLASH_RIGHT: '50px',
-  DIALOGUE_SCRIBBLASH_BOTTOM: '120px',
+  DIALOGUE_CORALLEX_RIGHT: '50px',
+  DIALOGUE_CORALLEX_BOTTOM: '120px',
   // Battle scene positioning
   BATTLE_ADVENTURER_LEFT: '500px',
   BATTLE_ADVENTURER_BOTTOM: '120px',
-  BATTLE_SCRIBBLASH_RIGHT: '420px',
-  BATTLE_SCRIBBLASH_BOTTOM: '180px',
+  BATTLE_CORALLEX_RIGHT: '420px',
+  BATTLE_CORALLEX_BOTTOM: '180px',
 };
 
 const shake = keyframes`
@@ -494,8 +494,8 @@ const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
   return <AdventurerImg src={getAdventurerFrame()} isDamaged={isDamaged} {...props} />;
 };
 
-// Animated Scribblash Sprite Component
-const ScribblashSprite = ({ state, isDamaged, ...props }) => {
+// Animated Corallex Sprite Component
+const CorellexSprite = ({ state, isDamaged, ...props }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   
   useEffect(() => {
@@ -514,43 +514,43 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     return () => clearInterval(interval);
   }, [state]);
 
-  const getScribblashFrame = () => {
+  const getCorallexFrame = () => {
     switch (state) {
       case 'attack':
         switch (currentFrame) {
-          case 0: return ScribblashAttack1;
-          case 1: return ScribblashAttack2;
-          case 2: return ScribblashAttack3;
-          case 3: return ScribblashAttack4;
-          default: return ScribblashAttack1;
+          case 0: return CorellexAttack1;
+          case 1: return CorellexAttack2;
+          case 2: return CorellexAttack3;
+          case 3: return CorellexAttack4;
+          default: return CorellexAttack1;
         }
       case 'hurt':
         switch (currentFrame) {
-          case 0: return ScribblashHurt1;
-          case 1: return ScribblashHurt2;
-          case 2: return ScribblashHurt3;
-          default: return ScribblashHurt1;
+          case 0: return CorellexHurt1;
+          case 1: return CorellexHurt2;
+          case 2: return CorellexHurt3;
+          default: return CorellexHurt1;
         }
       case 'death':
         switch (currentFrame) {
-          case 0: return ScribblashDeath1;
-          case 1: return ScribblashDeath2;
-          case 2: return ScribblashDeath3;
-          case 3: return ScribblashDeath4;
-          default: return ScribblashDeath1;
+          case 0: return CorellexDeath1;
+          case 1: return CorellexDeath2;
+          case 2: return CorellexDeath3;
+          case 3: return CorellexDeath4;
+          default: return CorellexDeath1;
         }
       default: // idle
         switch (currentFrame) {
-          case 0: return ScribblashIdle1;
-          case 1: return ScribblashIdle2;
-          case 2: return ScribblashIdle3;
-          case 3: return ScribblashIdle4;
-          default: return ScribblashIdle1;
+          case 0: return CorellexIdle1;
+          case 1: return CorellexIdle2;
+          case 2: return CorellexIdle3;
+          case 3: return CorellexIdle4;
+          default: return CorellexIdle1;
         }
     }
   };
 
-  const ScribblashImg = styled('img')(({ isDamaged, state }) => ({
+  const CorellexImg = styled('img')(({ isDamaged, state }) => ({
     width: '300px',
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
@@ -558,7 +558,7 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face left
   }));
 
-  return <ScribblashImg src={getScribblashFrame()} isDamaged={isDamaged} state={state} {...props} />;
+  return <CorellexImg src={getCorallexFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Character positioning components
@@ -576,10 +576,10 @@ const PositionedAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const PositionedScribblash = styled(Box)(({ theme }) => ({
+const PositionedCorallex = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.DIALOGUE_CORALLEX_RIGHT,
+  bottom: CHARACTER_POSITIONS.DIALOGUE_CORALLEX_BOTTOM,
   zIndex: 4,
 }));
 
@@ -590,10 +590,10 @@ const BattleAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const BattleScribblash = styled(Box)(({ theme }) => ({
+const BattleCorallex = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.BATTLE_CORALLEX_RIGHT,
+  bottom: CHARACTER_POSITIONS.BATTLE_CORALLEX_BOTTOM,
   zIndex: 4,
 }));
 
@@ -607,9 +607,7 @@ const VS = styled(Box)(({ theme }) => ({
   pointerEvents: 'none',
 }));
 
-const HeartIcon = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'filled'
-})(({ theme, filled }) => ({
+const HeartIcon = styled(Box)(({ theme, filled }) => ({
   width: '40px',
   height: '40px',
   display: 'flex',
@@ -765,42 +763,6 @@ const PassageBox = styled(Box)(({ theme }) => ({
   color: '#f0f0f0',
 }));
 
-const DragDropColumn = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-}));
-
-const DragItem = styled(Box)(({ theme }) => ({
-  padding: '12px',
-  background: 'linear-gradient(145deg, #e8f4f8, #d1e7dd)',
-  color: '#1a4c5c',
-  borderRadius: '8px',
-  border: '2px solid #6fb3d2',
-  cursor: 'grab',
-  textAlign: 'center',
-  fontSize: '0.9rem',
-  '&:hover': {
-    background: 'linear-gradient(145deg, #d1e7dd, #b8dce6)',
-  },
-  '&:active': {
-    cursor: 'grabbing',
-  },
-}));
-
-const DropZone = styled(Box)(({ theme }) => ({
-  minHeight: '50px',
-  padding: '12px',
-  border: '2px dashed rgba(255,255,255,0.3)',
-  borderRadius: '8px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: 'rgba(0,0,0,0.2)',
-  color: '#ccc',
-  fontSize: '0.9rem',
-}));
-
 const SubmitButton = styled(Button)(({ theme }) => ({
   padding: '12px 32px',
   fontSize: '1.1rem',
@@ -850,96 +812,91 @@ const VictoryContainer = styled(Paper)(({ theme }) => ({
   border: '4px solid #b48a6e',
 }));
 
-// Intermediate level questions for Scribblash (8 questions)
-const scribblashQuestions = [
-  // Question 1: Spelling
+// Corallex questions (8 questions with your exact flow)
+const corallexQuestions = [
+  // Question 1: Spelling (Hard)
   {
     type: "spelling",
-    definition: "A word that means 'to make something clear or easy to understand' - often used in writing and teaching.",
-    correct: "EXPLAIN"
+    definition: "Spell the word that means 'happening or done immediately'",
+    correct: "IMMEDIATELY"
   },
-  // Question 2: Spelling
-  {
-    type: "spelling", 
-    definition: "Past tense of 'write' - what you did with a pen yesterday.",
-    correct: "WROTE"
-  },
-  // Question 3: 4 Pics 1 Word
-  {
-    type: "4pics1word",
-    images: [
-      "https://picsum.photos/150/100?random=1",
-      "https://picsum.photos/150/100?random=2", 
-      "https://picsum.photos/150/100?random=3",
-      "https://picsum.photos/150/100?random=4"
-    ],
-    letters: "RETAWKLO",
-    correct: "WATER"
-  },
-  // Question 4: Multiple Choice
+  // Question 2: Multiple Choice (Intermediate)
   {
     type: "multiple_choice",
-    question: "Which sentence uses correct punctuation?",
+    question: "Which word means 'to make something less severe'?",
     options: [
-      "Its a beautiful day outside.",
-      "It's a beautiful day outside.",
-      "Its' a beautiful day outside.",
-      "It's a beautiful day outside"
+      "Aggravate",
+      "Alleviate", 
+      "Accelerate",
+      "Accumulate"
     ],
     correctAnswer: 1
   },
-  // Question 5: Reading Comprehension
-  {
-    type: "reading_comprehension",
-    passage: "Sarah studied hard for her exam. She reviewed her notes every night for two weeks. When exam day came, she felt confident and well-prepared.",
-    causeOptions: ["Sarah studied hard", "Exam day arrived", "Sarah felt confident"],
-    effectOptions: ["She felt prepared", "She reviewed notes", "She passed the test"],
-    correctMatches: [
-      { cause: "Sarah studied hard", effect: "She felt prepared" }
-    ]
-  },
-  // Question 6: Spelling
+  // Question 3: Spelling (Hard)
   {
     type: "spelling",
-    definition: "A word meaning 'to get better' or 'to become healthy again' after being sick or injured.",
-    correct: "RECOVER"
+    definition: "Spell the word that means 'existing everywhere at the same time'",
+    correct: "UBIQUITOUS"
   },
-  // Question 7: Multiple Choice
-  {
-    type: "multiple_choice", 
-    question: "What is the correct plural form of 'child'?",
-    options: ["childs", "childrens", "children", "child's"],
-    correctAnswer: 2
-  },
-  // Question 8: 4 Pics 1 Word
+  // Question 4: 4 Pics 1 Word (Intermediate)
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=5",
-      "https://picsum.photos/150/100?random=6",
-      "https://picsum.photos/150/100?random=7",
-      "https://picsum.photos/150/100?random=8"
+      "https://picsum.photos/150/100?random=10",
+      "https://picsum.photos/150/100?random=11", 
+      "https://picsum.photos/150/100?random=12",
+      "https://picsum.photos/150/100?random=13"
     ],
-    letters: "KOOBSRED",
-    correct: "BOOKS"
+    letters: "CONNECTIONXYZ",
+    correct: "CONNECTION"
+  },
+  // Question 5: Spelling (Intermediate)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'a person who opposes or fights against another'",
+    correct: "OPPONENT"
+  },
+  // Question 6: Reading Comprehension (Intermediate)
+  {
+    type: "multiple_choice",
+    question: "Read this passage: 'The coral reef ecosystem is one of the most diverse marine environments on Earth. These underwater structures are built by tiny animals called polyps, which secrete calcium carbonate to form their protective skeletons. Over thousands of years, these skeletons accumulate to create the massive reef structures we see today.' What do coral polyps secrete to form their skeletons?",
+    options: [
+      "Calcium phosphate",
+      "Calcium carbonate",
+      "Sodium chloride", 
+      "Magnesium sulfate"
+    ],
+    correctAnswer: 1
+  },
+  // Question 7: Spelling (Intermediate)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'to make or become different'",
+    correct: "CHANGE"
+  },
+  // Question 8: Spelling (Intermediate)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'a large body of water surrounded by land'",
+    correct: "OCEAN"
   }
 ];
 
+// Your exact script dialogue
 const dialogueSequence = [
-  { speaker: 'Wizard', text: "This is Spelling Shores. Letters twist and dance here, reshaped by Spellisk's curse. Beware… even the most simple words are not what they seem." },
-  { speaker: 'Adventurer', text: "I beat Grammowl's tricks. A few misspelled words won't stop me." },
-  { speaker: 'Wizard', text: "Pride is dangerous. Even small mistakes can topple great heroes." },
-  { speaker: 'Scribblash', text: "Sssso… the child of prophecy comes to scribble on my shores?" },
-  { speaker: 'Scribblash', text: "Your words will crumble into sand, and your letters will scatter in the wind!" },
+  { speaker: 'Wizard', text: 'The shores sharpen here… the words etched in coral cut the careless. Few have passed this way without bleeding pride.' },
+  { speaker: 'Adventurer', text: 'So… what\'s waiting for us this time?' },
+  { speaker: 'Corallex', text: 'Hissss… child of prophecy… do you dare step into my reef of riddled words?' },
+  { speaker: 'Corallex', text: 'One slip, one missing letter… and you\'ll drown in your own errors!' },
 ];
 
 const victoryDialogue = [
-  { speaker: 'Adventurer', text: "Your scribbles… weren't enough." },
-  { speaker: 'Scribblash', text: "Grkhh… my words… lost to the wind…" },
-  { speaker: 'Wizard', text: "Well done. But this was only the beginning. Spellisk's curse grows stronger the deeper we go." },
+  { speaker: 'Adventurer', text: 'Looks like you couldn\'t keep your letters straight.' },
+  { speaker: 'Corallex', text: 'Nooo… my doubles… cracked in half… ssssshhhhh…' },
+  { speaker: 'Wizard', text: 'Good. Each victory weakens Spellisk\'s hold. But beware, adventurer—these waters only grow darker ahead.' },
 ];
 
-const WatersideShoresLevel1 = () => {
+const WatersideShoresLevel2 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
   const [dialogueIdx, setDialogueIdx] = useState(0);
@@ -958,14 +915,13 @@ const WatersideShoresLevel1 = () => {
   const [showQuit, setShowQuit] = useState(false);
   const [showVictoryDialogue, setShowVictoryDialogue] = useState(false);
   const idleTimeout = useRef(null);
-  const [scribblashState, setScribblashState] = useState('idle');
+  const [corallexState, setCorallexState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
   
   // Diverse gameplay states
   const [selectedLetters, setSelectedLetters] = useState([]);
   const [availableLetters, setAvailableLetters] = useState([]);
   const [spellingInput, setSpellingInput] = useState('');
-  const [draggedItems, setDraggedItems] = useState({ causes: [], effects: [] });
 
   useEffect(() => {
     setShowClickPrompt(false);
@@ -988,7 +944,6 @@ const WatersideShoresLevel1 = () => {
         setShowResult(false);
         setSelectedLetters([]);
         setSpellingInput('');
-        setDraggedItems({ causes: [], effects: [] });
       } else {
         setHearts(0);
         setGameOver(true);
@@ -999,13 +954,12 @@ const WatersideShoresLevel1 = () => {
   // Gameplay initialization
   useEffect(() => {
     if (phase === 'battle') {
-      const question = scribblashQuestions[currentQuestion];
+      const question = corallexQuestions[currentQuestion];
       if (question) {
         setSelectedAnswer(null);
         setShowResult(false);
         setSelectedLetters([]);
         setSpellingInput('');
-        setDraggedItems({ causes: [], effects: [] });
         
         if (question.type === '4pics1word') {
           const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
@@ -1038,7 +992,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const validateAnswer = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = corallexQuestions[currentQuestion];
     let isCorrect = false;
     
     switch (question.type) {
@@ -1051,13 +1005,6 @@ const WatersideShoresLevel1 = () => {
       case '4pics1word':
         isCorrect = selectedLetters.join('') === question.correct;
         break;
-      case 'reading_comprehension':
-        const userCause = draggedItems.causes[0];
-        const userEffect = draggedItems.effects[0];
-        isCorrect = question.correctMatches.some(match => 
-          match.cause === userCause && match.effect === userEffect
-        );
-        break;
       default:
         isCorrect = false;
     }
@@ -1067,7 +1014,7 @@ const WatersideShoresLevel1 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setTimeout(() => {
-      const isCorrect = idx === scribblashQuestions[currentQuestion].correctAnswer;
+      const isCorrect = idx === corallexQuestions[currentQuestion].correctAnswer;
       processAnswer(isCorrect);
     }, 10);
   };
@@ -1085,16 +1032,16 @@ const WatersideShoresLevel1 = () => {
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
       
-      setScribblashState('hurt');
-      setTimeout(() => setScribblashState('idle'), 500);
+      setCorallexState('hurt');
+      setTimeout(() => setCorallexState('idle'), 500);
       
       setMonsterDamaged(true);
       setTimeout(() => setMonsterDamaged(false), 500);
       
       setMonsterHP(hp => {
-        const newHP = Math.max(0, hp - Math.floor(100 / scribblashQuestions.length));
-        if (currentQuestion === scribblashQuestions.length - 1 || newHP === 0) {
-          setScribblashState('death');
+        const newHP = Math.max(0, hp - Math.floor(100 / corallexQuestions.length));
+        if (currentQuestion === corallexQuestions.length - 1 || newHP === 0) {
+          setCorallexState('death');
           setShowVictoryDialogue(true);
           setPhase('victory-dialogue');
           setVictoryDialogueIdx(0);
@@ -1102,7 +1049,7 @@ const WatersideShoresLevel1 = () => {
         return newHP;
       });
       
-      if (currentQuestion < scribblashQuestions.length - 1) {
+      if (currentQuestion < corallexQuestions.length - 1) {
         setTimeout(() => {
           setCurrentQuestion(prev => prev + 1);
           setSelectedAnswer(null);
@@ -1116,8 +1063,8 @@ const WatersideShoresLevel1 = () => {
       setTimeLeft(newTime);
       
       if (newTime === 0) {
-        setScribblashState('attack');
-        setTimeout(() => setScribblashState('idle'), 500);
+        setCorallexState('attack');
+        setTimeout(() => setCorallexState('idle'), 500);
         
         setUserDamaged(true);
         setTimeout(() => setUserDamaged(false), 500);
@@ -1129,7 +1076,6 @@ const WatersideShoresLevel1 = () => {
             setShowResult(false);
             setSelectedLetters([]);
             setSpellingInput('');
-            setDraggedItems({ causes: [], effects: [] });
             setTimeLeft(TIMER_DURATION);
           }, 600);
         } else {
@@ -1144,9 +1090,8 @@ const WatersideShoresLevel1 = () => {
           setShowResult(false);
           setSelectedLetters([]);
           setSpellingInput('');
-          setDraggedItems({ causes: [], effects: [] });
           
-          const question = scribblashQuestions[currentQuestion];
+          const question = corallexQuestions[currentQuestion];
           if (question.type === '4pics1word') {
             const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
             setAvailableLetters(shuffled);
@@ -1158,7 +1103,7 @@ const WatersideShoresLevel1 = () => {
 
   // 4 Pics 1 Word functions
   const handleLetterClick = (letter, index) => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = corallexQuestions[currentQuestion];
     if (question && selectedLetters.length < question.correct.length) {
       setSelectedLetters(prev => [...prev, letter]);
       setAvailableLetters(prev => prev.filter((_, i) => i !== index));
@@ -1177,35 +1122,13 @@ const WatersideShoresLevel1 = () => {
   };
 
   const speakWord = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = corallexQuestions[currentQuestion];
     if (question.type === 'spelling') {
       const utterance = new SpeechSynthesisUtterance(question.correct);
       utterance.rate = 0.8;
       utterance.pitch = 1;
       speechSynthesis.speak(utterance);
     }
-  };
-
-  // Reading Comprehension functions
-  const handleDragStart = (e, item, type) => {
-    e.dataTransfer.setData('text/plain', item);
-    e.dataTransfer.setData('type', type);
-  };
-
-  const handleDrop = (e, zone) => {
-    e.preventDefault();
-    const item = e.dataTransfer.getData('text/plain');
-    
-    if (item) {
-      setDraggedItems(prev => ({
-        ...prev,
-        [zone]: [item]
-      }));
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
   };
 
   const handleRetryBattle = () => {
@@ -1221,8 +1144,7 @@ const WatersideShoresLevel1 = () => {
     setSelectedLetters([]);
     setAvailableLetters([]);
     setSpellingInput('');
-    setDraggedItems({ causes: [], effects: [] });
-    setScribblashState('idle');
+    setCorallexState('idle');
     setAdventurerState('idle');
     setPhase('battle');
   };
@@ -1240,7 +1162,7 @@ const WatersideShoresLevel1 = () => {
     setPhase('dialogue');
     setDialogueIdx(0);
     setVictoryDialogueIdx(0);
-    setScribblashState('idle');
+    setCorallexState('idle');
     setAdventurerState('idle');
   };
 
@@ -1250,7 +1172,7 @@ const WatersideShoresLevel1 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Scribblash",
+            levelName: "Corallex",
             completed: true,
             starsEarned: hearts
           }, {
@@ -1277,10 +1199,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="idle" />
-          </PositionedScribblash>
+        {d.speaker === 'Corallex' && (
+          <PositionedCorallex>
+            <CorellexSprite state="idle" />
+          </PositionedCorallex>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1292,25 +1214,25 @@ const WatersideShoresLevel1 = () => {
       </>
     );
   } else if (phase === 'battle') {
-    const question = scribblashQuestions[currentQuestion];
+    const question = corallexQuestions[currentQuestion];
     content = (
       <>
         <BattleAdventurer>
           <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
         </BattleAdventurer>
-        <BattleScribblash>
-          <ScribblashSprite state={scribblashState} isDamaged={monsterDamaged} />
-        </BattleScribblash>
+        <BattleCorallex>
+          <CorellexSprite state={corallexState} isDamaged={monsterDamaged} />
+        </BattleCorallex>
         
         {/* HP UI */}
         <Box sx={{
           position: 'absolute',
-          right: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT} + 60px)`,
-          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM} + 220px)`,
+          right: `calc(${CHARACTER_POSITIONS.BATTLE_CORALLEX_RIGHT} + 60px)`,
+          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_CORALLEX_BOTTOM} + 220px)`,
           zIndex: 10,
           transform: 'translateX(-50%)',
         }}>
-          <MonsterHPText>Scribblash HP</MonsterHPText>
+          <MonsterHPText>Corallex HP</MonsterHPText>
           <MonsterHPBar>
             <MonsterHPFill hp={monsterHP} />
           </MonsterHPBar>
@@ -1417,77 +1339,6 @@ const WatersideShoresLevel1 = () => {
                   </FourPicsContainer>
                 );
                 
-              case 'reading_comprehension':
-                return (
-                  <ReadingContainer>
-                    <PassageBox>
-                      <Typography style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#f0f0f0' }}>
-                        {question.passage}
-                      </Typography>
-                    </PassageBox>
-                    <Typography style={{ color: '#f0f0f0', fontSize: '1.1rem', textAlign: 'center', marginBottom: '12px' }}>
-                      Drag and drop to match cause and effect:
-                    </Typography>
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center', flexWrap: 'nowrap' }}>
-                      {question.causeOptions.map((cause, idx) => (
-                        <DragItem
-                          key={`cause-${idx}`}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, cause, 'any')}
-                          style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
-                        >
-                          {cause}
-                        </DragItem>
-                      ))}
-                      {question.effectOptions.map((effect, idx) => (
-                        <DragItem
-                          key={`effect-${idx}`}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, effect, 'any')}
-                          style={{ fontSize: '0.75rem', padding: '6px 10px', minWidth: '120px', maxWidth: '140px', flexShrink: 0 }}
-                        >
-                          {effect}
-                        </DragItem>
-                      ))}
-                    </div>
-                    <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', alignItems: 'flex-start' }}>
-                      <DragDropColumn>
-                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
-                          CAUSE
-                        </Typography>
-                        <DropZone
-                          onDrop={(e) => handleDrop(e, 'causes')}
-                          onDragOver={handleDragOver}
-                          style={{ background: draggedItems.causes.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
-                        >
-                          {draggedItems.causes[0] || 'Drop cause here'}
-                        </DropZone>
-                      </DragDropColumn>
-                      <DragDropColumn>
-                        <Typography style={{ color: '#f0f0f0', fontSize: '1rem', textAlign: 'center', marginBottom: '8px' }}>
-                          EFFECT
-                        </Typography>
-                        <DropZone
-                          onDrop={(e) => handleDrop(e, 'effects')}
-                          onDragOver={handleDragOver}
-                          style={{ background: draggedItems.effects.length > 0 ? 'rgba(76, 175, 80, 0.2)' : 'rgba(0,0,0,0.2)' }}
-                        >
-                          {draggedItems.effects[0] || 'Drop effect here'}
-                        </DropZone>
-                      </DragDropColumn>
-                      <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                        <SubmitButton
-                          onClick={handleSubmitAnswer}
-                          disabled={showResult || draggedItems.causes.length < 1 || draggedItems.effects.length < 1}
-                          style={{ margin: '0' }}
-                        >
-                          Submit Answer
-                        </SubmitButton>
-                      </div>
-                    </div>
-                  </ReadingContainer>
-                );
-                
               default:
                 return <Typography style={{ color: '#f0f0f0' }}>Unknown question type</Typography>;
             }
@@ -1505,10 +1356,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="death" />
-          </PositionedScribblash>
+        {d.speaker === 'Corallex' && (
+          <PositionedCorallex>
+            <CorellexSprite state="death" />
+          </PositionedCorallex>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1700,7 +1551,7 @@ const WatersideShoresLevel1 = () => {
               marginBottom: '8px'
             }}
           >
-            Scribblash has defeated you!
+            Corallex has defeated you!
           </Typography>
           <Typography 
             align="center"
@@ -1806,7 +1657,7 @@ const WatersideShoresLevel1 = () => {
                 textShadow: '0 2px 4px rgba(56,142,60,0.3)'
               }}
             >
-              You've defeated Scribblash!
+              You've defeated Corallex!
             </Typography>
             <Typography 
               style={{ 
@@ -1819,11 +1670,11 @@ const WatersideShoresLevel1 = () => {
                 lineHeight: 1.5
               }}
             >
-              🏖️ The shores are calm once more! 🏖️
+              🦑 The coral reef is safe once more! 🦑
             </Typography>
             <Button
               variant="contained"
-              onClick={() => navigate('/waterside-shores/level2')}
+              onClick={() => navigate('/waterside-shores')}
               style={{
                 background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
                 color: '#fff',
@@ -1840,7 +1691,7 @@ const WatersideShoresLevel1 = () => {
                 letterSpacing: '0.5px'
               }}
             >
-              🚀 Go to Next Level
+              🏠 Return to Shores
             </Button>
             <Button
               variant="outlined"
@@ -1863,27 +1714,6 @@ const WatersideShoresLevel1 = () => {
             >
               🔄 Retry Level
             </Button>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/waterside-shores')}
-              style={{
-                background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 50%, #e0e0e0 100%)',
-                color: '#d32f2f',
-                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-                fontWeight: 700,
-                borderRadius: '20px',
-                padding: '14px 32px',
-                margin: '8px 0',
-                minWidth: '200px',
-                fontSize: '1.1rem',
-                border: '3px solid #d32f2f',
-                boxShadow: '0 4px 16px rgba(211,47,47,0.3), 0 2px 8px rgba(0,0,0,0.1)',
-                textTransform: 'none',
-                letterSpacing: '0.5px'
-              }}
-            >
-              🏠 Return to Hub
-            </Button>
           </VictoryContainer>
         </VictoryOverlay>
       )}
@@ -1891,4 +1721,4 @@ const WatersideShoresLevel1 = () => {
   );
 };
 
-export default WatersideShoresLevel1;
+export default WatersideShoresLevel2;

@@ -24,22 +24,22 @@ import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png
 import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
 import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
 
-// Scribblash Monster - Placeholder (user will provide actual images)
-const ScribblashIdle1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
+// Spellisk Monster - Serpent with spelling mastery theme
+const SpelliskIdle1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskIdle2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskIdle3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskIdle4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskAttack1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskAttack2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskAttack3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskAttack4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskHurt1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskHurt2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskHurt3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskDeath1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskDeath2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
+const SpelliskDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
 
 // Waterside Shores Background
 const WATERSIDE_BG = 'https://thumbs.dreamstime.com/b/beach-pixel-art-background-d-backdrop-bit-retro-video-game-style-299969450.jpg'; // Beach/shore background
@@ -51,13 +51,13 @@ const CHARACTER_POSITIONS = {
   ADVENTURER_LEFT: '180px',
   ADVENTURER_BOTTOM: '5px',
   // Dialogue scene positioning
-  DIALOGUE_SCRIBBLASH_RIGHT: '50px',
-  DIALOGUE_SCRIBBLASH_BOTTOM: '120px',
+  DIALOGUE_SPELLISK_RIGHT: '50px',
+  DIALOGUE_SPELLISK_BOTTOM: '120px',
   // Battle scene positioning
   BATTLE_ADVENTURER_LEFT: '500px',
   BATTLE_ADVENTURER_BOTTOM: '120px',
-  BATTLE_SCRIBBLASH_RIGHT: '420px',
-  BATTLE_SCRIBBLASH_BOTTOM: '180px',
+  BATTLE_SPELLISK_RIGHT: '420px',
+  BATTLE_SPELLISK_BOTTOM: '180px',
 };
 
 const shake = keyframes`
@@ -302,8 +302,6 @@ const QuestionText = styled(Typography)(({ theme }) => ({
   filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.1))',
 }));
 
-const TIMER_DURATION = 30;
-
 const MonsterHPBar = styled(Box)(({ theme }) => ({
   width: '120px',
   height: '12px',
@@ -494,8 +492,8 @@ const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
   return <AdventurerImg src={getAdventurerFrame()} isDamaged={isDamaged} {...props} />;
 };
 
-// Animated Scribblash Sprite Component
-const ScribblashSprite = ({ state, isDamaged, ...props }) => {
+// Animated Spellisk Sprite Component
+const SpelliskSprite = ({ state, isDamaged, ...props }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   
   useEffect(() => {
@@ -514,43 +512,43 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     return () => clearInterval(interval);
   }, [state]);
 
-  const getScribblashFrame = () => {
+  const getSpelliskFrame = () => {
     switch (state) {
       case 'attack':
         switch (currentFrame) {
-          case 0: return ScribblashAttack1;
-          case 1: return ScribblashAttack2;
-          case 2: return ScribblashAttack3;
-          case 3: return ScribblashAttack4;
-          default: return ScribblashAttack1;
+          case 0: return SpelliskAttack1;
+          case 1: return SpelliskAttack2;
+          case 2: return SpelliskAttack3;
+          case 3: return SpelliskAttack4;
+          default: return SpelliskAttack1;
         }
       case 'hurt':
         switch (currentFrame) {
-          case 0: return ScribblashHurt1;
-          case 1: return ScribblashHurt2;
-          case 2: return ScribblashHurt3;
-          default: return ScribblashHurt1;
+          case 0: return SpelliskHurt1;
+          case 1: return SpelliskHurt2;
+          case 2: return SpelliskHurt3;
+          default: return SpelliskHurt1;
         }
       case 'death':
         switch (currentFrame) {
-          case 0: return ScribblashDeath1;
-          case 1: return ScribblashDeath2;
-          case 2: return ScribblashDeath3;
-          case 3: return ScribblashDeath4;
-          default: return ScribblashDeath1;
+          case 0: return SpelliskDeath1;
+          case 1: return SpelliskDeath2;
+          case 2: return SpelliskDeath3;
+          case 3: return SpelliskDeath4;
+          default: return SpelliskDeath1;
         }
       default: // idle
         switch (currentFrame) {
-          case 0: return ScribblashIdle1;
-          case 1: return ScribblashIdle2;
-          case 2: return ScribblashIdle3;
-          case 3: return ScribblashIdle4;
-          default: return ScribblashIdle1;
+          case 0: return SpelliskIdle1;
+          case 1: return SpelliskIdle2;
+          case 2: return SpelliskIdle3;
+          case 3: return SpelliskIdle4;
+          default: return SpelliskIdle1;
         }
     }
   };
 
-  const ScribblashImg = styled('img')(({ isDamaged, state }) => ({
+  const SpelliskImg = styled('img')(({ isDamaged, state }) => ({
     width: '300px',
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
@@ -558,7 +556,7 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face left
   }));
 
-  return <ScribblashImg src={getScribblashFrame()} isDamaged={isDamaged} state={state} {...props} />;
+  return <SpelliskImg src={getSpelliskFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Character positioning components
@@ -576,10 +574,10 @@ const PositionedAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const PositionedScribblash = styled(Box)(({ theme }) => ({
+const PositionedSpellisk = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.DIALOGUE_SPELLISK_RIGHT,
+  bottom: CHARACTER_POSITIONS.DIALOGUE_SPELLISK_BOTTOM,
   zIndex: 4,
 }));
 
@@ -590,10 +588,10 @@ const BattleAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const BattleScribblash = styled(Box)(({ theme }) => ({
+const BattleSpellisk = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.BATTLE_SPELLISK_RIGHT,
+  bottom: CHARACTER_POSITIONS.BATTLE_SPELLISK_BOTTOM,
   zIndex: 4,
 }));
 
@@ -850,96 +848,133 @@ const VictoryContainer = styled(Paper)(({ theme }) => ({
   border: '4px solid #b48a6e',
 }));
 
-// Intermediate level questions for Scribblash (8 questions)
-const scribblashQuestions = [
-  // Question 1: Spelling
-  {
-    type: "spelling",
-    definition: "A word that means 'to make something clear or easy to understand' - often used in writing and teaching.",
-    correct: "EXPLAIN"
-  },
-  // Question 2: Spelling
-  {
-    type: "spelling", 
-    definition: "Past tense of 'write' - what you did with a pen yesterday.",
-    correct: "WROTE"
-  },
-  // Question 3: 4 Pics 1 Word
-  {
-    type: "4pics1word",
-    images: [
-      "https://picsum.photos/150/100?random=1",
-      "https://picsum.photos/150/100?random=2", 
-      "https://picsum.photos/150/100?random=3",
-      "https://picsum.photos/150/100?random=4"
-    ],
-    letters: "RETAWKLO",
-    correct: "WATER"
-  },
-  // Question 4: Multiple Choice
-  {
-    type: "multiple_choice",
-    question: "Which sentence uses correct punctuation?",
-    options: [
-      "Its a beautiful day outside.",
-      "It's a beautiful day outside.",
-      "Its' a beautiful day outside.",
-      "It's a beautiful day outside"
-    ],
-    correctAnswer: 1
-  },
-  // Question 5: Reading Comprehension
+const TIMER_DURATION = 30;
+const PHASE2_TIMER_DURATION = 10;
+const MONSTER_MAX_HP = 100;
+
+// Phase 2 Input Field Component
+const InputField = styled('input')(({ theme }) => ({
+  width: '400px',
+  padding: '16px 20px',
+  fontSize: '1.1rem',
+  fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  border: '3px solid #8b4513',
+  borderRadius: '12px',
+  backgroundColor: '#fffbe6',
+  textAlign: 'center',
+  fontWeight: 600,
+  color: '#5d4037',
+  '&:focus': {
+    outline: 'none',
+    borderColor: '#00695c',
+    backgroundColor: '#ffffff',
+  }
+}));
+
+// Phase 1: Hard questions for Spellisk (5 questions)
+const spelliskQuestions = [
+  // Question 1: Reading Comprehension (Hard)
   {
     type: "reading_comprehension",
-    passage: "Sarah studied hard for her exam. She reviewed her notes every night for two weeks. When exam day came, she felt confident and well-prepared.",
-    causeOptions: ["Sarah studied hard", "Exam day arrived", "Sarah felt confident"],
-    effectOptions: ["She felt prepared", "She reviewed notes", "She passed the test"],
+    passage: "The ancient manuscript revealed secrets that had been hidden for centuries. Scholars debated its authenticity while archaeologists questioned its origin. Despite the controversy, the document's intricate details suggested a sophisticated understanding of linguistics that predated known civilizations.",
+    causeOptions: ["The manuscript was ancient", "Scholars debated authenticity", "Document had intricate details"],
+    effectOptions: ["Archaeologists questioned origin", "Suggested sophisticated understanding", "Created controversy"],
     correctMatches: [
-      { cause: "Sarah studied hard", effect: "She felt prepared" }
+      { cause: "Document had intricate details", effect: "Suggested sophisticated understanding" }
     ]
   },
-  // Question 6: Spelling
-  {
-    type: "spelling",
-    definition: "A word meaning 'to get better' or 'to become healthy again' after being sick or injured.",
-    correct: "RECOVER"
-  },
-  // Question 7: Multiple Choice
-  {
-    type: "multiple_choice", 
-    question: "What is the correct plural form of 'child'?",
-    options: ["childs", "childrens", "children", "child's"],
-    correctAnswer: 2
-  },
-  // Question 8: 4 Pics 1 Word
+  // Question 2: 4 Pics 1 Word (Hard)
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=5",
-      "https://picsum.photos/150/100?random=6",
-      "https://picsum.photos/150/100?random=7",
-      "https://picsum.photos/150/100?random=8"
+      "https://picsum.photos/150/100?random=50",
+      "https://picsum.photos/150/100?random=51", 
+      "https://picsum.photos/150/100?random=52",
+      "https://picsum.photos/150/100?random=53"
     ],
-    letters: "KOOBSRED",
-    correct: "BOOKS"
+    letters: "KNOWLEDGEXYZ",
+    correct: "KNOWLEDGE"
+  },
+  // Question 3: Spelling (Hard)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'existing everywhere at the same time' - a challenging vocabulary word often used in philosophy.",
+    correct: "UBIQUITOUS"
+  },
+  // Question 4: Reading Comprehension (Hard)
+  {
+    type: "reading_comprehension", 
+    passage: "The phenomenon of bioluminescence occurs when living organisms produce light through chemical reactions. This remarkable adaptation serves various purposes: attracting prey, deterring predators, and facilitating communication among species in the deep ocean where sunlight cannot penetrate.",
+    causeOptions: ["Chemical reactions occur", "Sunlight cannot penetrate", "Organisms live in deep ocean"],
+    effectOptions: ["Light is produced", "Species communicate", "Predators are deterred"],
+    correctMatches: [
+      { cause: "Chemical reactions occur", effect: "Light is produced" }
+    ]
+  },
+  // Question 5: Spelling (Hard)
+  {
+    type: "spelling",
+    definition: "Spell the word that means 'a person who studies the origin and history of words' - a specialist in etymology.",
+    correct: "ETYMOLOGIST"
+  }
+];
+
+// Phase 2: Identification questions (5 questions with input answers)
+const phase2Questions = [
+  {
+    question: 'Fix the spelling error in this sentence:\nThe recieve was damaged during shipping.',
+    answer: 'receive'
+  },
+  {
+    question: 'What is the correct spelling?\nThe magician performed an incredable trick.',
+    answer: 'incredible'
+  },
+  {
+    question: 'Correct the misspelled word:\nShe had a beatiful voice that enchanted everyone.',
+    answer: 'beautiful'
+  },
+  {
+    question: 'Fix the spelling:\nThe scientist made a signifigant discovery.',
+    answer: 'significant'
+  },
+  {
+    question: 'What is the correct spelling?\nThe restaurant is known for its excelent cuisine.',
+    answer: 'excellent'
   }
 ];
 
 const dialogueSequence = [
-  { speaker: 'Wizard', text: "This is Spelling Shores. Letters twist and dance here, reshaped by Spellisk's curse. Beware… even the most simple words are not what they seem." },
-  { speaker: 'Adventurer', text: "I beat Grammowl's tricks. A few misspelled words won't stop me." },
-  { speaker: 'Wizard', text: "Pride is dangerous. Even small mistakes can topple great heroes." },
-  { speaker: 'Scribblash', text: "Sssso… the child of prophecy comes to scribble on my shores?" },
-  { speaker: 'Scribblash', text: "Your words will crumble into sand, and your letters will scatter in the wind!" },
+  { speaker: 'Wizard', text: "This is it… the Lair of Spellisk. She is the mistress of letters, the serpent of shattered words. Many who challenged her drowned in a tide of broken spelling." },
+  { speaker: 'Wizard', text: "Steel your resolve, adventurer. The Scroll of Spelling lies within her coils." },
+  { speaker: 'Adventurer', text: "Then I'll untangle her lies and bring the scroll back to the light." },
+  { speaker: 'Spellisk', text: "Sssso… the little hero finally slithers in." },
+  { speaker: 'Spellisk', text: "I've watched you pick apart my pets—foolish little bugs and frogs." },
+  { speaker: 'Spellisk', text: "But I am no underling. I am the venom in every misspelling, the hiss in every broken word." },
+  { speaker: 'Spellisk', text: "The scroll is mine… and so is your failure." },
+  { speaker: 'Adventurer', text: "You hide behind false letters and twisted words. That ends now." },
+  { speaker: 'Spellisk', text: "Let's ssssee if you can spell your way out of my coils!" },
+];
+
+const midBattleDialogue = [
+  { speaker: 'Spellisk', text: "Aaarrghh!! You annoying brat I'm done playing around!" },
+];
+
+const defeatDialogue = [
+  { speaker: 'Spellisk', text: "No… NO! My letters scatter… my venom fades…" },
+  { speaker: 'Spellisk', text: "The scroll… slips away… from my grasp!" },
+  { speaker: 'Adventurer', text: "It's over, Spellisk. Your lies can't bind me." },
+  { speaker: 'Wizard', text: "The Scroll of Spelling has returned to its true bearer. The waters are calm once more." },
+  { speaker: 'Spellisk', text: "You fool… I was only the second… He waits beyond the forests… and he will unmake you with silence itself!" },
 ];
 
 const victoryDialogue = [
-  { speaker: 'Adventurer', text: "Your scribbles… weren't enough." },
-  { speaker: 'Scribblash', text: "Grkhh… my words… lost to the wind…" },
-  { speaker: 'Wizard', text: "Well done. But this was only the beginning. Spellisk's curse grows stronger the deeper we go." },
+  { speaker: 'Adventurer', text: "First Grammowl, now Spellisk. Each one falls, but they keep talking about someone greater… 'him'." },
+  { speaker: 'Wizard', text: "Yes… Dysauron. The shadow lurking behind every stolen scroll." },
+  { speaker: 'Adventurer', text: "Then let him hear me coming. Two scrolls down, three to go." },
+  { speaker: 'Wizard', text: "Then onward, brave one. The road leads into the forests… where silence hides the hardest truths." },
 ];
 
-const WatersideShoresLevel1 = () => {
+const WatersideShoresLevel5 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
   const [dialogueIdx, setDialogueIdx] = useState(0);
@@ -958,8 +993,12 @@ const WatersideShoresLevel1 = () => {
   const [showQuit, setShowQuit] = useState(false);
   const [showVictoryDialogue, setShowVictoryDialogue] = useState(false);
   const idleTimeout = useRef(null);
-  const [scribblashState, setScribblashState] = useState('idle');
+  const [spelliskState, setSpelliskState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
+  
+  // Phase 2 specific states
+  const [userInput, setUserInput] = useState('');
+  const inputRef = useRef(null);
   
   // Diverse gameplay states
   const [selectedLetters, setSelectedLetters] = useState([]);
@@ -977,15 +1016,16 @@ const WatersideShoresLevel1 = () => {
   }, [dialogueIdx, phase, victoryDialogueIdx]);
 
   useEffect(() => {
-    if (phase === 'battle' && timeLeft > 0 && !victory && !gameOver) {
+    if ((phase === 'battle1' || phase === 'battle2') && timeLeft > 0 && !victory && !gameOver) {
       const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
       return () => clearInterval(timer);
-    } else if (phase === 'battle' && timeLeft === 0 && !victory && !gameOver) {
+    } else if ((phase === 'battle1' || phase === 'battle2') && timeLeft === 0 && !victory && !gameOver) {
+      setShowResult(false);
       if (hearts > 1) {
         setHearts(h => h - 1);
-        setTimeLeft(TIMER_DURATION);
+        setTimeLeft(phase === 'battle1' ? TIMER_DURATION : PHASE2_TIMER_DURATION);
         setSelectedAnswer(null);
-        setShowResult(false);
+        setUserInput('');
         setSelectedLetters([]);
         setSpellingInput('');
         setDraggedItems({ causes: [], effects: [] });
@@ -996,10 +1036,16 @@ const WatersideShoresLevel1 = () => {
     }
   }, [phase, timeLeft, victory, gameOver, hearts]);
 
+  useEffect(() => {
+    if (phase === 'battle2' && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [phase, currentQuestion]);
+
   // Gameplay initialization
   useEffect(() => {
-    if (phase === 'battle') {
-      const question = scribblashQuestions[currentQuestion];
+    if (phase === 'battle1') {
+      const question = spelliskQuestions[currentQuestion];
       if (question) {
         setSelectedAnswer(null);
         setShowResult(false);
@@ -1023,9 +1069,22 @@ const WatersideShoresLevel1 = () => {
       if (dialogueIdx < dialogueSequence.length - 1) {
         setDialogueIdx(dialogueIdx + 1);
       } else {
-        setPhase('battle');
+        setPhase('battle1');
         setCurrentQuestion(0);
         setTimeLeft(TIMER_DURATION);
+      }
+    } else if (phase === 'midBattleDialogue') {
+      if (dialogueIdx < midBattleDialogue.length - 1) {
+        setDialogueIdx(dialogueIdx + 1);
+      } else {
+        setPhase('battle2');
+      }
+    } else if (phase === 'defeatDialogue') {
+      if (dialogueIdx < defeatDialogue.length - 1) {
+        setDialogueIdx(dialogueIdx + 1);
+      } else {
+        setPhase('victory-dialogue');
+        setVictoryDialogueIdx(0);
       }
     } else if (phase === 'victory-dialogue') {
       if (victoryDialogueIdx < victoryDialogue.length - 1) {
@@ -1038,7 +1097,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const validateAnswer = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = spelliskQuestions[currentQuestion];
     let isCorrect = false;
     
     switch (question.type) {
@@ -1067,7 +1126,7 @@ const WatersideShoresLevel1 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setTimeout(() => {
-      const isCorrect = idx === scribblashQuestions[currentQuestion].correctAnswer;
+      const isCorrect = idx === spelliskQuestions[currentQuestion].correctAnswer;
       processAnswer(isCorrect);
     }, 10);
   };
@@ -1085,24 +1144,28 @@ const WatersideShoresLevel1 = () => {
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
       
-      setScribblashState('hurt');
-      setTimeout(() => setScribblashState('idle'), 500);
+      setSpelliskState('hurt');
+      setTimeout(() => setSpelliskState('idle'), 500);
       
       setMonsterDamaged(true);
       setTimeout(() => setMonsterDamaged(false), 500);
       
       setMonsterHP(hp => {
-        const newHP = Math.max(0, hp - Math.floor(100 / scribblashQuestions.length));
-        if (currentQuestion === scribblashQuestions.length - 1 || newHP === 0) {
-          setScribblashState('death');
-          setShowVictoryDialogue(true);
-          setPhase('victory-dialogue');
-          setVictoryDialogueIdx(0);
+        const newHP = Math.max(0, hp - Math.floor(100 / spelliskQuestions.length));
+        if (currentQuestion === spelliskQuestions.length - 1) {
+          // Transition to phase 2
+          setPhase('midBattleDialogue');
+          setDialogueIdx(0);
+          setMonsterHP(100);
+          setCurrentQuestion(0);
+          setTimeLeft(PHASE2_TIMER_DURATION);
+          setUserInput('');
+          setShowResult(false);
         }
         return newHP;
       });
       
-      if (currentQuestion < scribblashQuestions.length - 1) {
+      if (currentQuestion < spelliskQuestions.length - 1) {
         setTimeout(() => {
           setCurrentQuestion(prev => prev + 1);
           setSelectedAnswer(null);
@@ -1116,8 +1179,8 @@ const WatersideShoresLevel1 = () => {
       setTimeLeft(newTime);
       
       if (newTime === 0) {
-        setScribblashState('attack');
-        setTimeout(() => setScribblashState('idle'), 500);
+        setSpelliskState('attack');
+        setTimeout(() => setSpelliskState('idle'), 500);
         
         setUserDamaged(true);
         setTimeout(() => setUserDamaged(false), 500);
@@ -1146,7 +1209,7 @@ const WatersideShoresLevel1 = () => {
           setSpellingInput('');
           setDraggedItems({ causes: [], effects: [] });
           
-          const question = scribblashQuestions[currentQuestion];
+          const question = spelliskQuestions[currentQuestion];
           if (question.type === '4pics1word') {
             const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
             setAvailableLetters(shuffled);
@@ -1158,7 +1221,7 @@ const WatersideShoresLevel1 = () => {
 
   // 4 Pics 1 Word functions
   const handleLetterClick = (letter, index) => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = spelliskQuestions[currentQuestion];
     if (question && selectedLetters.length < question.correct.length) {
       setSelectedLetters(prev => [...prev, letter]);
       setAvailableLetters(prev => prev.filter((_, i) => i !== index));
@@ -1177,7 +1240,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const speakWord = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = spelliskQuestions[currentQuestion];
     if (question.type === 'spelling') {
       const utterance = new SpeechSynthesisUtterance(question.correct);
       utterance.rate = 0.8;
@@ -1222,9 +1285,70 @@ const WatersideShoresLevel1 = () => {
     setAvailableLetters([]);
     setSpellingInput('');
     setDraggedItems({ causes: [], effects: [] });
-    setScribblashState('idle');
+    setSpelliskState('idle');
     setAdventurerState('idle');
-    setPhase('battle');
+    setPhase('battle1');
+  };
+
+  const handleInputSubmit = (e) => {
+    if (phase !== 'battle2' || e.key !== 'Enter') return;
+    const answer = userInput.trim().toLowerCase();
+    const correctAnswer = phase2Questions[currentQuestion].answer.toLowerCase();
+    setShowResult(true);
+    if (answer === correctAnswer) {
+      // Adventurer attacks first
+      setAdventurerState('attack');
+      setTimeout(() => {
+        setAdventurerState('idle');
+        setSpelliskState('hurt');
+        setMonsterDamaged(true);
+        setTimeout(() => {
+          setSpelliskState('idle');
+          setMonsterDamaged(false);
+        }, 500);
+      }, 300);
+      // Decrease HP with each correct answer
+      setMonsterHP(hp => {
+        const newHP = Math.max(0, hp - Math.floor(100 / phase2Questions.length));
+        if (currentQuestion === phase2Questions.length - 1 || newHP === 0) {
+          setSpelliskState('death');
+          setTimeout(() => {
+            setPhase('defeatDialogue');
+            setDialogueIdx(0);
+          }, 1000);
+        }
+        return newHP;
+      });
+      
+      if (currentQuestion < phase2Questions.length - 1) {
+        setTimeout(() => {
+          setCurrentQuestion(prev => prev + 1);
+          setUserInput('');
+          setShowResult(false);
+          setTimeLeft(PHASE2_TIMER_DURATION);
+        }, 600);
+      }
+    } else {
+      setUserDamaged(true);
+      setSpelliskState('attack');
+      setTimeout(() => {
+        setUserDamaged(false);
+        setSpelliskState('idle');
+      }, 500);
+      
+      if (hearts > 1) {
+        setTimeout(() => {
+          setHearts(h => h - 1);
+          setUserInput('');
+          setTimeLeft(PHASE2_TIMER_DURATION);
+        }, 600);
+      } else {
+        setTimeout(() => {
+          setHearts(0);
+          setGameOver(true);
+        }, 600);
+      }
+    }
   };
 
   const handleRetryWholeLevel = () => {
@@ -1240,7 +1364,7 @@ const WatersideShoresLevel1 = () => {
     setPhase('dialogue');
     setDialogueIdx(0);
     setVictoryDialogueIdx(0);
-    setScribblashState('idle');
+    setSpelliskState('idle');
     setAdventurerState('idle');
   };
 
@@ -1250,7 +1374,7 @@ const WatersideShoresLevel1 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Scribblash",
+            levelName: "Spellisk",
             completed: true,
             starsEarned: hearts
           }, {
@@ -1277,10 +1401,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="idle" />
-          </PositionedScribblash>
+        {d.speaker === 'Spellisk' && (
+          <PositionedSpellisk>
+            <SpelliskSprite state="idle" />
+          </PositionedSpellisk>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1291,26 +1415,26 @@ const WatersideShoresLevel1 = () => {
         </DialogueBox>
       </>
     );
-  } else if (phase === 'battle') {
-    const question = scribblashQuestions[currentQuestion];
+  } else if (phase === 'battle1' || phase === 'battle2') {
+    const question = phase === 'battle1' ? spelliskQuestions[currentQuestion] : null;
     content = (
       <>
         <BattleAdventurer>
           <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
         </BattleAdventurer>
-        <BattleScribblash>
-          <ScribblashSprite state={scribblashState} isDamaged={monsterDamaged} />
-        </BattleScribblash>
+        <BattleSpellisk>
+          <SpelliskSprite state={spelliskState} isDamaged={monsterDamaged} />
+        </BattleSpellisk>
         
         {/* HP UI */}
         <Box sx={{
           position: 'absolute',
-          right: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT} + 60px)`,
-          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM} + 220px)`,
+          right: `calc(${CHARACTER_POSITIONS.BATTLE_SPELLISK_RIGHT} + 60px)`,
+          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SPELLISK_BOTTOM} + 220px)`,
           zIndex: 10,
           transform: 'translateX(-50%)',
         }}>
-          <MonsterHPText>Scribblash HP</MonsterHPText>
+          <MonsterHPText>Spellisk HP</MonsterHPText>
           <MonsterHPBar>
             <MonsterHPFill hp={monsterHP} />
           </MonsterHPBar>
@@ -1318,7 +1442,18 @@ const WatersideShoresLevel1 = () => {
         <VS style={{ position: 'absolute', left: '50%', bottom: '250px', transform: 'translateX(-50%)', zIndex: 5 }}>VS</VS>
         
         <BattleBottomBar>
-          {(() => {
+          {phase === 'battle2' ? (
+            <>
+              <QuestionText>{phase2Questions[currentQuestion].question}</QuestionText>
+              <InputField
+                ref={inputRef}
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyPress={handleInputSubmit}
+                placeholder="Type your answer and press Enter"
+              />
+            </>
+          ) : (() => {
             switch (question.type) {
               case 'multiple_choice':
                 return (
@@ -1495,6 +1630,54 @@ const WatersideShoresLevel1 = () => {
         </BattleBottomBar>
       </>
     );
+  } else if (phase === 'midBattleDialogue') {
+    const d = midBattleDialogue[dialogueIdx];
+    content = (
+      <>
+        <PositionedWizard>
+          <WizardSprite />
+        </PositionedWizard>
+        <PositionedAdventurer>
+          <AdventurerSprite state={adventurerState} />
+        </PositionedAdventurer>
+        {d.speaker === 'Spellisk' && (
+          <PositionedSpellisk>
+            <SpelliskSprite state="idle" />
+          </PositionedSpellisk>
+        )}
+        <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
+          <NameTag>{d.speaker}</NameTag>
+          <DialogueText variant="h6" gutterBottom>
+            {d.text}
+          </DialogueText>
+          {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
+        </DialogueBox>
+      </>
+    );
+  } else if (phase === 'defeatDialogue') {
+    const d = defeatDialogue[dialogueIdx];
+    content = (
+      <>
+        <PositionedWizard>
+          <WizardSprite />
+        </PositionedWizard>
+        <PositionedAdventurer>
+          <AdventurerSprite state={adventurerState} />
+        </PositionedAdventurer>
+        {d.speaker === 'Spellisk' && (
+          <PositionedSpellisk>
+            <SpelliskSprite state="death" />
+          </PositionedSpellisk>
+        )}
+        <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
+          <NameTag>{d.speaker}</NameTag>
+          <DialogueText variant="h6" gutterBottom>
+            {d.text}
+          </DialogueText>
+          {showClickPrompt && <ClickPrompt>Click to continue</ClickPrompt>}
+        </DialogueBox>
+      </>
+    );
   } else if (phase === 'victory-dialogue') {
     const d = victoryDialogue[victoryDialogueIdx];
     content = (
@@ -1505,10 +1688,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="death" />
-          </PositionedScribblash>
+        {d.speaker === 'Spellisk' && (
+          <PositionedSpellisk>
+            <SpelliskSprite state="death" />
+          </PositionedSpellisk>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1525,7 +1708,7 @@ const WatersideShoresLevel1 = () => {
     <SceneContainer>
       <Ground />
       <TopBar>
-        {phase === 'battle' ? (
+        {(phase === 'battle1' || phase === 'battle2') ? (
           <HeartRow>
             {[...Array(3)].map((_, idx) => (
               <HeartIcon key={idx} filled={idx < hearts} />
@@ -1533,7 +1716,7 @@ const WatersideShoresLevel1 = () => {
           </HeartRow>
         ) : <div />}
         <div style={{ flex: 1 }} />
-        {phase === 'battle' ? (
+        {(phase === 'battle1' || phase === 'battle2') ? (
           <TimerBox>
             <Typography style={{ fontWeight: 800, fontSize: '0.9rem', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', letterSpacing: '1px', lineHeight: 1 }}>TIMER</Typography>
             <Typography style={{ fontWeight: 900, fontSize: '1.3rem', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', letterSpacing: '0.5px', lineHeight: 1, marginTop: '2px' }}>{timeLeft}s</Typography>
@@ -1700,7 +1883,7 @@ const WatersideShoresLevel1 = () => {
               marginBottom: '8px'
             }}
           >
-            Scribblash has defeated you!
+            Spellisk has defeated you!
           </Typography>
           <Typography 
             align="center"
@@ -1806,7 +1989,7 @@ const WatersideShoresLevel1 = () => {
                 textShadow: '0 2px 4px rgba(56,142,60,0.3)'
               }}
             >
-              You've defeated Scribblash!
+              You've defeated Spellisk!
             </Typography>
             <Typography 
               style={{ 
@@ -1891,4 +2074,4 @@ const WatersideShoresLevel1 = () => {
   );
 };
 
-export default WatersideShoresLevel1;
+export default WatersideShoresLevel5;

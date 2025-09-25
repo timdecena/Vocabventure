@@ -359,6 +359,12 @@ html, body, #root {
   color: #FFF;
 }
 
+.adventure-btn.warning {
+  background: linear-gradient(135deg, #FF6B35, #FF8E53);
+  border-color: #D2691E;
+  color: #FFF;
+}
+
 .adventure-btn::before {
   content: '';
   position: absolute;

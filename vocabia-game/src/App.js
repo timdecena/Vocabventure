@@ -58,6 +58,10 @@ import JungleLushLevel4 from "./Adventure/island1(junglelush)/JungleLushLevel4";
 import JungleLushLevel5 from "./Adventure/island1(junglelush)/JungleLushLevel5";
 import WatersideShores from "./Adventure/island2(watersideshores)/WatersideShores";
 import WatersideShoresLevel1 from "./Adventure/island2(watersideshores)/WatersideShoresLevel1";
+import WatersideShoresLevel2 from "./Adventure/island2(watersideshores)/WatersideShoresLevel2";
+import WatersideShoresLevel3 from "./Adventure/island2(watersideshores)/WatersideShoresLevel3";
+import WatersideShoresLevel4 from "./Adventure/island2(watersideshores)/WatersideShoresLevel4";
+import WatersideShoresLevel5 from "./Adventure/island2(watersideshores)/WatersideShoresLevel5";
 import Tutorial from "./Adventure/tutorial/Tutorial";
 
 // Profile
@@ -352,6 +356,10 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/jungle-lush/level5" element={<JungleLushLevel5 />} />
       <Route path="/waterside-shores" element={<WatersideShores />} />
       <Route path="/waterside-shores/level1" element={<WatersideShoresLevel1 />} />
+      <Route path="/waterside-shores/level2" element={<WatersideShoresLevel2 />} />
+      <Route path="/waterside-shores/level3" element={<WatersideShoresLevel3 />} />
+      <Route path="/waterside-shores/level4" element={<WatersideShoresLevel4 />} />
+      <Route path="/waterside-shores/level5" element={<WatersideShoresLevel5 />} />
 
       {/* DEBUG */}
       <Route path="/debug/jwt" element={<JwtDebugger />} />

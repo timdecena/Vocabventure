@@ -250,9 +250,21 @@ export default function MapView() {
     }
   };
 
-  // Fetch island progress on component mount
+  // Cleanup inflated star counts automatically (no UI button)
+  const cleanupStars = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      await axios.post('/api/adventure/island-progress/cleanup-stars', {}, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true
+      });
+    } catch (error) {}
+  };
+
+  // Fetch island progress on component mount (auto-clean first)
   useEffect(() => {
-    fetchProgress();
+    cleanupStars().then(fetchProgress);
   }, []);
 
   // Refresh progress when window gains focus (user returns from a level)
@@ -297,9 +309,9 @@ export default function MapView() {
         
         {/* Bright glowing overlay for unlocked paths */}
         {isUnlocked && (
-          <line
-            x1={`${from.x}%`} y1={`${from.y}%`}
-            x2={`${to.x}%`} y2={`${to.y}%`}
+      <line
+        x1={`${from.x}%`} y1={`${from.y}%`}
+        x2={`${to.x}%`} y2={`${to.y}%`}
             stroke="#FFFFFF"
             strokeWidth="6"
             strokeDasharray="25,10"
@@ -442,7 +454,7 @@ export default function MapView() {
               </div>
             </div>
           )}
-        </div>
+          </div>
       ))}
 
       {/* Tutorial modal */}

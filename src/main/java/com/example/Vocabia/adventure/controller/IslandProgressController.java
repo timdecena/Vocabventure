@@ -138,6 +138,21 @@ public class IslandProgressController {
             } else if (levelName.contains("Grammowl")) {
                 islandName = IslandProgressService.IslandNames.JUNGLE_LUSH;
                 levelNumber = 5;
+            } else if (levelName.contains("Scribblash")) {
+                islandName = IslandProgressService.IslandNames.WATERSIDE_SHORES;
+                levelNumber = 1;
+            } else if (levelName.contains("Corallex")) {
+                islandName = IslandProgressService.IslandNames.WATERSIDE_SHORES;
+                levelNumber = 2;
+            } else if (levelName.contains("Silentscale")) {
+                islandName = IslandProgressService.IslandNames.WATERSIDE_SHORES;
+                levelNumber = 3;
+            } else if (levelName.contains("Homophibian")) {
+                islandName = IslandProgressService.IslandNames.WATERSIDE_SHORES;
+                levelNumber = 4;
+            } else if (levelName.contains("Spellisk")) {
+                islandName = IslandProgressService.IslandNames.WATERSIDE_SHORES;
+                levelNumber = 5;
             } else {
                 // Default fallback
                 islandName = IslandProgressService.IslandNames.JUNGLE_LUSH;
@@ -209,6 +224,27 @@ public class IslandProgressController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Clean up inflated star counts (for fixing cumulative star issues)
+     */
+    @PostMapping("/cleanup-stars")
+    public ResponseEntity<Map<String, Object>> cleanupInflatedStars(Principal principal) {
+        try {
+            islandProgressService.cleanupInflatedStars(principal.getName());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Star counts cleaned up successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Failed to cleanup stars: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
