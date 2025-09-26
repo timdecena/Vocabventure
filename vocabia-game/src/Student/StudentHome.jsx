@@ -348,11 +348,7 @@ useEffect(() => {
             boxShadow: '0 0 10px #00eaff40, 0 0 20px #ff00c840',
             border: '2px solid #00eaff'
           }}>
-            {/* Rank Icon in top right corner */}
-            <div className="arcade-profile-rank-icon">
-              <span role="img" aria-label="rank">🏆</span>
-              <span>LVL 24</span>
-            </div>
+
 
             {/* Top Row: Avatar + Name/Subtitle + Stats */}
             <Box className="arcade-profile-header" sx={{ display: 'flex', alignItems: 'center', width: '100%', mb: 3 }}>
@@ -373,7 +369,7 @@ useEffect(() => {
                 <div className="arcade-profile-name">
   {`${studentInfo.firstName?.charAt(0).toUpperCase() + studentInfo.firstName?.slice(1) || ''} ${studentInfo.lastName?.charAt(0).toUpperCase() + studentInfo.lastName?.slice(1) || ''}`}
 </div>
-                <div className="arcade-profile-subtitle">Bonus booster 24lv</div>
+               
                 <Box className="arcade-profile-stats-row">
                 <Box className="arcade-profile-stat-card">
   <div className="arcade-profile-stat-icon">💰</div>
