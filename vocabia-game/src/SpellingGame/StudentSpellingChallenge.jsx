@@ -349,7 +349,7 @@ export default function StudentSpellingChallenge() {
 
         {currentChallenge.audioUrl && (
           <>
-            <audio ref={audioRef} src={`http://localhost:8080${currentChallenge.audioUrl}`} preload="auto" />
+            <audio ref={audioRef} src={`${api.defaults.baseURL}${currentChallenge.audioUrl}`} preload="auto" />
             <audio ref={attackSoundRef} src="/sounds/spell-attack.mp3" preload="auto" />
             <audio ref={drowningSoundRef} src="/sounds/drowning-alarm.mp3" preload="auto" />
             <button onClick={handlePlayAudio} disabled={timerStarted} style={{ marginTop: "10px", padding: "8px 16px", borderRadius: "8px", border: "none", background: timerStarted ? "#ccc" : "#4CAF50", color: "#fff", cursor: timerStarted ? "not-allowed" : "pointer", fontSize: "16px" }}>

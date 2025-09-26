@@ -64,7 +64,7 @@ const [gold, setGold] = useState(loadState("gold", null));
         setHasPlayed(res.data.hasPlayed || hasPlayed);
       }
       
-      setImageUrl(`http://localhost:8080${res.data.imageUrl}`);
+      setImageUrl(`${api.defaults.baseURL}${res.data.imageUrl}`);
       setChoices(res.data.choices || []);
       
       // Only update gold/streak if they're different from server

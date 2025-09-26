@@ -1,5 +1,6 @@
 // pages/UpdateProfile.jsx
 import React, { useState, useEffect } from "react";
+import api from "../api/api"; 
 import axios from "axios";
 import { 
   Box, 
@@ -41,9 +42,7 @@ const UpdateProfile = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("http://localhost:8080/api/auth/profile", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+        const res = await api.get("/api/auth/profile"); // ✅ use api
         setForm((prev) => ({
           ...prev,
           firstName: res.data.firstName,
@@ -58,12 +57,13 @@ const UpdateProfile = () => {
     
     fetchProfile();
   }, []);
+    
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async () => {
+   const handleSubmit = async () => {
     if (isSubmitting) return;
     
     setIsSubmitting(true);
@@ -71,9 +71,7 @@ const UpdateProfile = () => {
     setSuccessMsg("");
     
     try {
-      await axios.put("http://localhost:8080/api/auth/update", form, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await api.put("/api/auth/update", form); // ✅ use api
       setSuccessMsg("Profile updated successfully!");
       setForm((prev) => ({ ...prev, oldPassword: "", newPassword: "" }));
     } catch (err) {
