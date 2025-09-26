@@ -10,7 +10,12 @@ import {
   CardContent,
   LinearProgress,
   Box,
-  Chip
+  Chip,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  TextField
 } from "@mui/material";
 import { CheckCircle, LockOpen } from "@mui/icons-material";
 
@@ -57,7 +62,8 @@ const CompletedBadge = styled(Chip)({
 export default function StudentSpellingLevelList() {
   const { classId } = useParams();
   const navigate = useNavigate();
-
+  const [filter, setFilter] = useState("all"); // "all" | "completed" | "available"
+  const [search, setSearch] = useState(""); 
   const [levels, setLevels] = useState([]);
   const [completedChallengeIds, setCompletedChallengeIds] = useState([]);
   const [completedLevelIds, setCompletedLevelIds] = useState([]);
@@ -66,6 +72,7 @@ export default function StudentSpellingLevelList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [remainingAttempts, setRemainingAttempts] = useState({});
+
 
 
   // Fetch levels and completed challenge IDs
@@ -171,6 +178,23 @@ export default function StudentSpellingLevelList() {
     );
   }
 
+   // ✅ define filteredLevels here (before return)
+  const filteredLevels = levels.filter(level => {
+  const completed = completedLevelIds.includes(level.id);
+  const hasAttempts = (remainingAttempts[level.id] ?? level.maxAttempts) > 0;
+
+  // ✅ match filter type
+  if (filter === "completed" && !completed) return false;
+  if (filter === "available" && (completed || !hasAttempts)) return false;
+
+  // ✅ match search term (case-insensitive)
+  if (search && !level.title.toLowerCase().includes(search.toLowerCase())) {
+    return false;
+  }
+
+  return true;
+});
+
   return (
     <LevelContainer>
       <Typography variant="h4" gutterBottom sx={{ 
@@ -184,17 +208,48 @@ export default function StudentSpellingLevelList() {
         Spelling Levels
       </Typography>
 
-      {levels.length === 0 ? (
-        <Typography variant="body1" align="center" sx={{ color: "#666" }}>
-          No spelling levels available for this class yet.
-        </Typography>
-      ) : (
-        levels.map(level => {
+
+        <FormControl sx={{ mb: 3, minWidth: 200, mr: 2 }}>
+          <InputLabel id="filter-label">Show</InputLabel>
+          <Select
+            labelId="filter-label"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <MenuItem value="all">All Levels</MenuItem>
+            <MenuItem value="completed">Completed Levels</MenuItem>
+            <MenuItem value="available">Available Levels</MenuItem>
+          </Select>
+        </FormControl>
+
+        <TextField
+          label="Search levels"
+          variant="outlined"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          sx={{ mb: 3, minWidth: 250 }}
+        />
+
+
+
+
+      {filteredLevels.length === 0 ? (
+  <Typography variant="body1" align="center" sx={{ color: "#666" }}>
+    No levels match your filter.
+  </Typography>
+) : (
+  filteredLevels.map(level => {
           const completed = completedLevelIds.includes(level.id);
           const progress = calculateProgress(level.id);
           const total = levelChallengeCounts[level.id] || 0;
 
+
+
+
+
           return (
+
+            
             <LevelCard key={level.id} completed={completed} >
               <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
