@@ -48,38 +48,47 @@ const [gold, setGold] = useState(loadState("gold", null));
 
 
   const fetchWordData = async () => {
-    try {
-      const res = await api.get("/api/game/word-of-the-day");
-      setDefinition(res.data.definition);
-      
-      // Check if a new day has passed
-      const today = new Date().toDateString();
-      if (lastPlayedDate !== today) {
-        setHasPlayed(false);
-        saveState("wotd_hasPlayed", false);
-        setLastPlayedDate(today);
-        saveState("wotd_lastPlayedDate", today);
-      } else {
-        setHasPlayed(res.data.hasPlayed || hasPlayed);
-      }
-      
-      const serverURL = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:8080`;
-setImageUrl(`${serverURL}${res.data.imageUrl}`);
-      setChoices(res.data.choices || []);
-      
-      // Only update gold/streak if they're different from server
-      if (res.data.gold !== undefined && res.data.gold !== gold) {
-        setGold(res.data.gold);
-        saveState("wotd_gold", res.data.gold);
-      }
-      if (res.data.streak !== undefined && res.data.streak !== streak) {
-        setStreak(res.data.streak);
-        saveState("wotd_streak", res.data.streak);
-      }
-    } catch {
-      setResult("❌ Failed to load word");
+  try {
+    const res = await api.get("/api/game/word-of-the-day");
+    setDefinition(res.data.definition);
+
+    // Check if a new day has passed
+    const today = new Date().toDateString();
+    if (lastPlayedDate !== today) {
+      setHasPlayed(false);
+      saveState("wotd_hasPlayed", false);
+      setLastPlayedDate(today);
+      saveState("wotd_lastPlayedDate", today);
+    } else {
+      setHasPlayed(res.data.hasPlayed || hasPlayed);
     }
-  };
+
+    // --- IMAGE URL FIX ---
+    // If you copied all static files to public/static/images in frontend
+    // res.data.imageUrl should be just the filename like "word1.png"
+    // Or it can include a relative path from public/ like "static/images/word1.png"
+    const imagePath = res.data.imageUrl.startsWith("/")
+      ? res.data.imageUrl
+      : `/static/images/${res.data.imageUrl}`;
+
+    setImageUrl(imagePath);
+
+    setChoices(res.data.choices || []);
+
+    // Only update gold/streak if they're different from server
+    if (res.data.gold !== undefined && res.data.gold !== gold) {
+      setGold(res.data.gold);
+      saveState("wotd_gold", res.data.gold);
+    }
+    if (res.data.streak !== undefined && res.data.streak !== streak) {
+      setStreak(res.data.streak);
+      saveState("wotd_streak", res.data.streak);
+    }
+  } catch {
+    setResult("❌ Failed to load word");
+  }
+};
+
 
   useEffect(() => {
     fetchWordData();

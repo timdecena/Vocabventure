@@ -1,0 +1,11 @@
+{
+  "answer": "CLOCK",
+  "hint": "Tells you the time",
+  "difficulty": 1,
+  "images": [
+    "/images/Objects/4/pic1.jpg",
+    "/images/Objects/4/pic2.jpg",
+    "/images/Objects/4/pic3.jpg",
+    "/images/Objects/4/pic4.jpg"
+  ]
+}
