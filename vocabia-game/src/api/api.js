@@ -1,8 +1,13 @@
 import axios from "axios";
 
 // Use env variable if available, fallback to localhost
+//const api = axios.create({
+//  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8080",
+//  withCredentials: true,
+//});
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8080",
+  baseURL: process.env.REACT_APP_API_URL || "/api",
   withCredentials: true,
 });
 
