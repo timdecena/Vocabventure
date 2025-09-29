@@ -24,25 +24,25 @@ import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png
 import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
 import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
 
-// Scribblash Monster - Placeholder (user will provide actual images)
-const ScribblashIdle1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
+// Echojack Monster - Placeholder (user will provide actual images)
+const EchojackIdle1 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackIdle2 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackIdle3 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackIdle4 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackAttack1 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackAttack2 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackAttack3 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackAttack4 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackHurt1 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackHurt2 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackHurt3 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackDeath1 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackDeath2 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackDeath3 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
+const EchojackDeath4 = 'https://i.redd.it/2cowlh7fo1w41.jpg';
 
-// Waterside Shores Background
-const WATERSIDE_BG = 'https://thumbs.dreamstime.com/b/beach-pixel-art-background-d-backdrop-bit-retro-video-game-style-299969450.jpg'; // Beach/shore background
+// Shadow Isles Background (placeholder)
+const WATERSIDE_BG = 'https://media.indiedb.com/images/members/5/4512/4511816/profiledevlsix/fundo3.png';
 
 // Character positioning constants
 const CHARACTER_POSITIONS = {
@@ -51,13 +51,13 @@ const CHARACTER_POSITIONS = {
   ADVENTURER_LEFT: '180px',
   ADVENTURER_BOTTOM: '5px',
   // Dialogue scene positioning
-  DIALOGUE_SCRIBBLASH_RIGHT: '50px',
-  DIALOGUE_SCRIBBLASH_BOTTOM: '120px',
+  DIALOGUE_ECHOJACK_RIGHT: '50px',
+  DIALOGUE_ECHOJACK_BOTTOM: '120px',
   // Battle scene positioning
   BATTLE_ADVENTURER_LEFT: '500px',
   BATTLE_ADVENTURER_BOTTOM: '120px',
-  BATTLE_SCRIBBLASH_RIGHT: '420px',
-  BATTLE_SCRIBBLASH_BOTTOM: '180px',
+  BATTLE_ECHOJACK_RIGHT: '420px',
+  BATTLE_ECHOJACK_BOTTOM: '180px',
 };
 
 const shake = keyframes`
@@ -121,13 +121,14 @@ const DialogueBox = styled(Paper)(({ theme }) => ({
   minWidth: '320px',
   height: '160px',
   padding: theme.spacing(3, 4),
-  background: 'linear-gradient(145deg, #e8f4f8 0%, #d1e7dd 50%, #b8dce6 100%)', // Ocean-themed colors
-  color: '#1a4c5c',
+  // Shadow Isles theme: deep slate blues
+  background: 'linear-gradient(145deg, #2a2e3b 0%, #1c2130 50%, #151a24 100%)',
+  color: '#e0e6f2',
   textAlign: 'left',
   borderRadius: '20px 20px 0 0',
   zIndex: 10,
-  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.25), 0 -8px 32px 2px rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.6)',
-  border: '3px solid #6fb3d2',
+  boxShadow: '0 -4px 24px 6px rgba(0,0,0,0.45), 0 -8px 32px 4px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.08)',
+  border: '3px solid #3b4560',
   fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   display: 'flex',
   flexDirection: 'column',
@@ -142,7 +143,7 @@ const DialogueBox = styled(Paper)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.25) 100%)',
     borderRadius: '20px 20px 0 0',
     pointerEvents: 'none',
   },
@@ -152,18 +153,18 @@ const NameTag = styled(Box)(({ theme }) => ({
   position: 'absolute',
   top: '-25px',
   left: '24px',
-  background: 'linear-gradient(145deg, #6fb3d2 0%, #5a9bd4 50%, #4682b4 100%)', // Ocean blue
-  color: '#ffffff',
+  background: 'linear-gradient(145deg, #3b4560 0%, #2d354b 50%, #1f2533 100%)',
+  color: '#e6ecff',
   borderRadius: '18px',
   padding: '8px 20px',
   fontWeight: 800,
   fontSize: '1rem',
-  boxShadow: '0 4px 16px rgba(70,130,180,0.5), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.6)',
-  border: '3px solid #4682b4',
+  boxShadow: '0 4px 16px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
+  border: '3px solid #3b4560',
   fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   zIndex: 100,
   letterSpacing: '0.5px',
-  textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+  textShadow: '0 1px 2px rgba(0,0,0,0.8)',
   minWidth: '80px',
   textAlign: 'center',
   display: 'block',
@@ -177,8 +178,8 @@ const DialogueText = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   lineHeight: 1.4,
   letterSpacing: '0.3px',
-  color: '#1a4c5c',
-  textShadow: '0 1px 1px rgba(255,255,255,0.3)',
+  color: '#e6ecff',
+  textShadow: '0 1px 2px rgba(0,0,0,0.7)',
   zIndex: 12,
   position: 'relative',
 }));
@@ -256,7 +257,7 @@ const TopBar = styled(Box)(({ theme }) => ({
 
 const BattleBottomBar = styled(Box)(({ theme }) => ({
   width: '100vw',
-  background: 'linear-gradient(180deg, rgba(26,76,92,0.95) 0%, rgba(70,130,180,0.98) 50%, rgba(30,144,255,1) 100%)', // Ocean theme
+  background: 'linear-gradient(180deg, rgba(26,28,38,0.96) 0%, rgba(23,26,35,0.98) 50%, rgba(20,24,33,1) 100%)',
   minHeight: '180px',
   padding: '38px 0 18px 0',
   display: 'flex',
@@ -266,8 +267,8 @@ const BattleBottomBar = styled(Box)(({ theme }) => ({
   zIndex: 30,
   borderTopLeftRadius: '32px',
   borderTopRightRadius: '32px',
-  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.4), 0 -8px 32px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-  border: '2px solid rgba(70,130,180,0.8)',
+  boxShadow: '0 -6px 26px 8px rgba(0,0,0,0.55), 0 -10px 36px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
+  border: '2px solid #3b4560',
   borderBottom: 'none',
   position: 'absolute',
   left: 0,
@@ -281,25 +282,25 @@ const BattleBottomBar = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%, rgba(0,0,0,0.25) 100%)',
     borderRadius: '32px 32px 0 0',
     pointerEvents: 'none',
   },
 }));
 
 const QuestionText = styled(Typography)(({ theme }) => ({
-  color: '#fff',
+  color: '#e6ecff',
   fontWeight: 700,
   fontSize: '1.3rem',
   marginBottom: '24px',
   textAlign: 'center',
-  textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1)',
+  textShadow: '0 2px 12px rgba(0,0,0,0.9)',
   letterSpacing: '0.3px',
   lineHeight: 1.4,
   fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   position: 'relative',
   zIndex: 12,
-  filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.1))',
+  filter: 'none',
 }));
 
 const TIMER_DURATION = 30;
@@ -494,8 +495,8 @@ const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
   return <AdventurerImg src={getAdventurerFrame()} isDamaged={isDamaged} {...props} />;
 };
 
-// Animated Scribblash Sprite Component
-const ScribblashSprite = ({ state, isDamaged, ...props }) => {
+// Animated Echojack Sprite Component
+const EchojackSprite = ({ state, isDamaged, ...props }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   
   useEffect(() => {
@@ -514,43 +515,43 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     return () => clearInterval(interval);
   }, [state]);
 
-  const getScribblashFrame = () => {
+  const getEchojackFrame = () => {
     switch (state) {
       case 'attack':
         switch (currentFrame) {
-          case 0: return ScribblashAttack1;
-          case 1: return ScribblashAttack2;
-          case 2: return ScribblashAttack3;
-          case 3: return ScribblashAttack4;
-          default: return ScribblashAttack1;
+          case 0: return EchojackAttack1;
+          case 1: return EchojackAttack2;
+          case 2: return EchojackAttack3;
+          case 3: return EchojackAttack4;
+          default: return EchojackAttack1;
         }
       case 'hurt':
         switch (currentFrame) {
-          case 0: return ScribblashHurt1;
-          case 1: return ScribblashHurt2;
-          case 2: return ScribblashHurt3;
-          default: return ScribblashHurt1;
+          case 0: return EchojackHurt1;
+          case 1: return EchojackHurt2;
+          case 2: return EchojackHurt3;
+          default: return EchojackHurt1;
         }
       case 'death':
         switch (currentFrame) {
-          case 0: return ScribblashDeath1;
-          case 1: return ScribblashDeath2;
-          case 2: return ScribblashDeath3;
-          case 3: return ScribblashDeath4;
-          default: return ScribblashDeath1;
+          case 0: return EchojackDeath1;
+          case 1: return EchojackDeath2;
+          case 2: return EchojackDeath3;
+          case 3: return EchojackDeath4;
+          default: return EchojackDeath1;
         }
       default: // idle
         switch (currentFrame) {
-          case 0: return ScribblashIdle1;
-          case 1: return ScribblashIdle2;
-          case 2: return ScribblashIdle3;
-          case 3: return ScribblashIdle4;
-          default: return ScribblashIdle1;
+          case 0: return EchojackIdle1;
+          case 1: return EchojackIdle2;
+          case 2: return EchojackIdle3;
+          case 3: return EchojackIdle4;
+          default: return EchojackIdle1;
         }
     }
   };
 
-  const ScribblashImg = styled('img')(({ isDamaged, state }) => ({
+  const EchojackImg = styled('img')(({ isDamaged, state }) => ({
     width: '300px',
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
@@ -558,7 +559,7 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face left
   }));
 
-  return <ScribblashImg src={getScribblashFrame()} isDamaged={isDamaged} state={state} {...props} />;
+  return <EchojackImg src={getEchojackFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Character positioning components
@@ -576,10 +577,10 @@ const PositionedAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const PositionedScribblash = styled(Box)(({ theme }) => ({
+const PositionedEchojack = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.DIALOGUE_ECHOJACK_RIGHT,
+  bottom: CHARACTER_POSITIONS.DIALOGUE_ECHOJACK_BOTTOM,
   zIndex: 4,
 }));
 
@@ -590,10 +591,10 @@ const BattleAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const BattleScribblash = styled(Box)(({ theme }) => ({
+const BattleEchojack = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.BATTLE_ECHOJACK_RIGHT,
+  bottom: CHARACTER_POSITIONS.BATTLE_ECHOJACK_BOTTOM,
   zIndex: 4,
 }));
 
@@ -721,16 +722,18 @@ const SpellingInput = styled('input')(({ theme }) => ({
   fontSize: '1.5rem',
   padding: '12px 20px',
   borderRadius: '8px',
-  border: '2px solid #6fb3d2',
-  background: 'rgba(255,255,255,0.9)',
+  border: '2px solid #3b4560',
+  background: 'rgba(20,24,33,0.9)',
+  color: '#e6ecff',
   textAlign: 'center',
   letterSpacing: '2px',
   fontWeight: 'bold',
   width: '300px',
+  '&::placeholder': { color: '#a8b3cf' },
   '&:focus': {
     outline: 'none',
-    borderColor: '#4682b4',
-    boxShadow: '0 0 10px rgba(70,130,180,0.5)',
+    borderColor: '#566188',
+    boxShadow: '0 0 10px rgba(86,97,136,0.45)',
   },
 }));
 
@@ -850,96 +853,52 @@ const VictoryContainer = styled(Paper)(({ theme }) => ({
   border: '4px solid #b48a6e',
 }));
 
-// Intermediate level questions for Scribblash (8 questions)
-const scribblashQuestions = [
-  // Question 1: Spelling
-  {
-    type: "spelling",
-    definition: "A word that means 'to make something clear or easy to understand' - often used in writing and teaching.",
-    correct: "EXPLAIN"
-  },
+// Hard level questions for Echojack (8 questions in the requested flow)
+const echojackQuestions = [
+  // Question 1: 4 Pics 1 Word
+  { type: '4pics1word', images: ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTultqHZP8uKFi52kHVHoI6qqKM98bgbgedeQ&s','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbRw3F8FaAE-1NvkxI1d8bCWDnHutT7WwAZg&s','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG5Mmltd3tSMn4Ui9-J-XAt18ITrA457OqTA&s','https://lh3.googleusercontent.com/n61PrfXKw0pUWPHeix8BLdk35_BNw6K4nRYvLn3k5H4GSjDzeChIGmesTdANPinMoEKQUEBoUHmefm4bkiMnzfTZBKHg0MvwdOOFrL8=s0'], letters: 'JOURNEYSW', correct: 'JOURNEY' },
   // Question 2: Spelling
-  {
-    type: "spelling", 
-    definition: "Past tense of 'write' - what you did with a pen yesterday.",
-    correct: "WROTE"
-  },
-  // Question 3: 4 Pics 1 Word
-  {
-    type: "4pics1word",
-    images: [
-      "https://www.brenneco.com/wp-content/uploads/2016/07/NRCSIA9953617500NRCS_Photo_Gallery-1030x751.jpg",
-      "https://img.drz.lazcdn.com/static/lk/p/279f94ead1423ff7d302799f5fb69a65.jpg_720x720q80.jpg_.webp", 
-      "https://imed.ph/cdn/shop/files/8027200054215_750x.jpg?v=1740980817",
-      "https://t3.ftcdn.net/jpg/01/54/15/30/360_F_154153098_8s3pQS0OC9b64NUe7Km3eQuWf5Epk9Bj.jpg"
-    ],
-    letters: "RETAWKLO",
-    correct: "WATER"
-  },
-  // Question 4: Multiple Choice
-  {
-    type: "multiple_choice",
-    question: "Which sentence uses correct punctuation?",
-    options: [
-      "Its a beautiful day outside.",
-      "It's a beautiful day outside.",
-      "Its' a beautiful day outside.",
-      "It's a beautiful day outside"
-    ],
-    correctAnswer: 1
-  },
-  // Question 5: Reading Comprehension
-  {
-    type: "reading_comprehension",
-    passage: "Sarah studied hard for her exam. She reviewed her notes every night for two weeks. When exam day came, she felt confident and well-prepared.",
-    causeOptions: ["Sarah studied hard", "Exam day arrived", "Sarah felt confident"],
-    effectOptions: ["She felt prepared", "She reviewed notes", "She passed the test"],
-    correctMatches: [
-      { cause: "Sarah studied hard", effect: "She felt prepared" }
-    ]
-  },
-  // Question 6: Spelling
-  {
-    type: "spelling",
-    definition: "A word meaning 'to get better' or 'to become healthy again' after being sick or injured.",
-    correct: "RECOVER"
-  },
-  // Question 7: Multiple Choice
-  {
-    type: "multiple_choice", 
-    question: "What is the correct plural form of 'child'?",
-    options: ["childs", "childrens", "children", "child's"],
-    correctAnswer: 2
-  },
-  // Question 8: 4 Pics 1 Word
-  {
-    type: "4pics1word",
-    images: [
-      "https://external-preview.redd.it/have-you-purchased-a-weirdly-low-quality-paperback-book-v0-CASk5y-8Y3pvJ6Xshu9kxV-CmIZf2K7LANtSiTJrNCU.jpg?auto=webp&s=44609dbe22d357893902685fdec7c0f5605c72b0",
-      "https://thoughtcatalog.com/wp-content/uploads/2014/05/shutterstock_119131492.jpg",
-      "https://img.freepik.com/free-photo/3d-render-books-textbook-stack-pencil-pen_107791-14902.jpg?semt=ais_hybrid&w=740&q=80",
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREfzdEpzRSkIQKIReBcp7CryRc8aX7yWxxbA&s"
-    ],
-    letters: "KOOBSRED",
-    correct: "BOOKS"
-  }
+  { type: 'spelling', definition: 'Spell the word meaning a sound that is repeated or reflected back.', correct: 'ECHO' },
+  // Question 3: Multiple Choice
+  { type: 'multiple_choice', question: 'Which pair are homophones?', options: ['hear/here', 'cat/dog', 'big/small', 'run/walk'], correctAnswer: 0 },
+  // Question 4: Reading Comprehension
+  { type: 'reading_comprehension', passage: 'The knight rode through the night, guided by the pale moonlight. His steel armor gleamed as he approached the ancient site where echoes of the past still resonated.',
+    causeOptions: ['Knight rode through night', 'Moonlight guided him', 'Echoes resonated'],
+    effectOptions: ['He found the site', 'Armor gleamed', 'Past was revealed'],
+    correctMatches: [{ cause: 'Knight rode through night', effect: 'He found the site' }] },
+  // Question 5: Spelling
+  { type: 'spelling', definition: 'Spell the word meaning a word that sounds the same as another but has a different meaning.', correct: 'HOMOPHONE' },
+  // Question 6: Reading Comprehension
+  { type: 'reading_comprehension', passage: 'The writer struggled with homophones, often confusing their/there/they\'re in her manuscripts. Her editor patiently explained the differences until clarity was achieved.',
+    causeOptions: ['Writer struggled with homophones', 'Editor explained differences', 'Manuscripts had errors'],
+    effectOptions: ['Confusion was resolved', 'Clarity was achieved', 'Patience was required'],
+    correctMatches: [{ cause: 'Editor explained differences', effect: 'Clarity was achieved' }] },
+  // Question 7: 4 Pics 1 Word
+  { type: '4pics1word', images: ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1oBnOaAgEPcUrpyB1KZMu4DpXwoKeaV6nbyyYTY9So5gibIPVcmFxBAwA3jw5M-FQBOI&usqp=CAU','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK73j6zrHa0Ta5TUxXXH2yHgXgArGcf6Mmmw&s','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGMRNDvPhJtxdPvZXM_GO5SYzOVKfVZPmRzA&s','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYVSOLEwzxDb1VqrOR5bx4r_w8rpnobiIpkQ&s'], letters: 'GROWTHSD', correct: 'GROWTH' },
+  // Question 8: Spelling
+  { type: 'spelling', definition: 'Spell the word meaning a person who deceives or plays tricks.', correct: 'TRICKSTER' }
 ];
 
 const dialogueSequence = [
-  { speaker: 'Wizard', text: "This is Spelling Shores. Letters twist and dance here, reshaped by Spellisk's curse. Beware… even the most simple words are not what they seem." },
-  { speaker: 'Adventurer', text: "I beat Grammowl's tricks. A few misspelled words won't stop me." },
-  { speaker: 'Wizard', text: "Pride is dangerous. Even small mistakes can topple great heroes." },
-  { speaker: 'Scribblash', text: "Sssso… the child of prophecy comes to scribble on my shores?" },
-  { speaker: 'Scribblash', text: "Your words will crumble into sand, and your letters will scatter in the wind!" },
+  { speaker: 'Wizard', text: "This place… the very air confuses the ear. Words sound the same, yet twist into lies." },
+  { speaker: 'Adventurer', text: "Homophones. This must be another of Dysauron's tricks." },
+  { speaker: 'Wizard', text: "Indeed. Here dwells an old trickster—one who thrives on false meanings." },
+  { speaker: 'Echojack', text: "Hear, here, hero—did you hear me, or were you here to lose?" },
+  { speaker: 'Echojack', text: "I twist meanings, I tangle truths. Even the wisest stumble on my echoes." },
+  { speaker: 'Echojack', text: "Can you stand against words that sound the same… but spell your doom?" },
+  { speaker: 'Adventurer', text: "I've faced worse than your word games. Let's end this." },
+  { speaker: 'Echojack', text: "Then listen well, little spark. For my riddles will echo in your failure!" },
 ];
 
 const victoryDialogue = [
-  { speaker: 'Adventurer', text: "Your scribbles… weren't enough." },
-  { speaker: 'Scribblash', text: "Grkhh… my words… lost to the wind…" },
-  { speaker: 'Wizard', text: "Well done. But this was only the beginning. Spellisk's curse grows stronger the deeper we go." },
+  { speaker: 'Echojack', text: "No… not fair… fare… fayer… you can't—" },
+  { speaker: 'Echojack', text: "But he… he waits at the heart of the shadow. Even your sharpest words won't pierce him!" },
+  { speaker: 'Adventurer', text: "Every shadow I cut down just proves I'm ready." },
+  { speaker: 'Wizard', text: "Confidence is a weapon, but beware pride, adventurer. The deeper we go, the trickier the traps." },
+  { speaker: 'Adventurer', text: "Then I'll tread carefully—but I won't stop." },
 ];
 
-const WatersideShoresLevel1 = () => {
+const ShadowIslesLevel2 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
   const [dialogueIdx, setDialogueIdx] = useState(0);
@@ -958,7 +917,7 @@ const WatersideShoresLevel1 = () => {
   const [showQuit, setShowQuit] = useState(false);
   const [showVictoryDialogue, setShowVictoryDialogue] = useState(false);
   const idleTimeout = useRef(null);
-  const [scribblashState, setScribblashState] = useState('idle');
+  const [echojackState, setEchojackState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
   
   // Diverse gameplay states
@@ -999,7 +958,7 @@ const WatersideShoresLevel1 = () => {
   // Gameplay initialization
   useEffect(() => {
     if (phase === 'battle') {
-      const question = scribblashQuestions[currentQuestion];
+      const question = echojackQuestions[currentQuestion];
       if (question) {
         setSelectedAnswer(null);
         setShowResult(false);
@@ -1038,7 +997,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const validateAnswer = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = echojackQuestions[currentQuestion];
     let isCorrect = false;
     
     switch (question.type) {
@@ -1067,7 +1026,7 @@ const WatersideShoresLevel1 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setTimeout(() => {
-      const isCorrect = idx === scribblashQuestions[currentQuestion].correctAnswer;
+      const isCorrect = idx === echojackQuestions[currentQuestion].correctAnswer;
       processAnswer(isCorrect);
     }, 10);
   };
@@ -1085,16 +1044,16 @@ const WatersideShoresLevel1 = () => {
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
       
-      setScribblashState('hurt');
-      setTimeout(() => setScribblashState('idle'), 500);
+      setEchojackState('hurt');
+      setTimeout(() => setEchojackState('idle'), 500);
       
       setMonsterDamaged(true);
       setTimeout(() => setMonsterDamaged(false), 500);
       
       setMonsterHP(hp => {
-        const newHP = Math.max(0, hp - Math.floor(100 / scribblashQuestions.length));
-        if (currentQuestion === scribblashQuestions.length - 1 || newHP === 0) {
-          setScribblashState('death');
+        const newHP = Math.max(0, hp - Math.floor(100 / echojackQuestions.length));
+        if (currentQuestion === echojackQuestions.length - 1 || newHP === 0) {
+          setEchojackState('death');
           setShowVictoryDialogue(true);
           setPhase('victory-dialogue');
           setVictoryDialogueIdx(0);
@@ -1102,7 +1061,7 @@ const WatersideShoresLevel1 = () => {
         return newHP;
       });
       
-      if (currentQuestion < scribblashQuestions.length - 1) {
+      if (currentQuestion < echojackQuestions.length - 1) {
         setTimeout(() => {
           setCurrentQuestion(prev => prev + 1);
           setSelectedAnswer(null);
@@ -1116,8 +1075,8 @@ const WatersideShoresLevel1 = () => {
       setTimeLeft(newTime);
       
       if (newTime === 0) {
-        setScribblashState('attack');
-        setTimeout(() => setScribblashState('idle'), 500);
+        setEchojackState('attack');
+        setTimeout(() => setEchojackState('idle'), 500);
         
         setUserDamaged(true);
         setTimeout(() => setUserDamaged(false), 500);
@@ -1146,7 +1105,7 @@ const WatersideShoresLevel1 = () => {
           setSpellingInput('');
           setDraggedItems({ causes: [], effects: [] });
           
-          const question = scribblashQuestions[currentQuestion];
+          const question = echojackQuestions[currentQuestion];
           if (question.type === '4pics1word') {
             const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
             setAvailableLetters(shuffled);
@@ -1158,7 +1117,7 @@ const WatersideShoresLevel1 = () => {
 
   // 4 Pics 1 Word functions
   const handleLetterClick = (letter, index) => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = echojackQuestions[currentQuestion];
     if (question && selectedLetters.length < question.correct.length) {
       setSelectedLetters(prev => [...prev, letter]);
       setAvailableLetters(prev => prev.filter((_, i) => i !== index));
@@ -1177,7 +1136,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const speakWord = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = echojackQuestions[currentQuestion];
     if (question.type === 'spelling') {
       const utterance = new SpeechSynthesisUtterance(question.correct);
       utterance.rate = 0.8;
@@ -1222,7 +1181,7 @@ const WatersideShoresLevel1 = () => {
     setAvailableLetters([]);
     setSpellingInput('');
     setDraggedItems({ causes: [], effects: [] });
-    setScribblashState('idle');
+    setEchojackState('idle');
     setAdventurerState('idle');
     setPhase('battle');
   };
@@ -1240,7 +1199,7 @@ const WatersideShoresLevel1 = () => {
     setPhase('dialogue');
     setDialogueIdx(0);
     setVictoryDialogueIdx(0);
-    setScribblashState('idle');
+    setEchojackState('idle');
     setAdventurerState('idle');
   };
 
@@ -1250,7 +1209,7 @@ const WatersideShoresLevel1 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Scribblash",
+            levelName: "Echojack",
             completed: true,
             starsEarned: hearts
           }, {
@@ -1277,10 +1236,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="idle" />
-          </PositionedScribblash>
+        {d.speaker === 'Echojack' && (
+          <PositionedEchojack>
+            <EchojackSprite state="idle" />
+          </PositionedEchojack>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1292,25 +1251,25 @@ const WatersideShoresLevel1 = () => {
       </>
     );
   } else if (phase === 'battle') {
-    const question = scribblashQuestions[currentQuestion];
+    const question = echojackQuestions[currentQuestion];
     content = (
       <>
         <BattleAdventurer>
           <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
         </BattleAdventurer>
-        <BattleScribblash>
-          <ScribblashSprite state={scribblashState} isDamaged={monsterDamaged} />
-        </BattleScribblash>
+        <BattleEchojack>
+          <EchojackSprite state={echojackState} isDamaged={monsterDamaged} />
+        </BattleEchojack>
         
         {/* HP UI */}
         <Box sx={{
           position: 'absolute',
-          right: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT} + 60px)`,
-          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM} + 220px)`,
+          right: `calc(${CHARACTER_POSITIONS.BATTLE_ECHOJACK_RIGHT} + 60px)`,
+          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_ECHOJACK_BOTTOM} + 220px)`,
           zIndex: 10,
           transform: 'translateX(-50%)',
         }}>
-          <MonsterHPText>Scribblash HP</MonsterHPText>
+          <MonsterHPText>Echojack HP</MonsterHPText>
           <MonsterHPBar>
             <MonsterHPFill hp={monsterHP} />
           </MonsterHPBar>
@@ -1505,10 +1464,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="death" />
-          </PositionedScribblash>
+        {d.speaker === 'Echojack' && (
+          <PositionedEchojack>
+            <EchojackSprite state="death" />
+          </PositionedEchojack>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1632,7 +1591,7 @@ const WatersideShoresLevel1 = () => {
             Cancel
           </Button>
           <Button 
-            onClick={() => navigate('/waterside-shores')} 
+            onClick={() => navigate('/shadow-isles')} 
             variant="contained"
             style={{
               background: 'linear-gradient(145deg, #f44336 0%, #e53935 50%, #d32f2f 100%)',
@@ -1700,7 +1659,7 @@ const WatersideShoresLevel1 = () => {
               marginBottom: '8px'
             }}
           >
-            Scribblash has defeated you!
+            Echojack has defeated you!
           </Typography>
           <Typography 
             align="center"
@@ -1734,7 +1693,7 @@ const WatersideShoresLevel1 = () => {
             🔄 Retry
           </Button>
           <Button 
-            onClick={() => navigate('/waterside-shores')} 
+            onClick={() => navigate('/shadow-isles')} 
             variant="contained"
             style={{
               background: 'linear-gradient(145deg, #757575 0%, #616161 50%, #424242 100%)',
@@ -1806,7 +1765,7 @@ const WatersideShoresLevel1 = () => {
                 textShadow: '0 2px 4px rgba(56,142,60,0.3)'
               }}
             >
-              You've defeated Scribblash!
+              You've defeated Echojack!
             </Typography>
             <Typography 
               style={{ 
@@ -1819,11 +1778,11 @@ const WatersideShoresLevel1 = () => {
                 lineHeight: 1.5
               }}
             >
-              🏖️ The shores are calm once more! 🏖️
+              🌑 The echoes have been silenced! 🌑
             </Typography>
             <Button
               variant="contained"
-              onClick={() => navigate('/waterside-shores/level2')}
+              onClick={() => navigate('/shadow-isles/level3')}
               style={{
                 background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
                 color: '#fff',
@@ -1865,7 +1824,7 @@ const WatersideShoresLevel1 = () => {
             </Button>
             <Button
               variant="outlined"
-              onClick={() => navigate('/waterside-shores')}
+              onClick={() => navigate('/shadow-isles')}
               style={{
                 background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 50%, #e0e0e0 100%)',
                 color: '#d32f2f',
@@ -1891,4 +1850,4 @@ const WatersideShoresLevel1 = () => {
   );
 };
 
-export default WatersideShoresLevel1;
+export default ShadowIslesLevel2;

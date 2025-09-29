@@ -72,23 +72,43 @@ public class IslandProgressService {
         IslandProgress progress = progressRepo.findByUserAndIslandName(user, islandName)
                 .orElse(new IslandProgress(user, islandName, 0, 0));
         
-        // Store the previous completed level to check if this is a new level
-        int previousCompletedLevel = progress.getCompletedLevel();
+        // Store the current completed level for validation
+        int currentCompletedLevel = progress.getCompletedLevel();
         
-        // Update progress - only advance, never regress
-        if (completedLevel > progress.getCompletedLevel()) {
-            progress.setCompletedLevel(completedLevel);
+        // Get maximum levels for this island
+        int maxLevels = getMaxLevelsForIsland(islandName);
+        
+        // Cap completedLevel at the island's maximum levels
+        int cappedCompletedLevel = Math.min(completedLevel, maxLevels);
+        
+        // SEQUENTIAL VALIDATION: Only allow progress if completedLevel == currentCompletedLevel + 1
+        boolean isValidProgress = (cappedCompletedLevel == currentCompletedLevel + 1);
+        
+        if (isValidProgress) {
+            // Valid sequential progress - update the level
+            progress.setCompletedLevel(cappedCompletedLevel);
+            
+            // Add stars for the new level completion
+            progress.setTotalStars(progress.getTotalStars() + starsEarned);
+            
+            System.out.println("✅ Level " + cappedCompletedLevel + " cleared successfully for " + islandName + 
+                "! Added " + starsEarned + " stars. Total: " + progress.getTotalStars());
+        } else {
+            // Invalid progress - log warning and keep current progress unchanged
+            System.out.println("⚠️ INVALID SKIP ATTEMPT: User " + email + " tried to jump from level " + 
+                currentCompletedLevel + " to level " + cappedCompletedLevel + " on " + islandName + 
+                ". Progress unchanged. Players must complete levels sequentially (1→2→3→4→5).");
+            
+            // Return current progress without changes
+            IslandProgress currentProgress = progressRepo.findByUserAndIslandName(user, islandName)
+                    .orElse(new IslandProgress(user, islandName, 0, 0));
+            return convertToDTO(currentProgress);
         }
         
-        // Only add stars if this is a NEW level completion (not replaying existing levels)
-        // This prevents cumulative star inflation from multiple attempts
-        if (completedLevel > previousCompletedLevel) {
-            // This is a new level completion, add the stars
-            progress.setTotalStars(progress.getTotalStars() + starsEarned);
-            System.out.println("⭐ New level " + completedLevel + " completed! Added " + starsEarned + " stars. Total: " + progress.getTotalStars());
-        } else {
-            // This is replaying an existing level - don't add stars to prevent inflation
-            System.out.println("🔄 Replaying level " + completedLevel + " - stars not added to prevent inflation");
+        // Add safeguard: if completedLevel somehow exceeds maxLevels, force it to maxLevels
+        if (progress.getCompletedLevel() > maxLevels) {
+            System.out.println("⚠️ WARNING: completedLevel (" + progress.getCompletedLevel() + ") exceeds maxLevels (" + maxLevels + ") for " + islandName + ". Capping to maxLevels.");
+            progress.setCompletedLevel(maxLevels);
         }
         
         // Save and return
@@ -367,5 +387,46 @@ public class IslandProgressService {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    /**
+     * Get the maximum number of levels for a specific island
+     */
+    private int getMaxLevelsForIsland(String islandName) {
+        switch (islandName) {
+            case "Jungle Lush":
+            case "Waterside Shores":
+            case "The Shadow Isles":
+                return 5; // All islands have 5 levels
+            default:
+                System.out.println("⚠️ Unknown island: " + islandName + ", defaulting to 5 levels");
+                return 5; // Default to 5 levels for safety
+        }
+    }
+
+    /**
+     * Fix any existing progress records that have completedLevel > maxLevels
+     */
+    @Transactional
+    public void fixIncorrectProgressLevels() {
+        System.out.println("🔧 Checking for incorrect progress levels...");
+        
+        List<IslandProgress> allProgress = progressRepo.findAll();
+        int fixedCount = 0;
+        
+        for (IslandProgress progress : allProgress) {
+            int maxLevels = getMaxLevelsForIsland(progress.getIslandName());
+            
+            if (progress.getCompletedLevel() > maxLevels) {
+                System.out.println("⚠️ Fixing " + progress.getIslandName() + " for user " + progress.getUser().getEmail() + 
+                    ": completedLevel " + progress.getCompletedLevel() + " > maxLevels " + maxLevels);
+                
+                progress.setCompletedLevel(maxLevels);
+                progressRepo.save(progress);
+                fixedCount++;
+            }
+        }
+        
+        System.out.println("✅ Fixed " + fixedCount + " incorrect progress records");
     }
 }

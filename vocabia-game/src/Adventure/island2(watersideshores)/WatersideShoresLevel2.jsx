@@ -817,7 +817,7 @@ const corallexQuestions = [
   // Question 1: Spelling (Hard)
   {
     type: "spelling",
-    definition: "Spell the word that means 'happening or done immediately'",
+    definition: "Spell the word that means 'happening or done right away",
     correct: "IMMEDIATELY"
   },
   // Question 2: Multiple Choice (Intermediate)
@@ -842,10 +842,10 @@ const corallexQuestions = [
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=10",
-      "https://picsum.photos/150/100?random=11", 
-      "https://picsum.photos/150/100?random=12",
-      "https://picsum.photos/150/100?random=13"
+      "https://images.squarespace-cdn.com/content/v1/59c68edc64b05f184cb42ae2/1532555571594-9KAM1F2DTNPNEWPOWMY3/people-connecting.jpg",
+      "https://images.squarespace-cdn.com/content/v1/5c6ec56916b6406caf85ff79/1566242966068-YFBTKTHM6ZIS0M89UGEL/Connections+pic.jpg", 
+      "https://thumbs.dreamstime.com/b/blue-wi-fi-wireless-internet-connection-icon-symbol-curved-signal-waves-central-dot-white-background-featuring-395508463.jpg",
+      "https://www.cloudresearch.com/wp-content/uploads/2022/07/connect_hero_p.jpg"
     ],
     letters: "CONNECTIONXYZ",
     correct: "CONNECTION"
@@ -1692,6 +1692,27 @@ const WatersideShoresLevel2 = () => {
               }}
             >
               🏠 Return to Shores
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => navigate('/waterside-shores/level3')}
+              style={{
+                background: 'linear-gradient(145deg, #FF6B35 0%, #FF8E53 50%, #FFA726 100%)',
+                color: '#fff',
+                fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+                fontWeight: 700,
+                borderRadius: '20px',
+                padding: '14px 32px',
+                margin: '8px 0',
+                minWidth: '200px',
+                fontSize: '1.1rem',
+                border: '3px solid #E65100',
+                boxShadow: '0 6px 20px rgba(255,107,53,0.4), 0 3px 10px rgba(0,0,0,0.2)',
+                textTransform: 'none',
+                letterSpacing: '0.5px'
+              }}
+            >
+              ➡️ Next Level
             </Button>
             <Button
               variant="outlined"

@@ -862,10 +862,10 @@ const homophibianQuestions = [
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=30",
-      "https://picsum.photos/150/100?random=31", 
-      "https://picsum.photos/150/100?random=32",
-      "https://picsum.photos/150/100?random=33"
+      "https://images.squarespace-cdn.com/content/v1/514cc7f5e4b0a337a810684c/1367535912976-GRYP2DS9K87N4L93XL3I/hearmd_home_page.jpg",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6lZNlyT3oqZPUmg58bPx4TyrxnxsWZPG-RA&s", 
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiNP3zg0dRX3HZbE1fjRYr6dNukalehCCn79hN1KvXOQGmJ36WPF5bptQRTnuaW8FUED0&usqp=CAU",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrT2lb49GAaxM4jSzqW-ESJ_v95I8AcA-gbg&s"
     ],
     letters: "HEARLISTN",
     correct: "HEAR"
@@ -892,10 +892,10 @@ const homophibianQuestions = [
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=34",
-      "https://picsum.photos/150/100?random=35", 
-      "https://picsum.photos/150/100?random=36",
-      "https://picsum.photos/150/100?random=37"
+      "https://cdn11.bigcommerce.com/s-4nops3qe/images/stencil/1280x1280/products/14774/20182/m-m61-r-lg__47830.1511202397.gif?c=2",
+      "https://img.freepik.com/premium-vector/green-tick-green-arrow-pointing-right_1134661-12860.jpg?semt=ais_hybrid&w=740&q=80", 
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWUm6HBov3C91ASZ933pMYXMRe_Yw0KkBmMA&s",
+      "https://media.istockphoto.com/id/1179860629/vector/traffic-sign-turn-right-warning-attention-vector-on-yellow-background.jpg?s=612x612&w=0&k=20&c=wJZPwRe9BEg5_l3LWTI_4mBmYk6MHDxXpGoiFEMEDaE="
     ],
     letters: "RIGHTLEFT",
     correct: "RIGHT"
@@ -1824,7 +1824,7 @@ const WatersideShoresLevel4 = () => {
             </Typography>
             <Button
               variant="contained"
-              onClick={() => navigate('/waterside-shores/level2')}
+              onClick={() => navigate('/waterside-shores/level5')}
               style={{
                 background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
                 color: '#fff',

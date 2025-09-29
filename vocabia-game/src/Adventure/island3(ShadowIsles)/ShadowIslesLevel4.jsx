@@ -24,25 +24,25 @@ import SoldierAttack4 from '../AdventureAssets/Adventurer/Soldier-Attack02_4.png
 import SoldierAttack5 from '../AdventureAssets/Adventurer/Soldier-Attack02_5.png';
 import SoldierAttack6 from '../AdventureAssets/Adventurer/Soldier-Attack02_6.png';
 
-// Scribblash Monster - Placeholder (user will provide actual images)
-const ScribblashIdle1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashIdle4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashAttack4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashHurt3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath1 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath2 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
-const ScribblashDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtOTluz22eqGHyOIP2uuGTeuGNTAM3_VYzJA&s';
+// Umbrosk Monster - Placeholder (user will provide actual images)
+const UmbroskIdle1 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskIdle2 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskIdle3 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskIdle4 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskAttack1 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskAttack2 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskAttack3 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskAttack4 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskHurt1 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskHurt2 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskHurt3 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskDeath1 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskDeath2 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskDeath3 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
+const UmbroskDeath4 = 'https://img.freepik.com/premium-vector/monster-blue-golem-pixel-art-style-perfect-sticker-mascot-game-character_515427-234.jpg';
 
-// Waterside Shores Background
-const WATERSIDE_BG = 'https://thumbs.dreamstime.com/b/beach-pixel-art-background-d-backdrop-bit-retro-video-game-style-299969450.jpg'; // Beach/shore background
+// Shadow Isles Background (placeholder)
+const WATERSIDE_BG = 'https://media.indiedb.com/images/members/5/4512/4511816/profiledevlsix/fundo3.png';
 
 // Character positioning constants
 const CHARACTER_POSITIONS = {
@@ -51,13 +51,13 @@ const CHARACTER_POSITIONS = {
   ADVENTURER_LEFT: '180px',
   ADVENTURER_BOTTOM: '5px',
   // Dialogue scene positioning
-  DIALOGUE_SCRIBBLASH_RIGHT: '50px',
-  DIALOGUE_SCRIBBLASH_BOTTOM: '120px',
+  DIALOGUE_UMBROSK_RIGHT: '50px',
+  DIALOGUE_UMBROSK_BOTTOM: '120px',
   // Battle scene positioning
   BATTLE_ADVENTURER_LEFT: '500px',
   BATTLE_ADVENTURER_BOTTOM: '120px',
-  BATTLE_SCRIBBLASH_RIGHT: '420px',
-  BATTLE_SCRIBBLASH_BOTTOM: '180px',
+  BATTLE_UMBROSK_RIGHT: '420px',
+  BATTLE_UMBROSK_BOTTOM: '180px',
 };
 
 const shake = keyframes`
@@ -121,13 +121,14 @@ const DialogueBox = styled(Paper)(({ theme }) => ({
   minWidth: '320px',
   height: '160px',
   padding: theme.spacing(3, 4),
-  background: 'linear-gradient(145deg, #e8f4f8 0%, #d1e7dd 50%, #b8dce6 100%)', // Ocean-themed colors
-  color: '#1a4c5c',
+  // Shadow Isles theme: deep slate blues
+  background: 'linear-gradient(145deg, #2a2e3b 0%, #1c2130 50%, #151a24 100%)',
+  color: '#e0e6f2',
   textAlign: 'left',
   borderRadius: '20px 20px 0 0',
   zIndex: 10,
-  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.25), 0 -8px 32px 2px rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.6)',
-  border: '3px solid #6fb3d2',
+  boxShadow: '0 -4px 24px 6px rgba(0,0,0,0.45), 0 -8px 32px 4px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.08)',
+  border: '3px solid #3b4560',
   fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   display: 'flex',
   flexDirection: 'column',
@@ -142,7 +143,7 @@ const DialogueBox = styled(Paper)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.25) 100%)',
     borderRadius: '20px 20px 0 0',
     pointerEvents: 'none',
   },
@@ -152,18 +153,18 @@ const NameTag = styled(Box)(({ theme }) => ({
   position: 'absolute',
   top: '-25px',
   left: '24px',
-  background: 'linear-gradient(145deg, #6fb3d2 0%, #5a9bd4 50%, #4682b4 100%)', // Ocean blue
-  color: '#ffffff',
+  background: 'linear-gradient(145deg, #3b4560 0%, #2d354b 50%, #1f2533 100%)',
+  color: '#e6ecff',
   borderRadius: '18px',
   padding: '8px 20px',
   fontWeight: 800,
   fontSize: '1rem',
-  boxShadow: '0 4px 16px rgba(70,130,180,0.5), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.6)',
-  border: '3px solid #4682b4',
+  boxShadow: '0 4px 16px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
+  border: '3px solid #3b4560',
   fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   zIndex: 100,
   letterSpacing: '0.5px',
-  textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+  textShadow: '0 1px 2px rgba(0,0,0,0.8)',
   minWidth: '80px',
   textAlign: 'center',
   display: 'block',
@@ -177,8 +178,8 @@ const DialogueText = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   lineHeight: 1.4,
   letterSpacing: '0.3px',
-  color: '#1a4c5c',
-  textShadow: '0 1px 1px rgba(255,255,255,0.3)',
+  color: '#e6ecff',
+  textShadow: '0 1px 2px rgba(0,0,0,0.7)',
   zIndex: 12,
   position: 'relative',
 }));
@@ -256,7 +257,7 @@ const TopBar = styled(Box)(({ theme }) => ({
 
 const BattleBottomBar = styled(Box)(({ theme }) => ({
   width: '100vw',
-  background: 'linear-gradient(180deg, rgba(26,76,92,0.95) 0%, rgba(70,130,180,0.98) 50%, rgba(30,144,255,1) 100%)', // Ocean theme
+  background: 'linear-gradient(180deg, rgba(26,28,38,0.96) 0%, rgba(23,26,35,0.98) 50%, rgba(20,24,33,1) 100%)',
   minHeight: '180px',
   padding: '38px 0 18px 0',
   display: 'flex',
@@ -266,8 +267,8 @@ const BattleBottomBar = styled(Box)(({ theme }) => ({
   zIndex: 30,
   borderTopLeftRadius: '32px',
   borderTopRightRadius: '32px',
-  boxShadow: '0 -4px 24px 4px rgba(0,0,0,0.4), 0 -8px 32px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-  border: '2px solid rgba(70,130,180,0.8)',
+  boxShadow: '0 -6px 26px 8px rgba(0,0,0,0.55), 0 -10px 36px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
+  border: '2px solid #3b4560',
   borderBottom: 'none',
   position: 'absolute',
   left: 0,
@@ -281,25 +282,25 @@ const BattleBottomBar = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%, rgba(0,0,0,0.25) 100%)',
     borderRadius: '32px 32px 0 0',
     pointerEvents: 'none',
   },
 }));
 
 const QuestionText = styled(Typography)(({ theme }) => ({
-  color: '#fff',
+  color: '#e6ecff',
   fontWeight: 700,
   fontSize: '1.3rem',
   marginBottom: '24px',
   textAlign: 'center',
-  textShadow: '0 2px 12px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1)',
+  textShadow: '0 2px 12px rgba(0,0,0,0.9)',
   letterSpacing: '0.3px',
   lineHeight: 1.4,
   fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
   position: 'relative',
   zIndex: 12,
-  filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.1))',
+  filter: 'none',
 }));
 
 const TIMER_DURATION = 30;
@@ -495,7 +496,7 @@ const AdventurerSprite = ({ state = 'idle', isDamaged, ...props }) => {
 };
 
 // Animated Scribblash Sprite Component
-const ScribblashSprite = ({ state, isDamaged, ...props }) => {
+const UmbroskSprite = ({ state, isDamaged, ...props }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   
   useEffect(() => {
@@ -514,43 +515,43 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     return () => clearInterval(interval);
   }, [state]);
 
-  const getScribblashFrame = () => {
+  const getUmbroskFrame = () => {
     switch (state) {
       case 'attack':
         switch (currentFrame) {
-          case 0: return ScribblashAttack1;
-          case 1: return ScribblashAttack2;
-          case 2: return ScribblashAttack3;
-          case 3: return ScribblashAttack4;
-          default: return ScribblashAttack1;
+          case 0: return UmbroskAttack1;
+          case 1: return UmbroskAttack2;
+          case 2: return UmbroskAttack3;
+          case 3: return UmbroskAttack4;
+          default: return UmbroskAttack1;
         }
       case 'hurt':
         switch (currentFrame) {
-          case 0: return ScribblashHurt1;
-          case 1: return ScribblashHurt2;
-          case 2: return ScribblashHurt3;
-          default: return ScribblashHurt1;
+          case 0: return UmbroskHurt1;
+          case 1: return UmbroskHurt2;
+          case 2: return UmbroskHurt3;
+          default: return UmbroskHurt1;
         }
       case 'death':
         switch (currentFrame) {
-          case 0: return ScribblashDeath1;
-          case 1: return ScribblashDeath2;
-          case 2: return ScribblashDeath3;
-          case 3: return ScribblashDeath4;
-          default: return ScribblashDeath1;
+          case 0: return UmbroskDeath1;
+          case 1: return UmbroskDeath2;
+          case 2: return UmbroskDeath3;
+          case 3: return UmbroskDeath4;
+          default: return UmbroskDeath1;
         }
       default: // idle
         switch (currentFrame) {
-          case 0: return ScribblashIdle1;
-          case 1: return ScribblashIdle2;
-          case 2: return ScribblashIdle3;
-          case 3: return ScribblashIdle4;
-          default: return ScribblashIdle1;
+          case 0: return UmbroskIdle1;
+          case 1: return UmbroskIdle2;
+          case 2: return UmbroskIdle3;
+          case 3: return UmbroskIdle4;
+          default: return UmbroskIdle1;
         }
     }
   };
 
-  const ScribblashImg = styled('img')(({ isDamaged, state }) => ({
+  const UmbroskImg = styled('img')(({ isDamaged, state }) => ({
     width: '300px',
     height: 'auto',
     filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.5))',
@@ -558,7 +559,7 @@ const ScribblashSprite = ({ state, isDamaged, ...props }) => {
     transform: state === 'hurt' ? 'scaleX(-1)' : 'scaleX(-1)', // Face left
   }));
 
-  return <ScribblashImg src={getScribblashFrame()} isDamaged={isDamaged} state={state} {...props} />;
+  return <UmbroskImg src={getUmbroskFrame()} isDamaged={isDamaged} state={state} {...props} />;
 };
 
 // Character positioning components
@@ -576,10 +577,10 @@ const PositionedAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const PositionedScribblash = styled(Box)(({ theme }) => ({
+const PositionedUmbrosk = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.DIALOGUE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.DIALOGUE_UMBROSK_RIGHT,
+  bottom: CHARACTER_POSITIONS.DIALOGUE_UMBROSK_BOTTOM,
   zIndex: 4,
 }));
 
@@ -590,10 +591,10 @@ const BattleAdventurer = styled(Box)(({ theme }) => ({
   zIndex: 4,
 }));
 
-const BattleScribblash = styled(Box)(({ theme }) => ({
+const BattleUmbrosk = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  right: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT,
-  bottom: CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM,
+  right: CHARACTER_POSITIONS.BATTLE_UMBROSK_RIGHT,
+  bottom: CHARACTER_POSITIONS.BATTLE_UMBROSK_BOTTOM,
   zIndex: 4,
 }));
 
@@ -721,16 +722,18 @@ const SpellingInput = styled('input')(({ theme }) => ({
   fontSize: '1.5rem',
   padding: '12px 20px',
   borderRadius: '8px',
-  border: '2px solid #6fb3d2',
-  background: 'rgba(255,255,255,0.9)',
+  border: '2px solid #3b4560',
+  background: 'rgba(20,24,33,0.9)',
+  color: '#e6ecff',
   textAlign: 'center',
   letterSpacing: '2px',
   fontWeight: 'bold',
   width: '300px',
+  '&::placeholder': { color: '#a8b3cf' },
   '&:focus': {
     outline: 'none',
-    borderColor: '#4682b4',
-    boxShadow: '0 0 10px rgba(70,130,180,0.5)',
+    borderColor: '#566188',
+    boxShadow: '0 0 10px rgba(86,97,136,0.45)',
   },
 }));
 
@@ -850,96 +853,60 @@ const VictoryContainer = styled(Paper)(({ theme }) => ({
   border: '4px solid #b48a6e',
 }));
 
-// Intermediate level questions for Scribblash (8 questions)
-const scribblashQuestions = [
-  // Question 1: Spelling
-  {
-    type: "spelling",
-    definition: "A word that means 'to make something clear or easy to understand' - often used in writing and teaching.",
-    correct: "EXPLAIN"
-  },
-  // Question 2: Spelling
-  {
-    type: "spelling", 
-    definition: "Past tense of 'write' - what you did with a pen yesterday.",
-    correct: "WROTE"
-  },
-  // Question 3: 4 Pics 1 Word
-  {
-    type: "4pics1word",
-    images: [
-      "https://www.brenneco.com/wp-content/uploads/2016/07/NRCSIA9953617500NRCS_Photo_Gallery-1030x751.jpg",
-      "https://img.drz.lazcdn.com/static/lk/p/279f94ead1423ff7d302799f5fb69a65.jpg_720x720q80.jpg_.webp", 
-      "https://imed.ph/cdn/shop/files/8027200054215_750x.jpg?v=1740980817",
-      "https://t3.ftcdn.net/jpg/01/54/15/30/360_F_154153098_8s3pQS0OC9b64NUe7Km3eQuWf5Epk9Bj.jpg"
-    ],
-    letters: "RETAWKLO",
-    correct: "WATER"
-  },
-  // Question 4: Multiple Choice
-  {
-    type: "multiple_choice",
-    question: "Which sentence uses correct punctuation?",
-    options: [
-      "Its a beautiful day outside.",
-      "It's a beautiful day outside.",
-      "Its' a beautiful day outside.",
-      "It's a beautiful day outside"
-    ],
-    correctAnswer: 1
-  },
-  // Question 5: Reading Comprehension
-  {
-    type: "reading_comprehension",
-    passage: "Sarah studied hard for her exam. She reviewed her notes every night for two weeks. When exam day came, she felt confident and well-prepared.",
-    causeOptions: ["Sarah studied hard", "Exam day arrived", "Sarah felt confident"],
-    effectOptions: ["She felt prepared", "She reviewed notes", "She passed the test"],
-    correctMatches: [
-      { cause: "Sarah studied hard", effect: "She felt prepared" }
-    ]
-  },
-  // Question 6: Spelling
-  {
-    type: "spelling",
-    definition: "A word meaning 'to get better' or 'to become healthy again' after being sick or injured.",
-    correct: "RECOVER"
-  },
-  // Question 7: Multiple Choice
-  {
-    type: "multiple_choice", 
-    question: "What is the correct plural form of 'child'?",
-    options: ["childs", "childrens", "children", "child's"],
-    correctAnswer: 2
-  },
-  // Question 8: 4 Pics 1 Word
-  {
-    type: "4pics1word",
-    images: [
-      "https://external-preview.redd.it/have-you-purchased-a-weirdly-low-quality-paperback-book-v0-CASk5y-8Y3pvJ6Xshu9kxV-CmIZf2K7LANtSiTJrNCU.jpg?auto=webp&s=44609dbe22d357893902685fdec7c0f5605c72b0",
-      "https://thoughtcatalog.com/wp-content/uploads/2014/05/shutterstock_119131492.jpg",
-      "https://img.freepik.com/free-photo/3d-render-books-textbook-stack-pencil-pen_107791-14902.jpg?semt=ais_hybrid&w=740&q=80",
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREfzdEpzRSkIQKIReBcp7CryRc8aX7yWxxbA&s"
-    ],
-    letters: "KOOBSRED",
-    correct: "BOOKS"
-  }
+// Hard level questions for Umbrosk (8 questions in the requested flow)
+const umbroskQuestions = [
+  // Question 1: Reading Comprehension
+  { type: 'reading_comprehension', passage: 'The gate before Dysauron\'s lair stood silent and foreboding. Umbrosk, the right hand of darkness, emerged from the shadows with the silence of the abyss. His presence carried the weight of stolen breath and silenced voices.',
+    causeOptions: ['Gate stood silent', 'Umbrosk emerged from shadows', 'Presence carried weight'],
+    effectOptions: ['Foreboding atmosphere', 'Silence spread', 'Voices were stolen'],
+    correctMatches: [{ cause: 'Umbrosk emerged from shadows', effect: 'Silence spread' }] },
+  // Question 2: 4 Pics 1 Word
+  { type: '4pics1word', images: ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbKGW-1rkI0UcD7iqD1WI1G8cg9rtxxA1-CT28OeWjZZe9WqPfCqU7H4a0iC_UO1XjVaE&usqp=CAU',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLkkP2FHHlPIfhZR3XIJTVitAtfkGVhYK7PBUL3IKgUkUzOl8rgWZiQmtdEg_iCMgzsxM&usqp=CAU',
+    'https://www.timeforkids.com/wp-content/uploads/2018/08/Storms-Image2.jpg?w=1024',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6DLHQFoCKJylGe-jXB2mj5CC0_WUVNi05xw&s'], letters: 'STORMSDW', correct: 'STORM' },
+  // Question 3: Reading Comprehension
+  { type: 'reading_comprehension', passage: 'The chosen one faced Umbrosk with determination, drawing their weapon against the shadow that lingers even when light returns. Bold words were spoken, but the true test was whether they could speak when their breath was stolen.',
+    causeOptions: ['Chosen one faced Umbrosk', 'Weapon was drawn', 'Bold words were spoken'],
+    effectOptions: ['Determination was shown', 'Shadow was challenged', 'Test began'],
+    correctMatches: [{ cause: 'Chosen one faced Umbrosk', effect: 'Test began' }] },
+  // Question 4: Spelling
+  { type: 'spelling', definition: 'Spell the word meaning complete absence of sound or noise.', correct: 'SILENCE' },
+  // Question 5: Spelling
+  { type: 'spelling', definition: 'Spell the word meaning a deep, dark, seemingly bottomless chasm.', correct: 'ABYSS' },
+  // Question 6: Reading Comprehension
+  { type: 'reading_comprehension', passage: 'Even broken shadows return, and the master waits beyond the gate. Dysauron will silence the chosen one forever, but the adventurer\'s will remains unbroken. The path is open, but so is the danger.',
+    causeOptions: ['Shadows return', 'Master waits beyond gate', 'Path is open'],
+    effectOptions: ['Danger increases', 'Silence threatens', 'Will is tested'],
+    correctMatches: [{ cause: 'Master waits beyond gate', effect: 'Danger increases' }] },
+  // Question 7: 4 Pics 1 Word
+  { type: '4pics1word', images: ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1X6m6RYCdUhxMAc_ae-w-Z8pj0Mv8kLp9_Q&s',
+    'https://miro.medium.com/v2/resize:fit:1200/1*Q9bfz0wD837_Irn20O-ERA.jpeg',
+    'https://media.istockphoto.com/id/1003489906/vector/woman-looking-in-a-mirror.jpg?s=612x612&w=0&k=20&c=FGC7t2X4ScZtCmYy7QmIsJjeZ-i0Awz6erGGyz7Mzls=',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4wHpAJZFIeh2zTezmjy1gJoToH55pv8G2SG7yARFfAm8LLZC1LGcAp1QbsQm9BrPkNmI&usqp=CAU'], letters: 'MIRRORSDW', correct: 'MIRROR' },
+  // Question 8: Multiple Choice
+  { type: 'multiple_choice', question: 'What does "foreboding" mean?', options: ['Promising', 'Ominous', 'Cheerful', 'Bright'], correctAnswer: 1 }
 ];
 
 const dialogueSequence = [
-  { speaker: 'Wizard', text: "This is Spelling Shores. Letters twist and dance here, reshaped by Spellisk's curse. Beware… even the most simple words are not what they seem." },
-  { speaker: 'Adventurer', text: "I beat Grammowl's tricks. A few misspelled words won't stop me." },
-  { speaker: 'Wizard', text: "Pride is dangerous. Even small mistakes can topple great heroes." },
-  { speaker: 'Scribblash', text: "Sssso… the child of prophecy comes to scribble on my shores?" },
-  { speaker: 'Scribblash', text: "Your words will crumble into sand, and your letters will scatter in the wind!" },
+  { speaker: 'Wizard', text: "This is it. The gate before Dysauron's lair. But no one passes freely… his right hand, Umbrosk, waits here." },
+  { speaker: 'Wizard', text: "Be wary—he carries the silence of the abyss." },
+  { speaker: 'Adventurer', text: "Then I'll break his silence… with every word I know." },
+  { speaker: 'Umbrosk', text: "Chosen one… I've watched you crawl through webs, timelines, and swamps. You've slain Dysauron's pawns…" },
+  { speaker: 'Umbrosk', text: "But I am no pawn. I am the hand that strikes, the voice that silences, the shadow that lingers even when the light returns." },
+  { speaker: 'Adventurer', text: "If you're the right hand, I'll cut you off." },
+  { speaker: 'Umbrosk', text: "Bold words. Let's see if you can speak them when your breath is stolen." },
 ];
 
 const victoryDialogue = [
-  { speaker: 'Adventurer', text: "Your scribbles… weren't enough." },
-  { speaker: 'Scribblash', text: "Grkhh… my words… lost to the wind…" },
-  { speaker: 'Wizard', text: "Well done. But this was only the beginning. Spellisk's curse grows stronger the deeper we go." },
+  { speaker: 'Umbrosk', text: "So… you wield more than words… You wield will…" },
+  { speaker: 'Umbrosk', text: "But… even broken shadows return… and my master waits." },
+  { speaker: 'Umbrosk', text: "Dysauron will silence you… forever." },
+  { speaker: 'Adventurer', text: "Then let him try." },
+  { speaker: 'Wizard', text: "The path is open… but so is the danger. Dysauron awaits, and he is unlike anything you've faced." },
 ];
 
-const WatersideShoresLevel1 = () => {
+const ShadowIslesLevel4 = () => {
   const navigate = useNavigate();
   const [phase, setPhase] = useState('dialogue');
   const [dialogueIdx, setDialogueIdx] = useState(0);
@@ -958,7 +925,7 @@ const WatersideShoresLevel1 = () => {
   const [showQuit, setShowQuit] = useState(false);
   const [showVictoryDialogue, setShowVictoryDialogue] = useState(false);
   const idleTimeout = useRef(null);
-  const [scribblashState, setScribblashState] = useState('idle');
+  const [umbroskState, setUmbroskState] = useState('idle');
   const [adventurerState, setAdventurerState] = useState('idle');
   
   // Diverse gameplay states
@@ -999,7 +966,7 @@ const WatersideShoresLevel1 = () => {
   // Gameplay initialization
   useEffect(() => {
     if (phase === 'battle') {
-      const question = scribblashQuestions[currentQuestion];
+      const question = umbroskQuestions[currentQuestion];
       if (question) {
         setSelectedAnswer(null);
         setShowResult(false);
@@ -1038,7 +1005,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const validateAnswer = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = umbroskQuestions[currentQuestion];
     let isCorrect = false;
     
     switch (question.type) {
@@ -1067,7 +1034,7 @@ const WatersideShoresLevel1 = () => {
   const handleAnswer = (idx) => {
     setSelectedAnswer(idx);
     setTimeout(() => {
-      const isCorrect = idx === scribblashQuestions[currentQuestion].correctAnswer;
+      const isCorrect = idx === umbroskQuestions[currentQuestion].correctAnswer;
       processAnswer(isCorrect);
     }, 10);
   };
@@ -1085,16 +1052,16 @@ const WatersideShoresLevel1 = () => {
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
       
-      setScribblashState('hurt');
-      setTimeout(() => setScribblashState('idle'), 500);
+      setUmbroskState('hurt');
+      setTimeout(() => setUmbroskState('idle'), 500);
       
       setMonsterDamaged(true);
       setTimeout(() => setMonsterDamaged(false), 500);
       
       setMonsterHP(hp => {
-        const newHP = Math.max(0, hp - Math.floor(100 / scribblashQuestions.length));
-        if (currentQuestion === scribblashQuestions.length - 1 || newHP === 0) {
-          setScribblashState('death');
+        const newHP = Math.max(0, hp - Math.floor(100 / umbroskQuestions.length));
+        if (currentQuestion === umbroskQuestions.length - 1 || newHP === 0) {
+          setUmbroskState('death');
           setShowVictoryDialogue(true);
           setPhase('victory-dialogue');
           setVictoryDialogueIdx(0);
@@ -1102,7 +1069,7 @@ const WatersideShoresLevel1 = () => {
         return newHP;
       });
       
-      if (currentQuestion < scribblashQuestions.length - 1) {
+      if (currentQuestion < umbroskQuestions.length - 1) {
         setTimeout(() => {
           setCurrentQuestion(prev => prev + 1);
           setSelectedAnswer(null);
@@ -1116,8 +1083,8 @@ const WatersideShoresLevel1 = () => {
       setTimeLeft(newTime);
       
       if (newTime === 0) {
-        setScribblashState('attack');
-        setTimeout(() => setScribblashState('idle'), 500);
+        setUmbroskState('attack');
+        setTimeout(() => setUmbroskState('idle'), 500);
         
         setUserDamaged(true);
         setTimeout(() => setUserDamaged(false), 500);
@@ -1146,7 +1113,7 @@ const WatersideShoresLevel1 = () => {
           setSpellingInput('');
           setDraggedItems({ causes: [], effects: [] });
           
-          const question = scribblashQuestions[currentQuestion];
+          const question = umbroskQuestions[currentQuestion];
           if (question.type === '4pics1word') {
             const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
             setAvailableLetters(shuffled);
@@ -1158,7 +1125,7 @@ const WatersideShoresLevel1 = () => {
 
   // 4 Pics 1 Word functions
   const handleLetterClick = (letter, index) => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = umbroskQuestions[currentQuestion];
     if (question && selectedLetters.length < question.correct.length) {
       setSelectedLetters(prev => [...prev, letter]);
       setAvailableLetters(prev => prev.filter((_, i) => i !== index));
@@ -1177,7 +1144,7 @@ const WatersideShoresLevel1 = () => {
   };
 
   const speakWord = () => {
-    const question = scribblashQuestions[currentQuestion];
+    const question = umbroskQuestions[currentQuestion];
     if (question.type === 'spelling') {
       const utterance = new SpeechSynthesisUtterance(question.correct);
       utterance.rate = 0.8;
@@ -1222,7 +1189,7 @@ const WatersideShoresLevel1 = () => {
     setAvailableLetters([]);
     setSpellingInput('');
     setDraggedItems({ causes: [], effects: [] });
-    setScribblashState('idle');
+    setUmbroskState('idle');
     setAdventurerState('idle');
     setPhase('battle');
   };
@@ -1240,7 +1207,7 @@ const WatersideShoresLevel1 = () => {
     setPhase('dialogue');
     setDialogueIdx(0);
     setVictoryDialogueIdx(0);
-    setScribblashState('idle');
+    setUmbroskState('idle');
     setAdventurerState('idle');
   };
 
@@ -1250,7 +1217,7 @@ const WatersideShoresLevel1 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Scribblash",
+            levelName: "Umbrosk",
             completed: true,
             starsEarned: hearts
           }, {
@@ -1277,10 +1244,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="idle" />
-          </PositionedScribblash>
+        {d.speaker === 'Umbrosk' && (
+          <PositionedUmbrosk>
+            <UmbroskSprite state="idle" />
+          </PositionedUmbrosk>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1292,25 +1259,25 @@ const WatersideShoresLevel1 = () => {
       </>
     );
   } else if (phase === 'battle') {
-    const question = scribblashQuestions[currentQuestion];
+    const question = umbroskQuestions[currentQuestion];
     content = (
       <>
         <BattleAdventurer>
           <AdventurerSprite state={adventurerState} isDamaged={userDamaged} />
         </BattleAdventurer>
-        <BattleScribblash>
-          <ScribblashSprite state={scribblashState} isDamaged={monsterDamaged} />
-        </BattleScribblash>
+        <BattleUmbrosk>
+          <UmbroskSprite state={umbroskState} isDamaged={monsterDamaged} />
+        </BattleUmbrosk>
         
         {/* HP UI */}
         <Box sx={{
           position: 'absolute',
-          right: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_RIGHT} + 60px)`,
-          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_SCRIBBLASH_BOTTOM} + 220px)`,
+          right: `calc(${CHARACTER_POSITIONS.BATTLE_UMBROSK_RIGHT} + 60px)`,
+          bottom: `calc(${CHARACTER_POSITIONS.BATTLE_UMBROSK_BOTTOM} + 220px)`,
           zIndex: 10,
           transform: 'translateX(-50%)',
         }}>
-          <MonsterHPText>Scribblash HP</MonsterHPText>
+          <MonsterHPText>Umbrosk HP</MonsterHPText>
           <MonsterHPBar>
             <MonsterHPFill hp={monsterHP} />
           </MonsterHPBar>
@@ -1505,10 +1472,10 @@ const WatersideShoresLevel1 = () => {
         <PositionedAdventurer>
           <AdventurerSprite state={adventurerState} />
         </PositionedAdventurer>
-        {d.speaker === 'Scribblash' && (
-          <PositionedScribblash>
-            <ScribblashSprite state="death" />
-          </PositionedScribblash>
+        {d.speaker === 'Umbrosk' && (
+          <PositionedUmbrosk>
+            <UmbroskSprite state="death" />
+          </PositionedUmbrosk>
         )}
         <DialogueBox elevation={6} onClick={handleDialogueClick} style={{ cursor: 'pointer', userSelect: 'none', marginTop: 180 }}>
           <NameTag>{d.speaker}</NameTag>
@@ -1632,7 +1599,7 @@ const WatersideShoresLevel1 = () => {
             Cancel
           </Button>
           <Button 
-            onClick={() => navigate('/waterside-shores')} 
+            onClick={() => navigate('/shadow-isles')} 
             variant="contained"
             style={{
               background: 'linear-gradient(145deg, #f44336 0%, #e53935 50%, #d32f2f 100%)',
@@ -1700,7 +1667,7 @@ const WatersideShoresLevel1 = () => {
               marginBottom: '8px'
             }}
           >
-            Scribblash has defeated you!
+            Umbrosk has defeated you!
           </Typography>
           <Typography 
             align="center"
@@ -1734,7 +1701,7 @@ const WatersideShoresLevel1 = () => {
             🔄 Retry
           </Button>
           <Button 
-            onClick={() => navigate('/waterside-shores')} 
+            onClick={() => navigate('/shadow-isles')} 
             variant="contained"
             style={{
               background: 'linear-gradient(145deg, #757575 0%, #616161 50%, #424242 100%)',
@@ -1806,7 +1773,7 @@ const WatersideShoresLevel1 = () => {
                 textShadow: '0 2px 4px rgba(56,142,60,0.3)'
               }}
             >
-              You've defeated Scribblash!
+              You've defeated Umbrosk!
             </Typography>
             <Typography 
               style={{ 
@@ -1819,11 +1786,11 @@ const WatersideShoresLevel1 = () => {
                 lineHeight: 1.5
               }}
             >
-              🏖️ The shores are calm once more! 🏖️
+              🌑 The silence has been broken! 🌑
             </Typography>
             <Button
               variant="contained"
-              onClick={() => navigate('/waterside-shores/level2')}
+              onClick={() => navigate('/shadow-isles/level5')}
               style={{
                 background: 'linear-gradient(145deg, #4CAF50 0%, #45a049 50%, #3d8b40 100%)',
                 color: '#fff',
@@ -1865,7 +1832,7 @@ const WatersideShoresLevel1 = () => {
             </Button>
             <Button
               variant="outlined"
-              onClick={() => navigate('/waterside-shores')}
+              onClick={() => navigate('/shadow-isles')}
               style={{
                 background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 50%, #e0e0e0 100%)',
                 color: '#d32f2f',
@@ -1891,4 +1858,4 @@ const WatersideShoresLevel1 = () => {
   );
 };
 
-export default WatersideShoresLevel1;
+export default ShadowIslesLevel4;

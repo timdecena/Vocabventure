@@ -887,10 +887,10 @@ const silentscaleQuestions = [
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=20",
-      "https://picsum.photos/150/100?random=21", 
-      "https://picsum.photos/150/100?random=22",
-      "https://picsum.photos/150/100?random=23"
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Daumen%2CMann.jpg/250px-Daumen%2CMann.jpg",
+      "https://img.freepik.com/free-vector/like-button-thumbs-up-cartoon-style_78370-1159.jpg?semt=ais_hybrid&w=740&q=80", 
+      "https://preview.redd.it/i-was-told-that-my-thumb-is-wider-than-normal-heres-a-v0-0tj5m232xeic1.jpeg?width=640&crop=smart&auto=webp&s=e01e59db9e11819810e9bbdcfb31459b8daf837a",
+      "https://i0.wp.com/www.aliem.com/wp-content/uploads/2013/07/GameKeeperslabel.jpg?ssl=1"
     ],
     letters: "THUMBEXTRA",
     correct: "THUMB"

@@ -365,6 +365,7 @@ html, body, #root {
   color: #FFF;
 }
 
+
 .adventure-btn::before {
   content: '';
   position: absolute;

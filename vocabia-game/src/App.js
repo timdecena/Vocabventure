@@ -62,6 +62,12 @@ import WatersideShoresLevel2 from "./Adventure/island2(watersideshores)/Watersid
 import WatersideShoresLevel3 from "./Adventure/island2(watersideshores)/WatersideShoresLevel3";
 import WatersideShoresLevel4 from "./Adventure/island2(watersideshores)/WatersideShoresLevel4";
 import WatersideShoresLevel5 from "./Adventure/island2(watersideshores)/WatersideShoresLevel5";
+import ShadowIsles from "./Adventure/island3(ShadowIsles)/ShadowIsles";
+import ShadowIslesLevel1 from "./Adventure/island3(ShadowIsles)/ShadowIslesLevel1";
+import ShadowIslesLevel2 from "./Adventure/island3(ShadowIsles)/ShadowIslesLevel2";
+import ShadowIslesLevel3 from "./Adventure/island3(ShadowIsles)/ShadowIslesLevel3";
+import ShadowIslesLevel4 from "./Adventure/island3(ShadowIsles)/ShadowIslesLevel4";
+import ShadowIslesLevel5 from "./Adventure/island3(ShadowIsles)/ShadowIslesLevel5";
 import Tutorial from "./Adventure/tutorial/Tutorial";
 
 // Profile
@@ -181,6 +187,7 @@ function AppContent({ isAuthenticated, setIsAuthenticated, role, setRole, needsN
     "/map",
     "/jungle-lush",
     "/waterside-shores",
+    "/shadow-isles",
     "/tutorial"
   ];
   const isAdventurePage = adventurePrefixes.some(path =>
@@ -360,6 +367,12 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/waterside-shores/level3" element={<WatersideShoresLevel3 />} />
       <Route path="/waterside-shores/level4" element={<WatersideShoresLevel4 />} />
       <Route path="/waterside-shores/level5" element={<WatersideShoresLevel5 />} />
+      <Route path="/shadow-isles" element={<ShadowIsles />} />
+      <Route path="/shadow-isles/level1" element={<ShadowIslesLevel1 />} />
+      <Route path="/shadow-isles/level2" element={<ShadowIslesLevel2 />} />
+      <Route path="/shadow-isles/level3" element={<ShadowIslesLevel3 />} />
+      <Route path="/shadow-isles/level4" element={<ShadowIslesLevel4 />} />
+      <Route path="/shadow-isles/level5" element={<ShadowIslesLevel5 />} />
 
       {/* DEBUG */}
       <Route path="/debug/jwt" element={<JwtDebugger />} />

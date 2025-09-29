@@ -137,11 +137,17 @@ export default function MapView() {
 
       const progressData = progressResponse.data;
       console.log('📊 Island progress data:', progressData);
+      console.log('📊 Island progress data details:', progressData.map(island => ({
+        islandName: island.islandName,
+        completedLevel: island.completedLevel,
+        totalStars: island.totalStars
+      })));
 
       // Check if we need to migrate old progress for this user
       let shouldMigrate = false;
+      let oldProgressResponse = null;
       try {
-        const oldProgressResponse = await axios.get('/api/adventure/level-progress', {
+        oldProgressResponse = await axios.get('/api/adventure/level-progress', {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true
         });
@@ -187,9 +193,43 @@ export default function MapView() {
         } catch (migrationError) {
           console.error('❌ Auto-migration failed:', migrationError);
         }
-      } else {
-        setTotalStars(starsResponse.data.totalStars || 0);
       }
+
+      // Auto-create Shadow Isles progress if all 5 levels are completed
+      const completedShadowIslesLevels = oldProgressResponse?.data?.filter(level => 
+        ['Murkmind', 'Echojack', 'Shardling', 'Umbrosk', 'Dysauron'].includes(level.levelName) && level.completed
+      ) || [];
+
+      // Get unique completed levels (remove duplicates)
+      const uniqueCompletedLevels = [...new Set(completedShadowIslesLevels.map(level => level.levelName))];
+      
+      const hasShadowIslesProgress = progressData.some(island => island.islandName === 'The Shadow Isles');
+      const allShadowIslesCompleted = uniqueCompletedLevels.length === 5;
+
+      console.log('🔍 Shadow Isles auto-creation check:');
+      console.log('   - Total Shadow Isles entries:', completedShadowIslesLevels.length);
+      console.log('   - Unique completed levels:', uniqueCompletedLevels);
+      console.log('   - Has Shadow Isles progress:', hasShadowIslesProgress);
+      console.log('   - All Shadow Isles completed:', allShadowIslesCompleted);
+
+      // If all Shadow Isles levels are completed but no Shadow Isles progress exists, create it
+      if (allShadowIslesCompleted && !hasShadowIslesProgress) {
+        console.log('🏝️ All Shadow Isles levels completed - auto-creating Shadow Isles progress...');
+        try {
+          await axios.post('/api/adventure/island-progress/shadow-isles/create', {}, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true
+          });
+
+          console.log('✅ Shadow Isles progress auto-created');
+          // Refresh progress after auto-creation
+          return fetchProgress();
+        } catch (error) {
+          console.error('❌ Shadow Isles auto-creation failed:', error);
+        }
+      }
+
+      setTotalStars(starsResponse.data.totalStars || 0);
 
       // Convert progress array to object for easier lookup
       const progressMap = {};
@@ -277,6 +317,7 @@ export default function MapView() {
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
+
 
   // Adventure path lines
   const lines = pathCoords.map(([fromIdx, toIdx], i) => {

@@ -42,7 +42,7 @@ const SpelliskDeath3 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQM
 const SpelliskDeath4 = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMwQ1G61M4RhlE9X-xa_j2EW3wfo6yjOGKNWmMuLRdFTQd3sgUBfuH-O3dPb_qtXlZbVk&usqp=CAU';
 
 // Waterside Shores Background
-const WATERSIDE_BG = 'https://thumbs.dreamstime.com/b/beach-pixel-art-background-d-backdrop-bit-retro-video-game-style-299969450.jpg'; // Beach/shore background
+const WATERSIDE_BG = 'https://img.freepik.com/premium-photo/mystical-mountain-cave-pixel-art-background-game-design-vibrant-crystals-luminous-pathway-enchanting-fantasy-scene_91645-9913.jpg'; // Beach/shore background
 
 // Character positioning constants
 const CHARACTER_POSITIONS = {
@@ -887,10 +887,10 @@ const spelliskQuestions = [
   {
     type: "4pics1word",
     images: [
-      "https://picsum.photos/150/100?random=50",
-      "https://picsum.photos/150/100?random=51", 
-      "https://picsum.photos/150/100?random=52",
-      "https://picsum.photos/150/100?random=53"
+      "https://knowmax-ai-website.s3.amazonaws.com/wp-content/uploads/2024/02/16165127/Types-of-Knowledge-Management-1.webp",
+      "https://businessmarketingengine.com/wp-content/uploads/2016/05/Depositphotos_43790977_s-2015.jpg", 
+      "https://republicaimg.nagariknewscdn.com/shared/web/uploads/media/Knowledge-1.jpg",
+      "https://b1531526.smushcdn.com/1531526/wp-content/uploads/2023/06/Knowledge-Workers-2.png?lossy=2&strip=1&webp=1"
     ],
     letters: "KNOWLEDGEXYZ",
     correct: "KNOWLEDGE"
