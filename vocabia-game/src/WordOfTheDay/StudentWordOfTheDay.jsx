@@ -63,19 +63,15 @@ const [gold, setGold] = useState(loadState("gold", null));
       setHasPlayed(res.data.hasPlayed || hasPlayed);
     }
 
-    // --- IMAGE URL FIX ---
-    // If you copied all static files to public/static/images in frontend
-    // res.data.imageUrl should be just the filename like "word1.png"
-    // Or it can include a relative path from public/ like "static/images/word1.png"
-    const imagePath = res.data.imageUrl.startsWith("/")
-      ? res.data.imageUrl
-      : `/static/images/${res.data.imageUrl}`;
-
-    setImageUrl(imagePath);
+    // --- FIX IMAGE URL FOR DEPLOYMENT ---
+    // Assume res.data.imageUrl is just the filename like "word1.png"
+    // Frontend public folder path: public/static/images/...
+    const imageFileName = res.data.imageUrl.split("/").pop(); // just in case backend sends a path
+    setImageUrl(`/static/images/${imageFileName}`);
 
     setChoices(res.data.choices || []);
 
-    // Only update gold/streak if they're different from server
+    // Update gold and streak if different
     if (res.data.gold !== undefined && res.data.gold !== gold) {
       setGold(res.data.gold);
       saveState("wotd_gold", res.data.gold);
@@ -84,7 +80,8 @@ const [gold, setGold] = useState(loadState("gold", null));
       setStreak(res.data.streak);
       saveState("wotd_streak", res.data.streak);
     }
-  } catch {
+  } catch (err) {
+    console.error("Failed to fetch word of the day:", err);
     setResult("❌ Failed to load word");
   }
 };
