@@ -66,8 +66,8 @@ const [gold, setGold] = useState(loadState("gold", null));
     // --- FIX IMAGE URL FOR DEPLOYMENT ---
     // Assume res.data.imageUrl is just the filename like "word1.png"
     // Frontend public folder path: public/static/images/...
-    const imageFileName = res.data.imageUrl.split("/").pop(); // "corruption.jpg"
-setImageUrl(`/${imageFileName}`);
+    const imageFileName = res.data.imageUrl.split("/").pop(); // just the filename
+setImageUrl(`/images/${imageFileName}`);
 
     setChoices(res.data.choices || []);
 
