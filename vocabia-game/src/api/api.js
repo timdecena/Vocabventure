@@ -1,14 +1,14 @@
 import axios from "axios";
 
-// Use env variable if available, fallback to localhost
-//const api = axios.create({
-//  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8080",
-//  withCredentials: true,
-//});
+const baseURL = process.env.REACT_APP_API_URL 
+  ? process.env.REACT_APP_API_URL       // Use env variable if set (e.g., deployed)
+  : (window.location.hostname === "localhost" 
+      ? "http://localhost:8080"         // Local development
+      : "/");                            // Production relative path
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "/",
- withCredentials: true,
+  baseURL,
+  withCredentials: true,
 });
 
 // Enhanced request interceptor with better debugging
