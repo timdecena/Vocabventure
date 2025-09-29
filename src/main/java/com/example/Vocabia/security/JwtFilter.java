@@ -10,12 +10,14 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -69,15 +71,15 @@ public class JwtFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                if (jwtUtil.validateToken(jwt, userDetails)) {
-                    System.out.println("🔐 JWT validated for user: " + email);
-                    System.out.println("🔐 Authorities: " + userDetails.getAuthorities());
+if (jwtUtil.validateToken(jwt, userDetails)) {
+    String role = jwtUtil.extractAuthority(jwt); // e.g. ROLE_STUDENT
+    SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
 
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                } else {
+    UsernamePasswordAuthenticationToken authToken =
+            new UsernamePasswordAuthenticationToken(userDetails, null, List.of(authority));
+    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    SecurityContextHolder.getContext().setAuthentication(authToken);
+}else {
                     System.out.println("❌ JWT validation failed for user: " + email);
                     // Continue with the request - let Spring Security handle authorization
                 }
