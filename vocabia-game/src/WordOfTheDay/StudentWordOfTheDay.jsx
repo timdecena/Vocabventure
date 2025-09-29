@@ -67,7 +67,7 @@ const [gold, setGold] = useState(loadState("gold", null));
     // Assume res.data.imageUrl is just the filename like "word1.png"
     // Frontend public folder path: public/static/images/...
     const imageFileName = res.data.imageUrl.split("/").pop(); // just the filename
-setImageUrl(`/images/${imageFileName}`);
+    setImageUrl(`/static/images/${imageFileName}`);
 
     setChoices(res.data.choices || []);
 
