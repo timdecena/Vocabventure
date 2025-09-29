@@ -425,7 +425,7 @@ useEffect(() => {
                 onClick={() => navigate('/student/adventure')}
                 sx={{ cursor: 'pointer' }}
               >
-                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-modes/adventure.png" alt="Adventure Mode" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
+                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '0px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-thumbnail/adventure_mode.png" alt="Adventure Mode" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
                 <div className="arcade-profile-mode-title">Adventure Mode</div>
                 <div className="arcade-profile-mode-desc">Dive into an epic jungle quest where every vocabulary challenge unlocks XP, levels, and thrilling new adventures!</div>
               </Box>
@@ -434,7 +434,7 @@ useEffect(() => {
                 onClick={() => setCustomWordListModalOpen(true)}
                 sx={{ cursor: 'pointer' }}
               >
-                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-modes/custom.png" alt="Custom Word List" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
+                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '0px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-thumbnail/time_attack.png" alt="Custom Word List" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
                 <div className="arcade-profile-mode-title">Custom Word List (Time Attack)</div>
                 <div className="arcade-profile-mode-desc">Race against the clock in a farm your gold to victory</div>
               </Box>
@@ -449,7 +449,7 @@ useEffect(() => {
                 }}
                 sx={{ cursor: 'pointer' }}
               >
-                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-modes/4pics1word.png" alt="4pics1word Mode" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
+                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '0px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-thumbnail/four_pic_one_word.png" alt="4pics1word Mode" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
                 <div className="arcade-profile-mode-title">4pics1word Mode</div>
                 <div className="arcade-profile-mode-desc">Solve the puzzle by finding the one word that connects all four pictures. Test your brain and climb the leaderboard!</div>
               </Box>
@@ -458,7 +458,7 @@ useEffect(() => {
                 onClick={() => navigate('/student/word-of-the-day')}
                 sx={{ cursor: 'pointer' }}
               >
-                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-modes/wordoftheday.png" alt="Word of the Day" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
+                <div className="arcade-profile-mode-img" style={{height: '160px', marginBottom: '10px', borderRadius: '0px', overflow: 'hidden', boxShadow: '0 4px 18px #00eaff33'}}><img src="/game-thumbnail/word_of_the_day.png" alt="Word of the Day" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0' }} /></div>
                 <div className="arcade-profile-mode-title">Word of The Day</div>
                 <div className="arcade-profile-mode-desc">Play the Word of the Day challenge to guess the hidden word from its definition and image.</div>
               </Box>
