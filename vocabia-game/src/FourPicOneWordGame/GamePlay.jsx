@@ -560,35 +560,51 @@ const GamePlay = () => {
 
   // ---- Fetch Puzzle & Progress ----
   useEffect(() => {
-    let isMounted = true;
-    async function fetchPuzzle() {
-      try {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        
-        // Load stored attempts from localStorage
-        const storedAttempts = getStoredAttempts(category, level);
-        if (storedAttempts > 0) {
-          dispatch({ type: 'SET_STORED_ATTEMPTS', payload: storedAttempts });
-        }
-        
-        // Remove duplicate '/api' prefix since it's already in the baseURL
-        const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
-        if (!res.data || !res.data.answer) throw new Error('No puzzle found');
-        const imageUrls = [
-          res.data.image1Url, res.data.image2Url, res.data.image3Url, res.data.image4Url
-        ].filter(Boolean);
-        const availableLetters = generateAvailableLetters(res.data.answer);
-        if (isMounted) {
-          dispatch({ type: 'SET_PUZZLE', payload: { ...res.data, imageUrls }, availableLetters });
-          setTimerStart(Date.now());
-        }
-      } catch (e) {
-        dispatch({ type: 'SET_ERROR', payload: 'Failed to load puzzle.' });
+  let isMounted = true;
+  async function fetchPuzzle() {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      
+      const storedAttempts = getStoredAttempts(category, level);
+      if (storedAttempts > 0) {
+        dispatch({ type: 'SET_STORED_ATTEMPTS', payload: storedAttempts });
       }
+      
+      const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
+      if (!res.data || !res.data.answer) throw new Error('No puzzle found');
+      
+      // Instead of using URLs from backend, construct local paths
+      // Assuming your backend returns image filenames like "animals_1.jpg", "animals_2.jpg", etc.
+      const imageBaseUrl = '/static/images/Four_Pic_One_Word_Category';
+      
+      // If backend provides filenames
+      const imageUrls = [
+        res.data.image1 ? `${imageBaseUrl}/${category}/${res.data.image1}` : null,
+        res.data.image2 ? `${imageBaseUrl}/${category}/${res.data.image2}` : null,
+        res.data.image3 ? `${imageBaseUrl}/${category}/${res.data.image3}` : null,
+        res.data.image4 ? `${imageBaseUrl}/${category}/${res.data.image4}` : null,
+      ].filter(Boolean);
+      
+      // OR if you want to use a naming convention
+      // const imageUrls = [
+      //   `${imageBaseUrl}/${category}/level${level}_1.jpg`,
+      //   `${imageBaseUrl}/${category}/level${level}_2.jpg`,
+      //   `${imageBaseUrl}/${category}/level${level}_3.jpg`,
+      //   `${imageBaseUrl}/${category}/level${level}_4.jpg`,
+      // ];
+      
+      const availableLetters = generateAvailableLetters(res.data.answer);
+      if (isMounted) {
+        dispatch({ type: 'SET_PUZZLE', payload: { ...res.data, imageUrls }, availableLetters });
+        setTimerStart(Date.now());
+      }
+    } catch (e) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to load puzzle.' });
     }
-    fetchPuzzle();
-    return () => { isMounted = false; };
-  }, [category, level]);
+  }
+  fetchPuzzle();
+  return () => { isMounted = false; };
+}, [category, level]);
 
   // ---- Timer ----
   useEffect(() => {
