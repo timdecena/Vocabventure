@@ -54,18 +54,13 @@ public class SpellingChallengeController {
 public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
     try {
         String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-
-        // Use external upload directory
-        String uploadRoot = System.getProperty("user.dir") + "/uploads"; 
-        Path audioDir = Paths.get(uploadRoot, "audio", "spelling");
+        Path audioDir = Paths.get("/home/ec2-user/Vocabventure/uploads/audio");
         Files.createDirectories(audioDir);
 
         Path filePath = audioDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // The URL Spring will serve
-        String fileUrl = "/audio/spelling/" + filename;
-
+        String fileUrl = "/audio/" + filename;
         return ResponseEntity.ok(Map.of("url", fileUrl));
     } catch (IOException e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload audio");
