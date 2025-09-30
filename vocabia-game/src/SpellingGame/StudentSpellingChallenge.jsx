@@ -214,12 +214,17 @@ export default function StudentSpellingChallenge() {
   }, [timerStarted, timer, isSubmitted, waterLevel, showDrowningAlert]);
 
   const handlePlayAudio = () => {
-    if (audioRef.current?.src) {
-      audioRef.current.play();
-      setTimerStarted(true);
-      setStartTime(Date.now());
-    }
-  };
+  if (audioRef.current?.src) {
+    console.log("🎵 Trying to play:", audioRef.current.src);
+    audioRef.current.play().catch(err => {
+      console.error("❌ Audio play error:", err);
+    });
+    setTimerStarted(true);
+    setStartTime(Date.now());
+  } else {
+    console.error("⚠️ No audio source found for challenge");
+  }
+};
 
   const handleSubmit = useCallback(async () => {
     if (isSubmitted) return;
