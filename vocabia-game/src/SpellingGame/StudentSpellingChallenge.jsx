@@ -354,12 +354,18 @@ export default function StudentSpellingChallenge() {
 
         {currentChallenge.audioUrl && (
           <>
-            <audio 
-              ref={audioRef} 
-              src={`${api.defaults.baseURL}${currentChallenge.audioUrl}`} 
-              preload="auto" 
-              onError={() => console.error("❌ Audio failed to load:", currentChallenge.audioUrl)}
-            />
+            <audio
+  ref={audioRef}
+  src={
+    currentChallenge.audioUrl.startsWith("http")
+      ? currentChallenge.audioUrl
+      : `${api.defaults.baseURL.replace(/\/$/, "")}${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
+  }
+  preload="auto"
+  onError={() =>
+    console.error("❌ Audio failed to load:", currentChallenge.audioUrl)
+  }
+/>
             <audio ref={attackSoundRef} src="/sounds/spell-attack.mp3" preload="auto" />
             <audio ref={drowningSoundRef} src="/sounds/drowning-alarm.mp3" preload="auto" />
             <button onClick={handlePlayAudio} disabled={timerStarted} style={{ marginTop: "10px", padding: "8px 16px", borderRadius: "8px", border: "none", background: timerStarted ? "#ccc" : "#4CAF50", color: "#fff", cursor: timerStarted ? "not-allowed" : "pointer", fontSize: "16px" }}>
