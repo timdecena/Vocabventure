@@ -578,6 +578,7 @@ const GamePlay = () => {
 
       const availableLetters = generateAvailableLetters(res.data.answer);
       if (isMounted) {
+        console.log("Fetched images:", res.data.images);
         dispatch({
           type: 'SET_PUZZLE',
           payload: { ...res.data, imageUrls },
@@ -1273,6 +1274,7 @@ const GamePlay = () => {
           </Box>
           
           {/* Image Grid */}
+          console.log("ImageGrid props:", state.puzzle.imageUrls);
           <ImageGrid imageUrls={state.puzzle.imageUrls} isLoading={state.loading} />
           
           {/* Hint Display */}
