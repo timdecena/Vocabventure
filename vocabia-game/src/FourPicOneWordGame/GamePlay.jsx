@@ -583,7 +583,7 @@ const GamePlay = () => {
       ].filter(Boolean);
 
       // ✅ Fix paths to match frontend public/static folder
-      const imageUrls = rawUrls.map(url => `/static/images/Four_Pic_One_Word_Category${url}`);
+      const imageUrls = rawUrls.map(url => `/static/Four_Pic_One_Word_Category${url}`);
 
       const availableLetters = generateAvailableLetters(res.data.answer);
 
