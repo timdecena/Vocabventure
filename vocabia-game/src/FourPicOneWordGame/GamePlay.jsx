@@ -573,19 +573,24 @@ const GamePlay = () => {
       const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
       if (!res.data || !res.data.answer) throw new Error('No puzzle found');
       
-      // ✅ Use the image URLs directly from JSON
-      const imageUrls = res.data.images || [];
+      // ✅ Collect the four image URLs into an array
+const imageUrls = [
+  res.data.image1Url,
+  res.data.image2Url,
+  res.data.image3Url,
+  res.data.image4Url
+].filter(Boolean); // removes any null/undefined
 
-      const availableLetters = generateAvailableLetters(res.data.answer);
-      if (isMounted) {
-        console.log("Fetched images:", res.data.images);
-        dispatch({
-          type: 'SET_PUZZLE',
-          payload: { ...res.data, imageUrls },
-          availableLetters
-        });
-        setTimerStart(Date.now());
-      }
+const availableLetters = generateAvailableLetters(res.data.answer);
+if (isMounted) {
+  console.log("Fetched images:", imageUrls);
+  dispatch({
+    type: 'SET_PUZZLE',
+    payload: { ...res.data, imageUrls },
+    availableLetters
+  });
+  setTimerStart(Date.now());
+}
     } catch (e) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to load puzzle.' });
     }
