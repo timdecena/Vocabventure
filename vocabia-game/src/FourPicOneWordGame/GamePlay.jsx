@@ -561,43 +561,50 @@ const GamePlay = () => {
   // ---- Fetch Puzzle & Progress ----
   useEffect(() => {
   let isMounted = true;
+
   async function fetchPuzzle() {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      
+
       const storedAttempts = getStoredAttempts(category, level);
       if (storedAttempts > 0) {
         dispatch({ type: 'SET_STORED_ATTEMPTS', payload: storedAttempts });
       }
-      
+
       const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
       if (!res.data || !res.data.answer) throw new Error('No puzzle found');
-      
-      // ✅ Collect the four image URLs into an array
-const imageUrls = [
-  res.data.image1Url,
-  res.data.image2Url,
-  res.data.image3Url,
-  res.data.image4Url
-].filter(Boolean); // removes any null/undefined
 
-const availableLetters = generateAvailableLetters(res.data.answer);
-if (isMounted) {
-  console.log("Fetched images:", imageUrls);
-  dispatch({
-    type: 'SET_PUZZLE',
-    payload: { ...res.data, imageUrls },
-    availableLetters
-  });
-  setTimerStart(Date.now());
-}
+      // ✅ Collect the four image URLs from backend
+      const rawUrls = [
+        res.data.image1Url,
+        res.data.image2Url,
+        res.data.image3Url,
+        res.data.image4Url
+      ].filter(Boolean);
+
+      // ✅ Fix paths to match frontend public/static folder
+      const imageUrls = rawUrls.map(url => `/static/images/Four_Pic_One_Word_Category${url}`);
+
+      const availableLetters = generateAvailableLetters(res.data.answer);
+
+      if (isMounted) {
+        console.log("Fetched images (fixed):", imageUrls);
+        dispatch({
+          type: 'SET_PUZZLE',
+          payload: { ...res.data, imageUrls },
+          availableLetters
+        });
+        setTimerStart(Date.now());
+      }
     } catch (e) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to load puzzle.' });
     }
   }
+
   fetchPuzzle();
   return () => { isMounted = false; };
 }, [category, level]);
+
 
   // ---- Timer ----
   useEffect(() => {
