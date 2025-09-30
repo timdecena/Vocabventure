@@ -1291,7 +1291,7 @@ const GamePlay = () => {
           </Box>
           
           {/* Image Grid */}
-          
+          console.log("ImageGrid props:", state.puzzle.imageUrls);
           <ImageGrid imageUrls={state.puzzle.imageUrls} isLoading={state.loading} />
           
           {/* Hint Display */}
