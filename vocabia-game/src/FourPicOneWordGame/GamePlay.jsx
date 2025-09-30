@@ -559,6 +559,7 @@ const GamePlay = () => {
   }, []);
 
   // ---- Fetch Puzzle & Progress ----
+   // ---- Fetch Puzzle & Progress ----
   useEffect(() => {
   let isMounted = true;
 
@@ -583,7 +584,11 @@ const GamePlay = () => {
       ].filter(Boolean);
 
       // ✅ Fix paths to match frontend public/static folder
-      const imageUrls = rawUrls.map(url => `/static/Four_Pic_One_Word_Category${url}`);
+      const imageUrls = rawUrls.map(url => {
+  // remove the leading "/images" from backend value
+  const fixedPath = url.replace(/^\/images/, "");
+  return `/static/images/Four_Pic_One_Word_Category${fixedPath}`;
+});
 
       const availableLetters = generateAvailableLetters(res.data.answer);
 
