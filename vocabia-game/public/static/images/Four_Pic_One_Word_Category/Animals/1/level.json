@@ -3,10 +3,9 @@
   "hint": "Black and white bear from China",
   "difficulty": 1,
   "images": [
-    "/images/Animals/1/pic1.jpg",
-    "/images/Animals/1/pic2.jpg",
-    "/images/Animals/1/pic3.jpg",
-    "/images/Animals/1/pic4.jpg"
-
-  ]
+  "/static/Four_Pic_One_Word_Category/Animals/1/pic1.jpg",
+  "/static/Four_Pic_One_Word_Category/Animals/1/pic2.jpg",
+  "/static/Four_Pic_One_Word_Category/Animals/1/pic3.jpg",
+  "/static/Four_Pic_One_Word_Category/Animals/1/pic4.jpg"
+]
 }
