@@ -7,6 +7,7 @@ import com.example.Vocabia.repository.UserRepository;
 import com.example.Vocabia.service.SpellingChallengeService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,23 +51,26 @@ public class SpellingChallengeController {
         return service.getTeacherChallenges(teacher);
     }
 
+
+    @Value("${app.upload.dir}")
+private String uploadDir;
     @PostMapping("/upload-audio")
-public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
     try {
         String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        Path audioDir = Paths.get("/home/ec2-user/Vocabventure/uploads/audio");
+        Path audioDir = Paths.get("/home/ec2-user/Vocabventure/uploads/audio/spelling");
         Files.createDirectories(audioDir);
 
         Path filePath = audioDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        String fileUrl = "/audio/" + filename;
+        // Public URL path
+        String fileUrl = "/audio/spelling/" + filename;
         return ResponseEntity.ok(Map.of("url", fileUrl));
     } catch (IOException e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload audio");
     }
 }
-
 
 
 
