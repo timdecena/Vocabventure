@@ -54,31 +54,26 @@ public class SpellingChallengeController {
     }
 
 
-    @Value("${app.upload.dir}")
-    @PostMapping("/upload-audio")
-    public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+   @Value("${app.upload.dir}")
+private String uploadDir;  // ✅ inject property here
+
+@PostMapping("/upload-audio")
+public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
     try {
         String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        Path audioDir = Paths.get("/home/ec2-user/Vocabventure/uploads/audio/");
+        Path audioDir = Paths.get(uploadDir);  // ✅ use injected property
         Files.createDirectories(audioDir);
 
         Path filePath = audioDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Build public URL (use /audio/ only, no /spelling/)
-        String serverUrl = request.getScheme() + "://" + request.getServerName();
-        if (request.getServerPort() != 80 && request.getServerPort() != 443) {
-            serverUrl += ":" + request.getServerPort();
-        }
-        String fileUrl = serverUrl + "/audio/" + filename;
-
+        String fileUrl = "/audio/spelling/" + filename;
         return ResponseEntity.ok(Map.of("url", fileUrl));
     } catch (IOException e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload audio");
     }
 }
-
 
 
 
