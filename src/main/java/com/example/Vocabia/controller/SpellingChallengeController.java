@@ -5,6 +5,8 @@ import com.example.Vocabia.entity.SpellingChallenge;
 import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.UserRepository;
 import com.example.Vocabia.service.SpellingChallengeService;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -54,23 +56,29 @@ public class SpellingChallengeController {
 
     @Value("${app.upload.dir}")
 @PostMapping("/upload-audio")
-public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
+public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
     try {
         String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        Path audioDir = Paths.get("/var/www/html/audio/spelling");  // <-- Nginx directory
+        Path audioDir = Paths.get("/home/ec2-user/Vocabventure/uploads/audio/");
         Files.createDirectories(audioDir);
 
         Path filePath = audioDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Public URL path (directly accessible through Nginx)
-        String fileUrl = "/audio/spelling/" + filename;
+        // Build public URL
+        String serverUrl = request.getScheme() + "://" + request.getServerName();
+        if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+            serverUrl += ":" + request.getServerPort();
+        }
+        String fileUrl = serverUrl + "/audio/spelling/" + filename;
+
         return ResponseEntity.ok(Map.of("url", fileUrl));
     } catch (IOException e) {
-          e.printStackTrace();
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload audio");
     }
 }
+
 
 
 
