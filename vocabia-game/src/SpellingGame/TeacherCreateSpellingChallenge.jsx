@@ -158,21 +158,34 @@ export default function TeacherCreateSpellingLevel() {
     
     setIsSubmitting(true);
     try {
-      const uploads = await Promise.all(words.map(async (word) => {
-        let audioUrl = "";
-        if (word.file) {
-          const formData = new FormData();
-          formData.append("file", word.file);
-          const res = await api.post("/api/teacher/spelling/upload-audio", formData);
-          audioUrl = res.data.url;
-        } else if (word.audioBlob) {
-          const formData = new FormData();
-          formData.append("file", word.audioBlob, "recording.webm");
-          const res = await api.post("/api/teacher/spelling/upload-audio", formData);
-          audioUrl = res.data.url;
-        }
-        return { ...word, audioUrl };
-      }));
+  const uploads = await Promise.all(
+    words.map(async (word) => {
+      let audioUrl = "";
+
+      if (word.file) {
+        const formData = new FormData();
+        // always include a filename
+        formData.append("file", word.file, word.file.name || "upload.mp3");
+
+        const res = await api.post("/api/teacher/spelling/upload-audio", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        audioUrl = res.data.url;
+
+      } else if (word.audioBlob) {
+        const formData = new FormData();
+        // always include a filename for blob
+        formData.append("file", word.audioBlob, "recording.webm");
+
+        const res = await api.post("/api/teacher/spelling/upload-audio", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        audioUrl = res.data.url;
+      }
+
+      return { ...word, audioUrl };
+    })
+    );
 
     await api.post("/api/spelling-level/create", {
       title,
