@@ -115,8 +115,9 @@ public class SecurityConfig {
             "http://localhost:3000", 
             "http://127.0.0.1:3000",
             "http://localhost:3001",
-            "http://127.0.0.1:3001"
-        ));
+            "http://127.0.0.1:3001",
+            "http://34.207.235.102"
+));
         
         // CRITICAL: Allow all HTTP methods including OPTIONS for preflight
         configuration.setAllowedMethods(Arrays.asList(
