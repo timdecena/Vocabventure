@@ -476,6 +476,32 @@ const generateAvailableLetters = (answer) => {
   }));
 };
 
+// ---- Image URL Normalizer ----
+// Accepts various formats ("/images/...", "/static/...", "Animals/1/pic1.jpg")
+// and converts them to the frontend-served path under /static/images/Four_Pic_One_Word_Category
+function normalizeImageUrl(url) {
+  try {
+    if (!url) return null;
+    // Absolute URLs are returned as-is
+    if (/^https?:\/\//i.test(url)) return url;
+    // Already a /static path
+    if (url.startsWith('/static/')) return url;
+    if (url.startsWith('static/')) return `/${url}`;
+    // Backend-imported path from resources (e.g., /images/Animals/1/pic1.jpg)
+    if (url.startsWith('/images/')) {
+      return `/static/images/Four_Pic_One_Word_Category${url.replace(/^\/images/, '')}`;
+    }
+    if (url.startsWith('images/')) {
+      return `/static/images/Four_Pic_One_Word_Category/${url.substring('images/'.length)}`;
+    }
+    // Fallback: treat as relative segment like "Animals/1/pic1.jpg"
+    return `/static/images/Four_Pic_One_Word_Category/${url.replace(/^\/+/, '')}`;
+  } catch (e) {
+    console.warn('Failed to normalize image URL:', url, e);
+    return url;
+  }
+}
+
 // ---- Local Storage Progress Functions ----
 function saveCompletedLevel(category, level) {
   try {
@@ -575,25 +601,18 @@ const GamePlay = () => {
       const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
       if (!res.data || !res.data.answer) throw new Error('No puzzle found');
 
-      // ✅ Collect the four image URLs from backend
+      // ✅ Collect and normalize the four image URLs from backend
       const rawUrls = [
         res.data.image1Url,
         res.data.image2Url,
         res.data.image3Url,
         res.data.image4Url
       ].filter(Boolean);
-
-      // ✅ Fix paths to match frontend public/static folder
-      const imageUrls = rawUrls.map(url => {
-  // remove the leading "/images" from backend value
-  const fixedPath = url.replace(/^\/images/, "");
-  return `/static/images/Four_Pic_One_Word_Category${fixedPath}`;
-});
+      const imageUrls = rawUrls.map(normalizeImageUrl);
 
       const availableLetters = generateAvailableLetters(res.data.answer);
 
       if (isMounted) {
-        console.log("Fetched images (fixed):", imageUrls);
         dispatch({
           type: 'SET_PUZZLE',
           payload: { ...res.data, imageUrls },
@@ -1291,7 +1310,6 @@ const GamePlay = () => {
           </Box>
           
           {/* Image Grid */}
-          console.log("ImageGrid props:", state.puzzle.imageUrls);
           <ImageGrid imageUrls={state.puzzle.imageUrls} isLoading={state.loading} />
           
           {/* Hint Display */}
