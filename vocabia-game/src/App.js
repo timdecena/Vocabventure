@@ -77,6 +77,9 @@ import './App.css';
 import theme from './theme/theme';
 import TeacherLayout from './Teacher/components/TeacherLayout';
 import { UserProvider } from './UserContext';
+import GlobalAudio from './sound/GlobalAudio';
+import SiteAudioControls from './components/SiteAudioControls';
+import AdventureAudio from './sound/AdventureAudio';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -160,6 +163,9 @@ function App() {
       <div className="App">
         <TokenRefresher />
         <BrowserRouter>
+          <GlobalAudio />
+          <AdventureAudio />
+          <SiteAudioControls />
           <UserProvider>
             <AppContent
               isAuthenticated={isAuthenticated}

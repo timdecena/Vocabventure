@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
+import MainAudioManager from '../../sound/MainAudioManager';
 
 // Character Assets
 // Wizard Animation Frames
@@ -1311,6 +1312,8 @@ const JungleLushLevel5 = () => {
       setShowResult(true);
       
       if (isCorrect) {
+        // SFX: correct answer
+        try { MainAudioManager.playEffect('correct_answer'); } catch {}
         // Adventurer attacks first
         setAdventurerState('attack');
         setTimeout(() => {
@@ -1344,6 +1347,8 @@ const JungleLushLevel5 = () => {
           }, 600);
         }
       } else {
+        // SFX: wrong answer
+        try { MainAudioManager.playEffect('wrong_answer'); } catch {}
         // Wrong answer - lose heart directly
         setUserDamaged(true);
         setGrammowlState('attack');
@@ -1404,6 +1409,8 @@ const JungleLushLevel5 = () => {
     setShowResult(true);
     
     if (isCorrect) {
+      // SFX: correct answer
+      try { MainAudioManager.playEffect('correct_answer'); } catch {}
       // Adventurer attacks first
       setAdventurerState('attack');
       setTimeout(() => {
@@ -1437,6 +1444,8 @@ const JungleLushLevel5 = () => {
         }, 600);
       }
     } else {
+      // SFX: wrong answer
+      try { MainAudioManager.playEffect('wrong_answer'); } catch {}
       // Wrong answer - lose heart directly
       setUserDamaged(true);
       setGrammowlState('attack');
@@ -1522,6 +1531,8 @@ const JungleLushLevel5 = () => {
     const correctAnswer = phase2Questions[currentQuestion].answer.toLowerCase();
     setShowResult(true);
     if (answer === correctAnswer) {
+      // SFX: correct answer
+      try { MainAudioManager.playEffect('correct_answer'); } catch {}
       // Adventurer attacks first
       setAdventurerState('attack');
       setTimeout(() => {
@@ -1551,6 +1562,8 @@ const JungleLushLevel5 = () => {
         }, 600);
       }
     } else {
+      // SFX: wrong answer
+      try { MainAudioManager.playEffect('wrong_answer'); } catch {}
       setUserDamaged(true);
       setGrammowlState('attack');
       setTimeout(() => {
@@ -1618,23 +1631,25 @@ const JungleLushLevel5 = () => {
 
   useEffect(() => {
     if (victory) {
+      try { MainAudioManager.playEffect('level_completed'); } catch {}
+    }
+  }, [victory]);
+
+  useEffect(() => {
+    if (victory) {
       async function saveProgress() {
         try {
           const token = localStorage.getItem('token');
-          console.log('🎯 Saving Grammowl progress:', { levelName: "Grammowl", completed: true, starsEarned: hearts });
-          
-          const response = await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Grammowl",
+          await axios.post('/api/adventure/level-progress/save', {
+            levelName: "Grammowl's Lair",
             completed: true,
             starsEarned: hearts
           }, {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true
           });
-          
-          console.log('✅ Grammowl progress saved successfully:', response.data);
         } catch (e) {
-          console.error('❌ Failed to save Grammowl progress:', e.response?.data || e.message);
+          // handle error (optional)
         }
       }
       saveProgress();

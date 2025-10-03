@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
+import MainAudioManager from '../../sound/MainAudioManager';
 
 // Import sprite assets
 import WizardIdle1 from '../AdventureAssets/Wizard/Idle_1.png';
@@ -126,7 +127,6 @@ const Ground = styled(Box)(({ theme }) => ({
   borderTopRightRadius: '30px',
   boxShadow: '0 0 16px 2px rgba(0,0,0,0.25)',
 }));
-
 
 const FLESH_BROWN = '#e6c7b2';
 const NAME_BG = '#d1a97a';
@@ -1179,6 +1179,8 @@ const JungleLushLevel3 = () => {
       setShowResult(true);
       
       if (isCorrect) {
+        // SFX: correct answer
+        try { MainAudioManager.playEffect('correct_answer'); } catch {}
         // Correct answer - damage monster
         setAdventurerState('attack');
         setTimeout(() => setAdventurerState('idle'), 500);
@@ -1218,6 +1220,8 @@ const JungleLushLevel3 = () => {
           }, 600);
         }
       } else {
+        // SFX: wrong answer
+        try { MainAudioManager.playEffect('wrong_answer'); } catch {}
         // Wrong answer - deduct time and potentially hearts
         const newTime = Math.max(0, timeLeft - 5);
         setTimeLeft(newTime);
@@ -1296,6 +1300,8 @@ const JungleLushLevel3 = () => {
     setShowResult(true);
     
     if (isCorrect) {
+      // SFX: correct answer
+      try { MainAudioManager.playEffect('correct_answer'); } catch {}
       // Correct answer - damage monster
       setAdventurerState('attack');
       setTimeout(() => setAdventurerState('idle'), 500);
@@ -1335,6 +1341,8 @@ const JungleLushLevel3 = () => {
         }, 600);
       }
     } else {
+      // SFX: wrong answer
+      try { MainAudioManager.playEffect('wrong_answer'); } catch {}
       // Wrong answer - deduct time and potentially hearts
       const newTime = Math.max(0, timeLeft - 5);
       setTimeLeft(newTime);

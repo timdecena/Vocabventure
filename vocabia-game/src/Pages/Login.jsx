@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 import api from "../api/api"; //
+import MainAudioManager from "../sound/MainAudioManager";
 // Arcade Neon wrapper with animated grid background
 const ArcadeWrapper = styled(Box)({
   minHeight: '100vh',
@@ -150,8 +151,13 @@ const Login = ({ setIsAuthenticated, setRole }) => {
 
     setIsAuthenticated(true);
     setRole(data.role);
-    if (data.role === 'STUDENT') navigate('/student-home');
-    else if (data.role === 'TEACHER') navigate('/teacher-home');
+    if (data.role === 'STUDENT') {
+      // Start site background music immediately after successful student login
+      try { MainAudioManager.playBgm(); } catch {}
+      navigate('/student-home');
+    } else if (data.role === 'TEACHER') {
+      navigate('/teacher-home');
+    }
   } catch (err) {
     if (err.response) {
       // Server responded with error

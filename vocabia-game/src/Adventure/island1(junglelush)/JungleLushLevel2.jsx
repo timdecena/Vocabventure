@@ -4,6 +4,7 @@ import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent } 
 import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
+import MainAudioManager from '../../sound/MainAudioManager';
 
 // Character Assets
 // Orc Animation Frames
@@ -951,9 +952,7 @@ const LettersSection = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: '16px',
-  alignItems: 'center',
 }));
-
 
 const AvailableLettersContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -1218,6 +1217,8 @@ const JungleLushLevel2 = () => {
       setShowResult(true);
       
       if (isCorrect) {
+        // SFX: correct answer
+        try { MainAudioManager.playEffect('correct_answer'); } catch {}
         // Adventurer attacks first
         setAdventurerState('attack');
         setTimeout(() => {
@@ -1258,6 +1259,8 @@ const JungleLushLevel2 = () => {
           }, 600);
         }
       } else {
+        // SFX: wrong answer
+        try { MainAudioManager.playEffect('wrong_answer'); } catch {}
         // Wrong answer - deduct time and potentially hearts
         const newTime = Math.max(0, timeLeft - 5);
         setTimeLeft(newTime);
@@ -1332,6 +1335,8 @@ const JungleLushLevel2 = () => {
     setShowResult(true);
     
     if (isCorrect) {
+      // SFX: correct answer
+      try { MainAudioManager.playEffect('correct_answer'); } catch {}
       // Adventurer attacks first
       setAdventurerState('attack');
       setTimeout(() => {
@@ -1372,6 +1377,8 @@ const JungleLushLevel2 = () => {
         }, 600);
       }
     } else {
+      // SFX: wrong answer
+      try { MainAudioManager.playEffect('wrong_answer'); } catch {}
       // Wrong answer - deduct time and potentially hearts
       const newTime = Math.max(0, timeLeft - 5);
       setTimeLeft(newTime);

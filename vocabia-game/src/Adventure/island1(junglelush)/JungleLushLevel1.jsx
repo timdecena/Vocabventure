@@ -4,6 +4,7 @@ import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent } 
 import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
+import MainAudioManager from '../../sound/MainAudioManager';
 
 // Character Assets
 // Commawidow Animation Frames
@@ -962,7 +963,14 @@ const JungleLushLevel1 = () => {
   const [gameOver, setGameOver] = useState(false);
   const [showClickPrompt, setShowClickPrompt] = useState(false);
   const [showQuit, setShowQuit] = useState(false);
-  
+
+  // Play global level completed sound when victory triggers
+  useEffect(() => {
+    if (victory) {
+      try { MainAudioManager.playEffect('level_completed'); } catch {}
+    }
+  }, [victory]);
+
   // New gameplay states
   const [selectedLetters, setSelectedLetters] = useState([]);
   const [availableLetters, setAvailableLetters] = useState([]);
@@ -1073,6 +1081,8 @@ const JungleLushLevel1 = () => {
     setShowResult(true);
 
     if (isCorrect) {
+      // SFX: correct answer
+      try { MainAudioManager.playEffect('correct_answer'); } catch {}
       // Correct answer - attack monster
       setAdventurerState('attack');
       setTimeout(() => {
@@ -1101,6 +1111,8 @@ const JungleLushLevel1 = () => {
         }, 600);
       }
     } else {
+      // SFX: wrong answer
+      try { MainAudioManager.playEffect('wrong_answer'); } catch {}
       // Wrong answer - deduct 5 seconds and damage player if time runs out
       const newTime = Math.max(0, timeLeft - 5);
       setTimeLeft(newTime);
@@ -1168,6 +1180,8 @@ const JungleLushLevel1 = () => {
       setShowResult(true);
 
       if (isCorrect) {
+        // SFX: correct answer
+        try { MainAudioManager.playEffect('correct_answer'); } catch {}
         // Correct answer - attack monster
         setAdventurerState('attack');
         setTimeout(() => {
@@ -1196,6 +1210,8 @@ const JungleLushLevel1 = () => {
           }, 600);
         }
       } else {
+        // SFX: wrong answer
+        try { MainAudioManager.playEffect('wrong_answer'); } catch {}
         // Wrong answer - deduct 5 seconds
         const newTime = Math.max(0, timeLeft - 5);
         setTimeLeft(newTime);
