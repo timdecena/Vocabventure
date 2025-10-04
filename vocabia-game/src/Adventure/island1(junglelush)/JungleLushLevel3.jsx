@@ -1082,6 +1082,13 @@ const JungleLushLevel3 = () => {
   const [monsterDamaged, setMonsterDamaged] = useState(false);
   const [victory, setVictory] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+
+  // Play level completed sound when victory triggers
+  useEffect(() => {
+    if (victory) {
+      try { MainAudioManager.playEffect('level_completed'); } catch {}
+    }
+  }, [victory]);
   const [showClickPrompt, setShowClickPrompt] = useState(false);
   const [showQuit, setShowQuit] = useState(false);
   const idleTimeout = useRef(null);
@@ -1153,9 +1160,9 @@ const JungleLushLevel3 = () => {
     };
   }, [dialogueIdx, phase]);
 
-  // Speak preplural dialogue when it changes
+  // Speak prepluribog dialogue when it changes
   useEffect(() => {
-    if (phase === 'preplural' && prePluribogDialogue[prePluribogDialogueIdx]) {
+    if (phase === 'prepluribog' && prePluribogDialogue[prePluribogDialogueIdx]) {
       const dialogue = prePluribogDialogue[prePluribogDialogueIdx];
       const speaker = dialogue.speaker === 'User' ? 'Adventurer' : dialogue.speaker;
       TextToSpeechManager.speak(dialogue.text, speaker);

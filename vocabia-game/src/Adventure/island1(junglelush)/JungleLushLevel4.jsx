@@ -1207,6 +1207,13 @@ const JungleLushLevel4 = () => {
   const [victory, setVictory] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [showClickPrompt, setShowClickPrompt] = useState(false);
+
+  // Play level completed sound when victory triggers
+  useEffect(() => {
+    if (victory) {
+      try { MainAudioManager.playEffect('level_completed'); } catch {}
+    }
+  }, [victory]);
   const [showQuit, setShowQuit] = useState(false);
   const idleTimeout = useRef(null);
   const [commawidowState, setCommawidowState] = useState('idle');
