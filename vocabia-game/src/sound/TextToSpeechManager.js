@@ -15,13 +15,37 @@ class TextToSpeechManager {
     this.voices = [];
     this.enabled = true;
     this.currentUtterance = null;
+    this.voicesLoaded = false;
     this.loadSettings();
-    this.loadVoices();
+    
+    // Initialize voices with multiple attempts
+    this.initializeVoices();
+  }
 
-    // Load voices when they become available
+  initializeVoices() {
+    // Try to load voices immediately
+    this.loadVoices();
+    
+    // Set up voice loading event
     if (this.synth.onvoiceschanged !== undefined) {
-      this.synth.onvoiceschanged = () => this.loadVoices();
+      this.synth.onvoiceschanged = () => {
+        this.loadVoices();
+      };
     }
+    
+    // Fallback: Try loading voices after a delay
+    setTimeout(() => {
+      if (!this.voicesLoaded || this.voices.length === 0) {
+        this.loadVoices();
+      }
+    }, 100);
+    
+    // Another fallback after 500ms
+    setTimeout(() => {
+      if (!this.voicesLoaded || this.voices.length === 0) {
+        this.loadVoices();
+      }
+    }, 500);
   }
 
   loadSettings() {
@@ -44,7 +68,12 @@ class TextToSpeechManager {
   }
 
   loadVoices() {
-    this.voices = this.synth.getVoices();
+    const voices = this.synth.getVoices();
+    if (voices.length > 0) {
+      this.voices = voices;
+      this.voicesLoaded = true;
+      console.log('[TTS] Loaded', voices.length, 'voices');
+    }
   }
 
   // Character voice profiles with fallback options
@@ -144,7 +173,22 @@ class TextToSpeechManager {
   }
 
   speak(text, characterName = 'System', onEnd = null) {
-    if (!this.enabled || !text) return;
+    if (!this.enabled || !text) {
+      console.log('[TTS] Skipped - enabled:', this.enabled, 'text:', !!text);
+      return;
+    }
+
+    // Ensure voices are loaded
+    if (!this.voicesLoaded || this.voices.length === 0) {
+      console.log('[TTS] Voices not loaded yet, attempting to load...');
+      this.loadVoices();
+      
+      // If still no voices, try again after a short delay
+      if (this.voices.length === 0) {
+        setTimeout(() => this.speak(text, characterName, onEnd), 200);
+        return;
+      }
+    }
 
     // Cancel any ongoing speech immediately
     this.stop();
@@ -157,7 +201,11 @@ class TextToSpeechManager {
 
         if (voiceConfig.voice) {
           utterance.voice = voiceConfig.voice;
+          console.log('[TTS] Speaking as', characterName, 'with voice:', voiceConfig.voice.name);
+        } else {
+          console.warn('[TTS] No voice found for', characterName, '- using default');
         }
+        
         utterance.pitch = voiceConfig.pitch;
         utterance.rate = voiceConfig.rate;
         utterance.volume = voiceConfig.volume;
@@ -177,7 +225,7 @@ class TextToSpeechManager {
         this.currentUtterance = utterance;
         this.synth.speak(utterance);
       } catch (error) {
-        console.warn('[TTS] Failed to speak:', error);
+        console.error('[TTS] Failed to speak:', error);
         if (onEnd) onEnd();
       }
     }, 50);
@@ -218,8 +266,28 @@ class TextToSpeechManager {
     return this.synth.speaking;
   }
 
+  // Diagnostic function
+  getDiagnostics() {
+    return {
+      enabled: this.enabled,
+      voicesLoaded: this.voicesLoaded,
+      voiceCount: this.voices.length,
+      isSpeaking: this.synth.speaking,
+      isPaused: this.synth.paused,
+      pending: this.synth.pending,
+      availableVoices: this.voices.map(v => ({
+        name: v.name,
+        lang: v.lang,
+        default: v.default
+      }))
+    };
+  }
+
   // Test voice for a character
   testVoice(characterName) {
+    console.log('[TTS] Testing voice for', characterName);
+    console.log('[TTS] Diagnostics:', this.getDiagnostics());
+    
     const testPhrases = {
       'Adventurer': 'I am ready for this adventure! Let\'s defeat these monsters!',
       'Wizard': 'Welcome, young adventurer. Your journey begins here.',
