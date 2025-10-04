@@ -5,6 +5,7 @@ import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import MainAudioManager from '../../sound/MainAudioManager';
+import TextToSpeechManager from '../../sound/TextToSpeechManager';
 
 // Character Assets
 // Commawidow Animation Frames
@@ -1029,10 +1030,26 @@ const JungleLushLevel1 = () => {
     }
   }, [phase, timeLeft, victory, gameOver, hearts]);
 
+  // Speak dialogue when it changes
+  useEffect(() => {
+    if (phase === 'dialogue' && dialogueSequence[dialogueIdx]) {
+      const dialogue = dialogueSequence[dialogueIdx];
+      // Map "User" to "Adventurer" for voice selection
+      const speaker = dialogue.speaker === 'User' ? 'Adventurer' : dialogue.speaker;
+      TextToSpeechManager.speak(dialogue.text, speaker);
+    }
+    return () => {
+      // Stop speech when component unmounts or dialogue changes
+      TextToSpeechManager.stop();
+    };
+  }, [dialogueIdx, phase]);
+
   // Dialogue click handler
   const handleDialogueClick = () => {
     setShowClickPrompt(false);
     if (idleTimeout.current) clearTimeout(idleTimeout.current);
+    // Stop current speech when advancing dialogue
+    TextToSpeechManager.stop();
     if (dialogueIdx < dialogueSequence.length - 1) {
       setDialogueIdx(dialogueIdx + 1);
     } else {

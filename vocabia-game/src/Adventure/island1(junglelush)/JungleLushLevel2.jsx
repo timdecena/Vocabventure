@@ -5,6 +5,7 @@ import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import MainAudioManager from '../../sound/MainAudioManager';
+import TextToSpeechManager from '../../sound/TextToSpeechManager';
 
 // Character Assets
 // Orc Animation Frames
@@ -1174,10 +1175,35 @@ const JungleLushLevel2 = () => {
     }
   }, [currentQuestion, phase, monster]);
 
+  // Speak dialogue when it changes
+  useEffect(() => {
+    if (phase === 'dialogue' && dialogueSequence[dialogueIdx]) {
+      const dialogue = dialogueSequence[dialogueIdx];
+      const speaker = dialogue.speaker === 'User' ? 'Adventurer' : dialogue.speaker;
+      TextToSpeechManager.speak(dialogue.text, speaker);
+    }
+    return () => {
+      TextToSpeechManager.stop();
+    };
+  }, [dialogueIdx, phase]);
+
+  // Speak pretense dialogue when it changes
+  useEffect(() => {
+    if (phase === 'pretense' && preTensaphantDialogue[preTenseDialogueIdx]) {
+      const dialogue = preTensaphantDialogue[preTenseDialogueIdx];
+      const speaker = dialogue.speaker === 'User' ? 'Adventurer' : dialogue.speaker;
+      TextToSpeechManager.speak(dialogue.text, speaker);
+    }
+    return () => {
+      TextToSpeechManager.stop();
+    };
+  }, [preTenseDialogueIdx, phase]);
+
   // Dialogue click handler
   const handleDialogueClick = () => {
     setShowClickPrompt(false);
     if (idleTimeout.current) clearTimeout(idleTimeout.current);
+    TextToSpeechManager.stop();
     if (phase === 'dialogue') {
       if (dialogueIdx < dialogueSequence.length - 1) {
         setDialogueIdx(dialogueIdx + 1);

@@ -20,10 +20,13 @@ import {
   MusicOff as MusicOffIcon,
   GraphicEq as GraphicEqIcon,
   Settings as SettingsIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  RecordVoiceOver as RecordVoiceOverIcon,
+  VoiceOverOff as VoiceOverOffIcon
 } from '@mui/icons-material';
 import MainAudioManager from '../sound/MainAudioManager';
 import AdventureAudioManager from '../sound/AdventureAudioManager';
+import TextToSpeechManager from '../sound/TextToSpeechManager';
 
 const SiteAudioControls = () => {
   const location = useLocation();
@@ -37,6 +40,9 @@ const SiteAudioControls = () => {
   // Adventure audio states
   const [adventureBgmEnabled, setAdventureBgmEnabled] = useState(AdventureAudioManager.isBgmEnabled());
   const [adventureBgmVolume, setAdventureBgmVolume] = useState(AdventureAudioManager.getBgmVolume());
+  
+  // TTS state
+  const [ttsEnabled, setTtsEnabled] = useState(TextToSpeechManager.isEnabled());
 
   // Compute after hooks to avoid conditional hook calls
   const isFPOW = /\/4pic1word(\/|$)/.test(location.pathname || '');
@@ -60,6 +66,9 @@ const SiteAudioControls = () => {
       // Sync Adventure audio states
       setAdventureBgmEnabled(AdventureAudioManager.isBgmEnabled());
       setAdventureBgmVolume(AdventureAudioManager.getBgmVolume());
+      
+      // Sync TTS state
+      setTtsEnabled(TextToSpeechManager.isEnabled());
     }, 500);
     return () => clearInterval(id);
   }, []);
@@ -94,6 +103,13 @@ const SiteAudioControls = () => {
   const handleAdventureBgmVolumeChange = (e, v) => {
     AdventureAudioManager.setBgmVolume(v);
     setAdventureBgmVolume(v);
+  };
+
+  // TTS handler
+  const handleToggleTts = () => {
+    const newState = !ttsEnabled;
+    TextToSpeechManager.setEnabled(newState);
+    setTtsEnabled(newState);
   };
 
   const handleTogglePanel = () => setIsExpanded(prev => !prev);
@@ -135,7 +151,7 @@ const SiteAudioControls = () => {
               <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)', my: 1 }} />
 
               {/* Sound Effects */}
-              <Box>
+              <Box sx={{ mb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <IconButton onClick={handleToggleEffects} size="small" sx={{ color: effectsEnabled ? '#2196F3' : '#f44336', mr: 1, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
                     <GraphicEqIcon />
@@ -147,6 +163,21 @@ const SiteAudioControls = () => {
                   <Slider value={effectsVolume} onChange={handleEffectsVolumeChange} min={0} max={1} step={0.1} disabled={!effectsEnabled} size="small" sx={{ flex: 1, mx: 1 }}/>
                   <VolumeUpIcon sx={{ fontSize: 16, ml: 1, opacity: 0.7 }} />
                 </Box>
+              </Box>
+
+              <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)', my: 1 }} />
+
+              {/* Text-to-Speech */}
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <IconButton onClick={handleToggleTts} size="small" sx={{ color: ttsEnabled ? '#FF9800' : '#f44336', mr: 1, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
+                    {ttsEnabled ? <RecordVoiceOverIcon /> : <VoiceOverOffIcon />}
+                  </IconButton>
+                  <Typography variant="body2" sx={{ fontWeight: 500, flex: 1 }}>Voice Narration</Typography>
+                </Box>
+                <Typography variant="caption" sx={{ pl: 5, opacity: 0.7, display: 'block' }}>
+                  Dialogue text-to-speech
+                </Typography>
               </Box>
             </>
           ) : (

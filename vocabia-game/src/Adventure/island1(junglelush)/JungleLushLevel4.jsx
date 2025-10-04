@@ -5,6 +5,7 @@ import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import MainAudioManager from '../../sound/MainAudioManager';
+import TextToSpeechManager from '../../sound/TextToSpeechManager';
 
 // Import sprite assets
 import WizardIdle1 from '../AdventureAssets/Wizard/Idle_1.png';
@@ -1265,9 +1266,34 @@ const JungleLushLevel4 = () => {
     }
   }, [currentQuestion, phase, monster]);
 
+  // Speak dialogue when it changes
+  useEffect(() => {
+    if (phase === 'dialogue' && dialogueSequence[dialogueIdx]) {
+      const dialogue = dialogueSequence[dialogueIdx];
+      const speaker = dialogue.speaker === 'User' ? 'Adventurer' : dialogue.speaker === 'System' ? 'System' : dialogue.speaker;
+      TextToSpeechManager.speak(dialogue.text, speaker);
+    }
+    return () => {
+      TextToSpeechManager.stop();
+    };
+  }, [dialogueIdx, phase]);
+
+  // Speak victory dialogue when it changes
+  useEffect(() => {
+    if (phase === 'victoryDialogue' && victoryDialogue[victoryDialogueIdx]) {
+      const dialogue = victoryDialogue[victoryDialogueIdx];
+      const speaker = dialogue.speaker === 'User' ? 'Adventurer' : dialogue.speaker;
+      TextToSpeechManager.speak(dialogue.text, speaker);
+    }
+    return () => {
+      TextToSpeechManager.stop();
+    };
+  }, [victoryDialogueIdx, phase]);
+
   const handleDialogueClick = () => {
     setShowClickPrompt(false);
     if (idleTimeout.current) clearTimeout(idleTimeout.current);
+    TextToSpeechManager.stop();
     if (phase === 'dialogue') {
       if (dialogueIdx < dialogueSequence.length - 1) {
         setDialogueIdx(dialogueIdx + 1);
