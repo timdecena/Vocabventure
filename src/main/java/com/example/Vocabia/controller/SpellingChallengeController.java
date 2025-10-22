@@ -61,13 +61,16 @@ private String uploadDir;  // ✅ inject property here
 public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
     try {
         String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        Path audioDir = Paths.get(uploadDir);  // ✅ use injected property
+        
+        // ✅ Save inside audio folder
+        Path audioDir = Paths.get(uploadDir, "audio");
         Files.createDirectories(audioDir);
 
         Path filePath = audioDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        String fileUrl = "/audio/spelling/" + filename;
+        // ✅ Match the public URL path to Nginx alias
+        String fileUrl = "/audio/" + filename;
         return ResponseEntity.ok(Map.of("url", fileUrl));
     } catch (IOException e) {
         e.printStackTrace();
