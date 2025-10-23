@@ -10,9 +10,10 @@ import {
   Alert
 } from '@mui/material';
 import { styled } from '@mui/system';
-import api from "../api/api"; //
+import api from "../api/api";
 import MainAudioManager from "../sound/MainAudioManager";
-// Arcade Neon wrapper with animated grid background
+
+// --- Arcade Background ---
 const ArcadeWrapper = styled(Box)({
   minHeight: '100vh',
   width: '100%',
@@ -25,7 +26,6 @@ const ArcadeWrapper = styled(Box)({
   background: '#18181b',
   position: 'relative',
   zIndex: 0,
-  // Neon grid overlay
   backgroundImage: `
     repeating-linear-gradient(90deg, rgba(0,234,255,0.18) 0 2px, transparent 2px 80px),
     repeating-linear-gradient(0deg, rgba(0,234,255,0.18) 0 2px, transparent 2px 80px)
@@ -34,7 +34,6 @@ const ArcadeWrapper = styled(Box)({
   animation: 'arcadeGridMove 12s linear infinite',
 });
 
-// Floating neon particles
 const NeonParticle = styled('div')(({ x, y, size, duration, delay, color }) => ({
   position: 'absolute',
   left: `${x}%`,
@@ -118,7 +117,7 @@ const ArcadeTextField = styled(TextField)({
   },
 });
 
-// Generate neon particles
+// --- Neon particles ---
 const neonParticles = Array.from({ length: 25 }).map((_, i) => ({
   id: i,
   x: Math.random() * 100,
@@ -129,166 +128,174 @@ const neonParticles = Array.from({ length: 25 }).map((_, i) => ({
   color: Math.random() > 0.5 ? '#00eaff' : '#ff00c8',
 }));
 
+// --- Component ---
 const Login = ({ setIsAuthenticated, setRole }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [showLogin, setShowLogin] = useState(false); // landing page toggle
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  try {
-    const res = await api.post("/api/auth/login", form); // 👈 no hardcoded localhost
-    const data = res.data; // axios puts the response JSON here
+    e.preventDefault();
+    setError('');
+    try {
+      const res = await api.post("/api/auth/login", form);
+      const data = res.data;
 
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('role', data.role);
-    localStorage.setItem('userId', data.userId || data.email || data.sub || 'user-' + Date.now());
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
+      localStorage.setItem('userId', data.userId || data.email || 'user-' + Date.now());
 
-    setIsAuthenticated(true);
-    setRole(data.role);
-    if (data.role === 'STUDENT') {
-      // Start site background music immediately after successful student login
-      try { MainAudioManager.playBgm(); } catch {}
-      navigate('/student-home');
-    } else if (data.role === 'TEACHER') {
-      navigate('/teacher-home');
+      setIsAuthenticated(true);
+      setRole(data.role);
+      if (data.role === 'STUDENT') {
+        try { MainAudioManager.playBgm(); } catch {}
+        navigate('/student-home');
+      } else if (data.role === 'TEACHER') {
+        navigate('/teacher-home');
+      }
+    } catch (err) {
+      if (err.response) {
+        setError(typeof err.response.data === 'string'
+          ? err.response.data
+          : (err.response.data.message || 'Login failed'));
+      } else setError('Network error');
     }
-  } catch (err) {
-    if (err.response) {
-      // Server responded with error
-      setError(typeof err.response.data === 'string'
-        ? err.response.data
-        : (err.response.data.message || 'Login failed'));
-    } else {
-      // Network or unexpected error
-      setError('Network error');
-    }
-  }
-};
+  };
 
   return (
     <ArcadeWrapper>
       {neonParticles.map(particle => <NeonParticle key={particle.id} {...particle} />)}
 
-      <ArcadePaper>
-        <Typography variant="h3" align="center" sx={{
-          color: '#fff',
-          fontFamily: "'Press Start 2P', cursive",
-          fontSize: '1.5rem',
-          mb: 4,
-          textShadow: '0 0 4px #fff, 0 0 12px #ff00c8, 0 0 24px #ff00c8',
-        }}>
-          VocabVenture
-        </Typography>
+      {!showLogin ? (
+        // --- Landing Page ---
+        <ArcadePaper sx={{ textAlign: 'center', p: 6 }}>
+          <Typography variant="h3" sx={{
+            color: '#fff',
+            fontFamily: "'Press Start 2P', cursive",
+            fontSize: '1.5rem',
+            mb: 4,
+            textShadow: '0 0 4px #fff, 0 0 12px #ff00c8, 0 0 24px #ff00c8',
+          }}>
+            VocabVenture
+          </Typography>
+          <Typography sx={{
+            color: '#fff',
+            fontFamily: "'Press Start 2P', cursive",
+            fontSize: '0.7rem',
+            mb: 4,
+            lineHeight: 1.8,
+          }}>
+            Welcome to <span style={{ color: '#00eaff' }}>VocabVenture</span> — a gamified spelling
+            and vocabulary app that helps students <span style={{ color: '#ff00c8' }}>learn and have fun </span> 
+              at the same time! <br/><br/>
+            Practice words, earn points, and level up your language skills in an exciting arcade style adventure.
+          </Typography>
+          <ArcadeButton onClick={() => setShowLogin(true)}>START</ArcadeButton>
+        </ArcadePaper>
+      ) : (
+        // --- Login Form ---
+        <ArcadePaper>
+          <Typography variant="h3" align="center" sx={{
+            color: '#fff',
+            fontFamily: "'Press Start 2P', cursive",
+            fontSize: '1.5rem',
+            mb: 4,
+            textShadow: '0 0 4px #fff, 0 0 12px #ff00c8, 0 0 24px #ff00c8',
+          }}>
+            VocabVenture Login
+          </Typography>
 
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={3}>
-            <ArcadeTextField
-              name="email"
-              type="email"
-              label="Email *"
-              variant="filled"
-              fullWidth
-              required
-              value={form.email}
-              onChange={handleChange}
-            />
-            <ArcadeTextField
-              name="password"
-              type="password"
-              label="Password *"
-              variant="filled"
-              fullWidth
-              required
-              value={form.password}
-              onChange={handleChange}
-            />
-            <ArcadeButton type="submit" fullWidth>
-              LOGIN
-            </ArcadeButton>
-            {error && (
-              <Alert 
-                severity="error" 
-                sx={{ 
-                  background: '#ff00c833', 
-                  border: '2px solid #ff00c8',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontFamily: "'Press Start 2P', cursive",
-                  fontSize: '0.7rem',
-                  boxShadow: '0 0 16px #ff00c880',
-                  '& .MuiAlert-icon': {
-                    color: '#ff00c8',
-                    filter: 'drop-shadow(0 0 8px #ff00c8)'
-                  }
-                }}
-              >
-                {error}
-              </Alert>
-            )}
-            <Typography variant="body2" align="center" sx={{ 
-              color: '#fff', 
-              fontFamily: "'Press Start 2P', cursive",
-              fontSize: '0.7rem',
-              mt: 2
-            }}>
-              Don't have an account?&nbsp;
-              <Link 
-                to="/register" 
-                style={{ 
-                  color: '#00eaff', 
-                  textDecoration: 'none',
-                  textShadow: '0 0 8px #00eaff',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.color = '#ff00c8';
-                  e.target.style.textShadow = '0 0 8px #ff00c8';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.color = '#00eaff';
-                  e.target.style.textShadow = '0 0 8px #00eaff';
-                }}
-              >
-                Register here
-              </Link>
-            </Typography>
-          </Stack>
-        </form>
-      </ArcadePaper>
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={3}>
+              <ArcadeTextField
+                name="email"
+                type="email"
+                label="Email *"
+                variant="filled"
+                fullWidth
+                required
+                value={form.email}
+                onChange={handleChange}
+              />
+              <ArcadeTextField
+                name="password"
+                type="password"
+                label="Password *"
+                variant="filled"
+                fullWidth
+                required
+                value={form.password}
+                onChange={handleChange}
+              />
+              <ArcadeButton type="submit" fullWidth>
+                LOGIN
+              </ArcadeButton>
+              {error && (
+                <Alert 
+                  severity="error" 
+                  sx={{ 
+                    background: '#ff00c833', 
+                    border: '2px solid #ff00c8',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontFamily: "'Press Start 2P', cursive",
+                    fontSize: '0.7rem',
+                    boxShadow: '0 0 16px #ff00c880',
+                    '& .MuiAlert-icon': {
+                      color: '#ff00c8',
+                      filter: 'drop-shadow(0 0 8px #ff00c8)'
+                    }
+                  }}
+                >
+                  {error}
+                </Alert>
+              )}
+              <Typography variant="body2" align="center" sx={{ 
+                color: '#fff', 
+                fontFamily: "'Press Start 2P', cursive",
+                fontSize: '0.7rem',
+                mt: 2
+              }}>
+                Don't have an account?&nbsp;
+                <Link 
+                  to="/register" 
+                  style={{ 
+                    color: '#00eaff', 
+                    textDecoration: 'none',
+                    textShadow: '0 0 8px #00eaff',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.color = '#ff00c8';
+                    e.target.style.textShadow = '0 0 8px #ff00c8';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.color = '#00eaff';
+                    e.target.style.textShadow = '0 0 8px #00eaff';
+                  }}
+                >
+                  Register here
+                </Link>
+              </Typography>
+            </Stack>
+          </form>
+        </ArcadePaper>
+      )}
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
         @keyframes arcadeGridMove {
-          0% {
-            background-position: 0 0, 0 0;
-          }
-          100% {
-            background-position: 80px 0, 0 80px;
-          }
+          0% { background-position: 0 0, 0 0; }
+          100% { background-position: 80px 0, 0 80px; }
         }
 
         @keyframes neonFloat {
-          0% {
-            transform: translate(0, 0) scale(1);
-            opacity: 0.7;
-          }
-          100% {
-            transform: translate(30px, -30px) scale(1.3);
-            opacity: 1;
-          }
+          0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+          100% { transform: translate(30px, -30px) scale(1.3); opacity: 1; }
         }
       `}</style>
     </ArcadeWrapper>
