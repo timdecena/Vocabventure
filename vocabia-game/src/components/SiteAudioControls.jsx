@@ -11,7 +11,8 @@ import {
   Tooltip,
   Collapse,
   Typography,
-  Divider
+  Divider,
+  Button
 } from '@mui/material';
 import {
   VolumeUp as VolumeUpIcon,
@@ -27,6 +28,7 @@ import {
 import MainAudioManager from '../sound/MainAudioManager';
 import AdventureAudioManager from '../sound/AdventureAudioManager';
 import TextToSpeechManager from '../sound/TextToSpeechManager';
+import AudioUtils from '../sound/AudioUtils';
 
 const SiteAudioControls = () => {
   const location = useLocation();
@@ -76,6 +78,14 @@ const SiteAudioControls = () => {
   const handleToggleBgm = () => {
     const newState = MainAudioManager.toggleBgm();
     setBgmEnabled(newState);
+    
+    // If muting, force stop ALL audio to ensure nothing keeps playing
+    if (!newState) {
+      console.log('[SiteAudioControls] Muting - force stopping ALL audio');
+      AudioUtils.forceStopAllAudio();
+      // Also update Adventure state to reflect mute
+      setAdventureBgmEnabled(false);
+    }
   };
 
   const handleToggleEffects = () => {
@@ -86,6 +96,14 @@ const SiteAudioControls = () => {
   const handleBgmVolumeChange = (e, v) => {
     MainAudioManager.setBgmVolume(v);
     setBgmVolume(v);
+    // If volume is set to 0, effectively mute
+    if (v === 0 && bgmEnabled) {
+      MainAudioManager.setBgmEnabled(false);
+      setBgmEnabled(false);
+    } else if (v > 0 && !bgmEnabled) {
+      MainAudioManager.setBgmEnabled(true);
+      setBgmEnabled(true);
+    }
   };
 
   const handleEffectsVolumeChange = (e, v) => {
@@ -98,11 +116,27 @@ const SiteAudioControls = () => {
     const newState = !adventureBgmEnabled;
     AdventureAudioManager.setBgmEnabled(newState);
     setAdventureBgmEnabled(newState);
+    
+    // If muting, force stop ALL audio to ensure nothing keeps playing
+    if (!newState) {
+      console.log('[SiteAudioControls] Muting Adventure - force stopping ALL audio');
+      AudioUtils.forceStopAllAudio();
+      // Also update Main state to reflect mute
+      setBgmEnabled(false);
+    }
   };
 
   const handleAdventureBgmVolumeChange = (e, v) => {
     AdventureAudioManager.setBgmVolume(v);
     setAdventureBgmVolume(v);
+    // If volume is set to 0, effectively mute
+    if (v === 0 && adventureBgmEnabled) {
+      AdventureAudioManager.setBgmEnabled(false);
+      setAdventureBgmEnabled(false);
+    } else if (v > 0 && !adventureBgmEnabled) {
+      AdventureAudioManager.setBgmEnabled(true);
+      setAdventureBgmEnabled(true);
+    }
   };
 
   // TTS handler
@@ -113,6 +147,20 @@ const SiteAudioControls = () => {
   };
 
   const handleTogglePanel = () => setIsExpanded(prev => !prev);
+
+  // Debug function to check audio status
+  const handleDebugAudio = () => {
+    console.log('=== AUDIO DEBUG ===');
+    AudioUtils.getAudioStatus();
+    AudioUtils.getActiveAudioManager();
+    console.log('UI States:', {
+      bgmEnabled,
+      adventureBgmEnabled,
+      bgmVolume,
+      adventureBgmVolume
+    });
+    console.log('===================');
+  };
 
   // After hooks have been declared, it's safe to conditionally render nothing on FPOW routes
   if (isFPOW) return null;
@@ -179,6 +227,19 @@ const SiteAudioControls = () => {
                   Dialogue text-to-speech
                 </Typography>
               </Box>
+              
+              {process.env.NODE_ENV === 'development' && (
+                <Box sx={{ mt: 2 }}>
+                  <Divider sx={{ backgroundColor: 'rgba(255,255,255,0.1)', my: 1 }} />
+                  <Button
+                    size="small"
+                    onClick={handleDebugAudio}
+                    sx={{ color: 'orange', fontSize: '0.7rem' }}
+                  >
+                    🐛 Debug Audio
+                  </Button>
+                </Box>
+              )}
             </>
           ) : (
             // Site Audio Controls

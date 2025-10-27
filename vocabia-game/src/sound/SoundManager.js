@@ -43,6 +43,22 @@ class SoundManager {
 
     // Preload a few instances per effect for overlapping playback
     this._preloaded = false;
+    this._initialized = false;
+    this._firstGestureBound = false;
+    
+    this.initialize();
+  }
+
+  initialize() {
+    if (this._initialized) return;
+    
+    // Initialize on next tick to allow DOM to be ready
+    setTimeout(() => {
+      this.preloadEffects();
+      this.ensureBgm();
+      this._initialized = true;
+      console.log('[SoundManager] Initialized successfully');
+    }, 100);
   }
 
   // Load audio settings from localStorage
@@ -57,7 +73,7 @@ class SoundManager {
         this.effectsVolume = parsed.effectsVolume ?? 0.9;
       }
     } catch (e) {
-      console.warn('Failed to load audio settings:', e);
+      console.warn('[SoundManager] Failed to load audio settings:', e);
     }
   }
 
@@ -118,11 +134,27 @@ class SoundManager {
     try {
       this.ensureBgm();
       if (this.bgm && this.bgm.paused && this.bgmEnabled) {
+        this.bgm.volume = this.bgmVolume;
         await this.bgm.play();
+        console.log('[SoundManager] BGM started successfully');
       }
     } catch (e) {
-      // Autoplay might be blocked; will succeed on next user interaction
-      console.warn('BGM play blocked until user gesture:', e);
+      console.warn('[SoundManager] BGM autoplay blocked, will retry on user gesture:', e.message);
+      // Attach a one-time gesture listener if not yet bound
+      if (!this._firstGestureBound) {
+        this._firstGestureBound = true;
+        const resume = () => {
+          this.playBgm().finally(() => {
+            document.removeEventListener('click', resume, true);
+            document.removeEventListener('keydown', resume, true);
+            document.removeEventListener('touchstart', resume, true);
+            this._firstGestureBound = false;
+          });
+        };
+        document.addEventListener('click', resume, true);
+        document.addEventListener('keydown', resume, true);
+        document.addEventListener('touchstart', resume, true);
+      }
     }
   }
 
@@ -153,8 +185,8 @@ class SoundManager {
   // Volume controls
   setBgmVolume(volume) {
     this.bgmVolume = Math.max(0, Math.min(1, volume));
-    if (this.bgm) {
-      this.bgm.volume = this.bgmEnabled ? this.bgmVolume : 0;
+    if (this.bgm && this.bgmEnabled) {
+      this.bgm.volume = this.bgmVolume;
     }
     this.saveSettings();
   }
@@ -168,14 +200,18 @@ class SoundManager {
   toggleBgm() {
     this.bgmEnabled = !this.bgmEnabled;
     if (this.bgm) {
-      this.bgm.volume = this.bgmEnabled ? this.bgmVolume : 0;
-      if (this.bgmEnabled && this.bgm.paused) {
-        this.bgm.play().catch(() => {});
-      } else if (!this.bgmEnabled) {
+      if (this.bgmEnabled) {
+        this.bgm.volume = this.bgmVolume;
+        if (this.bgm.paused) {
+          this.bgm.play().catch(() => {});
+        }
+      } else {
+        this.bgm.volume = 0;
         this.bgm.pause();
       }
     }
     this.saveSettings();
+    console.log('[SoundManager] BGM enabled:', this.bgmEnabled);
     return this.bgmEnabled;
   }
 
@@ -235,11 +271,11 @@ class SoundManager {
 
     // Find an available audio instance or clone
     const pool = this.effects[key];
-    let audio = pool.find((a) => a.paused);
+    let audio = pool.find((a) => a.paused || a.ended);
     if (!audio) {
       audio = new Audio(FILES[key]);
-      audio.addEventListener('error', () => {
-        console.warn(`[SoundManager] Effect audio failed to load for key "${key}":`, audio?.src);
+      audio.addEventListener('error', (e) => {
+        console.warn(`[SoundManager] Effect audio failed to load for key "${key}":`, audio?.src, e);
       });
       pool.push(audio);
     }
@@ -250,10 +286,12 @@ class SoundManager {
       if (playPromise && typeof playPromise.catch === 'function') {
         playPromise.catch((err) => {
           // Avoid unhandled promise rejection (e.g., unsupported source or autoplay restrictions)
-          console.warn('[SoundManager] Effect play failed:', err);
+          console.warn('[SoundManager] Effect play failed:', name, err.message);
         });
       }
-    } catch { /* ignore */ }
+    } catch (e) {
+      console.warn('[SoundManager] Effect play error:', name, e.message);
+    }
   }
 }
 

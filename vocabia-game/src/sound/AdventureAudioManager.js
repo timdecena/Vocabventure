@@ -22,7 +22,20 @@ class AdventureAudioManager {
     this.bgmEnabled = true;
     this.bgmVolume = 0.5;
     this._firstGestureBound = false;
+    this._initialized = false;
     this.loadSettings();
+    this.initialize();
+  }
+
+  initialize() {
+    if (this._initialized) return;
+    
+    // Initialize on next tick to allow DOM to be ready
+    setTimeout(() => {
+      this.ensureBgm();
+      this._initialized = true;
+      console.log('[AdventureAudioManager] Initialized successfully');
+    }, 100);
   }
 
   loadSettings() {
@@ -30,7 +43,9 @@ class AdventureAudioManager {
       const s = JSON.parse(localStorage.getItem('adventure_audio_settings') || '{}');
       this.bgmEnabled = s.bgmEnabled ?? true;
       this.bgmVolume = s.bgmVolume ?? 0.5;
-    } catch {}
+    } catch (e) {
+      console.warn('[AdventureAudioManager] Failed to load settings:', e);
+    }
   }
 
   saveSettings() {
@@ -56,28 +71,38 @@ class AdventureAudioManager {
 
   async playKey(key) {
     const src = TRACKS[key];
-    if (!src) return;
+    if (!src) {
+      console.warn('[AdventureAudioManager] No track found for key:', key);
+      return;
+    }
+    
     this.ensureBgm();
     try {
       if (this.currentKey !== key) {
         this.currentKey = key;
         this.bgm.src = src;
+        console.log('[AdventureAudioManager] Switched to track:', key);
       }
-      if (this.bgmEnabled) {
+      if (this.bgmEnabled && this.bgm.paused) {
+        this.bgm.volume = this.bgmVolume;
         await this.bgm.play();
+        console.log('[AdventureAudioManager] Playing track:', key);
       }
     } catch (e) {
+      console.warn('[AdventureAudioManager] Autoplay blocked for track:', key, e.message);
       if (!this._firstGestureBound) {
         this._firstGestureBound = true;
         const resume = () => {
           this.playKey(key).finally(() => {
             document.removeEventListener('click', resume, true);
             document.removeEventListener('keydown', resume, true);
+            document.removeEventListener('touchstart', resume, true);
             this._firstGestureBound = false;
           });
         };
         document.addEventListener('click', resume, true);
         document.addEventListener('keydown', resume, true);
+        document.addEventListener('touchstart', resume, true);
       }
     }
   }
@@ -90,20 +115,52 @@ class AdventureAudioManager {
 
   stop() {
     if (this.bgm) {
-      try { this.bgm.pause(); this.bgm.currentTime = 0; } catch {}
+      try { 
+        this.bgm.pause(); 
+        this.bgm.currentTime = 0; 
+        console.log('[AdventureAudioManager] BGM stopped completely');
+      } catch {}
+    }
+  }
+
+  // Force stop all audio - for debugging mute issues
+  forceStopAll() {
+    console.log('[AdventureAudioManager] FORCE STOPPING ALL AUDIO');
+    if (this.bgm) {
+      try {
+        this.bgm.pause();
+        this.bgm.volume = 0;
+        this.bgm.currentTime = 0;
+        console.log('[AdventureAudioManager] BGM force stopped');
+      } catch (e) {
+        console.warn('[AdventureAudioManager] Error force stopping BGM:', e);
+      }
     }
   }
 
   setBgmEnabled(enabled) {
     this.bgmEnabled = !!enabled;
-    if (!this.bgmEnabled) this.pause();
-    else if (this.currentKey) this.playKey(this.currentKey);
+    if (!this.bgmEnabled) {
+      // Force stop everything when disabled
+      this.forceStopAll();
+      console.log('[AdventureAudioManager] BGM DISABLED - force stopped all audio');
+    } else {
+      if (this.bgm) {
+        this.bgm.volume = this.bgmVolume;
+      }
+      if (this.currentKey) {
+        this.playKey(this.currentKey);
+      }
+      console.log('[AdventureAudioManager] BGM ENABLED - volume restored and playing');
+    }
     this.saveSettings();
   }
 
   setBgmVolume(v) {
     this.bgmVolume = Math.max(0, Math.min(1, v));
-    if (this.bgm) this.bgm.volume = this.bgmEnabled ? this.bgmVolume : 0;
+    if (this.bgm && this.bgmEnabled) {
+      this.bgm.volume = this.bgmVolume;
+    }
     this.saveSettings();
   }
 
