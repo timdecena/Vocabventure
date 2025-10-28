@@ -3,8 +3,8 @@ package com.example.Vocabia.controller;
 import com.example.Vocabia.dto.FourPicOneWordDTO;
 import com.example.Vocabia.entity.FourPicOneWord;
 import com.example.Vocabia.service.FourPicOneWordService;
+import com.example.Vocabia.config.ImagePathConfig;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,10 +25,7 @@ import java.util.List;
 public class FourPicOneWordController {
 
     private final FourPicOneWordService service;
-
-    // ✅ Folder where images are stored
-    @Value("${fpow.image.upload-dir:/home/emmanuel/Documents/GitHub/Vocabventure/vocabia-game/public/static/images/Four_Pic_One_Word_Category}")
-    private String uploadDir;
+    private final ImagePathConfig imagePathConfig;
 
     // ✅ GET /api/fpow/categories - Get all available categories
     @GetMapping("/categories")
@@ -97,10 +94,10 @@ public class FourPicOneWordController {
             return ResponseEntity.badRequest().body("You can upload up to 4 images only.");
         }
 
-        // Ensure upload directory exists
-        File dir = new File(uploadDir);
+        // Ensure upload directory exists (handled by ImagePathConfig)
+        File dir = new File(imagePathConfig.getFpowImageDir());
         if (!dir.exists() && !dir.mkdirs()) {
-            return ResponseEntity.status(500).body("Failed to create upload directory.");
+            return ResponseEntity.status(500).body("Failed to create upload directory: " + imagePathConfig.getFpowImageDir());
         }
 
         List<String> imageUrls = new ArrayList<>();
@@ -121,11 +118,14 @@ public class FourPicOneWordController {
             }
 
             // Sanitize original filename to avoid path issues
-            String original = file.getOriginalFilename() == null ? "image" : file.getOriginalFilename();
+            String original = file.getOriginalFilename();
+            if (original == null || original.trim().isEmpty()) {
+                original = "image.jpg";
+            }
             String safeName = original.replaceAll("[^a-zA-Z0-9\\.\\-\\_]", "_");
 
             String filename = System.currentTimeMillis() + "_" + safeName;
-            Path filePath = Paths.get(uploadDir, filename);
+            Path filePath = Paths.get(imagePathConfig.getFpowImagePath(filename));
 
             try {
                 Files.write(filePath, file.getBytes());
@@ -133,8 +133,8 @@ public class FourPicOneWordController {
                 return ResponseEntity.status(500).body("Failed to save uploaded file: " + safeName);
             }
 
-            // The public path your frontend will use
-            String publicPath = "/static/images/Four_Pic_One_Word_Category/" + filename;
+            // Use the centralized URL generation
+            String publicPath = imagePathConfig.getFpowImageUrl(filename);
             imageUrls.add(publicPath);
         }
 
