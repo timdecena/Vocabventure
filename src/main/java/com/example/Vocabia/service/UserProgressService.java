@@ -28,6 +28,33 @@ public class UserProgressService {
    // }
 
     public UserProgress getOrCreateProgress(User user, String category) {
+        return getOrCreateProgress(user, category, null);
+    }
+    
+    public UserProgress getOrCreateProgress(User user, String category, Long classroomId) {
+        // If classroomId is provided, use classroom-specific progress
+        if (classroomId != null) {
+            return repo.findByUserAndCategoryAndClassroomId(user, category, classroomId).orElseGet(() -> {
+                LocalDateTime now = LocalDateTime.now();
+                UserProgress np = UserProgress.builder()
+                        .user(user)
+                        .category(category)
+                        .classroomId(classroomId)
+                        .currentLevel(1)
+                        .level(1)
+                        .livesLeft(3)
+                        .createdAt(now)
+                        .lastActive(now)
+                        .lastPlayedCategory(category)
+                        .lastPlayedLevel(1)
+                        .levelCompletionCounts("") // Initialize with empty string
+                        .build();
+                System.out.println("✨ Created new classroom-specific progress for classroom ID: " + classroomId);
+                return repo.save(np);
+            });
+        }
+        
+        // Fallback to non-classroom-specific progress (for backward compatibility)
         return repo.findByUserAndCategory(user, category).orElseGet(() -> {
             LocalDateTime now = LocalDateTime.now();
             UserProgress np = UserProgress.builder()
@@ -51,12 +78,13 @@ public class UserProgressService {
      * Gold rewards: +10 for first completion, +5 for second completion, 0 for third+ completions
      */
     @Transactional
-    public UserProgressDTO completeLevel(User user, String category, int completedLevel, boolean usedHint) {
+    public UserProgressDTO completeLevel(User user, String category, int completedLevel, boolean usedHint, Long classroomId) {
         System.out.println("🔄 UserProgressService.completeLevel called");
         System.out.println("   User: " + user.getEmail() + " (ID: " + user.getId() + ")");
         System.out.println("   Category: " + category);
         System.out.println("   Completed level: " + completedLevel);
         System.out.println("   Used hint: " + usedHint);
+        System.out.println("   Classroom ID: " + classroomId);
 
         // Enhanced input validation
         if (user == null) {
@@ -70,7 +98,7 @@ public class UserProgressService {
         }
 
         try {
-            UserProgress p = getOrCreateProgress(user, category);
+            UserProgress p = getOrCreateProgress(user, category, classroomId);
             if (p == null) {
                 throw new RuntimeException("Failed to create or retrieve user progress");
             }
@@ -343,17 +371,29 @@ public class UserProgressService {
     // ==================== PUBLIC METHODS FOR LEVEL COMPLETION QUERIES ====================
 
     public boolean hasCompletedLevel(User user, String category, int level) {
-        UserProgress progress = getOrCreateProgress(user, category);
+        return hasCompletedLevel(user, category, level, null);
+    }
+    
+    public boolean hasCompletedLevel(User user, String category, int level, Long classroomId) {
+        UserProgress progress = getOrCreateProgress(user, category, classroomId);
         return getLevelCompletionCount(progress, level) > 0;
     }
 
     public int getLevelCompletionCount(User user, String category, int level) {
-        UserProgress progress = getOrCreateProgress(user, category);
+        return getLevelCompletionCount(user, category, level, null);
+    }
+    
+    public int getLevelCompletionCount(User user, String category, int level, Long classroomId) {
+        UserProgress progress = getOrCreateProgress(user, category, classroomId);
         return getLevelCompletionCount(progress, level);
     }
 
     public List<Integer> getCompletedLevels(User user, String category) {
-        UserProgress progress = getOrCreateProgress(user, category);
+        return getCompletedLevels(user, category, null);
+    }
+    
+    public List<Integer> getCompletedLevels(User user, String category, Long classroomId) {
+        UserProgress progress = getOrCreateProgress(user, category, classroomId);
         String counts = progress.getLevelCompletionCounts();
 
         if (counts == null || counts.trim().isEmpty()) {

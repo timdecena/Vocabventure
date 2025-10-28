@@ -21,6 +21,9 @@ public class UserProgress {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "classroom_id")
+    private Long classroomId;
+
     @Column(nullable = false)
     private String category;
 

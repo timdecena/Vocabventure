@@ -19,7 +19,7 @@ public class StaticImportRunner {
     public CommandLineRunner runImport() {
         return args -> {
             System.out.println("Starting Static Import...");
-            //staticImporterService.importPuzzles();
+            staticImporterService.importPuzzles();
             System.out.println("Static Import Completed!");
         };
     }

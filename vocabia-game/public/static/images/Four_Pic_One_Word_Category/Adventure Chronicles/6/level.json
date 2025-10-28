@@ -1,0 +1,13 @@
+{
+  "answer": "ACADEMY",
+  "hint": "The great school of grammar that once stood before Pluribog emerged.",
+  "difficulty": 2,
+  "unlockRequirement": "Complete Jungle Lush Level 3",
+  "storyContext": "The place of learning that Pluribog destroyed",
+  "images": [
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/6/pic1.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/6/pic2.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/6/pic3.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/6/pic4.jpg"
+  ]
+}

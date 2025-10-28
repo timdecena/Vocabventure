@@ -18,7 +18,11 @@ import {
   Fade,
   Avatar,
   LinearProgress,
-  IconButton
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from "@mui/material";
 import { keyframes } from '@mui/system';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -95,7 +99,12 @@ export default function LevelList() {
   const [error, setError] = useState("");
   // Removed unused userProgress state
   const [completedLevels, setCompletedLevels] = useState([]); // unique completed levels for progress display
+  const [showUnlockDialog, setShowUnlockDialog] = useState(false);
+  const [selectedLockedLevel, setSelectedLockedLevel] = useState(null);
   const navigate = useNavigate();
+  
+  // Check if this is the Adventure Chronicles category
+  const isAdventureChronicles = category === "Adventure Chronicles";
 
   // Preload effects and try to ensure BGM is running when user is inside the game module
   useEffect(() => {
@@ -138,8 +147,66 @@ export default function LevelList() {
         if (!Array.isArray(res.data)) throw new Error('Invalid response format for levels');
         if (isMounted) setLevels(res.data);
 
-        // Initialize unlock map - level 1 is always unlocked
-        const unlockMap = { 1: true };
+        // Initialize unlock map
+        const unlockMap = {};
+        
+        // Special handling for Adventure Chronicles category
+        if (isAdventureChronicles) {
+          try {
+            // Fetch unlocked levels from Adventure progress
+            const adventureRes = await api.get('/api/adventure/profile/unlocked-fpow-levels');
+            const unlockedSet = new Set(adventureRes.data.unlockedLevels || []);
+            
+            // Only unlock levels that have been earned through Adventure Mode
+            res.data.forEach(lvl => {
+              unlockMap[Number(lvl)] = unlockedSet.has(Number(lvl));
+            });
+            
+            console.log("Adventure Chronicles unlocks:", Array.from(unlockedSet));
+            
+            // Fetch completed levels for progress tracking
+            try {
+              const token = localStorage.getItem("token");
+              if (token) {
+                const completedRes = await api.get(`/api/user-progress/completed-levels`, { params: { category, classroomId: id } });
+                const completedArr = (completedRes.data && Array.isArray(completedRes.data.completedLevels)) ? completedRes.data.completedLevels : [];
+                const completedLevelNumbers = completedArr.map(Number);
+                console.log("Adventure Chronicles completed levels:", completedLevelNumbers);
+                if (isMounted) {
+                  setCompletedLevels(completedLevelNumbers);
+                }
+              } else {
+                // Fallback to localStorage for non-authenticated users
+                const localCompleted = loadCompletedLevels();
+                const localCompletedNumbers = Object.keys(localCompleted).map(Number);
+                if (isMounted) {
+                  setCompletedLevels(localCompletedNumbers);
+                }
+              }
+            } catch (completedErr) {
+              console.warn("Could not fetch completed levels:", completedErr);
+              if (isMounted) {
+                setCompletedLevels([]);
+              }
+            }
+          } catch (adventureErr) {
+            console.warn("Could not fetch Adventure unlocks, all levels locked:", adventureErr);
+            // If can't fetch, lock all levels
+            res.data.forEach(lvl => {
+              unlockMap[Number(lvl)] = false;
+            });
+          }
+          
+          if (isMounted) {
+            setUnlocked(unlockMap);
+            setLoading(false);
+          }
+          return; // Skip normal unlock logic for Adventure Chronicles
+        }
+        
+        // Normal unlock logic for other categories
+        // level 1 is always unlocked for non-Adventure categories
+        unlockMap[1] = true;
         
         // Sort levels numerically to ensure proper progression
         const sortedLevels = [...res.data].sort((a, b) => Number(a) - Number(b));
@@ -163,7 +230,7 @@ export default function LevelList() {
           if (token) {
             isAuthenticated = true;
             // Use dedicated endpoint that returns unique completed levels and next unlocked
-            const completedRes = await api.get(`/api/user-progress/completed-levels`, { params: { category } });
+            const completedRes = await api.get(`/api/user-progress/completed-levels`, { params: { category, classroomId: id } });
             const completedArr = (completedRes.data && Array.isArray(completedRes.data.completedLevels)) ? completedRes.data.completedLevels : [];
             serverCompletedLevelsList = completedArr.map(Number);
             serverHighestLevel = Math.max(...serverCompletedLevelsList, 0);
@@ -233,13 +300,31 @@ export default function LevelList() {
     return () => {
       isMounted = false;
     };
-  }, [category, id, loadCompletedLevels]);
+  }, [category, id, loadCompletedLevels, isAdventureChronicles]);
 
   const handlePlay = (lvl) => {
-    if (!unlocked[lvl]) return; // guard against playing locked levels
+    if (!unlocked[lvl]) {
+      // For Adventure Chronicles, show special unlock message
+      if (isAdventureChronicles) {
+        setSelectedLockedLevel(lvl);
+        setShowUnlockDialog(true);
+        return;
+      }
+      return; // guard against playing locked levels
+    }
     SoundManager.playEffect('button_press');
     SoundManager.playBgm();
     navigate(`/student/classes/${id}/4pic1word/${category}/level/${lvl}`);
+  };
+  
+  const handleCloseDialog = () => {
+    setShowUnlockDialog(false);
+    setSelectedLockedLevel(null);
+  };
+  
+  const handleGoToAdventure = () => {
+    SoundManager.playEffect('button_press');
+    navigate('/map'); // Navigate to Adventure Mode map
   };
   
   // Removed unused handleLevelComplete function
@@ -615,6 +700,92 @@ export default function LevelList() {
       
       {/* Floating Audio Controls */}
       <AudioControls />
+      
+      {/* Adventure Chronicles Unlock Dialog */}
+      <Dialog
+        open={showUnlockDialog}
+        onClose={handleCloseDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          textAlign: 'center', 
+          fontSize: '1.8rem', 
+          fontWeight: 800,
+          pt: 4
+        }}>
+          🔒 Level Locked
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', px: 4, pb: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            Continue your adventure to unlock this word!
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.9, lineHeight: 1.6 }}>
+            This level contains a story keyword from Adventure Mode. 
+            Complete the corresponding Jungle Lush level to unlock it and discover the word hidden in the narrative.
+          </Typography>
+          {selectedLockedLevel && (
+            <Box sx={{ 
+              mt: 3, 
+              p: 2, 
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              borderRadius: 2,
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                💡 Hint: Level {selectedLockedLevel} unlocks after progressing through the Adventure story!
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 4, px: 4, gap: 2 }}>
+          <Button
+            onClick={handleCloseDialog}
+            variant="outlined"
+            sx={{
+              color: 'white',
+              borderColor: 'rgba(255,255,255,0.5)',
+              '&:hover': {
+                borderColor: 'white',
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              },
+              borderRadius: 999,
+              px: 3,
+              py: 1
+            }}
+          >
+            Stay Here
+          </Button>
+          <Button
+            onClick={handleGoToAdventure}
+            variant="contained"
+            startIcon={<PlayArrowIcon />}
+            sx={{
+              background: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)',
+              color: 'white',
+              fontWeight: 700,
+              '&:hover': {
+                background: 'linear-gradient(135deg, #FFDF4D 0%, #FFB300 100%)',
+                transform: 'scale(1.05)'
+              },
+              borderRadius: 999,
+              px: 4,
+              py: 1,
+              boxShadow: '0 8px 20px rgba(255, 193, 7, 0.4)'
+            }}
+          >
+            Go to Adventure Mode
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

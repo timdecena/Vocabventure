@@ -184,7 +184,9 @@ const StudentHome = ({ setIsAuthenticated, isSidebarOpen, setIsSidebarOpen }) =>
   const [customWordListModalOpen, setCustomWordListModalOpen] = useState(false);
   const [studentInfo, setStudentInfo] = useState({});
   const [leaderboard, setLeaderboard] = useState([]);
-const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [fpowClassDialog, setFpowClassDialog] = useState(false);
+  const [noClassDialog, setNoClassDialog] = useState(false);
 
   useEffect(() => {
   api.get("/api/leaderboard/wotd")
@@ -441,10 +443,12 @@ useEffect(() => {
               <Box 
                 className="arcade-profile-mode-card"
                 onClick={() => {
-                  if (classes.length > 0) {
+                  if (classes.length === 0) {
+                    setNoClassDialog(true);
+                  } else if (classes.length === 1) {
                     navigate(`/student/classes/${classes[0].id}/4pic1word`);
                   } else {
-                    alert('You need to join a class first to play 4pics1word!');
+                    setFpowClassDialog(true);
                   }
                 }}
                 sx={{ cursor: 'pointer' }}
@@ -1206,6 +1210,179 @@ useEffect(() => {
           }
         }
       `}</style>
+      
+      {/* No Class Dialog */}
+      <Dialog
+        open={noClassDialog}
+        onClose={() => setNoClassDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+            color: 'white',
+            p: 2
+          }
+        }}
+      >
+        <Box sx={{ textAlign: 'center', py: 3 }}>
+          <Box sx={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mx: 'auto',
+            mb: 3
+          }}>
+            <Typography variant="h1" sx={{ fontSize: 48 }}>
+              🎮
+            </Typography>
+          </Box>
+          
+          <Typography variant="h5" fontWeight={800} gutterBottom>
+            Join a Class First!
+          </Typography>
+          
+          <Typography variant="body1" sx={{ mb: 4, color: 'rgba(255,255,255,0.9)', px: 2 }}>
+            You need to join a class to play Four Pics One Word. Join a class to access all the fun puzzles!
+          </Typography>
+          
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', px: 3 }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => {
+                setNoClassDialog(false);
+                setJoinModalOpen(true);
+              }}
+              sx={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                color: '#1e3c72',
+                fontWeight: 700,
+                px: 3,
+                '&:hover': {
+                  backgroundColor: '#fff'
+                }
+              }}
+            >
+              Join a Class
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => setNoClassDialog(false)}
+              sx={{
+                borderColor: 'rgba(255,255,255,0.8)',
+                color: 'white',
+                fontWeight: 700,
+                px: 3,
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}
+            >
+              Close
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
+      
+      {/* Class Selection Dialog for FPOW */}
+      <Dialog
+        open={fpowClassDialog}
+        onClose={() => setFpowClassDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          textAlign: 'center', 
+          fontWeight: 800,
+          fontSize: '1.5rem',
+          pb: 1
+        }}>
+          Select a Class
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          <Typography variant="body2" sx={{ mb: 3, textAlign: 'center', color: 'rgba(255,255,255,0.9)' }}>
+            Choose which class you want to play Four Pics One Word with:
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {classes.map(cls => (
+              <Card
+                key={cls.id}
+                sx={{
+                  background: 'rgba(255,255,255,0.15)',
+                  backdropFilter: 'blur(10px)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  '&:hover': {
+                    background: 'rgba(255,255,255,0.25)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                  }
+                }}
+                onClick={() => {
+                  setFpowClassDialog(false);
+                  navigate(`/student/classes/${cls.id}/4pic1word`);
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar sx={{
+                      width: 50,
+                      height: 50,
+                      backgroundColor: 'rgba(255,255,255,0.9)',
+                      color: '#4a148c'
+                    }}>
+                      🎓
+                    </Avatar>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="h6" fontWeight={700} color="white">
+                        {cls.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                        Click to play
+                      </Typography>
+                    </Box>
+                    <ArrowForwardIosIcon sx={{ color: 'rgba(255,255,255,0.7)' }} />
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button
+            onClick={() => setFpowClassDialog(false)}
+            variant="outlined"
+            fullWidth
+            sx={{
+              borderColor: 'rgba(255,255,255,0.8)',
+              color: 'white',
+              fontWeight: 700,
+              '&:hover': {
+                borderColor: 'white',
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

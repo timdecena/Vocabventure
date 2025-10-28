@@ -1,0 +1,13 @@
+{
+  "answer": "PROPHECY",
+  "hint": "The foretelling that the chosen one would reclaim the scrolls.",
+  "difficulty": 3,
+  "unlockRequirement": "Complete Jungle Lush Level 5",
+  "storyContext": "The ancient prediction about the adventurer's destiny",
+  "images": [
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/10/pic1.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/10/pic2.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/10/pic3.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/10/pic4.jpg"
+  ]
+}

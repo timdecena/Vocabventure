@@ -1,0 +1,13 @@
+{
+  "answer": "COMMA",
+  "hint": "Commawidow's weapon - a punctuation mark that creates pauses.",
+  "difficulty": 1,
+  "unlockRequirement": "Complete Jungle Lush Level 1",
+  "storyContext": "The punctuation mark that Commawidow uses to trap readers",
+  "images": [
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/2/pic1.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/2/pic2.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/2/pic3.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/2/pic4.jpg"
+  ]
+}

@@ -13,10 +13,15 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations(
                     "classpath:/static/images/",
                     "file:src/main/resources/static/images/"
-
                 );
 
-                registry.addResourceHandler("/audio/**")
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations(
+                    "classpath:/static/",
+                    "file:src/main/resources/static/"
+                );
+
+        registry.addResourceHandler("/audio/**")
                 .addResourceLocations("file:/home/ec2-user/Vocabventure/uploads/audio/");
     }
 }

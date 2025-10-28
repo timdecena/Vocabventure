@@ -569,6 +569,7 @@ const GamePlay = () => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerStart, setTimerStart] = useState(Date.now());
+  const [lockedDialog, setLockedDialog] = useState({ open: false, nextLevel: 0 });
 
   // Preload sound effects when GamePlay loads and cleanup on unmount
   useEffect(() => {
@@ -650,7 +651,7 @@ const GamePlay = () => {
 
         // Load completion status for this level
         const statusResponse = await api.get(
-          `/api/user-progress/level-completion-status?category=${category}&level=${level}`
+          `/api/user-progress/level-completion-status?category=${category}&level=${level}&classroomId=${id}`
         );
         dispatch({ 
           type: 'SET_COMPLETION_STATUS', 
@@ -659,14 +660,13 @@ const GamePlay = () => {
 
         // Load total levels for this category (to prevent navigating past last level)
         try {
-          const completedMeta = await api.get(`/api/user-progress/completed-levels`, { params: { category } });
+          const completedMeta = await api.get(`/api/user-progress/completed-levels`, { params: { category, classroomId: id } });
           const totalLevels = completedMeta?.data?.totalLevels;
           if (typeof totalLevels === 'number') {
             dispatch({ type: 'SET_TOTAL_LEVELS', payload: totalLevels });
           }
         } catch (metaErr) {
           console.warn('Could not load totalLevels metadata:', metaErr);
-          // Fallback: fetch levels list (public endpoint) and derive total
           try {
             const levelsRes = await api.get(`/api/fpow/levels`, { params: { category } });
             if (Array.isArray(levelsRes?.data)) {
@@ -735,13 +735,14 @@ const GamePlay = () => {
     
     const cleanCategory = category ? category.trim() : "";
     const payload = {
-      category: cleanCategory,
+      category,
       level: Number(level),
       answer: state.puzzle.answer || "",
-      usedHint: Boolean(state.hintShown)
+      usedHint: Boolean(state.hintShown),
+      classroomId: Number(id)
     };
     
-    console.log('📤 Submitting progress with payload:', payload);
+    console.log(' Submitting progress with payload:', payload);
     
     let backendSuccess = false;
     let errorMessage = null;
@@ -770,7 +771,7 @@ const GamePlay = () => {
       
       // Get completion status for reward info
       const statusResponse = await api.get(
-        `/api/user-progress/level-completion-status?category=${cleanCategory}&level=${Number(level)}`
+        `/api/user-progress/level-completion-status?category=${cleanCategory}&level=${Number(level)}&classroomId=${id}`
       );
       
       const goldEarned = calculateGoldEarned(statusResponse.data.completionCount);
@@ -1039,13 +1040,33 @@ const GamePlay = () => {
   };
   
   // Go to next level with the correct URL structure
-  const handleNext = () => {
+  const handleNext = async () => {
     SoundManager.playEffect('button_press');
     const current = Number(level);
     if (state.totalLevels && current >= state.totalLevels) {
       // At or beyond last level – return to levels list
       return navigate(`/student/classes/${id}/4pic1word/${category}`);
     }
+    
+    // For Adventure Chronicles, check if next level is unlocked
+    if (category === 'Adventure Chronicles') {
+      try {
+        const response = await api.get('/api/adventure/profile/unlocked-fpow-levels');
+        const unlockedLevels = response.data.unlockedLevels || [];
+        const nextLevel = current + 1;
+        
+        if (!unlockedLevels.includes(nextLevel)) {
+          // Next level is locked - show dialog
+          setLockedDialog({ open: true, nextLevel });
+          return;
+        }
+      } catch (err) {
+        console.error('Error checking unlock status:', err);
+        // On error, return to level list to be safe
+        return navigate(`/student/classes/${id}/4pic1word/${category}`);
+      }
+    }
+    
     return navigate(`/student/classes/${id}/4pic1word/${category}/level/${current + 1}`);
   };
 
@@ -1466,6 +1487,98 @@ const GamePlay = () => {
           </Box>
         </Zoom>
       )}
+      
+      {/* Locked Level Dialog */}
+      <Dialog
+        open={lockedDialog.open}
+        onClose={() => setLockedDialog({ open: false, nextLevel: 0 })}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            p: 2
+          }
+        }}
+      >
+        <Box sx={{ textAlign: 'center', py: 3 }}>
+          {/* Lock Icon */}
+          <Box sx={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mx: 'auto',
+            mb: 3
+          }}>
+            <Typography variant="h1" sx={{ fontSize: 48 }}>
+              🔒
+            </Typography>
+          </Box>
+          
+          {/* Title */}
+          <Typography variant="h5" fontWeight={800} gutterBottom>
+            Level {lockedDialog.nextLevel} is Locked!
+          </Typography>
+          
+          {/* Message */}
+          <Typography variant="body1" sx={{ mb: 3, color: 'rgba(255,255,255,0.9)', px: 2 }}>
+            You need to complete <strong>Adventure Mode Level {Math.ceil(lockedDialog.nextLevel / 2)}</strong> to unlock this puzzle.
+          </Typography>
+          
+          <Typography variant="body2" sx={{ mb: 4, color: 'rgba(255,255,255,0.8)', px: 2 }}>
+            Progress through the adventure story to discover more word puzzles!
+          </Typography>
+          
+          {/* Buttons */}
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', px: 3 }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => {
+                setLockedDialog({ open: false, nextLevel: 0 });
+                navigate('/student/adventure/map');
+              }}
+              sx={{
+                backgroundColor: 'rgba(255,255,255,0.95)',
+                color: '#4a148c',
+                fontWeight: 700,
+                px: 3,
+                '&:hover': {
+                  backgroundColor: '#fff'
+                }
+              }}
+            >
+              Go to Adventure Mode
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => {
+                setLockedDialog({ open: false, nextLevel: 0 });
+                navigate(`/student/classes/${id}/4pic1word/${category}`);
+              }}
+              sx={{
+                borderColor: 'rgba(255,255,255,0.8)',
+                color: 'white',
+                fontWeight: 700,
+                px: 3,
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)'
+                }
+              }}
+            >
+              Back to Levels
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
     </Container>
   </Box>
   );

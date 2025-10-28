@@ -37,11 +37,12 @@ public class UserProgressController {
         private int level;
         private String answer;
         private boolean usedHint;
+        private Long classroomId;
         
         @Override
         public String toString() {
-            return String.format("ProgressSubmissionRequest{category='%s', level=%d, answer='%s', usedHint=%s}", 
-                category, level, answer, usedHint);
+            return String.format("ProgressSubmissionRequest{category='%s', level=%d, answer='%s', usedHint=%s, classroomId=%d}", 
+                category, level, answer, usedHint, classroomId);
         }
     }
 
@@ -49,10 +50,11 @@ public class UserProgressController {
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<Map<String, Object>> getCompletedLevelsForCategory(
             @RequestParam String category,
+            @RequestParam(required = false) Long classroomId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
             User user = getAuthenticatedUser(userDetails);
-            List<Integer> completed = userProgressService.getCompletedLevels(user, category);
+            List<Integer> completed = userProgressService.getCompletedLevels(user, category, classroomId);
             int highest = completed.stream().mapToInt(Integer::intValue).max().orElse(0);
             // Determine next unlocked (highest+1), but do not exceed total levels
             int totalLevels = fourPicOneWordService.getLevelsByCategory(category).size();
@@ -104,7 +106,8 @@ public class UserProgressController {
                     user,
                     req.getCategory(),
                     req.getLevel(),
-                    req.isUsedHint()
+                    req.isUsedHint(),
+                    req.getClassroomId()
             );
             
             System.out.println("✅ Progress updated successfully");
@@ -273,7 +276,9 @@ public class UserProgressController {
 
     @GetMapping("/category-progress")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<Map<String, Object>> getCategoryProgress(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Map<String, Object>> getCategoryProgress(
+            @RequestParam(required = false) Long classroomId,
+            @AuthenticationPrincipal UserDetails userDetails) {
         User user = getAuthenticatedUser(userDetails);
 
         // Get all user progress
@@ -301,7 +306,7 @@ public class UserProgressController {
             
             if (userProgress != null) {
                 // Use unique completed levels list instead of puzzlesSolved to avoid counting replays
-                completedLevelList = userProgressService.getCompletedLevels(user, category);
+                completedLevelList = userProgressService.getCompletedLevels(user, category, classroomId);
                 completedLevels = completedLevelList.size();
                 currentLevel = userProgress.getLevel();
             }
@@ -338,12 +343,13 @@ public class UserProgressController {
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<Map<String, Object>> getLevelCompletionStatus(
             @RequestParam String category, 
-            @RequestParam int level, 
+            @RequestParam int level,
+            @RequestParam(required = false) Long classroomId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
             User user = getAuthenticatedUser(userDetails);
-            int completionCount = userProgressService.getLevelCompletionCount(user, category, level);
-            boolean hasCompleted = userProgressService.hasCompletedLevel(user, category, level);
+            int completionCount = userProgressService.getLevelCompletionCount(user, category, level, classroomId);
+            boolean hasCompleted = userProgressService.hasCompletedLevel(user, category, level, classroomId);
 
             int nextGoldReward = 0;
             if (completionCount == 0) {
@@ -358,7 +364,7 @@ public class UserProgressController {
             response.put("completionCount", completionCount);
             response.put("hasCompleted", hasCompleted);
             response.put("nextGoldReward", nextGoldReward);
-            response.put("completedLevels", userProgressService.getCompletedLevels(user, category));
+            response.put("completedLevels", userProgressService.getCompletedLevels(user, category, classroomId));
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

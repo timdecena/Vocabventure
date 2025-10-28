@@ -5,7 +5,6 @@ import com.example.Vocabia.repository.FourPicOneWordRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -21,17 +20,23 @@ public class StaticImporterService {
 
     public void importPuzzles() {
         try {
-            File staticFolder = new ClassPathResource("static/images").getFile();
-            if (!staticFolder.exists()) {
-                System.out.println("No static images folder found.");
+            // Look in the React app's public folder instead of Spring Boot resources
+            File projectRoot = new File(System.getProperty("user.dir"));
+            File fpowFolder = new File(projectRoot, "vocabia-game/public/static/images/Four_Pic_One_Word_Category");
+            
+            if (!fpowFolder.exists()) {
+                System.out.println("No Four Pics One Word category folder found at: " + fpowFolder.getAbsolutePath());
                 return;
             }
+            
+            System.out.println("Found FPOW folder at: " + fpowFolder.getAbsolutePath());
 
-            File[] categories = staticFolder.listFiles(File::isDirectory);
+            File[] categories = fpowFolder.listFiles(File::isDirectory);
             if (categories == null) return;
 
             for (File categoryFolder : categories) {
                 String categoryName = categoryFolder.getName();
+                System.out.println("Processing category: " + categoryName);
 
                 File[] levelFolders = categoryFolder.listFiles(File::isDirectory);
                 if (levelFolders == null) continue;

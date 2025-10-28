@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 // import { useTheme } from "@mui/material/styles"; // Removed as not used in optimized version
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import PetsIcon from "@mui/icons-material/Pets";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
@@ -93,16 +94,22 @@ function CategoryList() {
   const [, setIsAuthenticated] = useState(false);
   const [, setError] = useState(null);
   const [animationReady, setAnimationReady] = useState(false);
+  const [adventureUnlocks, setAdventureUnlocks] = useState(0);
   const navigate = useNavigate();
   // const theme = useTheme(); // Removed as not used in optimized version
-  
+
+  // Filter out Adventure Chronicles and Jungle Lush from regular categories
+  const displayCategories = categories.filter(cat => 
+    cat.toLowerCase() !== 'adventure chronicles' && 
+    cat.toLowerCase() !== 'jungle lush'
+  );
 
   // Function to refresh category progress
   const refreshCategoryProgress = async () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const progressRes = await api.get("/api/user-progress/category-progress");
+        const progressRes = await api.get("/api/user-progress/category-progress", { params: { classroomId: id } });
         setCategoryProgress(progressRes.data || {});
       } catch (progressError) {
         console.warn("Error refreshing category progress:", progressError);
@@ -123,11 +130,20 @@ function CategoryList() {
         const categoriesRes = await api.get("/api/fpow/categories");
         const categoriesData = categoriesRes.data || [];
         setCategories(categoriesData);
+        
+        // Fetch Adventure Chronicles unlock status
+        try {
+          const adventureRes = await api.get('/api/adventure/profile/unlocked-fpow-levels');
+          setAdventureUnlocks(adventureRes.data.unlockedLevels?.length || 0);
+        } catch (err) {
+          console.warn('Could not fetch Adventure unlocks:', err);
+          setAdventureUnlocks(0);
+        }
 
         // If authenticated, fetch category progress with totals
         if (token) {
           try {
-            const progressRes = await api.get("/api/user-progress/category-progress");
+            const progressRes = await api.get("/api/user-progress/category-progress", { params: { classroomId: id } });
             setCategoryProgress(progressRes.data || {});
           } catch (progressError) {
             console.warn("Error fetching category progress:", progressError);
@@ -310,20 +326,17 @@ function CategoryList() {
             </Typography>
           </Box>
     
-          {/* Category Grid - CSS Grid for Perfect Uniformity */}
+          {/* Category Grid - Centered and Space Efficient */}
           <Box sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-              lg: 'repeat(4, 1fr)'
-            },
+            display: 'flex',
+            flexWrap: 'wrap',
             gap: 4,
             mt: 2,
-            justifyItems: 'center'
+            justifyContent: 'center',
+            maxWidth: 1200,
+            mx: 'auto'
           }}>
-            {categories.map((cat, idx) => {
+            {displayCategories.map((cat, idx) => {
               const cardTheme = categoryThemes[cat] || categoryThemes.default;
               return (
                 <Zoom in={animationReady} style={{ transitionDelay: `${idx * 100}ms` }} key={cat}>
@@ -497,6 +510,143 @@ function CategoryList() {
                 </Zoom>
               );
             })}
+          </Box>
+          
+          {/* Adventure Chronicles Section - Redesigned */}
+          <Box sx={{ 
+            mt: 6, 
+            pt: 4,
+            borderTop: '2px solid rgba(255,255,255,0.2)'
+          }}>
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <Typography 
+                variant="h4" 
+                fontWeight={800} 
+                color="#fff" 
+                sx={{ 
+                  mb: 1,
+                  textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 2
+                }}
+              >
+                <AutoStoriesIcon sx={{ fontSize: 40 }} />
+                Story Mode
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)' }}>
+                Unlock word puzzles by progressing through Adventure Mode
+              </Typography>
+            </Box>
+            
+            <Zoom in={animationReady} style={{ transitionDelay: '800ms' }}>
+              <Card
+                sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  maxWidth: 600,
+                  mx: 'auto',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  position: 'relative',
+                  boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+                  '&:hover': {
+                    transform: 'translateY(-6px)',
+                    boxShadow: '0 16px 48px rgba(102, 126, 234, 0.5)'
+                  },
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'radial-gradient(circle at top right, rgba(255,255,255,0.1), transparent)',
+                    pointerEvents: 'none'
+                  }
+                }}
+                onClick={() => {
+                  SoundManager.playEffect('button_press');
+                  SoundManager.playBgm();
+                  navigate(`/student/classes/${id}/4pic1word/Adventure Chronicles`);
+                }}
+              >
+                <CardContent sx={{ p: 4, position: 'relative', zIndex: 1 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 3,
+                    mb: 3,
+                    flexWrap: { xs: 'wrap', sm: 'nowrap' }
+                  }}>
+                    <Avatar sx={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      color: '#4a148c',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                      border: '3px solid rgba(255,255,255,0.3)'
+                    }}>
+                      <AutoStoriesIcon sx={{ fontSize: 45 }} />
+                    </Avatar>
+                    <Box sx={{ flex: 1, minWidth: 200 }}>
+                      <Typography variant="h5" fontWeight={800} color="#fff" gutterBottom>
+                        Adventure Chronicles
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.95)', mb: 1 }}>
+                        Discover words hidden in the adventure story
+                      </Typography>
+                      <Box sx={{ 
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        px: 2,
+                        py: 0.5,
+                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        borderRadius: 999,
+                        backdropFilter: 'blur(10px)'
+                      }}>
+                        <Typography variant="body2" fontWeight={700} color="#fff">
+                          {adventureUnlocks}/10 Levels Unlocked
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                  
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    endIcon={<ArrowForwardIosIcon />}
+                    sx={{
+                      py: 1.5,
+                      backgroundColor: 'rgba(255,255,255,0.95)',
+                      color: '#4a148c',
+                      fontWeight: 800,
+                      fontSize: '1.1rem',
+                      borderRadius: 3,
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                      '&:hover': {
+                        backgroundColor: '#fff',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 16px rgba(0,0,0,0.3)'
+                      }
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      SoundManager.playEffect('button_press');
+                      navigate(`/student/classes/${id}/4pic1word/Adventure Chronicles`);
+                    }}
+                  >
+                    Explore Story Words
+                  </Button>
+                </CardContent>
+              </Card>
+            </Zoom>
           </Box>
         </Box>
         

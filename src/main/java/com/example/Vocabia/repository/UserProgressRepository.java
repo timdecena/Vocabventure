@@ -15,6 +15,8 @@ public interface UserProgressRepository extends JpaRepository<UserProgress, Long
     List<UserProgress> findByUser(User user);
 
     Optional<UserProgress> findByUserAndCategory(User user, String category);
+    
+    Optional<UserProgress> findByUserAndCategoryAndClassroomId(User user, String category, Long classroomId);
 
     List<UserProgress> findByCategory(String category);
 

@@ -1,0 +1,13 @@
+{
+  "answer": "TOWER",
+  "hint": "Grammowl's fortress where the Scroll of Grammar is kept.",
+  "difficulty": 3,
+  "unlockRequirement": "Complete Jungle Lush Level 4",
+  "storyContext": "The stronghold where Grammowl guards the stolen scroll",
+  "images": [
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/7/pic1.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/7/pic2.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/7/pic3.jpg",
+    "/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/7/pic4.jpg"
+  ]
+}

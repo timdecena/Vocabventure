@@ -4,6 +4,7 @@ import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent } 
 import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
+import api from '../../api/api';
 import MainAudioManager from '../../sound/MainAudioManager';
 import TextToSpeechManager from '../../sound/TextToSpeechManager';
 
@@ -965,10 +966,21 @@ const JungleLushLevel1 = () => {
   const [showClickPrompt, setShowClickPrompt] = useState(false);
   const [showQuit, setShowQuit] = useState(false);
 
-  // Play global level completed sound when victory triggers
+  // Play global level completed sound when victory triggers and unlock FPOW levels
   useEffect(() => {
     if (victory) {
       try { MainAudioManager.playEffect('level_completed'); } catch {}
+      
+      // Unlock Adventure Chronicles FPOW levels for completing Level 1
+      const unlockFpowLevels = async () => {
+        try {
+          await api.post('/api/adventure/profile/unlock-fpow-for-adventure/1');
+          console.log('✅ Unlocked Adventure Chronicles levels 1-2 (JUNGLE, COMMA)');
+        } catch (error) {
+          console.warn('Could not unlock FPOW levels:', error);
+        }
+      };
+      unlockFpowLevels();
     }
   }, [victory]);
 

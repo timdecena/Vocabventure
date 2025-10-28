@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
                 // Public static resources
-                .requestMatchers("/images/**", "/audio/**", "/nature/**").permitAll()
+                .requestMatchers("/images/**", "/audio/**", "/nature/**", "/static/**").permitAll()
                 .requestMatchers("/api/4pic1word-assets/**").permitAll()
                 
                 // Authentication endpoints (must be public)
