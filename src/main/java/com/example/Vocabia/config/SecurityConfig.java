@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
 
                 // Public game metadata
+                
                 .requestMatchers("/api/fpow/categories", "/api/fpow/levels").permitAll()
                 
                 // CRITICAL: User progress endpoints - REQUIRE STUDENT ROLE
@@ -75,8 +76,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/game/**", "/api/leaderboard/**", "/api/game/spelling/**").hasRole("STUDENT")
                 
                 // Four Pics One Word gameplay
-                .requestMatchers("/api/fpow/**").authenticated()
-                
+.requestMatchers(HttpMethod.POST, "/api/fpow/create").hasRole("TEACHER")
+.requestMatchers("/api/fpow/categories", "/api/fpow/levels").permitAll()
+.requestMatchers("/api/fpow/**").authenticated()                
                 // Teacher endpoints
                 .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
                 .requestMatchers("/api/teacher/**").hasRole("TEACHER")

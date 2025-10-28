@@ -38,27 +38,48 @@ export default function TeacherCreateFPOW() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('You must be logged in as a teacher.');
-        setLoading(false);
-        return;
-      }
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-      const res = await api.post('/api/fpow/create', form);
-      toast.success('✅ Level created successfully!');
-      navigate('/teacher/classes');
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Failed to create level.');
-    } finally {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('You must be logged in as a teacher.');
       setLoading(false);
+      return;
     }
-  };
+
+    const formData = new FormData();
+    formData.append('category', form.category);
+    formData.append('level', form.level);
+    formData.append('answer', form.answer);
+    formData.append('hint', form.hint);
+    formData.append('hintType', form.hintType);
+    formData.append('difficulty', form.difficulty);
+
+    if (form.images) {
+      Array.from(form.images).forEach((file) => {
+        formData.append('images', file);
+      });
+    }
+
+    await api.post('/api/fpow/create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    toast.success('✅ Level created successfully!');
+    navigate('/teacher/classes');
+  } catch (err) {
+    console.error(err);
+    setError(err.response?.data?.message || 'Failed to create level.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
@@ -142,24 +163,30 @@ export default function TeacherCreateFPOW() {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
-                Image URLs (1–4 allowed)
-              </Typography>
-              {[1, 2, 3, 4].map((i) => (
-                <TextField
-                  key={i}
-                  name={`image${i}Url`}
-                  label={`Image ${i} URL`}
-                  value={form[`image${i}Url`]}
-                  onChange={handleChange}
-                  fullWidth
-                  sx={{ mb: 2 }}
-                  InputProps={{
-                    startAdornment: <AddPhotoAlternateIcon sx={{ mr: 1 }} />,
-                  }}
-                />
-              ))}
-            </Grid>
+  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
+    Upload 1–4 Images
+  </Typography>
+  <Button
+    variant="contained"
+    component="label"
+    startIcon={<AddPhotoAlternateIcon />}
+  >
+    Upload Images
+    <input
+      type="file"
+      hidden
+      name="images"
+      accept="image/*"
+      multiple
+      onChange={(e) => setForm(prev => ({ ...prev, images: e.target.files }))}
+    />
+  </Button>
+  {form.images && (
+    <Typography sx={{ mt: 1 }}>
+      {form.images.length} image(s) selected
+    </Typography>
+  )}
+</Grid>
 
             <Grid item xs={12}>
               <Button
