@@ -32,18 +32,19 @@ public class FourPicOneWord {
     private String hint;
 
     @Column(name = "hint_type")
-    private String hintType; // Example: "TEXT_HINT", "REVEAL_LETTER"
+    private String hintType;
 
-    @Column(name = "image1_url", nullable = false)
+    // ✅ Optional image URLs (1–4 allowed)
+    @Column(name = "image1_url")
     private String image1Url;
 
-    @Column(name = "image2_url", nullable = false)
+    @Column(name = "image2_url")
     private String image2Url;
 
-    @Column(name = "image3_url", nullable = false)
+    @Column(name = "image3_url")
     private String image3Url;
 
-    @Column(name = "image4_url", nullable = false)
+    @Column(name = "image4_url")
     private String image4Url;
 
     @Enumerated(EnumType.STRING)

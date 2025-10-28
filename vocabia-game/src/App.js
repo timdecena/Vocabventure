@@ -37,6 +37,7 @@ import StudentViewClassPage from './Student/StudentViewClassPage';
 import CategoryList from './FourPicOneWordGame/CategoryList';
 import LevelList from './FourPicOneWordGame/LevelList';
 import GamePlay from './FourPicOneWordGame/GamePlay';
+import TeacherCreateFPOW from './FourPicOneWordGame/TeacherCreateFPOW';
 
 // Word of the Day
 import WOTDLeaderboardPage from './WordOfTheDay/WOTDLeaderboardPage';
@@ -342,6 +343,8 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
         path="/student/classes/:id/4pic1word/:category/level/:level"
         element={isAuthenticated && role === 'STUDENT' ? <GamePlay /> : <Navigate to="/" replace />}
       />
+
+      <Route path="/teacher/fpow/create" element={<TeacherCreateFPOW />} />
 
       {/* SPELLING GAME */}
       <Route path="/teacher/spelling/create" element={
