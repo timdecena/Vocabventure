@@ -86,12 +86,12 @@ public class FourPicOneWordController {
             return ResponseEntity.badRequest().body("Invalid difficulty. Allowed: EASY, MEDIUM, HARD");
         }
 
-        // --- Validate images count ---
+        // --- Validate images count (1-4 images allowed) ---
         if (images == null || images.length == 0) {
-            return ResponseEntity.badRequest().body("At least 1 image is required (up to 4).");
+            return ResponseEntity.badRequest().body("At least 1 image is required to create a puzzle.");
         }
         if (images.length > 4) {
-            return ResponseEntity.badRequest().body("You can upload up to 4 images only.");
+            return ResponseEntity.badRequest().body("Maximum 4 images allowed per puzzle.");
         }
 
         // Ensure upload directory exists (handled by ImagePathConfig)
@@ -138,7 +138,7 @@ public class FourPicOneWordController {
             imageUrls.add(publicPath);
         }
 
-        // Build DTO and set enum difficulty
+        // Build DTO and set enum difficulty - supports 1-4 images dynamically
         FourPicOneWordDTO dto = new FourPicOneWordDTO();
         dto.setCategory(category);
         dto.setLevel(level);
@@ -146,10 +146,16 @@ public class FourPicOneWordController {
         dto.setHint(hint);
         dto.setHintType(hintType);
         dto.setDifficulty(difficulty); // <-- enum value
+        
+        // ✅ Dynamic image assignment based on uploaded count
         dto.setImage1Url(imageUrls.size() > 0 ? imageUrls.get(0) : null);
         dto.setImage2Url(imageUrls.size() > 1 ? imageUrls.get(1) : null);
         dto.setImage3Url(imageUrls.size() > 2 ? imageUrls.get(2) : null);
         dto.setImage4Url(imageUrls.size() > 3 ? imageUrls.get(3) : null);
+        
+        // ✅ Log the dynamic image assignment for debugging
+        System.out.println("✅ Creating FPOW puzzle with " + imageUrls.size() + " images: " + 
+                          category + " Level " + level);
 
         String teacherEmail = principal.getName();
         FourPicOneWordDTO saved = service.createPuzzle(dto, teacherEmail);

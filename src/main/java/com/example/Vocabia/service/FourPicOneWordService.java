@@ -38,8 +38,18 @@ public class FourPicOneWordService {
         return repo.findLevelsByCategory(category);
     }
 
-    // ✅ NEW: Create custom puzzle (teacher use)
+    // ✅ NEW: Create custom puzzle (teacher use) - supports 1-4 images
     public FourPicOneWordDTO createPuzzle(FourPicOneWordDTO dto, String teacherEmail) {
+        // ✅ Validate minimum image requirement (at least 1 image)
+        if (dto.getImageCount() < 1) {
+            throw new IllegalArgumentException("At least 1 image is required to create a puzzle");
+        }
+        
+        // ✅ Validate maximum image limit (up to 4 images)
+        if (dto.getImageCount() > 4) {
+            throw new IllegalArgumentException("Maximum 4 images allowed per puzzle");
+        }
+        
         // Optional: Add validation (e.g., verify teacher owns class)
         FourPicOneWord entity = FourPicOneWord.builder()
                 .category(dto.getCategory())

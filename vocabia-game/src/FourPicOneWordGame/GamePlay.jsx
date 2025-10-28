@@ -56,11 +56,50 @@ const goldPulse = keyframes`
   100% { transform: scale(1); }
 `;
 
-// Enhanced Image Grid with loading states and animations
+// Enhanced Image Grid with loading states and animations - Dynamic Layout
 const ImageGrid = ({ imageUrls, isLoading }) => {
   const [loadedImages, setLoadedImages] = useState(new Set());
   const [imageErrors, setImageErrors] = useState(new Set());
   const [lightbox, setLightbox] = useState({ open: false, index: null });
+
+  // Dynamic grid layout based on image count
+  const getGridLayout = (imageCount) => {
+    switch (imageCount) {
+      case 1:
+        return {
+          gridTemplateColumns: '1fr',
+          gridTemplateRows: '1fr',
+          aspectRatio: '1/1',
+          maxWidth: '300px',
+          mx: 'auto'
+        };
+      case 2:
+        return {
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateRows: '1fr',
+          aspectRatio: '2/1',
+          maxWidth: '600px',
+          mx: 'auto'
+        };
+      case 3:
+        return {
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateRows: '1fr',
+          aspectRatio: '3/1',
+          maxWidth: '900px',
+          mx: 'auto'
+        };
+      case 4:
+      default:
+        return {
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gridTemplateRows: 'repeat(2, 1fr)',
+          aspectRatio: '1/1',
+          maxWidth: '600px',
+          mx: 'auto'
+        };
+    }
+  };
 
   const handleImageLoad = useCallback((index) => {
     setLoadedImages(prev => new Set([...prev, index]));
@@ -78,10 +117,12 @@ const ImageGrid = ({ imageUrls, isLoading }) => {
 
   const closeLightbox = useCallback(() => setLightbox({ open: false, index: null }), []);
 
+  const gridLayout = getGridLayout(imageUrls.length);
+  
   return (
     <Box sx={{
       width: '100%',
-      maxWidth: '450px',
+      maxWidth: gridLayout.maxWidth || '450px',
       margin: '0 auto',
       mb: 4,
       position: 'relative'
@@ -95,12 +136,10 @@ const ImageGrid = ({ imageUrls, isLoading }) => {
       }}>
         <Box sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gridTemplateRows: 'repeat(2, 1fr)',
           gap: 2,
-          aspectRatio: '1/1',
+          ...gridLayout
         }}>
-          {[0, 1, 2, 3].map(i => {
+          {Array.from({ length: imageUrls.length }, (_, i) => i).map(i => {
             const hasImage = i < imageUrls.length;
             const isImageLoaded = loadedImages.has(i);
             const hasImageError = imageErrors.has(i);
