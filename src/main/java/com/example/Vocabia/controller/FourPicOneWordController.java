@@ -30,8 +30,47 @@ public class FourPicOneWordController {
     @Value("${fpow.image.upload-dir:/home/emmanuel/Documents/GitHub/Vocabventure/vocabia-game/public/static/images/Four_Pic_One_Word_Category}")
     private String uploadDir;
 
+    // ✅ GET /api/fpow/categories - Get all available categories
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        try {
+            List<String> categories = service.getCategories();
+            return ResponseEntity.ok(categories);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    // ✅ GET /api/fpow/levels?category=Animals - Get levels for a specific category
+    @GetMapping("/levels")
+    public ResponseEntity<List<Integer>> getLevelsByCategory(@RequestParam("category") String category) {
+        try {
+            List<Integer> levels = service.getLevelsByCategory(category);
+            return ResponseEntity.ok(levels);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    // ✅ GET /api/fpow/puzzle?category=Animals&level=1 - Get specific puzzle
+    @GetMapping("/puzzle")
+    public ResponseEntity<FourPicOneWordDTO> getPuzzle(
+            @RequestParam("category") String category,
+            @RequestParam("level") int level) {
+        try {
+            return service.getPuzzleByCategoryAndLevel(category, level)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
     @PostMapping("/create")
-public ResponseEntity<?> createPuzzle(
+    public ResponseEntity<?> createPuzzle(
         Principal principal,
         @RequestParam("category") String category,
         @RequestParam("level") int level,
