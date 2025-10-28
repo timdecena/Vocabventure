@@ -513,11 +513,14 @@ function CategoryList() {
           </Box>
           
           {/* Adventure Chronicles Section - Redesigned */}
+          
           <Box sx={{ 
             mt: 6, 
             pt: 4,
             borderTop: '2px solid rgba(255,255,255,0.2)'
           }}>
+
+            {/* 
             <Box sx={{ textAlign: 'center', mb: 3 }}>
               <Typography 
                 variant="h4" 
@@ -539,7 +542,7 @@ function CategoryList() {
                 Unlock word puzzles by progressing through Adventure Mode
               </Typography>
             </Box>
-            
+            */}
             <Zoom in={animationReady} style={{ transitionDelay: '800ms' }}>
               <Card
                 sx={{
