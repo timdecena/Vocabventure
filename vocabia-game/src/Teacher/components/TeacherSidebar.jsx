@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -7,12 +8,13 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Tooltip,
 } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import InsightsIcon from '@mui/icons-material/Insights';
 import ClassIcon from '@mui/icons-material/Class';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { t } from '../utils/i18n';
 
 export default function TeacherSidebar({ collapsed = false }) {
@@ -20,17 +22,19 @@ export default function TeacherSidebar({ collapsed = false }) {
   const navigate = useNavigate();
 
   const navItems = [
-    { icon: <ClassIcon />, label: t('My Classes'), path: '/teacher/classes' },
+    { icon: <SchoolIcon />, label: t('My Classes'), path: '/teacher/classes' },
     { icon: <AddCircleOutlineIcon />, label: t('Create Class'), path: '/teacher/classes/create' },
-    { icon: <InsightsIcon />, label: t('Student Results'), path: '/teacher/analytics' },
+    { icon: <EditNoteIcon />, label: t('Create Level'), path: '/teacher/spelling/create' },
+    { icon: <InsightsIcon />, label: t('Analytics'), path: '/teacher/analytics' },
+    { icon: <EditNoteIcon />, label: t('Create 4Pics1Word Level'), path: '/teacher/fpow/create' },
   ];
 
   return (
-    <Box sx={{ width: '100%', height: '100%', bgcolor: 'background.paper' }}>
+    <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <SchoolIcon color="primary" />
+        <ClassIcon color="primary" />
         {!collapsed && (
-          <Typography variant="subtitle1" fontWeight={700}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ letterSpacing: 0.2 }}>
             {t('Teacher Portal')}
           </Typography>
         )}
@@ -39,7 +43,7 @@ export default function TeacherSidebar({ collapsed = false }) {
       <List sx={{ p: 1 }}>
         {navItems.map((item) => {
           const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
-          return (
+          const button = (
             <ListItemButton
               key={item.path}
               selected={active}
@@ -47,24 +51,46 @@ export default function TeacherSidebar({ collapsed = false }) {
               sx={{
                 borderRadius: 2,
                 mb: 0.5,
+                px: collapsed ? 1.25 : 1.5,
                 justifyContent: collapsed ? 'center' : 'flex-start',
-                '&.Mui-selected': {
-                  bgcolor: 'primary.light',
-                  color: 'primary.main',
-                  '&:hover': { bgcolor: 'primary.light' },
+                position: 'relative',
+                transition: (t) => t.transitions.create(['background-color', 'transform'], { duration: 180 }),
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  transform: 'translateX(2px)'
                 },
+                ...(active && {
+                  backgroundColor: 'action.selected',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: 4,
+                    top: 6,
+                    bottom: 6,
+                    width: 3,
+                    borderRadius: 2,
+                    backgroundColor: 'primary.main',
+                  },
+                }),
               }}
             >
-              <ListItemIcon
-                sx={{
-                  minWidth: collapsed ? 0 : 36,
-                  color: active ? 'primary.main' : 'text.secondary',
-                }}
-              >
+              <ListItemIcon sx={{ minWidth: collapsed ? 0 : 36, color: active ? 'primary.main' : 'text.secondary' }}>
                 {item.icon}
               </ListItemIcon>
-              {!collapsed && <ListItemText primary={item.label} />}
+              {!collapsed && (
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{ sx: { fontWeight: active ? 600 : 500 } }}
+                />
+              )}
             </ListItemButton>
+          );
+          return collapsed ? (
+            <Tooltip key={item.path} title={item.label} placement="right">
+              {button}
+            </Tooltip>
+          ) : (
+            button
           );
         })}
       </List>
