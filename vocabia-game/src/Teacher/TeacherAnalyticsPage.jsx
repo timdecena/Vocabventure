@@ -162,331 +162,468 @@ export default function TeacherAnalyticsPage() {
     } catch { return d; }
   };
 
-  const chartPaperSx = {
-    p: 3,
-    borderRadius: 3,
-    border: (t) => `1px solid ${t.palette.divider}`,
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-    overflow: 'hidden',
-    background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
-    transition: 'all 0.3s ease',
-    '&:hover': {
-      boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
-      transform: 'translateY(-2px)'
-    }
-  };
-  const chartBoxSx = { width: '100%', height: { xs: 320, sm: 380, md: 420 }, mt: 1 };
-
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4, bgcolor: '#F7F8FC', borderRadius: 3, p: { xs: 1, sm: 2 } }}>
-      <Box sx={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gridTemplateRows: 'repeat(5, 1fr)',
-        gap: 2,
-        minHeight: '80vh'
-      }}>
-        {/* Header */}
-        <Box sx={{ gridColumn: 'span 5', gridRow: '1', display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <PageHeader
-            backTo="/teacher-home"
-            backLabel={t('Back to Dashboard')}
-            title={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <InsightsIcon sx={{ mr: 1.5, color: 'primary.main' }} />
+    <Container maxWidth="xl" sx={{ py: 10 }}>
+      {/* Header */}
+      <PageHeader
+        backTo="/teacher-home"
+        backLabel={t('Back to Dashboard')}
+        title={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <InsightsIcon sx={{ color: 'primary.main', fontSize: 32 }} />
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 600 }}>
                 {t('FOUR PIC ONE WORD PROGRESS')}
-              </Box>
-            }
-            subtitle={t('Detailed progress and activity for Four Pics One Word')}
-            actions={<Button variant="outlined" startIcon={<DownloadIcon />}>{t('Export')}</Button>}
-          />
-
-          {/* Filters */}
-          <Paper sx={{
-            p: 3,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexWrap: 'nowrap',
-            gap: 3,
-            overflowX: 'auto',
-            borderRadius: 3,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)'
-          }}>
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'nowrap', alignItems: 'center' }}>
-              <FormControl size="medium" sx={{ minWidth: 200 }}>
-                <InputLabel>{t('Range')}</InputLabel>
-                <Select label={t('Range')} value={pendingRange} onChange={(e) => setPendingRange(e.target.value)}>
-                  <MenuItem value="7d">{t('Last 7 days')}</MenuItem>
-                  <MenuItem value="30d">{t('Last 30 days')}</MenuItem>
-                  <MenuItem value="all">{t('All time')}</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl size="medium" sx={{ minWidth: 200 }}>
-                <InputLabel>{t('Class')}</InputLabel>
-                <Select label={t('Class')} value={pendingClassFilter} onChange={(e) => setPendingClassFilter(e.target.value)}>
-                  <MenuItem value="all">{t('All Classes')}</MenuItem>
-                  {classes.map((c) => (
-                    <MenuItem key={c.id} value={String(c.id)}>{c.name}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl size="medium" sx={{ minWidth: 200 }}>
-                <InputLabel>{t('Category')}</InputLabel>
-                <Select label={t('Category')} value={pendingGameFilter} onChange={(e) => setPendingGameFilter(e.target.value)}>
-                  <MenuItem value="all">{t('All Categories')}</MenuItem>
-                  {categories.map((cat) => (
-                    <MenuItem key={cat} value={String(cat)}>{cat}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Button variant="contained" onClick={handleApplyFilters}>{t('Apply Filters')}</Button>
-            </Box>
-          </Paper>
-        </Box>
-
-        {/* Charts + Stats */}
-        <Box sx={{ gridColumn: 'span 5', gridRowStart: 2 }}>
-          <Grid container spacing={4}>
-            {/* Stat Cards */}
-            <Grid item xs={12}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2.5, borderRadius: 3, boxShadow: '0 3px 10px rgba(0,0,0,0.06)', border: (t) => `1px solid ${t.palette.divider}` }}>
-                    <Typography variant="overline" sx={{ color: 'text.secondary' }}>{t('Active Students')}</Typography>
-                    {loading ? (
-                      <Skeleton variant="text" width={64} height={40} sx={{ mt: 0.5 }} />
-                    ) : (
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>{activeStudents}</Typography>
-                    )}
-                  </Paper>
-                </Grid>
-                <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2.5, borderRadius: 3, boxShadow: '0 3px 10px rgba(0,0,0,0.06)', border: (t) => `1px solid ${t.palette.divider}` }}>
-                    <Typography variant="overline" sx={{ color: 'text.secondary' }}>{t('Average Accuracy')}</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      {loading ? (
-                        <Skeleton variant="circular" width={42} height={42} />
-                      ) : (
-                        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                          <CircularProgress variant="determinate" value={avgAccuracy} size={42} thickness={5} sx={{ color: accuracyColor(avgAccuracy) }} />
-                          <Box sx={{
-                            top: 0,
-                            left: 0,
-                            bottom: 0,
-                            right: 0,
-                            position: 'absolute',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}>
-                            <Typography variant="subtitle2" component="div" color="text.primary">
-                              {`${avgAccuracy}%`}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      )}
-                    </Box>
-                  </Paper>
-                </Grid>
-                <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2.5, borderRadius: 3, boxShadow: '0 3px 10px rgba(0,0,0,0.06)', border: (t) => `1px solid ${t.palette.divider}` }}>
-                    <Typography variant="overline" sx={{ color: 'text.secondary' }}>{t('Total Levels Completed')}</Typography>
-                    {loading ? (
-                      <Skeleton variant="text" width={80} height={40} sx={{ mt: 0.5 }} />
-                    ) : (
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>{totalLevelsCompleted}</Typography>
-                    )}
-                  </Paper>
-                </Grid>
-                <Grid item xs={12} md={3}>
-                  <Paper sx={{ p: 2.5, borderRadius: 3, boxShadow: '0 3px 10px rgba(0,0,0,0.06)', border: (t) => `1px solid ${t.palette.divider}` }}>
-                    <Typography variant="overline" sx={{ color: 'text.secondary' }}>{t('Struggling Students')}</Typography>
-                    {loading ? (
-                      <Skeleton variant="text" width={80} height={40} sx={{ mt: 0.5 }} />
-                    ) : (
-                      <Typography variant="h4" sx={{ fontWeight: 700 }}>{strugglingCount}</Typography>
-                    )}
-                  </Paper>
-                </Grid>
-              </Grid>
-            </Grid>
-
-            {/* Category Progress */}
-            {!loading && hasData && (
-              <>
-                <Grid item xs={12} lg={6} sx={{ display: 'flex' }}>
-                  <Paper sx={chartPaperSx}>
-                    <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
-                      {t('Category Progress')}
-                    </Typography>
-                    <Box sx={chartBoxSx}>
-                      {categoryData.length === 0 ? (
-                        <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary' }}>
-                          <Typography variant="body2">{t('No data to display')}</Typography>
-                        </Box>
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={categoryData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }} barCategoryGap={40} barGap={12}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-                            <XAxis dataKey="category" tick={{ fontSize: 13, fontWeight: 500 }} tickLine={false} axisLine={false} interval={0} angle={-45} textAnchor="end" height={60} />
-                            <YAxis allowDecimals={false} domain={[0, 'dataMax + 2']} tick={{ fontSize: 13, fontWeight: 500 }} tickLine={false} axisLine={false} width={60} />
-                            <RechartsTooltip formatter={(v, n) => [v, t(n)]} contentStyle={{ background: theme.palette.background.paper, borderRadius: 8, border: `1px solid ${theme.palette.divider}` }} />
-                            <Legend verticalAlign="bottom" height={40} iconSize={14} wrapperStyle={{ fontSize: 14, fontWeight: 500, paddingTop: '20px' }} />
-                            <Bar dataKey="completed" name={t('Completed')} fill="#4caf50" radius={[6,6,0,0]} barSize={36} label={{ position: 'top', fill: theme.palette.text.secondary, fontSize: 12 }} />
-                            <Bar dataKey="total" name={t('Total')} fill="#e8eaf6" radius={[6,6,0,0]} barSize={36} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      )}
-                    </Box>
-                  </Paper>
-                </Grid>
-
-                {/* Weekly Activity */}
-                <Grid item xs={12} lg={6} sx={{ display: 'flex' }}>
-                  <Paper sx={chartPaperSx}>
-                    <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
-                      {t('Levels Completed This Week')}
-                    </Typography>
-                    <Box sx={chartBoxSx}>
-                      {weeklyData.length === 0 ? (
-                        <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary' }}>
-                          <Typography variant="body2">{t('No data to display')}</Typography>
-                        </Box>
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={weeklyData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="day" tickFormatter={formatDay} tick={{ fontSize: 13, fontWeight: 500 }} tickLine={false} axisLine={false} height={60} />
-                            <YAxis allowDecimals={false} domain={[0, 'dataMax + 2']} tick={{ fontSize: 13, fontWeight: 500 }} tickLine={false} axisLine={false} width={60} />
-                            <RechartsTooltip formatter={(v, n) => [v, t(n)]} labelFormatter={(l) => formatDay(l)} contentStyle={{ background: theme.palette.background.paper, borderRadius: 8, border: `1px solid ${theme.palette.divider}` }} />
-                            <Legend verticalAlign="bottom" height={40} iconSize={14} wrapperStyle={{ fontSize: 14, fontWeight: 500, paddingTop: '20px' }} />
-                            <Area type="monotone" dataKey="levelsCompleted" name={t('Levels Completed')} stroke="#1e88e5" strokeWidth={2} fill="#90caf9" fillOpacity={0.35} dot={{ r: 3 }} />
-                            <Area type="monotone" dataKey="studentsActive" name={t('Active Students')} stroke="#fb8c00" strokeWidth={2} fill="#ffcc80" fillOpacity={0.35} dot={{ r: 3 }} />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      )}
-                    </Box>
-                  </Paper>
-                </Grid>
-              </>
-            )}
-          </Grid>
-        </Box>
-
-        {/* Student Table */}
-        <Box sx={{ gridColumn: 'span 5', gridRowStart: 3 }}>
-          {hasData && (
-            <Paper sx={{ p: 3, borderRadius: 3, border: (t) => `1px solid ${t.palette.divider}`, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)', mt: 2 }}>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: 'text.primary', mb: 3 }}>
-                {t('Student FOUR PIC ONE WORD Progress')}
               </Typography>
-              <TableContainer sx={{ maxHeight: 420 }}>
-                <Table stickyHeader size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Student')}</TableCell>
-                      <TableCell sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Class')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Levels Completed')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Accuracy')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Hints Used')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Hint Rate')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Unfinished Categories')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Levels Remaining')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Time Spent')}</TableCell>
-                      <TableCell sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Last Active')}</TableCell>
-                      <TableCell align="center" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Struggling')}</TableCell>
-                      <TableCell align="right" sx={{ textTransform: 'uppercase', fontSize: 12, fontWeight: 700, color: 'text.secondary' }}>{t('Actions')}</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {studentRows
-                      .filter(student => classFilter === 'all' || String(student.classId) === String(classFilter) || (student.className && student.className.toLowerCase() === String(classFilter).toLowerCase()))
-                      .map((student) => (
-                        <TableRow key={student.studentId} hover sx={{ '&:nth-of-type(odd)': { bgcolor: 'action.hover' } }}>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Avatar sx={{ mr: 1, width: 32, height: 32 }}>{(student.studentName || '?').charAt(0)}</Avatar>
-                              <Typography sx={{ fontWeight: 600 }}>{student.studentName}</Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Chip label={student.className} size="small" color={colorForClass(student.className)} variant="outlined" />
-                          </TableCell>
-                          <TableCell align="right">{student.levelsCompleted}</TableCell>
-                          <TableCell align="right">
-                            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                              <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                                <CircularProgress variant="determinate" value={Number(student.accuracy) || 0} size={28} thickness={5} sx={{ color: accuracyColor(Number(student.accuracy) || 0) }} />
-                                <Box sx={{
-                                  top: 0,
-                                  left: 0,
-                                  bottom: 0,
-                                  right: 0,
-                                  position: 'absolute',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}>
-                                  <Typography variant="caption" component="div" color="text.primary">
-                                    {`${Number(student.accuracy) || 0}%`}
-                                  </Typography>
-                                </Box>
+              <Typography variant="subtitle1" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                {t('Detailed progress and activity for Four Pics One Word')}
+              </Typography>
+            </Box>
+          </Box>
+        }
+        actions={
+          <Button variant="outlined" startIcon={<DownloadIcon />}>
+            {t('Export')}
+          </Button>
+        }
+      />
+
+      {/* Filters */}
+      <Paper sx={{ 
+        p: 3, 
+        mt: 3, 
+        mb: 4,
+        borderRadius: 2,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 3, 
+          flexWrap: 'wrap' 
+        }}>
+          <FormControl size="medium" sx={{ minWidth: 200 }}>
+            <InputLabel>{t('Range')}</InputLabel>
+            <Select label={t('Range')} value={pendingRange} onChange={(e) => setPendingRange(e.target.value)}>
+              <MenuItem value="7d">{t('Last 7 days')}</MenuItem>
+              <MenuItem value="30d">{t('Last 30 days')}</MenuItem>
+              <MenuItem value="all">{t('All time')}</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl size="medium" sx={{ minWidth: 200 }}>
+            <InputLabel>{t('Class')}</InputLabel>
+            <Select label={t('Class')} value={pendingClassFilter} onChange={(e) => setPendingClassFilter(e.target.value)}>
+              <MenuItem value="all">{t('All Classes')}</MenuItem>
+              {classes.map((c) => (
+                <MenuItem key={c.id} value={String(c.id)}>{c.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="medium" sx={{ minWidth: 200 }}>
+            <InputLabel>{t('Category')}</InputLabel>
+            <Select label={t('Category')} value={pendingGameFilter} onChange={(e) => setPendingGameFilter(e.target.value)}>
+              <MenuItem value="all">{t('All Categories')}</MenuItem>
+              {categories.map((cat) => (
+                <MenuItem key={cat} value={String(cat)}>{cat}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button variant="contained" onClick={handleApplyFilters}>
+            {t('Apply Filters')}
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* Stats Cards */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
+              {t('Active Students')}
+            </Typography>
+            {loading ? (
+              <Skeleton variant="text" width={64} height={48} sx={{ mx: 'auto' }} />
+            ) : (
+              <Typography variant="h3" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                {activeStudents}
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
+              {t('Average Accuracy')}
+            </Typography>
+            {loading ? (
+              <Skeleton variant="circular" width={60} height={60} sx={{ mx: 'auto' }} />
+            ) : (
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                  <CircularProgress 
+                    variant="determinate" 
+                    value={avgAccuracy} 
+                    size={60} 
+                    thickness={4} 
+                    sx={{ color: accuracyColor(avgAccuracy) }} 
+                  />
+                  <Box sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <Typography variant="body1" component="div" fontWeight={600}>
+                      {`${avgAccuracy}%`}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
+              {t('Total Levels Completed')}
+            </Typography>
+            {loading ? (
+              <Skeleton variant="text" width={80} height={48} sx={{ mx: 'auto' }} />
+            ) : (
+              <Typography variant="h3" sx={{ fontWeight: 700, color: 'secondary.main' }}>
+                {totalLevelsCompleted}
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
+              {t('Struggling Students')}
+            </Typography>
+            {loading ? (
+              <Skeleton variant="text" width={80} height={48} sx={{ mx: 'auto' }} />
+            ) : (
+              <Typography variant="h3" sx={{ fontWeight: 700, color: 'error.main' }}>
+                {strugglingCount}
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Charts Section - Made wider */}
+{/* Charts Section - Full Page Width */}
+{!loading && hasData && (
+  <Box
+    sx={{
+      width: '100vw',
+      position: 'relative',
+      left: '50%',
+      right: '50%',
+      ml: '-50vw',
+      mr: '-50vw',
+      bgcolor: '#fafafa',
+      py: 5,
+    }}
+  >
+    <Box
+      sx={{
+        maxWidth: '1600px',
+        mx: 'auto',
+        px: { xs: 2, md: 6 },
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+      }}
+    >
+      {/* Category Progress Chart */}
+      <Paper
+        sx={{
+          p: { xs: 3, md: 5 },
+          borderRadius: 3,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          width: '100%',
+          backgroundColor: '#fff',
+        }}
+      >
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontWeight: 700, textAlign: 'center', mb: 3 }}
+        >
+          {t('Category Progress')}
+        </Typography>
+
+        <Box sx={{ width: '100%', height: 550, mt: 2 }}>
+          {categoryData.length === 0 ? (
+            <Box
+              sx={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'text.secondary',
+              }}
+            >
+              <Typography variant="body2">{t('No data to display')}</Typography>
+            </Box>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={categoryData}
+                margin={{ top: 20, right: 40, left: 20, bottom: 80 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={theme.palette.divider}
+                />
+                <XAxis
+                  dataKey="category"
+                  tick={{ fontSize: 12 }}
+                  interval={0}
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis allowDecimals={false} />
+                <RechartsTooltip />
+                <Legend />
+                <Bar
+                  dataKey="completed"
+                  name={t('Completed')}
+                  fill="#4caf50"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="total"
+                  name={t('Total')}
+                  fill="#c5cae9"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </Box>
+      </Paper>
+
+      {/* Weekly Activity Chart - Full Width Below */}
+      <Paper
+        sx={{
+          p: { xs: 3, md: 5 },
+          borderRadius: 3,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          width: '100%',
+          backgroundColor: '#fff',
+        }}
+      >
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ fontWeight: 700, textAlign: 'center', mb: 3 }}
+        >
+          {t('Levels Completed This Week')}
+        </Typography>
+
+        <Box sx={{ width: '100%', height: 500, mt: 2 }}>
+          {weeklyData.length === 0 ? (
+            <Box
+              sx={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'text.secondary',
+              }}
+            >
+              <Typography variant="body2">{t('No data to display')}</Typography>
+            </Box>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" tickFormatter={formatDay} />
+                <YAxis allowDecimals={false} />
+                <RechartsTooltip labelFormatter={(l) => formatDay(l)} />
+                <Legend />
+                <Area
+                  type="monotone"
+                  dataKey="levelsCompleted"
+                  name={t('Levels Completed')}
+                  stroke="#1e88e5"
+                  fill="#90caf9"
+                  strokeWidth={2}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="studentsActive"
+                  name={t('Active Students')}
+                  stroke="#fb8c00"
+                  fill="#ffcc80"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </Box>
+      </Paper>
+    </Box>
+  </Box>
+)}
+
+
+      {/* Student Table */}
+      <Box sx={{ mt: 4 }}>
+        {hasData && (
+          <Paper sx={{ 
+            p: 3, 
+            borderRadius: 2,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+              {t('Student FOUR PIC ONE WORD Progress')}
+            </Typography>
+            <TableContainer sx={{ 
+              maxHeight: 500,
+              '&::-webkit-scrollbar': {
+                width: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                background: '#f1f1f1',
+                borderRadius: 4,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: '#c1c1c1',
+                borderRadius: 4,
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                background: '#a8a8a8',
+              }
+            }}>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>{t('Student')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{t('Class')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Levels Completed')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Accuracy')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Hints Used')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Hint Rate')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Unfinished Categories')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Levels Remaining')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Time Spent')}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{t('Last Active')}</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 600 }}>{t('Struggling')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Actions')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {studentRows
+                    .filter(student => classFilter === 'all' || String(student.classId) === String(classFilter) || (student.className && student.className.toLowerCase() === String(classFilter).toLowerCase()))
+                    .map((student) => (
+                      <TableRow key={student.studentId} hover>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Avatar sx={{ mr: 1, width: 32, height: 32 }}>
+                              {(student.studentName || '?').charAt(0)}
+                            </Avatar>
+                            <Typography sx={{ fontWeight: 600 }}>{student.studentName}</Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={student.className} 
+                            size="small" 
+                            color={colorForClass(student.className)} 
+                            variant="outlined" 
+                          />
+                        </TableCell>
+                        <TableCell align="right">{student.levelsCompleted}</TableCell>
+                        <TableCell align="right">
+                          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                              <CircularProgress 
+                                variant="determinate" 
+                                value={Number(student.accuracy) || 0} 
+                                size={28} 
+                                thickness={5} 
+                                sx={{ color: accuracyColor(Number(student.accuracy) || 0) }} 
+                              />
+                              <Box sx={{
+                                top: 0,
+                                left: 0,
+                                bottom: 0,
+                                right: 0,
+                                position: 'absolute',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}>
+                                <Typography variant="caption" component="div">
+                                  {`${Number(student.accuracy) || 0}%`}
+                                </Typography>
                               </Box>
                             </Box>
-                          </TableCell>
-                          <TableCell align="right">{student.hintsUsed}</TableCell>
-                          <TableCell align="right">{student.hintRate != null ? `${student.hintRate}%` : '0%'}</TableCell>
-                          <TableCell align="right">{student.unfinishedCategories ?? 0}</TableCell>
-                          <TableCell align="right">{student.levelsRemaining ?? 0}</TableCell>
-                          <TableCell align="right">{formatMinutes(student.timeSpent)}</TableCell>
-                          <TableCell>{student.lastActive ? new Date(student.lastActive).toLocaleDateString() : '-'}</TableCell>
-                          <TableCell align="center">
-                            <MuiTooltip title={(student.strugglingReasons || []).map(r => {
-                              if (r === 'low_accuracy') return t('Low accuracy');
-                              if (r === 'high_hint_usage') return t('High hint usage');
-                              if (r === 'inactive_recently') return t('Inactive recently');
-                              return r;
-                            }).join(', ') || t('No issues detected')}>
-                              <Chip
-                                label={student.struggling ? t('At Risk') : t('OK')}
-                                size="small"
-                                color={student.struggling ? 'error' : 'success'}
-                                variant={student.struggling ? 'filled' : 'outlined'}
-                              />
-                            </MuiTooltip>
-                          </TableCell>
-                          <TableCell align="right">
-                            <MuiTooltip title={t('View Details')}>
-                              <IconButton size="small" onClick={() => {
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">{student.hintsUsed}</TableCell>
+                        <TableCell align="right">{student.hintRate != null ? `${student.hintRate}%` : '0%'}</TableCell>
+                        <TableCell align="right">{student.unfinishedCategories ?? 0}</TableCell>
+                        <TableCell align="right">{student.levelsRemaining ?? 0}</TableCell>
+                        <TableCell align="right">{formatMinutes(student.timeSpent)}</TableCell>
+                        <TableCell>
+                          {student.lastActive ? new Date(student.lastActive).toLocaleDateString() : '-'}
+                        </TableCell>
+                        <TableCell align="center">
+                          <MuiTooltip title={(student.strugglingReasons || []).map(r => {
+                            if (r === 'low_accuracy') return t('Low accuracy');
+                            if (r === 'high_hint_usage') return t('High hint usage');
+                            if (r === 'inactive_recently') return t('Inactive recently');
+                            return r;
+                          }).join(', ') || t('No issues detected')}>
+                            <Chip
+                              label={student.struggling ? t('At Risk') : t('OK')}
+                              size="small"
+                              color={student.struggling ? 'error' : 'success'}
+                              variant={student.struggling ? 'filled' : 'outlined'}
+                            />
+                          </MuiTooltip>
+                        </TableCell>
+                        <TableCell align="right">
+                          <MuiTooltip title={t('View Details')}>
+                            <IconButton 
+                              size="small" 
+                              onClick={() => {
                                 const path = student.classId
                                   ? `/teacher/classes/${student.classId}/students/${student.studentId}/fpow-progress`
                                   : `/teacher/student/${student.studentId}`;
                                 navigate(path);
-                              }}>
-                                <VisibilityIcon fontSize="small" />
-                              </IconButton>
-                            </MuiTooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          )}
+                              }}
+                            >
+                              <VisibilityIcon fontSize="small" />
+                            </IconButton>
+                          </MuiTooltip>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        )}
 
-          {!loading && !fpowData && (
-            <EmptyState
-              icon={<InsightsIcon sx={{ fontSize: 56 }} />}
-              title={t('No FOUR PIC ONE WORD analytics yet')}
-              description={t('When students play Four Pics One Word, detailed analytics will appear here.')}
-            />
-          )}
-        </Box>
+        {!loading && !fpowData && (
+          <EmptyState
+            icon={<InsightsIcon sx={{ fontSize: 56 }} />}
+            title={t('No FOUR PIC ONE WORD analytics yet')}
+            description={t('When students play Four Pics One Word, detailed analytics will appear here.')}
+          />
+        )}
       </Box>
     </Container>
   );
 }
-
