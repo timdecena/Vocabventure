@@ -9,7 +9,6 @@ import JwtDebugger from './utils/JwtDebugger';
 import authService from './services/authService';
 
 import Navbar from './Pages/Navbar';
-import SimpleGridPage from './Tester/SimpleGridPage';
 
 // Auth
 import Login from './Pages/Login';
@@ -344,7 +343,11 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
         element={isAuthenticated && role === 'STUDENT' ? <GamePlay /> : <Navigate to="/" replace />}
       />
 
-      <Route path="/teacher/fpow/create" element={<TeacherCreateFPOW />} />
+      <Route path="/teacher/fpow/create" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherCreateFPOW /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
 
       {/* SPELLING GAME */}
       <Route path="/teacher/spelling/create" element={
@@ -385,9 +388,6 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
 
       {/* DEBUG */}
       <Route path="/debug/jwt" element={<JwtDebugger />} />
-
-      {/* SIMPLE GRID TESTER ROUTE */}
-      <Route path="/test/simple-grid" element={<SimpleGridPage />} />
 
       {/* CATCH ALL */}
       <Route path="*" element={<Navigate to="/" replace />} />

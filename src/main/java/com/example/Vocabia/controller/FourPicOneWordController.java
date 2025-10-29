@@ -27,6 +27,7 @@ public class FourPicOneWordController {
     private final FourPicOneWordService service;
     private final ImagePathConfig imagePathConfig;
 
+    
     // ✅ GET /api/fpow/categories - Get all available categories
     @GetMapping("/categories")
     public ResponseEntity<List<String>> getCategories() {
