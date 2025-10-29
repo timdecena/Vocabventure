@@ -13,11 +13,13 @@ import {
   Chip,
   Stack,
   Container,
+  Paper,
 } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import api from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -40,11 +42,12 @@ export default function TeacherCreateFPOW() {
     hintType: 'TEXT_HINT',
     difficulty: 'EASY',
   });
-  const [images, setImages] = useState([]); // Dynamic image array
-  const [imagePreviews, setImagePreviews] = useState([]); // Preview URLs
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [dragIndex, setDragIndex] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -52,28 +55,23 @@ export default function TeacherCreateFPOW() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Dynamic image handling functions
   const handleImageAdd = (e) => {
     const files = Array.from(e.target.files);
     
-    // Validate file count (max 4 total)
     if (images.length + files.length > 4) {
       setError('Maximum 4 images allowed per puzzle');
       return;
     }
 
-    // Validate file types and sizes
     const validFiles = [];
     const validPreviews = [];
 
     files.forEach(file => {
-      // Check file type
       if (!file.type.startsWith('image/')) {
         setError(`${file.name} is not a valid image file`);
         return;
       }
 
-      // Check file size (3MB max)
       if (file.size > 3 * 1024 * 1024) {
         setError(`${file.name} is too large. Maximum size is 3MB`);
         return;
@@ -86,31 +84,44 @@ export default function TeacherCreateFPOW() {
     if (validFiles.length > 0) {
       setImages(prev => [...prev, ...validFiles]);
       setImagePreviews(prev => [...prev, ...validPreviews]);
-      setError(''); // Clear any previous errors
+      setError('');
     }
 
-    // Reset file input
     e.target.value = '';
   };
 
   const handleImageRemove = (index) => {
-    // Revoke the object URL to prevent memory leaks
     URL.revokeObjectURL(imagePreviews[index]);
-    
     setImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleImageReorder = (fromIndex, toIndex) => {
+  const handleDragStart = (e, index) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === dropIndex) return;
+
     const newImages = [...images];
     const newPreviews = [...imagePreviews];
     
-    // Swap images
-    [newImages[fromIndex], newImages[toIndex]] = [newImages[toIndex], newImages[fromIndex]];
-    [newPreviews[fromIndex], newPreviews[toIndex]] = [newPreviews[toIndex], newPreviews[fromIndex]];
+    const [movedImage] = newImages.splice(dragIndex, 1);
+    const [movedPreview] = newPreviews.splice(dragIndex, 1);
+    
+    newImages.splice(dropIndex, 0, movedImage);
+    newPreviews.splice(dropIndex, 0, movedPreview);
     
     setImages(newImages);
     setImagePreviews(newPreviews);
+    setDragIndex(null);
   };
 
   const handleSubmit = async (e) => {
@@ -126,14 +137,12 @@ export default function TeacherCreateFPOW() {
         return;
       }
 
-      // ✅ Validate minimum image requirement
       if (images.length === 0) {
         setError('At least 1 image is required to create a puzzle.');
         setLoading(false);
         return;
       }
 
-      // ✅ Validate form fields
       if (!form.category.trim() || !form.level || !form.answer.trim()) {
         setError('Category, level, and answer are required fields.');
         setLoading(false);
@@ -148,7 +157,6 @@ export default function TeacherCreateFPOW() {
       formData.append('hintType', form.hintType);
       formData.append('difficulty', form.difficulty);
 
-      // ✅ Append dynamic images (1-4 images)
       images.forEach((file) => {
         formData.append('images', file);
       });
@@ -173,137 +181,227 @@ export default function TeacherCreateFPOW() {
   };
 
   return (
-    <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', pb: 4 }}>
-      <Container maxWidth="lg" sx={{ pt: 3 }}>
-        <PageTitle icon={<CloudUploadIcon />}>
-          Create 4Pics1Word Level
-        </PageTitle>
+    <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', pb: 4, pt: 2 }}>
+      <Container maxWidth="lg">
+        {/* Header Section */}
+        <Box sx={{ mb: 4 }}>
+          <PageTitle icon={<CloudUploadIcon sx={{ fontSize: 32 }} />}>
+            Create 4 Pics 1 Word Level
+          </PageTitle>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              color: colors.textLight, 
+              mt: 1,
+              fontWeight: 400,
+              fontSize: '1.1rem'
+            }}
+          >
+            Create engaging picture puzzles for your students
+          </Typography>
+        </Box>
 
-        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+        {error && (
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 4, 
+              borderRadius: 2,
+              '& .MuiAlert-message': { fontSize: '0.95rem' }
+            }}
+          >
+            {error}
+          </Alert>
+        )}
 
-        <StyledCard sx={{ p: 4 }}>
-        <form onSubmit={handleSubmit}>
-          <SectionHeader>Level Information</SectionHeader>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <StyledInput
-                name="category"
-                label="Category *"
-                value={form.category}
-                onChange={handleChange}
-                required
-                placeholder="e.g., Animals, Food, Sports"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StyledInput
-                name="level"
-                label="Level Number *"
-                type="number"
-                value={form.level}
-                onChange={handleChange}
-                required
-                placeholder="e.g., 1, 2, 3"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <StyledInput
-                name="answer"
-                label="Answer Word *"
-                value={form.answer}
-                onChange={handleChange}
-                required
-                placeholder="Enter the correct answer"
-                helperText="This will be converted to uppercase automatically"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <StyledInput
-                name="hint"
-                label="Hint (Optional)"
-                value={form.hint}
-                onChange={handleChange}
-                multiline
-                rows={2}
-                placeholder="Provide a helpful hint for students"
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                name="hintType"
-                label="Hint Type"
-                value={form.hintType}
-                onChange={handleChange}
-                fullWidth
-                variant="outlined"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    bgcolor: colors.cardBg,
-                    '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
-                    '&:hover fieldset': { borderColor: colors.primary },
-                    '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
-                  },
-                }}
-              >
-                <MenuItem value="TEXT_HINT">Text Hint</MenuItem>
-                <MenuItem value="REVEAL_LETTER">Reveal Letter</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                name="difficulty"
-                label="Difficulty"
-                value={form.difficulty}
-                onChange={handleChange}
-                fullWidth
-                variant="outlined"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    bgcolor: colors.cardBg,
-                    '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
-                    '&:hover fieldset': { borderColor: colors.primary },
-                    '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
-                  },
-                }}
-              >
-                <MenuItem value="EASY">Easy</MenuItem>
-                <MenuItem value="MEDIUM">Medium</MenuItem>
-                <MenuItem value="HARD">Hard</MenuItem>
-              </TextField>
+        <StyledCard sx={{ p: { xs: 3, md: 4 }, borderRadius: 3 }}>
+          <form onSubmit={handleSubmit}>
+            {/* Level Information Section */}
+            <SectionHeader sx={{ mb: 3 }}>Level Information</SectionHeader>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <StyledInput
+                  name="category"
+                  label="Category *"
+                  value={form.category}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g., Animals, Food, Sports"
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <StyledInput
+                  name="level"
+                  label="Level Number *"
+                  type="number"
+                  value={form.level}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g., 1, 2, 3"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <StyledInput
+                  name="answer"
+                  label="Answer Word *"
+                  value={form.answer}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter the correct answer"
+                  helperText="This will be converted to uppercase automatically"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <StyledInput
+                  name="hint"
+                  label="Hint (Optional)"
+                  value={form.hint}
+                  onChange={handleChange}
+                  multiline
+                  rows={3}
+                  placeholder="Provide a helpful hint for students..."
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  select
+                  name="hintType"
+                  label="Hint Type"
+                  value={form.hintType}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      bgcolor: colors.cardBg,
+                      '& fieldset': { 
+                        borderColor: colors.border, 
+                        borderWidth: '2px',
+                        transition: 'all 0.3s ease'
+                      },
+                      '&:hover fieldset': { borderColor: colors.primary },
+                      '&.Mui-focused fieldset': { 
+                        borderColor: colors.primary, 
+                        borderWidth: '2px',
+                        boxShadow: `0 0 0 3px ${colors.primary}20`
+                      },
+                    },
+                    '& .MuiSelect-select': {
+                      py: 1.5,
+                    }
+                  }}
+                >
+                  <MenuItem value="TEXT_HINT">Text Hint</MenuItem>
+                  <MenuItem value="REVEAL_LETTER">Reveal Letter</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  select
+                  name="difficulty"
+                  label="Difficulty Level"
+                  value={form.difficulty}
+                  onChange={handleChange}
+                  fullWidth
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      bgcolor: colors.cardBg,
+                      '& fieldset': { 
+                        borderColor: colors.border, 
+                        borderWidth: '2px',
+                        transition: 'all 0.3s ease'
+                      },
+                      '&:hover fieldset': { borderColor: colors.primary },
+                      '&.Mui-focused fieldset': { 
+                        borderColor: colors.primary, 
+                        borderWidth: '2px',
+                        boxShadow: `0 0 0 3px ${colors.primary}20`
+                      },
+                    },
+                    '& .MuiSelect-select': {
+                      py: 1.5,
+                    }
+                  }}
+                >
+                  <MenuItem value="EASY">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ 
+                        width: 8, 
+                        height: 8, 
+                        borderRadius: '50%', 
+                        bgcolor: colors.success 
+                      }} />
+                      Easy
+                    </Box>
+                  </MenuItem>
+                  <MenuItem value="MEDIUM">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ 
+                        width: 8, 
+                        height: 8, 
+                        borderRadius: '50%', 
+                        bgcolor: colors.warning 
+                      }} />
+                      Medium
+                    </Box>
+                  </MenuItem>
+                  <MenuItem value="HARD">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ 
+                        width: 8, 
+                        height: 8, 
+                        borderRadius: '50%', 
+                        bgcolor: colors.error 
+                      }} />
+                      Hard
+                    </Box>
+                  </MenuItem>
+                </TextField>
+              </Grid>
             </Grid>
 
-            {/* ✅ Dynamic Image Upload Section */}
-            <Grid item xs={12}>
-              <SectionHeader sx={{ mt: 3 }}>Upload Images (1-4 required)</SectionHeader>
+            {/* Image Upload Section */}
+            <Box sx={{ mt: 5 }}>
+              <SectionHeader sx={{ mb: 3 }}>Upload Images</SectionHeader>
               
-              {/* Drag and Drop Area */}
-              <Box
+              {/* Upload Area */}
+              <Paper
                 sx={{
-                  border: `2px dashed ${images.length >= 4 ? colors.border : colors.primary}`,
-                  borderRadius: '12px',
-                  p: 4,
+                  border: `2px dashed ${images.length >= 4 ? colors.border : colors.primary}80`,
+                  borderRadius: '16px',
+                  p: 5,
                   textAlign: 'center',
-                  bgcolor: images.length >= 4 ? colors.border + '20' : colors.primary + '10',
+                  bgcolor: images.length >= 4 ? colors.border + '15' : colors.primary + '08',
                   cursor: images.length >= 4 ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s ease',
-                  mb: 3,
+                  mb: 4,
+                  position: 'relative',
+                  overflow: 'hidden',
                   '&:hover': images.length < 4 ? {
-                    borderColor: colors.primaryDark,
-                    bgcolor: colors.primary + '20',
+                    borderColor: colors.primary,
+                    bgcolor: colors.primary + '12',
+                    transform: 'translateY(-2px)',
+                    boxShadow: `0 8px 25px ${colors.primary}20`,
                   } : {},
                 }}
                 component="label"
               >
-                <AddPhotoAlternateIcon sx={{ fontSize: 48, color: images.length >= 4 ? colors.textLight : colors.primary, mb: 2 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: colors.text, mb: 1 }}>
-                  {images.length === 0 ? 'Click to Upload Images' : `Add More Images (${images.length}/4)`}
+                <AddPhotoAlternateIcon 
+                  sx={{ 
+                    fontSize: 56, 
+                    color: images.length >= 4 ? colors.textLight : colors.primary, 
+                    mb: 2,
+                    opacity: 0.8
+                  }} 
+                />
+                <Typography variant="h6" sx={{ fontWeight: 700, color: colors.text, mb: 1 }}>
+                  {images.length === 0 ? 'Upload Puzzle Images' : `Add More Images (${images.length}/4)`}
                 </Typography>
-                <Typography variant="body2" sx={{ color: colors.textLight }}>
-                  Drag and drop or click to browse • Max 4 images • 3MB each
+                <Typography variant="body2" sx={{ color: colors.textLight, maxWidth: 400, mx: 'auto' }}>
+                  Drag and drop images here or click to browse • Maximum 4 images • 3MB each
                 </Typography>
                 <input
                   type="file"
@@ -313,10 +411,10 @@ export default function TeacherCreateFPOW() {
                   onChange={handleImageAdd}
                   disabled={images.length >= 4}
                 />
-              </Box>
+              </Paper>
 
-              {/* Image Count Indicator */}
-              <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
+              {/* Status Chips */}
+              <Stack direction="row" spacing={1} sx={{ mb: 4, flexWrap: 'wrap', gap: 1 }}>
                 <Chip 
                   label={`${images.length} image${images.length !== 1 ? 's' : ''} selected`}
                   sx={{
@@ -324,15 +422,18 @@ export default function TeacherCreateFPOW() {
                     color: images.length === 0 ? colors.error : colors.success,
                     fontWeight: 600,
                     fontSize: '0.875rem',
+                    height: 32,
                   }}
                 />
                 {images.length > 0 && (
                   <Chip 
-                    label="✓ Ready to create"
+                    label="Drag to reorder images"
+                    variant="outlined"
                     sx={{
-                      bgcolor: colors.primary + '20',
+                      borderColor: colors.primary,
                       color: colors.primary,
-                      fontWeight: 600,
+                      fontWeight: 500,
+                      height: 32,
                     }}
                   />
                 )}
@@ -342,28 +443,54 @@ export default function TeacherCreateFPOW() {
               {images.length > 0 && (
                 <Grid container spacing={2}>
                   {imagePreviews.map((preview, index) => (
-                    <Grid item xs={6} sm={3} key={index}>
+                    <Grid item xs={6} sm={4} md={3} key={index}>
                       <Card 
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, index)}
                         sx={{ 
                           position: 'relative',
                           borderRadius: '12px',
                           overflow: 'hidden',
                           border: `2px solid ${colors.border}`,
                           transition: 'all 0.3s ease',
+                          cursor: 'grab',
                           '&:hover': {
                             borderColor: colors.primary,
                             transform: 'translateY(-4px)',
-                            boxShadow: `0 4px 12px ${colors.primary}40`,
+                            boxShadow: `0 8px 25px ${colors.primary}30`,
+                          },
+                          '&:active': {
+                            cursor: 'grabbing',
                           }
                         }}
                       >
                         <CardMedia
                           component="img"
-                          height="140"
+                          height="160"
                           image={preview}
                           alt={`Preview ${index + 1}`}
                           sx={{ objectFit: 'cover' }}
                         />
+                        
+                        {/* Drag Handle */}
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            left: 8,
+                            backgroundColor: 'rgba(0,0,0,0.6)',
+                            borderRadius: '4px',
+                            p: 0.5,
+                            color: 'white',
+                            cursor: 'grab',
+                          }}
+                        >
+                          <DragIndicatorIcon fontSize="small" />
+                        </Box>
+
+                        {/* Remove Button */}
                         <IconButton
                           size="small"
                           onClick={() => handleImageRemove(index)}
@@ -376,24 +503,27 @@ export default function TeacherCreateFPOW() {
                             '&:hover': { 
                               backgroundColor: colors.error,
                               transform: 'scale(1.1)',
-                            }
+                            },
+                            transition: 'all 0.2s ease',
                           }}
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>
+
+                        {/* Image Number Badge */}
                         <Box
                           sx={{ 
                             position: 'absolute', 
                             bottom: 0, 
                             left: 0,
                             right: 0,
-                            backgroundColor: colors.primary,
+                            background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
                             color: '#FFFFFF',
-                            py: 0.5,
+                            py: 1,
                             textAlign: 'center',
                           }}
                         >
-                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.75rem' }}>
                             Image {index + 1}
                           </Typography>
                         </Box>
@@ -405,28 +535,64 @@ export default function TeacherCreateFPOW() {
 
               {/* Preview Button */}
               {images.length > 0 && (
-                <PrimaryButton
-                  startIcon={<PreviewIcon />}
-                  onClick={() => setShowPreview(!showPreview)}
-                  sx={{ mt: 3 }}
-                >
-                  {showPreview ? 'Hide Preview' : 'Preview Puzzle'}
-                </PrimaryButton>
+                <Box sx={{ display: 'flex', gap: 2, mt: 4, flexWrap: 'wrap' }}>
+                  <SecondaryButton
+                    startIcon={<PreviewIcon />}
+                    onClick={() => setShowPreview(!showPreview)}
+                    sx={{ 
+                      px: 3,
+                      borderRadius: 2
+                    }}
+                  >
+                    {showPreview ? 'Hide Preview' : 'Preview Puzzle'}
+                  </SecondaryButton>
+                </Box>
               )}
 
               {/* Live Preview Section */}
               {showPreview && images.length > 0 && (
-                <StyledCard sx={{ p: 3, mt: 3, bgcolor: colors.primary + '10', border: `2px solid ${colors.primary}` }}>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: colors.primary }}>
+                <Paper 
+                  sx={{ 
+                    p: 4, 
+                    mt: 4, 
+                    bgcolor: colors.primary + '08', 
+                    border: `2px solid ${colors.primary}40`,
+                    borderRadius: 3,
+                    background: `linear-gradient(135deg, ${colors.primary}08 0%, ${colors.secondary}08 100%)`
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      mb: 3, 
+                      fontWeight: 700, 
+                      color: colors.primary,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1
+                    }}
+                  >
                     🎮 Student View Preview
                   </Typography>
-                  <Grid container spacing={2}>
+                  
+                  {/* Image Grid Preview */}
+                  <Grid container spacing={2} sx={{ mb: 3 }}>
                     {imagePreviews.map((preview, index) => (
                       <Grid item xs={6} key={index}>
-                        <Card sx={{ borderRadius: '8px', overflow: 'hidden' }}>
+                        <Card 
+                          sx={{ 
+                            borderRadius: '12px', 
+                            overflow: 'hidden',
+                            border: `2px solid ${colors.border}`,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              transform: 'scale(1.02)',
+                            }
+                          }}
+                        >
                           <CardMedia
                             component="img"
-                            height="120"
+                            height="140"
                             image={preview}
                             alt={`Game preview ${index + 1}`}
                             sx={{ objectFit: 'cover' }}
@@ -435,35 +601,72 @@ export default function TeacherCreateFPOW() {
                       </Grid>
                     ))}
                   </Grid>
-                  <Box sx={{ mt: 2, p: 2, bgcolor: colors.cardBg, borderRadius: '8px' }}>
-                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.text }}>
-                      Answer: {form.answer || '(Enter answer above)'}
+
+                  {/* Answer & Hint Preview */}
+                  <Box sx={{ p: 3, bgcolor: 'white', borderRadius: 2, border: `1px solid ${colors.border}` }}>
+                    <Typography variant="body1" sx={{ fontWeight: 700, color: colors.text, mb: 1 }}>
+                      🔍 What's the word?
+                    </Typography>
+                    <Typography variant="h6" sx={{ 
+                      color: colors.primary, 
+                      fontWeight: 800,
+                      fontFamily: 'monospace',
+                      letterSpacing: 2,
+                      mb: 2
+                    }}>
+                      {form.answer.toUpperCase() || 'ENTER ANSWER'}
                     </Typography>
                     {form.hint && (
-                      <Typography variant="body2" sx={{ color: colors.textLight, mt: 1 }}>
-                        💡 Hint: {form.hint}
-                      </Typography>
+                      <Box sx={{ 
+                        p: 2, 
+                        bgcolor: colors.warning + '15', 
+                        borderRadius: 1,
+                        border: `1px solid ${colors.warning}30`
+                      }}>
+                        <Typography variant="body2" sx={{ color: colors.text, fontWeight: 500 }}>
+                          💡 Hint: {form.hint}
+                        </Typography>
+                      </Box>
                     )}
                   </Box>
-                </StyledCard>
+                </Paper>
               )}
-            </Grid>
+            </Box>
 
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
-                <SecondaryButton
-                  type="submit"
-                  size="large"
-                  fullWidth
-                  disabled={loading || images.length === 0}
-                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
-                >
-                  {loading ? 'Creating...' : 'Create Level'}
-                </SecondaryButton>
-              </Box>
-            </Grid>
-          </Grid>
-        </form>
+            {/* Submit Button */}
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              mt: 6, 
+              pt: 3, 
+              borderTop: `1px solid ${colors.border}`,
+              flexWrap: 'wrap'
+            }}>
+              <PrimaryButton
+                type="submit"
+                size="large"
+                fullWidth
+                disabled={loading || images.length === 0}
+                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+                sx={{
+                  py: 1.5,
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  background: loading || images.length === 0 
+                    ? `${colors.textLight}40` 
+                    : `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+                  '&:hover': {
+                    transform: images.length > 0 ? 'translateY(-2px)' : 'none',
+                    boxShadow: images.length > 0 ? `0 8px 25px ${colors.primary}40` : 'none',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {loading ? 'Creating Puzzle...' : `Create Level with ${images.length} Image${images.length !== 1 ? 's' : ''}`}
+              </PrimaryButton>
+            </Box>
+          </form>
         </StyledCard>
       </Container>
     </Box>
