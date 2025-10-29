@@ -57,8 +57,9 @@ public class SecurityConfig {
                 // CRITICAL: Allow all OPTIONS requests for CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // Public static resources
-                .requestMatchers("/images/**", "/audio/**", "/nature/**", "/static/**").permitAll()
+                // Public static resources (front-end)
+                .requestMatchers("/images/**", "/audio/**", "/nature/**", "/static/**",
+                                "/avatars/**", "/default-avatar.png", "/fantasy/**", "/game-thumbnail/**").permitAll()
                 .requestMatchers("/api/4pic1word-assets/**").permitAll()
                 
                 // Authentication endpoints (must be public)
@@ -71,10 +72,13 @@ public class SecurityConfig {
                 // CRITICAL: User progress endpoints - REQUIRE STUDENT ROLE
                 .requestMatchers("/api/user-progress/**").hasRole("STUDENT")
                 
-                // Game endpoints
-      .requestMatchers("/api/game/word-of-the-day").hasAuthority("STUDENT")
-.requestMatchers("/api/game/word-of-the-day/retry").hasAuthority("STUDENT")
-.requestMatchers("/api/game/**", "/api/leaderboard/**", "/api/game/spelling/**").hasAuthority("STUDENT")
+                // Game endpoints (JWT contains ROLE_*; use hasRole)
+                .requestMatchers("/api/game/word-of-the-day").hasRole("STUDENT")
+                .requestMatchers("/api/game/word-of-the-day/retry").hasRole("STUDENT")
+                .requestMatchers("/api/game/**", "/api/game/spelling/**").hasRole("STUDENT")
+
+                // Leaderboards accessible by both STUDENT and TEACHER
+                .requestMatchers("/api/leaderboard/**").hasAnyRole("STUDENT", "TEACHER")
 
                 
                 // Four Pics One Word gameplay

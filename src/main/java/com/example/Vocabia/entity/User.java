@@ -38,6 +38,6 @@ public class User {
     private int progressPoints = 0;
     
     @Lob
-    @Column(name = "profile_image", columnDefinition = "MEDIUMBLOB")
+    @Column(name = "profile_image")
     private byte[] profileImage; // Store profile image as binary
 }
