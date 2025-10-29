@@ -72,6 +72,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/user-progress/**").hasRole("STUDENT")
                 
                 // Game endpoints
+                .requestMatchers("/api/game/word-of-the-day").hasRole("STUDENT")
                 .requestMatchers("/api/game/word-of-the-day/retry").hasRole("STUDENT")
                 .requestMatchers("/api/game/**", "/api/leaderboard/**", "/api/game/spelling/**").hasRole("STUDENT")
                 
