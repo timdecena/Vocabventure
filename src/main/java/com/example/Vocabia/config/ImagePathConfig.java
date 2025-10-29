@@ -19,35 +19,42 @@ public class ImagePathConfig {
     private String staticImageDir;
     
     @PostConstruct
-    public void initializePaths() {
-        try {
-            // Find project root by looking for pom.xml
-            projectRoot = findProjectRoot();
-            
-            if (projectRoot != null) {
-                // Set up FPOW image directory
-                fpowImageDir = projectRoot + "/vocabia-game/public/static/images/Four_Pic_One_Word_Category";
-                staticImageDir = projectRoot + "/vocabia-game/public/static/images";
-                
-                // Verify directories exist
-                ensureDirectoryExists(fpowImageDir, "FPOW Images");
-                ensureDirectoryExists(staticImageDir, "Static Images");
-                
-                System.out.println("🎯 Image Path Configuration:");
-                System.out.println("   📁 Project Root: " + projectRoot);
-                System.out.println("   🖼️ FPOW Images: " + fpowImageDir);
-                System.out.println("   📷 Static Images: " + staticImageDir);
-                
-            } else {
-                // Fallback to resources directory
-                setupFallbackPaths();
-            }
-            
-        } catch (Exception e) {
-            System.err.println("❌ Error initializing image paths: " + e.getMessage());
+public void initializePaths() {
+    try {
+        String ec2Path = "/home/ec2-user/Vocabventure/uploads";
+
+        File ec2Dir = new File(ec2Path);
+        if (ec2Dir.exists()) {
+            // ✅ Use EC2 path if running on the server
+            fpowImageDir = ec2Path + "/Four_Pic_One_Word_Category";
+            staticImageDir = ec2Path;
+
+            ensureDirectoryExists(fpowImageDir, "FPOW Images (EC2)");
+            ensureDirectoryExists(staticImageDir, "Static Images (EC2)");
+
+            System.out.println("🌍 Using EC2 upload paths:");
+            System.out.println("   🖼️ FPOW Images: " + fpowImageDir);
+            System.out.println("   📷 Static Images: " + staticImageDir);
+            return;
+        }
+
+        // 🔧 Otherwise, fall back to your local logic
+        projectRoot = findProjectRoot();
+        if (projectRoot != null) {
+            fpowImageDir = projectRoot + "/vocabia-game/public/static/images/Four_Pic_One_Word_Category";
+            staticImageDir = projectRoot + "/vocabia-game/public/static/images";
+        } else {
             setupFallbackPaths();
         }
+
+        ensureDirectoryExists(fpowImageDir, "FPOW Images");
+        ensureDirectoryExists(staticImageDir, "Static Images");
+
+    } catch (Exception e) {
+        System.err.println("❌ Error initializing image paths: " + e.getMessage());
+        setupFallbackPaths();
     }
+}
     
     private String findProjectRoot() {
         File currentDir = new File(System.getProperty("user.dir"));
