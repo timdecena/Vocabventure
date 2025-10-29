@@ -1102,8 +1102,8 @@ const TutorialBattle = ({ onComplete, showQuitButton, onQuit, quitButtonText, in
         "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=200&h=200&fit=crop", // Food
         "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=200&h=200&fit=crop", // Pancakes
         "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop", // Cooking
-        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=200&h=200&fit=crop",
-        "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=200&h=200&fit=crop"  // Pizza
+        "https://foodboxhq.com/wp-content/uploads/2023/02/friends-cooking-together-1.webp",
+        
       ],
       letters: "FDOOEKOCIN",
       correct: "FOOD"
