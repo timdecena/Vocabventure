@@ -3,24 +3,33 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   MenuItem,
   Grid,
-  Paper,
   CircularProgress,
   Alert,
   Card,
   CardMedia,
   IconButton,
   Chip,
-  Stack
+  Stack,
+  Container,
 } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import api from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {
+  colors,
+  StyledCard,
+  PageTitle,
+  SecondaryButton,
+  PrimaryButton,
+  StyledInput,
+  SectionHeader,
+} from '../Teacher/components/DesignSystem';
 
 export default function TeacherCreateFPOW() {
   const [form, setForm] = useState({
@@ -164,59 +173,62 @@ export default function TeacherCreateFPOW() {
   };
 
   return (
-    <Box sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
-      <Typography variant="h4" fontWeight={700} mb={3}>
-        Create 4Pics1Word Level
-      </Typography>
+    <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', pb: 4 }}>
+      <Container maxWidth="lg" sx={{ pt: 3 }}>
+        <PageTitle icon={<CloudUploadIcon />}>
+          Create 4Pics1Word Level
+        </PageTitle>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-      <Paper sx={{ p: 3 }}>
+        <StyledCard sx={{ p: 4 }}>
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
+          <SectionHeader>Level Information</SectionHeader>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <StyledInput
                 name="category"
-                label="Category"
+                label="Category *"
                 value={form.category}
                 onChange={handleChange}
                 required
-                fullWidth
+                placeholder="e.g., Animals, Food, Sports"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
+            <Grid item xs={12} md={6}>
+              <StyledInput
                 name="level"
-                label="Level Number"
+                label="Level Number *"
                 type="number"
                 value={form.level}
                 onChange={handleChange}
                 required
-                fullWidth
+                placeholder="e.g., 1, 2, 3"
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              <StyledInput
                 name="answer"
-                label="Answer Word"
+                label="Answer Word *"
                 value={form.answer}
                 onChange={handleChange}
                 required
-                fullWidth
+                placeholder="Enter the correct answer"
+                helperText="This will be converted to uppercase automatically"
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              <StyledInput
                 name="hint"
-                label="Hint (optional)"
+                label="Hint (Optional)"
                 value={form.hint}
                 onChange={handleChange}
-                fullWidth
                 multiline
                 rows={2}
+                placeholder="Provide a helpful hint for students"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={6}>
               <TextField
                 select
                 name="hintType"
@@ -224,12 +236,22 @@ export default function TeacherCreateFPOW() {
                 value={form.hintType}
                 onChange={handleChange}
                 fullWidth
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    bgcolor: colors.cardBg,
+                    '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
+                    '&:hover fieldset': { borderColor: colors.primary },
+                    '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
+                  },
+                }}
               >
                 <MenuItem value="TEXT_HINT">Text Hint</MenuItem>
                 <MenuItem value="REVEAL_LETTER">Reveal Letter</MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={6}>
               <TextField
                 select
                 name="difficulty"
@@ -237,6 +259,16 @@ export default function TeacherCreateFPOW() {
                 value={form.difficulty}
                 onChange={handleChange}
                 fullWidth
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    bgcolor: colors.cardBg,
+                    '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
+                    '&:hover fieldset': { borderColor: colors.primary },
+                    '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
+                  },
+                }}
               >
                 <MenuItem value="EASY">Easy</MenuItem>
                 <MenuItem value="MEDIUM">Medium</MenuItem>
@@ -246,40 +278,62 @@ export default function TeacherCreateFPOW() {
 
             {/* ✅ Dynamic Image Upload Section */}
             <Grid item xs={12}>
-              <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
-                Upload Images (1-4 required)
-              </Typography>
+              <SectionHeader sx={{ mt: 3 }}>Upload Images (1-4 required)</SectionHeader>
               
-              {/* Image Upload Button */}
-              <Button
-                variant="contained"
+              {/* Drag and Drop Area */}
+              <Box
+                sx={{
+                  border: `2px dashed ${images.length >= 4 ? colors.border : colors.primary}`,
+                  borderRadius: '12px',
+                  p: 4,
+                  textAlign: 'center',
+                  bgcolor: images.length >= 4 ? colors.border + '20' : colors.primary + '10',
+                  cursor: images.length >= 4 ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease',
+                  mb: 3,
+                  '&:hover': images.length < 4 ? {
+                    borderColor: colors.primaryDark,
+                    bgcolor: colors.primary + '20',
+                  } : {},
+                }}
                 component="label"
-                startIcon={<AddPhotoAlternateIcon />}
-                disabled={images.length >= 4}
-                sx={{ mb: 2 }}
               >
-                {images.length === 0 ? 'Add Images' : `Add More Images (${images.length}/4)`}
+                <AddPhotoAlternateIcon sx={{ fontSize: 48, color: images.length >= 4 ? colors.textLight : colors.primary, mb: 2 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, color: colors.text, mb: 1 }}>
+                  {images.length === 0 ? 'Click to Upload Images' : `Add More Images (${images.length}/4)`}
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight }}>
+                  Drag and drop or click to browse • Max 4 images • 3MB each
+                </Typography>
                 <input
                   type="file"
                   hidden
                   accept="image/*"
                   multiple
                   onChange={handleImageAdd}
+                  disabled={images.length >= 4}
                 />
-              </Button>
+              </Box>
 
               {/* Image Count Indicator */}
-              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <Stack direction="row" spacing={1} sx={{ mb: 3 }}>
                 <Chip 
                   label={`${images.length} image${images.length !== 1 ? 's' : ''} selected`}
-                  color={images.length === 0 ? 'error' : 'success'}
-                  variant={images.length === 0 ? 'outlined' : 'filled'}
+                  sx={{
+                    bgcolor: images.length === 0 ? colors.error + '20' : colors.success + '20',
+                    color: images.length === 0 ? colors.error : colors.success,
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                  }}
                 />
                 {images.length > 0 && (
                   <Chip 
-                    label="Ready to create"
-                    color="primary"
-                    variant="outlined"
+                    label="✓ Ready to create"
+                    sx={{
+                      bgcolor: colors.primary + '20',
+                      color: colors.primary,
+                      fontWeight: 600,
+                    }}
                   />
                 )}
               </Stack>
@@ -289,10 +343,23 @@ export default function TeacherCreateFPOW() {
                 <Grid container spacing={2}>
                   {imagePreviews.map((preview, index) => (
                     <Grid item xs={6} sm={3} key={index}>
-                      <Card sx={{ position: 'relative' }}>
+                      <Card 
+                        sx={{ 
+                          position: 'relative',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          border: `2px solid ${colors.border}`,
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            borderColor: colors.primary,
+                            transform: 'translateY(-4px)',
+                            boxShadow: `0 4px 12px ${colors.primary}40`,
+                          }
+                        }}
+                      >
                         <CardMedia
                           component="img"
-                          height="120"
+                          height="140"
                           image={preview}
                           alt={`Preview ${index + 1}`}
                           sx={{ objectFit: 'cover' }}
@@ -302,28 +369,34 @@ export default function TeacherCreateFPOW() {
                           onClick={() => handleImageRemove(index)}
                           sx={{
                             position: 'absolute',
-                            top: 4,
-                            right: 4,
-                            backgroundColor: 'rgba(255,255,255,0.8)',
-                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.9)' }
+                            top: 8,
+                            right: 8,
+                            backgroundColor: colors.error,
+                            color: '#FFFFFF',
+                            '&:hover': { 
+                              backgroundColor: colors.error,
+                              transform: 'scale(1.1)',
+                            }
                           }}
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>
-                        <Typography 
-                          variant="caption" 
+                        <Box
                           sx={{ 
                             position: 'absolute', 
-                            bottom: 4, 
-                            left: 4, 
-                            backgroundColor: 'rgba(0,0,0,0.7)',
-                            color: 'white',
-                            px: 1,
-                            borderRadius: 1
+                            bottom: 0, 
+                            left: 0,
+                            right: 0,
+                            backgroundColor: colors.primary,
+                            color: '#FFFFFF',
+                            py: 0.5,
+                            textAlign: 'center',
                           }}
                         >
-                          Image {index + 1}
-                        </Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                            Image {index + 1}
+                          </Typography>
+                        </Box>
                       </Card>
                     </Grid>
                   ))}
@@ -332,29 +405,28 @@ export default function TeacherCreateFPOW() {
 
               {/* Preview Button */}
               {images.length > 0 && (
-                <Button
-                  variant="outlined"
+                <PrimaryButton
                   startIcon={<PreviewIcon />}
                   onClick={() => setShowPreview(!showPreview)}
-                  sx={{ mt: 2 }}
+                  sx={{ mt: 3 }}
                 >
                   {showPreview ? 'Hide Preview' : 'Preview Puzzle'}
-                </Button>
+                </PrimaryButton>
               )}
 
               {/* Live Preview Section */}
               {showPreview && images.length > 0 && (
-                <Paper sx={{ p: 2, mt: 2, backgroundColor: '#f5f5f5' }}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>
+                <StyledCard sx={{ p: 3, mt: 3, bgcolor: colors.primary + '10', border: `2px solid ${colors.primary}` }}>
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: colors.primary }}>
                     🎮 Student View Preview
                   </Typography>
-                  <Grid container spacing={1}>
+                  <Grid container spacing={2}>
                     {imagePreviews.map((preview, index) => (
                       <Grid item xs={6} key={index}>
-                        <Card>
+                        <Card sx={{ borderRadius: '8px', overflow: 'hidden' }}>
                           <CardMedia
                             component="img"
-                            height="100"
+                            height="120"
                             image={preview}
                             alt={`Game preview ${index + 1}`}
                             sx={{ objectFit: 'cover' }}
@@ -363,32 +435,37 @@ export default function TeacherCreateFPOW() {
                       </Grid>
                     ))}
                   </Grid>
-                  <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
-                    Answer: {form.answer || '(Enter answer above)'}
-                  </Typography>
-                  {form.hint && (
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Hint: {form.hint}
+                  <Box sx={{ mt: 2, p: 2, bgcolor: colors.cardBg, borderRadius: '8px' }}>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.text }}>
+                      Answer: {form.answer || '(Enter answer above)'}
                     </Typography>
-                  )}
-                </Paper>
+                    {form.hint && (
+                      <Typography variant="body2" sx={{ color: colors.textLight, mt: 1 }}>
+                        💡 Hint: {form.hint}
+                      </Typography>
+                    )}
+                  </Box>
+                </StyledCard>
               )}
             </Grid>
 
             <Grid item xs={12}>
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                fullWidth
-                disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Level'}
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                <SecondaryButton
+                  type="submit"
+                  size="large"
+                  fullWidth
+                  disabled={loading || images.length === 0}
+                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+                >
+                  {loading ? 'Creating...' : 'Create Level'}
+                </SecondaryButton>
+              </Box>
             </Grid>
           </Grid>
         </form>
-      </Paper>
+        </StyledCard>
+      </Container>
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -20,6 +20,7 @@ import Joyride from 'react-joyride';
 import TeacherSidebar from './TeacherSidebar';
 import authService from '../../services/authService';
 import { t } from '../utils/i18n';
+import { colors } from './DesignSystem';
 
 const drawerWidth = 240;
 const collapsedWidth = 72;
@@ -82,16 +83,16 @@ export default function TeacherLayout({ children }) {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: colors.mainBg }}>
       {/* AppBar */}
       <AppBar
         position="fixed"
         color="default"
         elevation={0}
         sx={{
-          borderBottom: (t) => `1px solid ${t.palette.divider}`,
-          backgroundColor: '#f9f9f9',
-          backdropFilter: 'saturate(180%) blur(6px)',
+          borderBottom: `1px solid ${colors.border}`,
+          backgroundColor: '#FFFFFF',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
         }}
       >
         <Toolbar>
@@ -109,9 +110,9 @@ export default function TeacherLayout({ children }) {
             variant="h6"
             component="div"
             noWrap
-            sx={{ fontWeight: 700, color: 'primary.main' }}
+            sx={{ fontWeight: 700, color: colors.text }}
           >
-            {t('Teacher Portal')}
+            {t('VocabVenture')}
           </Typography>
 
           <Box sx={{ flexGrow: 1 }} />
@@ -129,7 +130,11 @@ export default function TeacherLayout({ children }) {
               component={Link}
               to="/teacher-home"
               className="home-link"
-              color={location.pathname.includes('/teacher-home') ? 'primary' : 'inherit'}
+              sx={{
+                color: location.pathname.includes('/teacher-home') ? colors.primary : colors.text,
+                fontWeight: location.pathname.includes('/teacher-home') ? 600 : 500,
+                '&:hover': { bgcolor: `${colors.primary}10` }
+              }}
             >
               {t('Home')}
             </Button>
@@ -138,7 +143,11 @@ export default function TeacherLayout({ children }) {
               component={Link}
               to="/teacher/classes"
               className="classes-link"
-              color={location.pathname.includes('/teacher/classes') ? 'primary' : 'inherit'}
+              sx={{
+                color: location.pathname.includes('/teacher/classes') ? colors.primary : colors.text,
+                fontWeight: location.pathname.includes('/teacher/classes') ? 600 : 500,
+                '&:hover': { bgcolor: `${colors.primary}10` }
+              }}
             >
               {t('My Classes')}
             </Button>
@@ -147,13 +156,20 @@ export default function TeacherLayout({ children }) {
               component={Link}
               to="/teacher/analytics"
               className="analytics-link"
-              color={location.pathname.includes('/teacher/analytics') ? 'primary' : 'inherit'}
+              sx={{
+                color: location.pathname.includes('/teacher/analytics') ? colors.primary : colors.text,
+                fontWeight: location.pathname.includes('/teacher/analytics') ? 600 : 500,
+                '&:hover': { bgcolor: `${colors.primary}10` }
+              }}
             >
-              {t('Student Results')}
+              {t('Analytics')}
             </Button>
 
-            <Tooltip title="Take a quick tour of the teacher portal">
-              <IconButton color="primary" onClick={() => setRunTour(true)}>
+            <Tooltip title="Take a quick tour">
+              <IconButton 
+                sx={{ color: colors.textLight }}
+                onClick={() => setRunTour(true)}
+              >
                 <HelpIcon />
               </IconButton>
             </Tooltip>
@@ -162,11 +178,18 @@ export default function TeacherLayout({ children }) {
               onClick={handleLogout}
               className="logout-button"
               variant="contained"
-              color="primary"
               startIcon={<LogoutIcon />}
               sx={{
-                borderRadius: 999,
-                px: 2,
+                bgcolor: colors.primary,
+                color: '#FFFFFF',
+                borderRadius: '6px',
+                px: 2.5,
+                fontWeight: 600,
+                boxShadow: 'none',
+                '&:hover': {
+                  bgcolor: colors.primaryDark,
+                  boxShadow: '0 2px 8px rgba(52, 152, 219, 0.3)',
+                }
               }}
             >
               {t('Logout')}
@@ -230,8 +253,7 @@ export default function TeacherLayout({ children }) {
             },
           }}
         >
-          <Toolbar />
-          <Divider />
+          {/* Removed Toolbar spacer to align sidebar header flush to top */}
           {drawer}
         </Drawer>
       ) : (
@@ -260,7 +282,7 @@ export default function TeacherLayout({ children }) {
         }}
       >
         <Toolbar />
-        <Box sx={{ py: 3, px: { xs: 1.5, md: 3 } }}>{children}</Box>
+        <Box sx={{ py: 0, px: 0 }}>{children}</Box>
       </Box>
 
       {/* Joyride Tutorial */}

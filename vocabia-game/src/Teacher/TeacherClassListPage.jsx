@@ -3,10 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Typography,
-  Button,
-  Card,
-  CardContent,
-  CardActions,
   IconButton,
   Tooltip,
   Divider,
@@ -14,7 +10,6 @@ import {
   Alert,
   Snackbar,
   Chip,
-  TextField
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -23,13 +18,20 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   People as StudentsIcon,
-  Class as ClassIcon
+  Class as ClassIcon,
 } from "@mui/icons-material";
 import api from "../api/api";
-import PageHeader from "./components/PageHeader";
-import EmptyState from "./components/EmptyState";
 import ConfirmDialog from "./components/ConfirmDialog";
 import { t } from "./utils/i18n";
+import {
+  colors,
+  StyledCard,
+  PageTitle,
+  SecondaryButton,
+  StyledInput,
+  EmptyState as DSEmptyState,
+  GhostButton,
+} from "./components/DesignSystem";
 
 export default function TeacherClassListPage() {
   const navigate = useNavigate();
@@ -45,7 +47,6 @@ export default function TeacherClassListPage() {
   const [search, setSearch] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [classToDelete, setClassToDelete] = useState(null);
-  const [expanded, setExpanded] = useState({});
   const [copiedId, setCopiedId] = useState(null);
   const [highlightNew, setHighlightNew] = useState(false);
 
@@ -149,216 +150,209 @@ export default function TeacherClassListPage() {
 
   return (
     <Box sx={{ 
-      p: 3,
-      backgroundColor: "#f9fafc",
-      minHeight: "100vh"
+      bgcolor: colors.mainBg,
+      minHeight: "100vh",
+      p: 3
     }}>
-      <Box sx={{ 
-        maxWidth: "1200px",
-        mx: "auto"
-      }}>
-        {/* Header Section */}
-        <PageHeader
-          title={
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <ClassIcon sx={{ mr: 1.5, color: "primary.main" }} />
-              {t('My Classes')}
-            </Box>
-          }
-          subtitle={t('Create and manage your classrooms')}
-          actions={
-            <Button
-              variant="contained"
+      <Box sx={{ maxWidth: "1400px", mx: "auto" }}>
+        {/* Page Title with Action */}
+        <PageTitle
+          icon={<ClassIcon />}
+          action={
+            <SecondaryButton
               startIcon={<AddIcon />}
               onClick={() => navigate("/teacher/classes/create")}
-              sx={{ borderRadius: 1 }}
             >
               {t('New Class')}
-            </Button>
+            </SecondaryButton>
           }
-        />
+        >
+          {t('My Classes')}
+        </PageTitle>
 
-        {/* Toolbar: Search */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-          <TextField
+        {/* Search Bar */}
+        <Box sx={{ mb: 4 }}>
+          <StyledInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('Search classes by name, description, or code')}
-            fullWidth
-            size="small"
+            placeholder={t('Search classes by name, description, or code...')}
           />
         </Box>
 
         {/* Class List */}
         {classes.length === 0 ? (
-          <EmptyState
-            icon={<ClassIcon sx={{ fontSize: 60 }} />}
+          <DSEmptyState
+            icon={<ClassIcon />}
             title={t('No Classes Found')}
-            description={t('Get started by creating your first class.')}
+            description={t('Get started by creating your first class to organize your students and assignments.')}
             action={
-              <Button
-                variant="contained"
+              <SecondaryButton
                 startIcon={<AddIcon />}
                 onClick={() => navigate("/teacher/classes/create")}
               >
-                {t('Create Class')}
-              </Button>
+                {t('Create Your First Class')}
+              </SecondaryButton>
             }
           />
         ) : filteredClasses.length === 0 ? (
-          <EmptyState
-            icon={<ClassIcon sx={{ fontSize: 60 }} />}
+          <DSEmptyState
+            icon={<ClassIcon />}
             title={t('No results found')}
             description={t('No classes match your search. Try a different term or clear the search.')}
             action={
-              <Button variant="outlined" onClick={() => setSearch("")}>{t('Clear Search')}</Button>
+              <GhostButton onClick={() => setSearch("")}>
+                {t('Clear Search')}
+              </GhostButton>
             }
           />
         ) : (
           <Box sx={{
-            maxWidth: 1200,
-            mx: 'auto',
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' },
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
             gap: 3
           }}>
-            {filteredClasses.slice(0, 9).map((cls, index) => {
-              const isExpanded = !!expanded[cls.id];
+            {filteredClasses.map((cls, index) => {
               const description = cls.description || t('No description provided');
               const isNewest = index === 0 && highlightNew;
+              const studentCount = cls.studentCount || cls.students?.length || 0;
+              
               return (
-                <Box key={cls.id} sx={{ minWidth: 0 }}>
-                  <Card sx={{ 
-                    width: '100%',
-                    height: 280,
-                    minWidth: 0,
-                    overflow: 'hidden',
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "transform 0.18s, box-shadow 0.18s, background-color 0.5s ease",
-                    '&:hover': { transform: 'translateY(-3px)', boxShadow: 3 },
+                <StyledCard
+                  key={cls.id}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    minHeight: 280,
                     ...(isNewest && {
-                      backgroundColor: 'success.light',
-                      animation: 'fadeToNormal 2s ease-in-out forwards',
-                      '@keyframes fadeToNormal': {
-                        '0%': { backgroundColor: 'success.light' },
-                        '100%': { backgroundColor: 'background.paper' }
+                      animation: 'highlight 2s ease-in-out',
+                      '@keyframes highlight': {
+                        '0%, 100%': { boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' },
+                        '50%': { boxShadow: `0 0 20px ${colors.secondary}` }
                       }
                     })
-                  }}>
-                    <CardContent sx={{ flexGrow: 1, p: 2 }}>
-                      <Typography variant="h6" sx={{ 
-                        fontWeight: 700, mb: 0.5, color: "text.primary",
-                        overflowWrap: 'anywhere',
-                        wordBreak: 'break-word',
-                        whiteSpace: 'pre-wrap'
-                      }}>
-                        {cls.name}
+                  }}
+                >
+                  {/* Class Name */}
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: colors.text, mb: 1 }}>
+                    {cls.name}
+                  </Typography>
+
+                  {/* Description */}
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      mb: 2,
+                      flexGrow: 1,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {description}
+                  </Typography>
+
+                  {/* Stats */}
+                  <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <StudentsIcon sx={{ fontSize: 18, color: colors.primary }} />
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: colors.text }}>
+                        {studentCount} {t('students')}
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{ 
-                          color: "text.secondary",
-                          mb: 0.5,
-                          lineHeight: 1.5,
-                          // reserve space for 2 lines whether clamped or expanded
-                          minHeight: 'calc(1.5em * 2)',
-                          overflowWrap: 'anywhere',
-                          wordBreak: 'break-word',
-                          whiteSpace: isExpanded ? 'pre-wrap' : 'normal',
-                          hyphens: 'auto',
-                          ...(isExpanded ? {
-                            overflow: 'visible'
-                          } : {
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                          })
+                    </Box>
+                  </Box>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  {/* Join Code */}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      {t('Class Code')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                      <Chip
+                        label={cls.joinCode}
+                        sx={{
+                          fontWeight: 700,
+                          bgcolor: colors.primary,
+                          color: colors.white,
+                          fontSize: '0.875rem',
+                          letterSpacing: 1,
                         }}
-                      >
-                        {description}
-                      </Typography>
-                      {/* Reserved area for the Show More/Less button to align cards uniformly */}
-                      <Box sx={{ height: 24 }}>
-                        {description && description.length > 80 && (
-                          <Button size="small" variant="text" color="primary" sx={{ p: 0, minWidth: 0, textTransform: 'none' }} onClick={() => setExpanded(prev => ({ ...prev, [cls.id]: !prev[cls.id] }))}>
-                            {isExpanded ? t('Show Less') : t('Show More')}
-                          </Button>
-                        )}
-                      </Box>
-
-                      <Divider sx={{ my: 1.5 }} />
-
-                      <Box>
-                        <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 500 }}>
-                          {t('Class Code')}
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", mt: 1, gap: 1 }}>
-                          <Chip
-                            label={cls.joinCode}
-                            size="small"
-                            sx={{ fontWeight: 600, backgroundColor: "grey.100", color: "text.primary" }}
-                          />
-                          <Tooltip title={t('Copy Code')}>
-                            <IconButton 
-                              size="small" 
-                              onClick={() => copyJoinCode(cls.joinCode, cls.id)}
-                              sx={{ '&:hover': { backgroundColor: 'primary.light', color: 'primary.main' } }}
-                              aria-label={t('Copy join code')}
-                            >
-                              <CopyIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          {copiedId === cls.id && (
-                            <Chip label={t('Copied!')} color="success" size="small" sx={{ bgcolor: 'success.light', color: 'success.dark' }} />
-                          )}
-                        </Box>
-                      </Box>
-                    </CardContent>
-
-                    <CardActions sx={{ p: 1.5, pt: 0, borderTop: '1px solid', borderColor: 'divider', justifyContent: 'space-between' }}>
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        <Tooltip title={t('View class')}>
-                          <IconButton size="small" onClick={() => navigate(`/teacher/classes/${cls.id}`)} sx={{ '&:hover': { bgcolor: 'primary.light', color: 'primary.main' } }}>
-                            <ViewIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title={t('View students')}>
-                          <IconButton size="small" onClick={() => navigate(`/teacher/classes/${cls.id}/students`)} sx={{ '&:hover': { bgcolor: 'info.light', color: 'info.main' } }}>
-                            <StudentsIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title={t('Edit class')}>
-                          <IconButton size="small" onClick={() => navigate(`/teacher/classes/${cls.id}/edit`)} sx={{ '&:hover': { bgcolor: 'secondary.light', color: 'secondary.main' } }}>
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                      <Tooltip title={t('Delete class')}>
-                        <IconButton size="small" onClick={() => openDeleteDialog(cls)} sx={{ color: 'error.light', '&:hover': { bgcolor: 'error.light', color: 'error.main' } }}>
-                          <DeleteIcon />
+                      />
+                      <Tooltip title={copiedId === cls.id ? t('Copied!') : t('Copy Code')}>
+                        <IconButton
+                          size="small"
+                          onClick={() => copyJoinCode(cls.joinCode, cls.id)}
+                          sx={{
+                            color: colors.primary,
+                            '&:hover': { bgcolor: `${colors.primary}20` }
+                          }}
+                        >
+                          <CopyIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                    </CardActions>
-                  </Card>
-                </Box>
+                    </Box>
+                  </Box>
+
+                  {/* Actions */}
+                  <Box sx={{ display: 'flex', gap: 1, mt: 'auto', pt: 2, borderTop: `1px solid ${colors.border}` }}>
+                    <Tooltip title={t('View Details')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => navigate(`/teacher/classes/${cls.id}`)}
+                        sx={{
+                          color: colors.primary,
+                          '&:hover': { bgcolor: `${colors.primary}20` }
+                        }}
+                      >
+                        <ViewIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('View Students')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => navigate(`/teacher/classes/${cls.id}/students`)}
+                        sx={{
+                          color: colors.primary,
+                          '&:hover': { bgcolor: `${colors.primary}20` }
+                        }}
+                      >
+                        <StudentsIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('Edit')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => navigate(`/teacher/classes/${cls.id}/edit`)}
+                        sx={{
+                          color: colors.secondary,
+                          '&:hover': { bgcolor: `${colors.secondary}20` }
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Tooltip title={t('Delete')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => openDeleteDialog(cls)}
+                        sx={{
+                          color: colors.error,
+                          '&:hover': { bgcolor: `${colors.error}20` }
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </StyledCard>
               );
             })}
-          </Box>
-        )}
-        
-        {/* View All Button */}
-        {filteredClasses.length > 9 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Button 
-              variant="outlined" 
-              onClick={() => navigate('/teacher/classes/all')}
-              sx={{ px: 4 }}
-            >
-              {t('View All Classes')} ({filteredClasses.length})
-            </Button>
           </Box>
         )}
 
