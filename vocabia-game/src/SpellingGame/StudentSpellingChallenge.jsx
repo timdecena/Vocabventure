@@ -673,14 +673,14 @@ export default function StudentSpellingChallenge() {
                 {currentChallenge.audioUrl && (
                   <>
                     <audio
-                      ref={audioRef}
-                      src={
-                        currentChallenge.audioUrl.startsWith("http")
-                          ? currentChallenge.audioUrl
-                          : `${api.defaults.baseURL}${currentChallenge.audioUrl}`
-                      }
-                      preload="auto"
-                    />
+                    ref={audioRef}
+                    src={
+                      currentChallenge.audioUrl.startsWith("http")
+                        ? currentChallenge.audioUrl
+                        : `${window.location.origin}${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
+                    }
+                    preload="auto"
+                  />
                     <audio ref={successSoundRef} src="/sounds/success.mp3" preload="auto" />
                     <audio ref={errorSoundRef} src="/sounds/error.mp3" preload="auto" />
                     
