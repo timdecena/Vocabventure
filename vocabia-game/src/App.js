@@ -23,7 +23,6 @@ import TeacherEditClassPage from './Teacher/TeacherEditClassPage';
 import TeacherViewClassPage from './Teacher/TeacherViewClassPage';
 import TeacherFPOWProgressPage from './Teacher/TeacherFPOWProgressPage';
 import TeacherStudentFPOWProgressPage from './Teacher/TeacherStudentFPOWProgressPage';
-import TeacherAnalyticsPage from './Teacher/TeacherAnalyticsPage';
 import TeacherWordListsPage from './Teacher/TeacherWordListsPage';
 
 // Student
@@ -324,11 +323,6 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/teacher/classes/:classId/students/:studentId/fpow-progress" element={
         isAuthenticated && role === 'TEACHER'
           ? <TeacherLayout><TeacherStudentFPOWProgressPage /></TeacherLayout>
-          : <Navigate to="/" replace />
-      } />
-      <Route path="/teacher/analytics" element={
-        isAuthenticated && role === 'TEACHER'
-          ? <TeacherLayout><TeacherAnalyticsPage /></TeacherLayout>
           : <Navigate to="/" replace />
       } />
       <Route path="/teacher/word-lists" element={

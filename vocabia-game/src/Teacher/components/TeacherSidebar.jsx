@@ -13,7 +13,6 @@ import {
 import SchoolIcon from '@mui/icons-material/School';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditNoteIcon from '@mui/icons-material/EditNote';
-import InsightsIcon from '@mui/icons-material/Insights';
 import ClassIcon from '@mui/icons-material/Class';
 import HomeIcon from '@mui/icons-material/Home';
 import { t } from '../utils/i18n';
@@ -28,7 +27,6 @@ export default function TeacherSidebar({ collapsed = false }) {
     { icon: <SchoolIcon />, label: t('My Classes'), path: '/teacher/classes' },
     { icon: <AddCircleOutlineIcon />, label: t('Create Class'), path: '/teacher/classes/create' },
     { icon: <EditNoteIcon />, label: t('Create Level'), path: '/teacher/spelling/create' },
-    { icon: <InsightsIcon />, label: t('Analytics'), path: '/teacher/analytics' },
     { icon: <EditNoteIcon />, label: t('Create 4Pics1Word'), path: '/teacher/fpow/create' },
   ];
 

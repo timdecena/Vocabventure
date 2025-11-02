@@ -16,6 +16,32 @@ public class FourPicOneWordService {
 
     private final FourPicOneWordRepository repo;
 
+    // ==================== CLASSROOM-SPECIFIC METHODS ====================
+    
+    public Optional<FourPicOneWordDTO> getPuzzleByClassroomAndCategoryAndLevel(Long classroomId, String category, int level) {
+        return repo.findByClassroomIdAndCategoryAndLevel(classroomId, category, level)
+                .filter(FourPicOneWord::isActive)
+                .map(this::toDto);
+    }
+
+    public List<FourPicOneWordDTO> getPuzzlesByClassroomAndCategory(Long classroomId, String category) {
+        return repo.findByClassroomIdAndCategory(classroomId, category)
+                .stream()
+                .filter(FourPicOneWord::isActive)
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getCategoriesByClassroom(Long classroomId) {
+        return repo.findDistinctCategoriesByClassroomId(classroomId);
+    }
+
+    public List<Integer> getLevelsByClassroomAndCategory(Long classroomId, String category) {
+        return repo.findLevelsByClassroomIdAndCategory(classroomId, category);
+    }
+    
+    // ==================== LEGACY METHODS (Adventure Mode) ====================
+    
     public Optional<FourPicOneWordDTO> getPuzzleByCategoryAndLevel(String category, int level) {
         return repo.findByCategoryAndLevel(category, level)
                 .filter(FourPicOneWord::isActive)
@@ -52,8 +78,8 @@ public class FourPicOneWordService {
         return repo.findLevelsByCategory(category);
     }
 
-    // ✅ NEW: Create custom puzzle (teacher use) - supports 1-4 images
-    public FourPicOneWordDTO createPuzzle(FourPicOneWordDTO dto, String teacherEmail) {
+    // ✅ Create classroom-specific puzzle (teacher use) - supports 1-4 images
+    public FourPicOneWordDTO createPuzzle(FourPicOneWordDTO dto, Long classroomId, Long teacherId) {
         // ✅ Validate minimum image requirement (at least 1 image)
         if (dto.getImageCount() < 1) {
             throw new IllegalArgumentException("At least 1 image is required to create a puzzle");
@@ -64,8 +90,17 @@ public class FourPicOneWordService {
             throw new IllegalArgumentException("Maximum 4 images allowed per puzzle");
         }
         
-        // Optional: Add validation (e.g., verify teacher owns class)
+        // ✅ Validate required fields
+        if (classroomId == null) {
+            throw new IllegalArgumentException("Classroom ID is required");
+        }
+        if (teacherId == null) {
+            throw new IllegalArgumentException("Teacher ID is required");
+        }
+        
         FourPicOneWord entity = FourPicOneWord.builder()
+                .classroomId(classroomId)
+                .teacherId(teacherId)
                 .category(dto.getCategory())
                 .level(dto.getLevel())
                 .answer(dto.getAnswer())
@@ -86,6 +121,8 @@ public class FourPicOneWordService {
     private FourPicOneWordDTO toDto(FourPicOneWord e) {
         return FourPicOneWordDTO.builder()
                 .id(e.getId())
+                .classroomId(e.getClassroomId())
+                .teacherId(e.getTeacherId())
                 .category(e.getCategory())
                 .level(e.getLevel())
                 .answer(e.getAnswer())

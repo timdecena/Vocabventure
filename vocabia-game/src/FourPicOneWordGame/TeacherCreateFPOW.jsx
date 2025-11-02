@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -35,6 +35,7 @@ import {
 
 export default function TeacherCreateFPOW() {
   const [form, setForm] = useState({
+    classroomId: '',
     category: '',
     level: '',
     answer: '',
@@ -42,6 +43,8 @@ export default function TeacherCreateFPOW() {
     hintType: 'TEXT_HINT',
     difficulty: 'EASY',
   });
+  const [classrooms, setClassrooms] = useState([]);
+  const [loadingClassrooms, setLoadingClassrooms] = useState(true);
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,6 +52,26 @@ export default function TeacherCreateFPOW() {
   const [showPreview, setShowPreview] = useState(false);
   const [dragIndex, setDragIndex] = useState(null);
   const navigate = useNavigate();
+
+  // Fetch teacher's classrooms on component mount
+  useEffect(() => {
+    const fetchClassrooms = async () => {
+      try {
+        const res = await api.get('/api/teacher/classes');
+        setClassrooms(res.data || []);
+        // Auto-select first classroom if available
+        if (res.data && res.data.length > 0) {
+          setForm(prev => ({ ...prev, classroomId: res.data[0].id }));
+        }
+      } catch (err) {
+        console.error('Error fetching classrooms:', err);
+        setError('Failed to load classrooms. Please refresh the page.');
+      } finally {
+        setLoadingClassrooms(false);
+      }
+    };
+    fetchClassrooms();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -143,6 +166,12 @@ export default function TeacherCreateFPOW() {
         return;
       }
 
+      if (!form.classroomId) {
+        setError('Please select a classroom.');
+        setLoading(false);
+        return;
+      }
+
       if (!form.category.trim() || !form.level || !form.answer.trim()) {
         setError('Category, level, and answer are required fields.');
         setLoading(false);
@@ -150,6 +179,7 @@ export default function TeacherCreateFPOW() {
       }
 
       const formData = new FormData();
+      formData.append('classroomId', form.classroomId);
       formData.append('category', form.category.trim());
       formData.append('level', form.level);
       formData.append('answer', form.answer.trim().toUpperCase());
@@ -219,6 +249,46 @@ export default function TeacherCreateFPOW() {
             {/* Level Information Section */}
             <SectionHeader sx={{ mb: 3 }}>Level Information</SectionHeader>
             <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  name="classroomId"
+                  label="Select Classroom *"
+                  value={form.classroomId}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                  disabled={loadingClassrooms}
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      bgcolor: colors.cardBg,
+                      '& fieldset': { 
+                        borderColor: colors.border, 
+                        borderWidth: '2px',
+                        transition: 'all 0.3s ease'
+                      },
+                      '&:hover fieldset': { borderColor: colors.primary },
+                      '&.Mui-focused fieldset': { 
+                        borderColor: colors.primary, 
+                        borderWidth: '2px',
+                        boxShadow: `0 0 0 3px ${colors.primary}20`
+                      },
+                    },
+                    '& .MuiSelect-select': {
+                      py: 1.5,
+                    }
+                  }}
+                  helperText={loadingClassrooms ? "Loading classrooms..." : classrooms.length === 0 ? "No classrooms found. Please create a classroom first." : "Select which classroom this puzzle belongs to"}
+                >
+                  {classrooms.map((classroom) => (
+                    <MenuItem key={classroom.id} value={classroom.id}>
+                      {classroom.name} {classroom.description && `- ${classroom.description}`}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
               <Grid item xs={12} md={6}>
                 <StyledInput
                   name="category"

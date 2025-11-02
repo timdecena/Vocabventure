@@ -141,9 +141,10 @@ export default function LevelList() {
       setError("");
 
       try {
-        // Fetch available levels for the category
-        // Remove duplicate '/api' prefix since it's already in the baseURL
-        const res = await api.get(`/api/fpow/levels`, { params: { category } });
+        // Fetch available levels for the category (classroom-specific if id is provided)
+        const res = await api.get(`/api/fpow/levels`, { 
+          params: id ? { classroomId: id, category } : { category } 
+        });
         if (!Array.isArray(res.data)) throw new Error('Invalid response format for levels');
         if (isMounted) setLevels(res.data);
 
@@ -168,7 +169,9 @@ export default function LevelList() {
             try {
               const token = localStorage.getItem("token");
               if (token) {
-                const completedRes = await api.get(`/api/user-progress/completed-levels`, { params: { category, classroomId: id } });
+                const completedRes = await api.get(`/api/user-progress/completed-levels`, { 
+                  params: id ? { category, classroomId: id } : { category } 
+                });
                 const completedArr = (completedRes.data && Array.isArray(completedRes.data.completedLevels)) ? completedRes.data.completedLevels : [];
                 const completedLevelNumbers = completedArr.map(Number);
                 console.log("Adventure Chronicles completed levels:", completedLevelNumbers);
@@ -230,7 +233,9 @@ export default function LevelList() {
           if (token) {
             isAuthenticated = true;
             // Use dedicated endpoint that returns unique completed levels and next unlocked
-            const completedRes = await api.get(`/api/user-progress/completed-levels`, { params: { category, classroomId: id } });
+            const completedRes = await api.get(`/api/user-progress/completed-levels`, { 
+              params: id ? { category, classroomId: id } : { category } 
+            });
             const completedArr = (completedRes.data && Array.isArray(completedRes.data.completedLevels)) ? completedRes.data.completedLevels : [];
             serverCompletedLevelsList = completedArr.map(Number);
             serverHighestLevel = Math.max(...serverCompletedLevelsList, 0);

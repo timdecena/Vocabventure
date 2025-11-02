@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "four_pic_one_word", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"category", "level"})
+        @UniqueConstraint(columnNames = {"classroom_id", "category", "level"})
 })
 @Getter
 @Setter
@@ -18,6 +18,12 @@ public class FourPicOneWord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "classroom_id", nullable = false)
+    private Long classroomId;
+
+    @Column(name = "teacher_id", nullable = false)
+    private Long teacherId;
 
     @Column(nullable = false)
     private String category;
