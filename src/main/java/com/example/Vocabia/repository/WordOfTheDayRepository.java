@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface WordOfTheDayRepository extends JpaRepository<WordOfTheDay, Long> {
     Optional<WordOfTheDay> findByDateAvailable(LocalDate date);
+    Optional<WordOfTheDay> findTopByOrderByDateAvailableDesc();
 }

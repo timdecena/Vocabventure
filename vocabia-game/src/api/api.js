@@ -1,9 +1,12 @@
 import axios from "axios";
 
+const host = window.location.hostname;
+const isLocal = host === "localhost" || host === "127.0.0.1";
+
 const baseURL = process.env.REACT_APP_API_URL 
   ? process.env.REACT_APP_API_URL       // Use env variable if set (e.g., deployed)
-  : (window.location.hostname === "localhost" 
-      ? "http://localhost:8080"         // Local development
+  : (isLocal
+      ? "http://localhost:8080"         // Local development (includes Cascade preview 127.0.0.1)
       : "/");                            // Production relative path
 
 const api = axios.create({

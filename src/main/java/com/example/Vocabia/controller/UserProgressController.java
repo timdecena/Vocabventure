@@ -281,9 +281,6 @@ public class UserProgressController {
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = getAuthenticatedUser(userDetails);
 
-        // Get all user progress
-        List<UserProgressDTO> userProgressList = userProgressService.getAllUserProgress(user);
-        
         // Get all available categories
         List<String> allCategories = fourPicOneWordService.getCategories();
         
@@ -294,22 +291,15 @@ public class UserProgressController {
             List<Integer> totalLevels = fourPicOneWordService.getLevelsByCategory(category);
             int totalLevelCount = totalLevels.size();
             
-            // Find user progress for this category
-            UserProgressDTO userProgress = userProgressList.stream()
-                    .filter(progress -> category.equals(progress.getCategory()))
-                    .findFirst()
-                    .orElse(null);
-            
-            int completedLevels = 0;
-            int currentLevel = 1;
-            List<Integer> completedLevelList = List.of();
-            
-            if (userProgress != null) {
-                // Use unique completed levels list instead of puzzlesSolved to avoid counting replays
-                completedLevelList = userProgressService.getCompletedLevels(user, category, classroomId);
-                completedLevels = completedLevelList.size();
-                currentLevel = userProgress.getLevel();
-            }
+            // Compute progress strictly from classroom-aware completion list so
+            // category card and level page stay in sync
+            List<Integer> completedLevelList = userProgressService.getCompletedLevels(user, category, classroomId);
+            int completedLevels = completedLevelList.size();
+            int highestCompleted = completedLevelList.stream().mapToInt(Integer::intValue).max().orElse(0);
+            // Determine next unlocked (highest+1) but do not exceed total levels; minimum is 1 when there are levels
+            int currentLevel = (totalLevelCount > 0)
+                    ? Math.min(Math.max(1, highestCompleted + 1), totalLevelCount)
+                    : 0;
             
             Map<String, Object> categoryData = new HashMap<>();
             // Clamp completed levels to total levels available and include completed levels list

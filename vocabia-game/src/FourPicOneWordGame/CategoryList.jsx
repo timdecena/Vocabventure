@@ -98,7 +98,9 @@ function CategoryList() {
   const navigate = useNavigate();
   // const theme = useTheme(); // Removed as not used in optimized version
 
-  // Filter out Adventure Chronicles and Jungle Lush from regular categories
+  // Filter out Adventure Mode categories from regular Four Pics One Word game
+  // Adventure Chronicles and Jungle Lush are only accessible through Adventure Mode
+  // All other categories shown here are teacher-created content
   const displayCategories = categories.filter(cat => 
     cat.toLowerCase() !== 'adventure chronicles' && 
     cat.toLowerCase() !== 'jungle lush'

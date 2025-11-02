@@ -82,7 +82,9 @@ public class UserProgress {
     private int levelGoldAwarded = 0;
 
     // Store level completion counts as JSON string (e.g., "1:2,2:1,3:3" means level 1 completed 2 times, level 2 once, level 3 three times)
-    @Column(name = "level_completion_counts", columnDefinition = "TEXT")
+    // Use @Lob to map to a TEXT/CLOB without relying on columnDefinition which can break when identifiers are globally quoted
+    @Lob
+    @Column(name = "level_completion_counts")
     private String levelCompletionCounts;
 
     @Column(name = "last_played_level")

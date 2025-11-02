@@ -31,7 +31,21 @@ public class FourPicOneWordService {
     }
 
     public List<String> getCategories() {
-        return repo.findDistinctCategories();
+        // Filter out static pre-configured categories (except Adventure Mode)
+        // Only show teacher-created categories
+        List<String> allCategories = repo.findDistinctCategories();
+        
+        // List of static categories to exclude (these were pre-configured)
+        List<String> staticCategoriesToExclude = List.of(
+            "Animals", "Fruits", "Objects", "Homophones", 
+            "Synonyms", "Antonyms", "Prefixes & Suffixes"
+        );
+        
+        // Keep Adventure Chronicles and Jungle Lush (Adventure Mode content)
+        // and any teacher-created categories
+        return allCategories.stream()
+            .filter(cat -> !staticCategoriesToExclude.contains(cat))
+            .collect(Collectors.toList());
     }
 
     public List<Integer> getLevelsByCategory(String category) {

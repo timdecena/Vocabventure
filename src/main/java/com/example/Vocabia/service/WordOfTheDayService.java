@@ -26,8 +26,10 @@ public class WordOfTheDayService {
 
     public WordOfTheDay getTodayWord() {
         LocalDate today = computeGameDate();
+        // First try exact date, then gracefully fall back to the most recent word
         return wordRepo.findByDateAvailable(today)
-                .orElseThrow(() -> new RuntimeException("No word set for today"));
+                .orElseGet(() -> wordRepo.findTopByOrderByDateAvailableDesc()
+                        .orElseThrow(() -> new RuntimeException("No word available in database")));
     }
 
     public boolean hasPlayed(User student, WordOfTheDay word) {

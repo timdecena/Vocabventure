@@ -32,6 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
+        System.out.println("🔥 JwtFilter.doFilterInternal() CALLED");
         String requestPath = request.getRequestURI();
         String method = request.getMethod();
         String authHeader = request.getHeader("Authorization");
@@ -40,6 +41,15 @@ public class JwtFilter extends OncePerRequestFilter {
         System.out.println("🛡️ Authorization header: " + (authHeader != null ? "Bearer [" + authHeader.length() + " chars]" : "null"));
         System.out.println("🛡️ Origin: " + request.getHeader("Origin"));
         System.out.println("🛡️ Content-Type: " + request.getHeader("Content-Type"));
+
+        // CRITICAL: Check if this is a permitAll endpoint BEFORE processing JWT
+        boolean isPermitAll = isPermitAllEndpoint(requestPath, method);
+        System.out.println("🔍 Checking permitAll for: " + requestPath + " [" + method + "] = " + isPermitAll);
+        if (isPermitAll) {
+            System.out.println("🚀 PermitAll endpoint detected - bypassing JWT filter entirely");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // No bypassing - all endpoints should go through JWT authentication if they have tokens
         String email = null;
@@ -96,12 +106,18 @@ if (jwtUtil.validateToken(jwt, userDetails)) {
 
     private boolean isPermitAllEndpoint(String requestPath, String method) {
         // Define endpoints that don't require JWT authentication
-        return (requestPath.startsWith("/api/auth/") ||
+        return (
+                // Always allow CORS preflight
+                "OPTIONS".equalsIgnoreCase(method) ||
+                requestPath.startsWith("/api/auth/") ||
                 requestPath.startsWith("/images/") ||
                 requestPath.startsWith("/audio/") ||
                 requestPath.startsWith("/nature/") ||
                 requestPath.startsWith("/api/4pic1word-assets/") ||
+                // Allow FPOW cleanup endpoints for migration
+                requestPath.startsWith("/api/fpow/cleanup/") ||
                 requestPath.equals("/api/fpow/categories") ||
-                requestPath.equals("/api/fpow/levels"));
+                requestPath.equals("/api/fpow/levels") ||
+                ("GET".equalsIgnoreCase(method) && requestPath.equals("/api/game/word-of-the-day")));
     }
 }
