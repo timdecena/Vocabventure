@@ -677,9 +677,13 @@ export default function StudentSpellingChallenge() {
   src={
     currentChallenge.audioUrl.startsWith("http")
       ? currentChallenge.audioUrl
-      : `http://34.207.235.102${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
+      : `${window.location.origin}${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
   }
   preload="auto"
+  onError={(e) => {
+    console.error("Audio loading error:", e);
+    console.error("Attempted to load:", e.target.src);
+  }}
 />
                     <audio ref={successSoundRef} src="/sounds/success.mp3" preload="auto" />
                     <audio ref={errorSoundRef} src="/sounds/error.mp3" preload="auto" />
