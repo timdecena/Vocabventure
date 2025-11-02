@@ -70,8 +70,8 @@ public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         // ✅ Match the public URL path to Nginx alias
-        String fileUrl = "/audio/" + filename;
-        return ResponseEntity.ok(Map.of("url", fileUrl));
+        String fileUrl = "/audio/spelling/" + filename;
+return ResponseEntity.ok(Map.of("url", fileUrl));
     } catch (IOException e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload audio");
