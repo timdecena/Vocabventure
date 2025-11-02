@@ -1689,7 +1689,7 @@ const JungleLushLevel5 = () => {
         try {
           const token = localStorage.getItem('token');
           await axios.post('/api/adventure/level-progress/save', {
-            levelName: "Grammowl's Lair",
+            levelName: "Grammowl",
             completed: true,
             starsEarned: hearts
           }, {

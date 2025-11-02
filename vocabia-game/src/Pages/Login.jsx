@@ -155,6 +155,8 @@ const Login = ({ setIsAuthenticated, setRole }) => {
         navigate('/student-home');
       } else if (data.role === 'TEACHER') {
         navigate('/teacher-home');
+      } else if (data.role === 'ADMIN') {
+        navigate('/admin/dashboard');
       }
     } catch (err) {
       if (err.response) {

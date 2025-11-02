@@ -73,6 +73,10 @@ import Tutorial from "./Adventure/tutorial/Tutorial";
 // Profile
 import Profile from './components/Profile';
 
+// Feedback
+import StudentFeedback from './Student/StudentFeedback';
+import AdminDashboard from './Admin/AdminDashboard';
+
 import './App.css';
 import theme from './theme/theme';
 import TeacherLayout from './Teacher/components/TeacherLayout';
@@ -240,17 +244,41 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       {/* AUTH ROUTES */}
       <Route
         path="/"
+        element={<Login setIsAuthenticated={setIsAuthenticated} setRole={setRole} />}
+      />
+      <Route
+        path="/login"
         element={
           isAuthenticated
             ? role === 'STUDENT'
               ? <Navigate to="/student-home" replace />
-              : <Navigate to="/teacher-home" replace />
+              : role === 'TEACHER'
+              ? <Navigate to="/teacher-home" replace />
+              : role === 'ADMIN'
+              ? <Navigate to="/admin/dashboard" replace />
+              : <Navigate to="/" replace />
             : <Login setIsAuthenticated={setIsAuthenticated} setRole={setRole} />
         }
       />
       <Route
         path="/register"
         element={isAuthenticated ? <Navigate to="/" replace /> : <Register />}
+      />
+      
+      {/* Home route - redirects based on role */}
+      <Route
+        path="/home"
+        element={
+          isAuthenticated
+            ? role === 'STUDENT'
+              ? <Navigate to="/student-home" replace />
+              : role === 'TEACHER'
+              ? <Navigate to="/teacher-home" replace />
+              : role === 'ADMIN'
+              ? <Navigate to="/admin/dashboard" replace />
+              : <Navigate to="/" replace />
+            : <Navigate to="/" replace />
+        }
       />
 
       {/* TEACHER ROUTES */}
@@ -328,6 +356,10 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/student/classes/:id" element={isAuthenticated && role === 'STUDENT' ? <StudentViewClassPage /> : <Navigate to="/" replace />} />
       <Route path="/student/classes/:id/classmates" element={isAuthenticated && role === 'STUDENT' ? <StudentClassmatesPage /> : <Navigate to="/" replace />} />
       <Route path="/student/profile" element={isAuthenticated && role === 'STUDENT' ? <Profile /> : <Navigate to="/" replace />} />
+      <Route path="/student/feedback" element={<StudentFeedback />} />
+      
+      {/* Admin Dashboard */}
+      <Route path="/admin/dashboard" element={isAuthenticated && role === 'ADMIN' ? <AdminDashboard /> : <Navigate to="/" replace />} />
 
       {/* FOUR PIC ONE WORD GAME ROUTES (NEW) */}
       <Route

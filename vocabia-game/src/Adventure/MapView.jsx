@@ -87,6 +87,10 @@ export default function MapView() {
   const [islands, setIslands] = useState(baseIslands);
   const [islandProgress, setIslandProgress] = useState({});
   const [totalStars, setTotalStars] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Get user role for proper navigation
+  const userRole = localStorage.getItem('role');
 
   // Animate particles
   useEffect(() => {
@@ -111,125 +115,52 @@ export default function MapView() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch island progress function
+  // Fetch island progress function (optimized)
   const fetchProgress = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
-      console.log('🔄 Fetching island progress...');
-
-      // Fetch all island progress
-      const progressResponse = await axios.get('/api/adventure/island-progress', {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-
-      console.log('🔍 Raw progress response:', progressResponse);
-
-      // Fetch total stars
-      const starsResponse = await axios.get('/api/adventure/island-progress/total-stars', {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-
-      console.log('⭐ Raw stars response:', starsResponse);
-
-      const progressData = progressResponse.data;
-      console.log('📊 Island progress data:', progressData);
-      console.log('📊 Island progress data details:', progressData.map(island => ({
-        islandName: island.islandName,
-        completedLevel: island.completedLevel,
-        totalStars: island.totalStars
-      })));
-
-      // Check if we need to migrate old progress for this user
-      let shouldMigrate = false;
-      let oldProgressResponse = null;
-      try {
-        oldProgressResponse = await axios.get('/api/adventure/level-progress', {
+      // Parallel API calls for better performance
+      const [progressResponse, starsResponse] = await Promise.all([
+        axios.get('/api/adventure/island-progress', {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true
-        });
-        console.log('🔍 Old level progress data:', oldProgressResponse.data);
-        
-        // If we have old progress but no new progress, trigger migration
-        if (oldProgressResponse.data.length > 0 && progressData.length === 0) {
-          console.log('🚨 Detected old progress without new progress - triggering migration');
-          shouldMigrate = true;
-        }
-      } catch (error) {
-        console.log('🔍 Old level progress API error:', error);
-      }
+        }),
+        axios.get('/api/adventure/island-progress/total-stars', {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true
+        })
+      ]);
 
-      // Auto-migrate if needed
-      if (shouldMigrate) {
-        try {
-          console.log('🔄 Auto-migrating progress...');
-          await axios.post('/api/adventure/island-progress/migrate', {}, {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true
-          });
-          
-          // Refetch progress after migration
-          const newProgressResponse = await axios.get('/api/adventure/island-progress', {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true
-          });
-          
-          const newStarsResponse = await axios.get('/api/adventure/island-progress/total-stars', {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true
-          });
-          
-          // Update with migrated data
-          const migratedProgressData = newProgressResponse.data;
-          setTotalStars(newStarsResponse.data.totalStars || 0);
-          console.log('✅ Migration completed, using migrated data:', migratedProgressData);
-          
-          // Use migrated data for the rest of the function
-          progressData.length = 0; // Clear original array
-          progressData.push(...migratedProgressData); // Add migrated data
-        } catch (migrationError) {
-          console.error('❌ Auto-migration failed:', migrationError);
-        }
-      }
-
-      // Auto-create Shadow Isles progress if all 5 levels are completed
-      const completedShadowIslesLevels = oldProgressResponse?.data?.filter(level => 
-        ['Murkmind', 'Echojack', 'Shardling', 'Umbrosk', 'Dysauron'].includes(level.levelName) && level.completed
-      ) || [];
-
-      // Get unique completed levels (remove duplicates)
-      const uniqueCompletedLevels = [...new Set(completedShadowIslesLevels.map(level => level.levelName))];
-      
-      const hasShadowIslesProgress = progressData.some(island => island.islandName === 'The Shadow Isles');
-      const allShadowIslesCompleted = uniqueCompletedLevels.length === 5;
-
-      console.log('🔍 Shadow Isles auto-creation check:');
-      console.log('   - Total Shadow Isles entries:', completedShadowIslesLevels.length);
-      console.log('   - Unique completed levels:', uniqueCompletedLevels);
-      console.log('   - Has Shadow Isles progress:', hasShadowIslesProgress);
-      console.log('   - All Shadow Isles completed:', allShadowIslesCompleted);
-
-      // If all Shadow Isles levels are completed but no Shadow Isles progress exists, create it
-      if (allShadowIslesCompleted && !hasShadowIslesProgress) {
-        console.log('🏝️ All Shadow Isles levels completed - auto-creating Shadow Isles progress...');
-        try {
-          await axios.post('/api/adventure/island-progress/shadow-isles/create', {}, {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true
-          });
-
-          console.log('✅ Shadow Isles progress auto-created');
-          // Refresh progress after auto-creation
-          return fetchProgress();
-        } catch (error) {
-          console.error('❌ Shadow Isles auto-creation failed:', error);
-        }
-      }
-
+      const progressData = progressResponse.data;
       setTotalStars(starsResponse.data.totalStars || 0);
+
+      // Only check for migration if no progress exists (rare case)
+      if (progressData.length === 0) {
+        try {
+          const oldProgressResponse = await axios.get('/api/adventure/level-progress', {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true
+          });
+          
+          // If we have old progress but no new progress, trigger migration
+          if (oldProgressResponse.data.length > 0) {
+            await axios.post('/api/adventure/island-progress/migrate', {}, {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true
+            });
+            
+            // Refetch progress after migration
+            return fetchProgress();
+          }
+        } catch (error) {
+          // Old progress API doesn't exist or failed, continue with empty progress
+        }
+      }
 
       // Convert progress array to object for easier lookup
       const progressMap = {};
@@ -258,13 +189,6 @@ export default function MapView() {
         const previousProgress = progressMap[previousIsland.name];
         const previousCompleted = previousProgress ? previousProgress.completedLevel >= previousIsland.levels : false;
         
-        console.log(`🏝️ Island ${island.name}:`, {
-          previousIsland: previousIsland.name,
-          previousProgress: previousProgress,
-          previousCompleted,
-          willUnlock: previousCompleted
-        });
-        
         return {
           ...island,
           unlocked: previousCompleted,
@@ -274,8 +198,8 @@ export default function MapView() {
         };
       });
 
-      console.log('🏝️ Updated islands:', updatedIslands);
       setIslands(updatedIslands);
+      setIsLoading(false);
     } catch (error) {
       console.error('❌ Failed to fetch island progress:', error);
       // If there's an error, just use default unlocked state for Island 1
@@ -287,30 +211,18 @@ export default function MapView() {
         starsEarned: 0
       }));
       setIslands(defaultIslands);
+      setIsLoading(false);
     }
   };
 
-  // Cleanup inflated star counts automatically (no UI button)
-  const cleanupStars = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      await axios.post('/api/adventure/island-progress/cleanup-stars', {}, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
-    } catch (error) {}
-  };
-
-  // Fetch island progress on component mount (auto-clean first)
+  // Fetch island progress on component mount
   useEffect(() => {
-    cleanupStars().then(fetchProgress);
+    fetchProgress();
   }, []);
 
   // Refresh progress when window gains focus (user returns from a level)
   useEffect(() => {
     const handleFocus = () => {
-      console.log('🎯 Window gained focus, refreshing island progress...');
       fetchProgress();
     };
 
@@ -398,12 +310,39 @@ export default function MapView() {
         <div className="adventure-subtitle">Explorers Map</div>
       </div>
 
+      {/* Loading indicator */}
+      {isLoading && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 100,
+          textAlign: 'center'
+        }}>
+          <div style={{
+            fontSize: '3rem',
+            marginBottom: '16px',
+            animation: 'spin 1s linear infinite'
+          }}>⚙️</div>
+          <div style={{
+            color: '#fff',
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            textShadow: '0 2px 8px rgba(0,0,0,0.8)'
+          }}>Loading, Please Wait...</div>
+        </div>
+      )}
+
       {/* Adventure controls */}
       <div className="adventure-controls">
         <button className="adventure-btn primary" onClick={() => setShowTutorial(true)}>
           Replay Tutorial
         </button>
-        <button className="adventure-btn secondary" onClick={() => navigate('/home')}>
+        <button className="adventure-btn secondary" onClick={() => {
+          const homePath = userRole === 'TEACHER' ? '/teacher-home' : '/student-home';
+          navigate(homePath);
+        }}>
           Quit to Homepage
         </button>
       </div>

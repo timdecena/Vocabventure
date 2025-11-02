@@ -845,7 +845,7 @@ const corallexQuestions = [
       "https://images.squarespace-cdn.com/content/v1/59c68edc64b05f184cb42ae2/1532555571594-9KAM1F2DTNPNEWPOWMY3/people-connecting.jpg",
       "https://images.squarespace-cdn.com/content/v1/5c6ec56916b6406caf85ff79/1566242966068-YFBTKTHM6ZIS0M89UGEL/Connections+pic.jpg", 
       "https://thumbs.dreamstime.com/b/blue-wi-fi-wireless-internet-connection-icon-symbol-curved-signal-waves-central-dot-white-background-featuring-395508463.jpg",
-      "https://www.cloudresearch.com/wp-content/uploads/2022/07/connect_hero_p.jpg"
+      "https://img.freepik.com/free-photo/business-network-background-connecting-dots-technology-design_53876-160278.jpg?semt=ais_hybrid&w=740&q=80"
     ],
     letters: "CONNECTIONXYZ",
     correct: "CONNECTION"
