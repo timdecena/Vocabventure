@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/fpow")
@@ -170,4 +171,6 @@ public class FourPicOneWordController {
         return ResponseEntity.status(500).body("Server error while creating puzzle");
     }
 }
+
+    // Cleanup endpoints temporarily disabled until FPOWCleanupService is available on disk.
 }

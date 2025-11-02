@@ -22,21 +22,34 @@ public class WordOfTheDayController {
     private final UserService userService;
 
     @GetMapping
-public Map<String, Object> getToday(Principal principal) {
-    User user = userService.findByEmail(principal.getName())
-            .orElseThrow(() -> new RuntimeException("User not found: " + principal.getName()));
-    WordOfTheDay word = wotdService.getTodayWord();
-    boolean hasPlayed = wotdService.hasPlayed(user, word);
+    public Map<String, Object> getToday(Principal principal) {
+        WordOfTheDay word = wotdService.getTodayWord();
 
-    List<String> choices = wotdService.generateChoices(word.getWord());
+        boolean hasPlayed = false;
+        if (principal != null) {
+            userService.findByEmail(principal.getName()).ifPresent(user -> {
+                // Using array holder to mutate within lambda
+            });
+        }
 
-    return Map.of(
-            "definition", word.getDefinition(),
-            "hasPlayed", hasPlayed,
-            "imageUrl", word.getImageUrl(),
-            "choices", choices // ✅ send multiple choice options
-    );
-}
+        // If authenticated, compute hasPlayed
+        if (principal != null) {
+            User user = userService.findByEmail(principal.getName())
+                    .orElse(null);
+            if (user != null) {
+                hasPlayed = wotdService.hasPlayed(user, word);
+            }
+        }
+
+        List<String> choices = wotdService.generateChoices(word.getWord());
+
+        return Map.of(
+                "definition", word.getDefinition(),
+                "hasPlayed", hasPlayed,
+                "imageUrl", word.getImageUrl(),
+                "choices", choices
+        );
+    }
 
 
     @PostMapping("/submit")

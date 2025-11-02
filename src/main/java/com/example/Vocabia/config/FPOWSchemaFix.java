@@ -19,6 +19,8 @@ public class FPOWSchemaFix implements CommandLineRunner {
     public void run(String... args) throws Exception {
         try {
             System.out.println("🔧 FPOW Schema Fix: Checking database schema...");
+            // Ensure critical gameplay tables/columns exist to avoid runtime 500s
+            ensureUserProgressTable();
             
             // Check if columns are nullable
             String checkQuery = """
@@ -90,6 +92,82 @@ public class FPOWSchemaFix implements CommandLineRunner {
             System.err.println("❌ FPOW Schema Fix failed: " + e.getMessage());
             e.printStackTrace();
             // Don't throw - let the application continue
+        }
+    }
+
+    /**
+     * Ensure the user_progress table exists and contains all required columns
+     * to support progress tracking and the integrated gold system.
+     */
+    private void ensureUserProgressTable() {
+        try {
+            // Check if table exists
+            String tableExistsSql = """
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'user_progress'
+                """;
+            Integer exists = jdbcTemplate.queryForObject(tableExistsSql, Integer.class);
+            if (exists == null) exists = 0;
+
+            if (exists == 0) {
+                System.out.println("🛠️ Creating missing table: user_progress...");
+                String createSql = """
+                    CREATE TABLE user_progress (
+                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                        user_id BIGINT NOT NULL,
+                        classroom_id BIGINT NULL,
+                        category VARCHAR(255) NOT NULL,
+                        current_level INT NOT NULL DEFAULT 1,
+                        level INT NOT NULL DEFAULT 1,
+                        puzzles_solved INT NOT NULL DEFAULT 0,
+                        hints_used INT NOT NULL DEFAULT 0,
+                        streak_count INT NOT NULL DEFAULT 0,
+                        max_streak INT NOT NULL DEFAULT 0,
+                        correct_answers INT NOT NULL DEFAULT 0,
+                        wrong_answers INT NOT NULL DEFAULT 0,
+                        total_attempts INT NOT NULL DEFAULT 0,
+                        lives_left INT NOT NULL DEFAULT 3,
+                        level_gold_earned INT NOT NULL DEFAULT 0,
+                        level_gold_awarded INT NOT NULL DEFAULT 0,
+                        level_completion_counts TEXT NULL,
+                        last_played_level INT NULL,
+                        last_played_category VARCHAR(255) NULL,
+                        last_active DATETIME NULL,
+                        created_at DATETIME NOT NULL,
+                        updated_at DATETIME NULL
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                """;
+                jdbcTemplate.execute(createSql);
+                System.out.println("✅ Created user_progress table");
+            } else {
+                // Ensure required columns exist (idempotent ALTERs)
+                System.out.println("🔎 Verifying required columns on user_progress...");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS classroom_id BIGINT NULL");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS current_level INT NOT NULL DEFAULT 1");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS level INT NOT NULL DEFAULT 1");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS puzzles_solved INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS hints_used INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS streak_count INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS max_streak INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS correct_answers INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS wrong_answers INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS total_attempts INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS lives_left INT NOT NULL DEFAULT 3");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS level_gold_earned INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS level_gold_awarded INT NOT NULL DEFAULT 0");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS level_completion_counts TEXT NULL");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS last_played_level INT NULL");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS last_played_category VARCHAR(255) NULL");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS last_active DATETIME NULL");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS created_at DATETIME NOT NULL DEFAULT NOW()");
+                jdbcTemplate.execute("ALTER TABLE user_progress ADD COLUMN IF NOT EXISTS updated_at DATETIME NULL");
+                System.out.println("✅ user_progress columns verified");
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Could not verify/create user_progress table: " + e.getMessage());
+            // Do not fail startup - gameplay can still proceed with localStorage fallback
         }
     }
 }

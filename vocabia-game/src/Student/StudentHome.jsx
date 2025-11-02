@@ -27,6 +27,9 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import StudentWOTDCard from "../WordOfTheDay/StudentWOTDCard"; // update path as needed
 
+// Lightweight inline SVG fallback avatar to avoid network 403 on /default-avatar.png
+const DEFAULT_AVATAR_PLACEHOLDER = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="90" height="90"><rect width="100%" height="100%" fill="%2323232b"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="%23ffffff" font-size="42">👤</text></svg>';
+
 const GlobalSidebarStyles = () => (
   <style>{`
     .arcade-sidebar {
@@ -359,12 +362,12 @@ useEffect(() => {
   src={
     studentInfo.profileImageBase64
       ? `data:image/png;base64,${studentInfo.profileImageBase64}`
-      : '/default-avatar.png'
+      : DEFAULT_AVATAR_PLACEHOLDER
   }
   sx={{ width: 90, height: 90, mr: 4 }}
   onError={(e) => {
     e.target.onerror = null;
-    e.target.src = '/default-avatar.png';
+    e.target.src = DEFAULT_AVATAR_PLACEHOLDER;
   }}
 />
               <Box sx={{ flexGrow: 1 }}>
