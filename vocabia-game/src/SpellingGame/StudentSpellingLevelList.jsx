@@ -452,7 +452,7 @@ export default function StudentSpellingLevelList() {
                       Spell Quest
                     </Typography>
                     <Typography variant="h6" color="#666">
-                      Test Master your spelling skills through exciting challenges!
+                       Master your spelling skills through exciting challenges!
                     </Typography>
                   </Box>
                 </Box>
