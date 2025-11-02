@@ -60,21 +60,32 @@ private String uploadDir;  // ✅ inject property here
 @PostMapping("/upload-audio")
 public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
     try {
-        String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-        
-        // ✅ Save inside audio folder
-        Path audioDir = Paths.get(uploadDir, "audio");
+        // Determine base directory
+        String baseDir = uploadDir;
+
+        // Check if the path exists and is writable; if not, fallback to local
+        Path testPath = Paths.get(baseDir != null ? baseDir : "");
+        if (baseDir == null || baseDir.isEmpty() || !Files.isWritable(testPath)) {
+            baseDir = System.getProperty("user.dir") + "/uploads";
+        }
+
+        // Ensure audio folder exists
+        Path audioDir = Paths.get(baseDir, "audio");
         Files.createDirectories(audioDir);
 
+        // Save file
+        String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
         Path filePath = audioDir.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // ✅ Match the public URL path to Nginx alias
+        // URL returned to frontend
         String fileUrl = "/audio/" + filename;
         return ResponseEntity.ok(Map.of("url", fileUrl));
+
     } catch (IOException e) {
         e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload audio");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Failed to upload audio");
     }
 }
 
