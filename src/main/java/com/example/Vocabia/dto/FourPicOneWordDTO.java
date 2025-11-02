@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class FourPicOneWordDTO {
     private Long id;
+    private Long classroomId;
+    private Long teacherId;
     private String category;
     private int level;
     private String answer;

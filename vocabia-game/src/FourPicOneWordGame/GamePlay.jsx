@@ -638,7 +638,9 @@ const GamePlay = () => {
         dispatch({ type: 'SET_STORED_ATTEMPTS', payload: storedAttempts });
       }
 
-      const res = await api.get('/api/fpow/puzzle', { params: { category, level } });
+      const res = await api.get('/api/fpow/puzzle', { 
+        params: id ? { classroomId: id, category, level } : { category, level } 
+      });
       if (!res.data || !res.data.answer) throw new Error('No puzzle found');
 
       // ✅ Collect and normalize the four image URLs from backend

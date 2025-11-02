@@ -21,6 +21,7 @@ public class FPOWSchemaFix implements CommandLineRunner {
             System.out.println("🔧 FPOW Schema Fix: Checking database schema...");
             // Ensure critical gameplay tables/columns exist to avoid runtime 500s
             ensureUserProgressTable();
+            ensureFPOWClassroomColumns();
             
             // Check if columns are nullable
             String checkQuery = """
@@ -168,6 +169,36 @@ public class FPOWSchemaFix implements CommandLineRunner {
         } catch (Exception e) {
             System.out.println("⚠️ Could not verify/create user_progress table: " + e.getMessage());
             // Do not fail startup - gameplay can still proceed with localStorage fallback
+        }
+    }
+
+    /**
+     * Ensure four_pic_one_word table has classroom_id and teacher_id columns
+     * for classroom-specific content segregation
+     */
+    private void ensureFPOWClassroomColumns() {
+        try {
+            System.out.println("🔎 Verifying FPOW classroom columns...");
+            jdbcTemplate.execute("ALTER TABLE four_pic_one_word ADD COLUMN IF NOT EXISTS classroom_id BIGINT NULL");
+            jdbcTemplate.execute("ALTER TABLE four_pic_one_word ADD COLUMN IF NOT EXISTS teacher_id BIGINT NULL");
+            
+            // Drop old unique constraint if it exists
+            try {
+                jdbcTemplate.execute("ALTER TABLE four_pic_one_word DROP INDEX IF EXISTS category");
+            } catch (Exception e) {
+                // Ignore if constraint doesn't exist
+            }
+            
+            // Add new unique constraint: classroom_id + category + level
+            try {
+                jdbcTemplate.execute("ALTER TABLE four_pic_one_word ADD UNIQUE INDEX IF NOT EXISTS idx_classroom_category_level (classroom_id, category, level)");
+            } catch (Exception e) {
+                System.out.println("⚠️ Could not add unique constraint: " + e.getMessage());
+            }
+            
+            System.out.println("✅ FPOW classroom columns verified");
+        } catch (Exception e) {
+            System.out.println("⚠️ Could not verify FPOW classroom columns: " + e.getMessage());
         }
     }
 }

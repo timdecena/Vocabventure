@@ -2,7 +2,9 @@ package com.example.Vocabia.controller;
 
 import com.example.Vocabia.dto.FourPicOneWordDTO;
 import com.example.Vocabia.entity.FourPicOneWord;
+import com.example.Vocabia.entity.User;
 import com.example.Vocabia.service.FourPicOneWordService;
+import com.example.Vocabia.service.UserService;
 import com.example.Vocabia.config.ImagePathConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,6 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/fpow")
@@ -26,42 +27,65 @@ import java.util.Map;
 public class FourPicOneWordController {
 
     private final FourPicOneWordService service;
+    private final UserService userService;
     private final ImagePathConfig imagePathConfig;
 
     
-    // ✅ GET /api/fpow/categories - Get all available categories
+    // ✅ GET /api/fpow/categories?classroomId=1 - Get classroom-specific categories
     @GetMapping("/categories")
-    public ResponseEntity<List<String>> getCategories() {
+    public ResponseEntity<List<String>> getCategories(@RequestParam(required = false) Long classroomId) {
         try {
-            List<String> categories = service.getCategories();
-            return ResponseEntity.ok(categories);
+            if (classroomId != null) {
+                List<String> categories = service.getCategoriesByClassroom(classroomId);
+                return ResponseEntity.ok(categories);
+            } else {
+                // Legacy: return all categories (for Adventure Mode)
+                List<String> categories = service.getCategories();
+                return ResponseEntity.ok(categories);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
 
-    // ✅ GET /api/fpow/levels?category=Animals - Get levels for a specific category
+    // ✅ GET /api/fpow/levels?classroomId=1&category=Animals - Get classroom-specific levels
     @GetMapping("/levels")
-    public ResponseEntity<List<Integer>> getLevelsByCategory(@RequestParam("category") String category) {
+    public ResponseEntity<List<Integer>> getLevelsByCategory(
+            @RequestParam(required = false) Long classroomId,
+            @RequestParam("category") String category) {
         try {
-            List<Integer> levels = service.getLevelsByCategory(category);
-            return ResponseEntity.ok(levels);
+            if (classroomId != null) {
+                List<Integer> levels = service.getLevelsByClassroomAndCategory(classroomId, category);
+                return ResponseEntity.ok(levels);
+            } else {
+                // Legacy: return levels without classroom filter (for Adventure Mode)
+                List<Integer> levels = service.getLevelsByCategory(category);
+                return ResponseEntity.ok(levels);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
 
-    // ✅ GET /api/fpow/puzzle?category=Animals&level=1 - Get specific puzzle
+    // ✅ GET /api/fpow/puzzle?classroomId=1&category=Animals&level=1 - Get classroom-specific puzzle
     @GetMapping("/puzzle")
     public ResponseEntity<FourPicOneWordDTO> getPuzzle(
+            @RequestParam(required = false) Long classroomId,
             @RequestParam("category") String category,
             @RequestParam("level") int level) {
         try {
-            return service.getPuzzleByCategoryAndLevel(category, level)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            if (classroomId != null) {
+                return service.getPuzzleByClassroomAndCategoryAndLevel(classroomId, category, level)
+                        .map(ResponseEntity::ok)
+                        .orElse(ResponseEntity.notFound().build());
+            } else {
+                // Legacy: return puzzle without classroom filter (for Adventure Mode)
+                return service.getPuzzleByCategoryAndLevel(category, level)
+                        .map(ResponseEntity::ok)
+                        .orElse(ResponseEntity.notFound().build());
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseEntity.status(500).build();
@@ -71,6 +95,7 @@ public class FourPicOneWordController {
     @PostMapping("/create")
     public ResponseEntity<?> createPuzzle(
         Principal principal,
+        @RequestParam("classroomId") Long classroomId,
         @RequestParam("category") String category,
         @RequestParam("level") int level,
         @RequestParam("answer") String answer,
@@ -155,12 +180,17 @@ public class FourPicOneWordController {
         dto.setImage3Url(imageUrls.size() > 2 ? imageUrls.get(2) : null);
         dto.setImage4Url(imageUrls.size() > 3 ? imageUrls.get(3) : null);
         
+        // ✅ Get teacher ID from authenticated user
+        String teacherEmail = principal.getName();
+        User teacher = userService.findByEmail(teacherEmail)
+                .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherEmail));
+        Long teacherId = teacher.getId();
+        
         // ✅ Log the dynamic image assignment for debugging
         System.out.println("✅ Creating FPOW puzzle with " + imageUrls.size() + " images: " + 
-                          category + " Level " + level);
+                          category + " Level " + level + " for Classroom " + classroomId);
 
-        String teacherEmail = principal.getName();
-        FourPicOneWordDTO saved = service.createPuzzle(dto, teacherEmail);
+        FourPicOneWordDTO saved = service.createPuzzle(dto, classroomId, teacherId);
 
         return ResponseEntity.ok(saved);
 

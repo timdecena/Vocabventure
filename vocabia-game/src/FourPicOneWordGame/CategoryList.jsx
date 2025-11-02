@@ -128,8 +128,10 @@ function CategoryList() {
         const token = localStorage.getItem("token");
         setIsAuthenticated(!!token);
 
-        // Fetch categories
-        const categoriesRes = await api.get("/api/fpow/categories");
+        // Fetch categories (classroom-specific if id is provided)
+        const categoriesRes = await api.get("/api/fpow/categories", {
+          params: id ? { classroomId: id } : {}
+        });
         const categoriesData = categoriesRes.data || [];
         setCategories(categoriesData);
         
@@ -191,7 +193,7 @@ function CategoryList() {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
 
   // Preload sound effects and start BGM when this page mounts (user is entering FPOW module)
   useEffect(() => {
@@ -230,7 +232,7 @@ function CategoryList() {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [id]);
   
 
   if (loading)
