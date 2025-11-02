@@ -677,7 +677,7 @@ export default function StudentSpellingChallenge() {
   src={
     currentChallenge.audioUrl.startsWith("http")
       ? currentChallenge.audioUrl
-      : `${window.location.origin}/${currentChallenge.audioUrl.replace(/^\/?/, "")}`
+      : `http://34.207.235.102${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
   }
   preload="auto"
 />
