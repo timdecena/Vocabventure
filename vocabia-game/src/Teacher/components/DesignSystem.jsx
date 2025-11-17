@@ -284,6 +284,8 @@ export const SectionHeader = ({ children, sx = {} }) => {
 
 // ==================== STAT CARD COMPONENT ====================
 export const StatCard = ({ icon, value, label, color = colors.primary, onClick, sx = {} }) => {
+  // Only use onClick if it is a function
+  const safeOnClick = typeof onClick === 'function' ? onClick : undefined;
   return (
     <StyledCard
       sx={{
@@ -297,7 +299,7 @@ export const StatCard = ({ icon, value, label, color = colors.primary, onClick, 
           : {},
         ...sx,
       }}
-      onClick={onClick}
+      onClick={safeOnClick}
     >
       <Box sx={{ textAlign: 'center' }}>
         {icon && (
