@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/MapView.css";
 import TutorialSequence from "./tutorial/TutorialSequence";
+import FeedbackModal from "./components/FeedbackModal";
+import { shouldShowBossFeedback, clearBossFeedbackFlag } from "./utils/feedbackTrigger";
 import axios from 'axios';
 
 const oceanBg = "https://cdna.artstation.com/p/assets/images/images/061/904/456/large/milan-vasek-worldmap-wip.jpg?1681900161";
@@ -91,6 +93,13 @@ export default function MapView() {
   
   // Get user role for proper navigation
   const userRole = localStorage.getItem('role');
+  
+  // Feedback modal state
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackTrigger, setFeedbackTrigger] = useState('playtime');
+  
+  // Playtime tracking
+  const [playtime, setPlaytime] = useState(0); // in seconds
 
   // Animate particles
   useEffect(() => {
@@ -113,6 +122,48 @@ export default function MapView() {
     };
     const interval = setInterval(rotateCompass, 100);
     return () => clearInterval(interval);
+  }, []);
+
+  // Playtime tracking - trigger feedback modal every 10 minutes
+  useEffect(() => {
+    const playtimeKey = 'adventurePlaytime';
+    const lastFeedbackKey = 'lastFeedbackTime';
+    
+    // Load saved playtime from localStorage
+    const savedPlaytime = parseInt(localStorage.getItem(playtimeKey) || '0');
+    setPlaytime(savedPlaytime);
+    
+    // Track playtime every second
+    const playtimeInterval = setInterval(() => {
+      setPlaytime(prev => {
+        const newPlaytime = prev + 1;
+        localStorage.setItem(playtimeKey, newPlaytime.toString());
+        
+        // Check if 10 minutes (600 seconds) have passed since last feedback prompt
+        const lastFeedback = parseInt(localStorage.getItem(lastFeedbackKey) || '0');
+        const timeSinceLastFeedback = newPlaytime - lastFeedback;
+        
+        // Show modal every 10 minutes (600 seconds)
+        if (timeSinceLastFeedback >= 600) {
+          setFeedbackTrigger('playtime');
+          setShowFeedbackModal(true);
+          localStorage.setItem(lastFeedbackKey, newPlaytime.toString());
+        }
+        
+        return newPlaytime;
+      });
+    }, 1000);
+    
+    return () => clearInterval(playtimeInterval);
+  }, []);
+
+  // Check for boss defeat feedback trigger on component mount
+  useEffect(() => {
+    if (shouldShowBossFeedback()) {
+      setFeedbackTrigger('boss');
+      setShowFeedbackModal(true);
+      clearBossFeedbackFlag();
+    }
   }, []);
 
   // Fetch island progress function (optimized)
@@ -443,6 +494,13 @@ export default function MapView() {
           <TutorialSequence onClose={() => setShowTutorial(false)} />
         </div>
       )}
+      
+      {/* Feedback modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        trigger={feedbackTrigger}
+      />
     </div>
   );
 } 
