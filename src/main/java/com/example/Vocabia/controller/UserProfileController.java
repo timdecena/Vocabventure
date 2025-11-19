@@ -16,19 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserProfileController {
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntime(RuntimeException ex) {
-        if (ex.getMessage() != null && ex.getMessage().contains("User not found")) {
-            return ResponseEntity.status(404).body(ex.getMessage());
-        }
-        return ResponseEntity.status(500).body("Internal server error: " + ex.getMessage());
-    }
-
     private final UserService userService;
     private final JwtUtil jwtUtil;
 

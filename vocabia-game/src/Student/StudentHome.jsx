@@ -268,11 +268,7 @@ useEffect(() => {
       await fetchClasses();
     } catch (err) {
       console.error("Failed to join class:", err);
-      let backendMsg = err.response?.data;
-      if (backendMsg && typeof backendMsg === "object" && backendMsg.message) {
-        backendMsg = backendMsg.message;
-      }
-      setJoinError("Failed to join class: " + (backendMsg || err.message || "Unknown error"));
+      setJoinError("Failed to join class: " + (err.response?.data?.message || err.message || "Unknown error"));
     }
   };
 
