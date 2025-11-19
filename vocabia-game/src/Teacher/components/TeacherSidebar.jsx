@@ -15,6 +15,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import ClassIcon from '@mui/icons-material/Class';
 import HomeIcon from '@mui/icons-material/Home';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import { t } from '../utils/i18n';
 import { colors } from './DesignSystem';
 
@@ -28,6 +29,7 @@ export default function TeacherSidebar({ collapsed = false }) {
     { icon: <AddCircleOutlineIcon />, label: t('Create Class'), path: '/teacher/classes/create' },
     { icon: <EditNoteIcon />, label: t('Create Level'), path: '/teacher/spelling/create' },
     { icon: <EditNoteIcon />, label: t('Create 4Pics1Word'), path: '/teacher/fpow/create' },
+    { icon: <ViewListIcon />, label: t('Manage 4Pics1Word'), path: '/teacher/fpow/manage' },
   ];
 
   return (

@@ -1,80 +1,55 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Container,
-  Grid,
-  Paper,
-  Typography,
   Box,
+  Typography,
   Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Table,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
+  Paper,
   Avatar,
   Chip,
-  CircularProgress,
-  Tooltip as MuiTooltip,
-  IconButton,
+  LinearProgress,
   Skeleton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Menu,
+  IconButton,
 } from '@mui/material';
 import InsightsIcon from '@mui/icons-material/Insights';
 import DownloadIcon from '@mui/icons-material/Download';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import PeopleIcon from '@mui/icons-material/People';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import WarningIcon from '@mui/icons-material/Warning';
+import SortIcon from '@mui/icons-material/Sort';
 import {
   BarChart,
   Bar,
-  AreaChart,
-  Area,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip as RechartsTooltip,
-  Legend,
   ResponsiveContainer,
+  Cell,
 } from 'recharts';
-import { useTheme } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
 import api from '../api/api';
-import PageHeader from './components/PageHeader';
-import EmptyState from './components/EmptyState';
+import { colors, StyledCard, PageTitle } from './components/DesignSystem';
 import { t } from './utils/i18n';
 
 export default function TeacherAnalyticsPage() {
-  const theme = useTheme();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('30d');
   const [classFilter, setClassFilter] = useState('all');
-  const [gameFilter, setGameFilter] = useState('all');
   const [fpowData, setFpowData] = useState(null);
   const [classes, setClasses] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [sortBy, setSortBy] = useState('score'); // 'score' or 'progress'
+  const [sortMenuAnchor, setSortMenuAnchor] = useState(null);
+  const [exportMenuAnchor, setExportMenuAnchor] = useState(null);
 
-  // staged filters (Apply UX)
-  const [pendingRange, setPendingRange] = useState(range);
-  const [pendingClassFilter, setPendingClassFilter] = useState(classFilter);
-  const [pendingGameFilter, setPendingGameFilter] = useState(gameFilter);
-
-  useEffect(() => {
-    setPendingRange(range);
-    setPendingClassFilter(classFilter);
-    setPendingGameFilter(gameFilter);
-  }, [range, classFilter, gameFilter]);
-
-  const handleApplyFilters = () => {
-    setRange(pendingRange);
-    setClassFilter(pendingClassFilter);
-    setGameFilter(pendingGameFilter);
-  };
-
-  // fetch analytics
+  // Fetch analytics
   useEffect(() => {
     let mounted = true;
     const fetchFpow = async () => {
@@ -83,17 +58,12 @@ export default function TeacherAnalyticsPage() {
         const qs = new URLSearchParams();
         qs.set('range', range);
         if (classFilter && classFilter !== 'all') qs.set('class', classFilter);
-        if (gameFilter) qs.set('game', gameFilter);
 
-        // primary endpoint (teacher analytics)
         const endpoint = `/api/teacher/fpow-progress?${qs.toString()}`;
         const res = await api.get(endpoint);
         const data = res.data || null;
         if (mounted) {
           setFpowData(data);
-          if (data?.categories && Array.isArray(data.categories)) {
-            setCategories(data.categories);
-          }
         }
       } catch (e) {
         if (mounted) setFpowData(null);
@@ -102,11 +72,10 @@ export default function TeacherAnalyticsPage() {
       }
     };
     fetchFpow();
-    const interval = setInterval(fetchFpow, 30000);
-    return () => { mounted = false; clearInterval(interval); };
-  }, [range, classFilter, gameFilter]);
+    return () => { mounted = false; };
+  }, [range, classFilter]);
 
-  // load classes list
+  // Load classes list
   useEffect(() => {
     let mounted = true;
     const loadClasses = async () => {
@@ -121,509 +90,672 @@ export default function TeacherAnalyticsPage() {
     return () => { mounted = false; };
   }, []);
 
-  // derived
+  // Derived data
   const hasData = !!fpowData;
-  const weeklyData = Array.isArray(fpowData?.weeklyProgress) ? fpowData.weeklyProgress : [];
-  const categoryDataRaw = Array.isArray(fpowData?.categoryProgress) ? fpowData.categoryProgress : [];
-  const categoryData = categoryDataRaw.filter(cat =>
-    gameFilter === 'all' || String(cat.category).toLowerCase() === String(gameFilter).toLowerCase()
-  );
-
   const studentRows = Array.isArray(fpowData?.studentProgress) ? fpowData.studentProgress : [];
-  const activeStudents = studentRows.length;
-  const avgAccuracy = studentRows.length
+  const categoryData = Array.isArray(fpowData?.categoryProgress) ? fpowData.categoryProgress : [];
+
+  // Calculate summary metrics
+  const totalStudents = studentRows.length;
+  const avgScore = studentRows.length
     ? Math.round(studentRows.reduce((sum, r) => sum + (Number(r.accuracy) || 0), 0) / studentRows.length)
     : 0;
-  const totalLevelsCompleted = studentRows.reduce((sum, r) => sum + (Number(r.levelsCompleted) || 0), 0);
-  const strugglingCount = studentRows.reduce((sum, r) => sum + (r?.struggling ? 1 : 0), 0);
+  const completionRate = totalStudents > 0 
+    ? Math.round((studentRows.filter(r => (Number(r.levelsCompleted) || 0) > 0).length / totalStudents) * 100)
+    : 0;
 
-  const accuracyColor = (v) => (v >= 90 ? 'success.main' : v >= 70 ? 'warning.main' : 'error.main');
-  const muiChipColors = ['primary','secondary','success','info','warning','error'];
-  const colorForClass = (name) => {
-    if (!name) return 'default';
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  // Get last activity
+  const getLastActivity = () => {
+    if (studentRows.length === 0) return 'No activity';
+    const dates = studentRows
+      .map(r => r.lastActive ? new Date(r.lastActive) : null)
+      .filter(d => d !== null && !isNaN(d.getTime()));
+    if (dates.length === 0) return 'No activity';
+    const mostRecent = new Date(Math.max(...dates.map(d => d.getTime())));
+    const today = new Date();
+    const diffTime = today - mostRecent;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return mostRecent.toLocaleDateString();
+  };
+
+  // Get actionable insights
+  const getInsights = () => {
+    const insights = {
+      topPerformers: [],
+      needsAttention: [],
+    };
+
+    // Top performers (improved or high scores)
+    const topStudents = [...studentRows]
+      .filter(s => (Number(s.accuracy) || 0) >= 85)
+      .sort((a, b) => (Number(b.accuracy) || 0) - (Number(a.accuracy) || 0))
+      .slice(0, 3)
+      .map(s => s.studentName);
+
+    // Needs attention (struggling or inactive)
+    const strugglingStudents = studentRows
+      .filter(s => s.struggling || !s.lastActive || new Date(s.lastActive) < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000))
+      .slice(0, 3)
+      .map(s => s.studentName);
+
+    insights.topPerformers = topStudents;
+    insights.needsAttention = strugglingStudents;
+
+    return insights;
+  };
+
+  // Prepare chart data - Class Performance if multiple classes, otherwise Category Performance
+  const getChartData = () => {
+    if (classes.length > 1 && classFilter === 'all') {
+      // Show class performance
+      return classes.map(cls => {
+        const classStudents = studentRows.filter(s => String(s.classId) === String(cls.id));
+        const classAvgScore = classStudents.length > 0
+          ? Math.round(classStudents.reduce((sum, s) => sum + (Number(s.accuracy) || 0), 0) / classStudents.length)
+          : 0;
+        return {
+          name: cls.name,
+          score: classAvgScore,
+        };
+      });
+    } else {
+      // Show category performance
+      return categoryData.map(cat => ({
+        name: cat.category || 'Unknown',
+        score: Math.round((Number(cat.completed) || 0) / Math.max(Number(cat.total) || 1, 1) * 100),
+      }));
     }
-    return muiChipColors[hash % muiChipColors.length];
   };
-  const formatMinutes = (m) => {
-    const mins = Number(m) || 0;
-    const h = Math.floor(mins / 60);
-    const mm = mins % 60;
-    if (h > 0) return `${h}h ${mm}m`;
-    return `${mm}m`;
+
+  const chartData = getChartData();
+
+  // Sort students
+  const sortedStudents = [...studentRows]
+    .filter(student => 
+      classFilter === 'all' || 
+      String(student.classId) === String(classFilter) ||
+      (student.className && student.className.toLowerCase() === String(classFilter).toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === 'score') {
+        return (Number(b.accuracy) || 0) - (Number(a.accuracy) || 0);
+      } else {
+        return (Number(b.levelsCompleted) || 0) - (Number(a.levelsCompleted) || 0);
+      }
+    });
+
+  // Format last activity for student
+  const formatStudentLastActive = (lastActive) => {
+    if (!lastActive) return 'Never';
+    const date = new Date(lastActive);
+    if (isNaN(date.getTime())) return 'Never';
+    const today = new Date();
+    const diffTime = today - date;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString();
   };
-  const formatDay = (d) => {
-    try {
-      const dd = new Date(d);
-      if (!isNaN(dd)) return dd.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-      return d;
-    } catch { return d; }
+
+  // Fixed card colors
+  const cardColors = [
+    { bg: '#E3F2FD', text: '#1976D2', icon: '#1976D2' },
+    { bg: '#E8F5E9', text: '#388E3C', icon: '#388E3C' },
+    { bg: '#FFF3E0', text: '#F57C00', icon: '#F57C00' },
+    { bg: '#F3E5F5', text: '#7B1FA2', icon: '#7B1FA2' },
+  ];
+
+  const chartColors = ['#3498DB', '#27AE60', '#E67E22', '#9B59B6', '#1ABC9C'];
+
+  const getScoreColor = (score) => {
+    if (score >= 90) return colors.success;
+    if (score >= 70) return colors.warning;
+    return colors.error;
   };
+
+  const insights = getInsights();
+
+  // Fixed dimensions
+  const METRIC_CARD_WIDTH = 220;
+  const METRIC_CARD_HEIGHT = 140;
+  const STUDENT_CARD_HEIGHT = 120;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 10 }}>
+    <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', pb: 6, pt: 3 }}>
+      <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', px: { xs: 2, sm: 3, md: 4 } }}>
       {/* Header */}
-      <PageHeader
-        backTo="/teacher-home"
-        backLabel={t('Back to Dashboard')}
-        title={
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <InsightsIcon sx={{ color: 'primary.main', fontSize: 32 }} />
+        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
             <Box>
-              <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                {t('FOUR PIC ONE WORD PROGRESS')}
+            <PageTitle icon={<InsightsIcon sx={{ fontSize: 32 }} />}>
+              Analytics
+            </PageTitle>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                color: colors.textLight, 
+                mt: 1,
+                fontWeight: 400,
+                fontSize: '1.1rem',
+                ml: { xs: 0, md: 10 },
+              }}
+            >
+              Quick overview of student progress and performance
               </Typography>
-              <Typography variant="subtitle1" sx={{ color: 'text.secondary', mt: 0.5 }}>
-                {t('Detailed progress and activity for Four Pics One Word')}
-              </Typography>
-            </Box>
           </Box>
-        }
-        actions={
-          <Button variant="outlined" startIcon={<DownloadIcon />}>
-            {t('Export')}
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+            sx={{
+              borderColor: colors.border,
+              color: colors.text,
+              borderRadius: '12px',
+              px: 3,
+              py: 1.5,
+              '&:hover': {
+                borderColor: colors.primary,
+                bgcolor: `${colors.primary}10`,
+              },
+            }}
+          >
+            Export
           </Button>
-        }
-      />
+          <Menu
+            anchorEl={exportMenuAnchor}
+            open={Boolean(exportMenuAnchor)}
+            onClose={() => setExportMenuAnchor(null)}
+          >
+            <MenuItem onClick={() => { setExportMenuAnchor(null); /* TODO: Implement CSV export */ }}>
+              Export as CSV
+            </MenuItem>
+            <MenuItem onClick={() => { setExportMenuAnchor(null); /* TODO: Implement PDF export */ }}>
+              Export as PDF
+            </MenuItem>
+          </Menu>
+        </Box>
 
-      {/* Filters */}
-      <Paper sx={{ 
-        p: 3, 
-        mt: 3, 
-        mb: 4,
-        borderRadius: 2,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-      }}>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 3, 
-          flexWrap: 'wrap' 
-        }}>
-          <FormControl size="medium" sx={{ minWidth: 200 }}>
-            <InputLabel>{t('Range')}</InputLabel>
-            <Select label={t('Range')} value={pendingRange} onChange={(e) => setPendingRange(e.target.value)}>
-              <MenuItem value="7d">{t('Last 7 days')}</MenuItem>
-              <MenuItem value="30d">{t('Last 30 days')}</MenuItem>
-              <MenuItem value="all">{t('All time')}</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl size="medium" sx={{ minWidth: 200 }}>
-            <InputLabel>{t('Class')}</InputLabel>
-            <Select label={t('Class')} value={pendingClassFilter} onChange={(e) => setPendingClassFilter(e.target.value)}>
-              <MenuItem value="all">{t('All Classes')}</MenuItem>
+        {/* Quick Filters */}
+        <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Button
+            variant={range === '7d' ? 'contained' : 'outlined'}
+            onClick={() => setRange('7d')}
+            sx={{
+              ...(range === '7d' ? {
+                bgcolor: colors.primary,
+                color: '#FFFFFF',
+                '&:hover': { bgcolor: colors.primaryDark },
+              } : {
+                borderColor: colors.border,
+                color: colors.text,
+                '&:hover': {
+                  borderColor: colors.primary,
+                  bgcolor: `${colors.primary}10`,
+                },
+              }),
+              px: 3,
+              py: 1.5,
+              fontSize: '1rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              borderRadius: '12px',
+            }}
+          >
+            Last 7 Days
+          </Button>
+          <Button
+            variant={range === '30d' ? 'contained' : 'outlined'}
+            onClick={() => setRange('30d')}
+            sx={{
+              ...(range === '30d' ? {
+                bgcolor: colors.primary,
+                color: '#FFFFFF',
+                '&:hover': { bgcolor: colors.primaryDark },
+              } : {
+                borderColor: colors.border,
+                color: colors.text,
+                '&:hover': {
+                  borderColor: colors.primary,
+                  bgcolor: `${colors.primary}10`,
+                },
+              }),
+              px: 3,
+              py: 1.5,
+              fontSize: '1rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              borderRadius: '12px',
+            }}
+          >
+            Last Month
+          </Button>
+          <Button
+            variant={range === 'all' ? 'contained' : 'outlined'}
+            onClick={() => setRange('all')}
+            sx={{
+              ...(range === 'all' ? {
+                bgcolor: colors.primary,
+                color: '#FFFFFF',
+                '&:hover': { bgcolor: colors.primaryDark },
+              } : {
+                borderColor: colors.border,
+                color: colors.text,
+                '&:hover': {
+                  borderColor: colors.primary,
+                  bgcolor: `${colors.primary}10`,
+                },
+              }),
+              px: 3,
+              py: 1.5,
+              fontSize: '1rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              borderRadius: '12px',
+            }}
+          >
+            All Time
+          </Button>
+
+          {classes.length > 1 && (
+            <FormControl size="small" sx={{ minWidth: 200, ml: 'auto' }}>
+              <InputLabel>Class</InputLabel>
+              <Select
+                label="Class"
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                sx={{
+                  bgcolor: '#FFFFFF',
+                  borderRadius: '12px',
+                }}
+              >
+                <MenuItem value="all">All Classes</MenuItem>
               {classes.map((c) => (
                 <MenuItem key={c.id} value={String(c.id)}>{c.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
-          <FormControl size="medium" sx={{ minWidth: 200 }}>
-            <InputLabel>{t('Category')}</InputLabel>
-            <Select label={t('Category')} value={pendingGameFilter} onChange={(e) => setPendingGameFilter(e.target.value)}>
-              <MenuItem value="all">{t('All Categories')}</MenuItem>
-              {categories.map((cat) => (
-                <MenuItem key={cat} value={String(cat)}>{cat}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button variant="contained" onClick={handleApplyFilters}>
-            {t('Apply Filters')}
-          </Button>
+          )}
         </Box>
-      </Paper>
 
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
-              {t('Active Students')}
-            </Typography>
+        {/* Fixed-Size Metric Cards */}
+        <Box sx={{ 
+          mb: 5,
+          display: 'flex',
+          gap: 3,
+          flexWrap: 'wrap',
+          justifyContent: { xs: 'center', md: 'flex-start' },
+        }}>
+          {/* Total Students */}
+          <Paper
+            sx={{
+              width: METRIC_CARD_WIDTH,
+              height: METRIC_CARD_HEIGHT,
+              p: 3,
+              borderRadius: '16px',
+              bgcolor: cardColors[0].bg,
+              border: 'none',
+              boxShadow: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             {loading ? (
-              <Skeleton variant="text" width={64} height={48} sx={{ mx: 'auto' }} />
+              <Skeleton variant="text" width={60} height={48} />
             ) : (
-              <Typography variant="h3" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                {activeStudents}
+              <>
+                <PeopleIcon sx={{ fontSize: 36, color: cardColors[0].icon, mb: 1.5 }} />
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 700,
+                    color: cardColors[0].text,
+                    mb: 0.5,
+                    fontSize: '2.5rem',
+                    lineHeight: 1,
+                  }}
+                >
+                  {totalStudents}
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, fontSize: '0.875rem' }}>
+                  Total Students
               </Typography>
+              </>
             )}
           </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
-              {t('Average Accuracy')}
-            </Typography>
+
+          {/* Average Score */}
+          <Paper
+            sx={{
+              width: METRIC_CARD_WIDTH,
+              height: METRIC_CARD_HEIGHT,
+              p: 3,
+              borderRadius: '16px',
+              bgcolor: cardColors[1].bg,
+              border: 'none',
+              boxShadow: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             {loading ? (
-              <Skeleton variant="circular" width={60} height={60} sx={{ mx: 'auto' }} />
+              <Skeleton variant="text" width={60} height={48} />
             ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                  <CircularProgress 
-                    variant="determinate" 
-                    value={avgAccuracy} 
-                    size={60} 
-                    thickness={4} 
-                    sx={{ color: accuracyColor(avgAccuracy) }} 
-                  />
-                  <Box sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                    <Typography variant="body1" component="div" fontWeight={600}>
-                      {`${avgAccuracy}%`}
+              <>
+                <TrendingUpIcon sx={{ fontSize: 36, color: cardColors[1].icon, mb: 1.5 }} />
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 700,
+                    color: cardColors[1].text,
+                    mb: 0.5,
+                    fontSize: '2.5rem',
+                    lineHeight: 1,
+                  }}
+                >
+                  {avgScore}%
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, fontSize: '0.875rem' }}>
+                  Average Score
                     </Typography>
-                  </Box>
-                </Box>
-              </Box>
+              </>
             )}
           </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
-              {t('Total Levels Completed')}
-            </Typography>
-            {loading ? (
-              <Skeleton variant="text" width={80} height={48} sx={{ mx: 'auto' }} />
-            ) : (
-              <Typography variant="h3" sx={{ fontWeight: 700, color: 'secondary.main' }}>
-                {totalLevelsCompleted}
-              </Typography>
-            )}
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper sx={{ p: 3, borderRadius: 2, textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ color: 'text.secondary', mb: 1 }}>
-              {t('Struggling Students')}
-            </Typography>
-            {loading ? (
-              <Skeleton variant="text" width={80} height={48} sx={{ mx: 'auto' }} />
-            ) : (
-              <Typography variant="h3" sx={{ fontWeight: 700, color: 'error.main' }}>
-                {strugglingCount}
-              </Typography>
-            )}
-          </Paper>
-        </Grid>
-      </Grid>
 
-      {/* Charts Section - Made wider */}
-{/* Charts Section - Full Page Width */}
-{!loading && hasData && (
-  <Box
-    sx={{
-      width: '100vw',
-      position: 'relative',
-      left: '50%',
-      right: '50%',
-      ml: '-50vw',
-      mr: '-50vw',
-      bgcolor: '#fafafa',
-      py: 5,
-    }}
-  >
-    <Box
-      sx={{
-        maxWidth: '1600px',
-        mx: 'auto',
-        px: { xs: 2, md: 6 },
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 6,
-      }}
-    >
-      {/* Category Progress Chart */}
-      <Paper
-        sx={{
-          p: { xs: 3, md: 5 },
-          borderRadius: 3,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-          width: '100%',
-          backgroundColor: '#fff',
-        }}
-      >
+          {/* Completion Rate */}
+          <Paper
+            sx={{
+              width: METRIC_CARD_WIDTH,
+              height: METRIC_CARD_HEIGHT,
+              p: 3,
+              borderRadius: '16px',
+              bgcolor: cardColors[2].bg,
+              border: 'none',
+              boxShadow: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {loading ? (
+              <Skeleton variant="text" width={60} height={48} />
+            ) : (
+              <>
+                <CheckCircleIcon sx={{ fontSize: 36, color: cardColors[2].icon, mb: 1.5 }} />
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 700,
+                    color: cardColors[2].text,
+                    mb: 0.5,
+                    fontSize: '2.5rem',
+                    lineHeight: 1,
+                  }}
+                >
+                  {completionRate}%
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, fontSize: '0.875rem' }}>
+                  Completion Rate
+              </Typography>
+              </>
+            )}
+          </Paper>
+
+          {/* Last Activity */}
+          <Paper
+            sx={{
+              width: METRIC_CARD_WIDTH,
+              height: METRIC_CARD_HEIGHT,
+              p: 3,
+              borderRadius: '16px',
+              bgcolor: cardColors[3].bg,
+              border: 'none',
+              boxShadow: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {loading ? (
+              <Skeleton variant="text" width={60} height={48} />
+            ) : (
+              <>
+                <AccessTimeIcon sx={{ fontSize: 36, color: cardColors[3].icon, mb: 1.5 }} />
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 700,
+                    color: cardColors[3].text,
+                    mb: 0.5,
+                    fontSize: { xs: '1.5rem', md: '2rem' },
+                    lineHeight: 1,
+                  }}
+                >
+                  {getLastActivity()}
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, fontSize: '0.875rem' }}>
+                  Last Activity
+              </Typography>
+              </>
+            )}
+          </Paper>
+        </Box>
+
+        {/* Actionable Insights */}
+        {(insights.topPerformers.length > 0 || insights.needsAttention.length > 0) && (
+          <Box sx={{ mb: 5, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+            {insights.topPerformers.length > 0 && (
+              <StyledCard sx={{ flex: 1, minWidth: 280, p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <ArrowUpwardIcon sx={{ color: colors.success, mr: 1 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: colors.text }}>
+                    Top Performers
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: colors.textLight }}>
+                  {insights.topPerformers.length} student{insights.topPerformers.length > 1 ? 's' : ''} with high scores: {insights.topPerformers.join(', ')}
+                </Typography>
+              </StyledCard>
+            )}
+            {insights.needsAttention.length > 0 && (
+              <StyledCard sx={{ flex: 1, minWidth: 280, p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <WarningIcon sx={{ color: colors.warning, mr: 1 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: colors.text }}>
+                    Needs Attention
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: colors.textLight }}>
+                  {insights.needsAttention.length} student{insights.needsAttention.length > 1 ? 's' : ''} need support: {insights.needsAttention.join(', ')}
+                </Typography>
+              </StyledCard>
+            )}
+          </Box>
+        )}
+
+        {/* Main Chart */}
+        {!loading && hasData && chartData.length > 0 && (
+          <StyledCard sx={{ mb: 5, p: 4 }}>
         <Typography
           variant="h5"
-          gutterBottom
-          sx={{ fontWeight: 700, textAlign: 'center', mb: 3 }}
-        >
-          {t('Category Progress')}
-        </Typography>
-
-        <Box sx={{ width: '100%', height: 550, mt: 2 }}>
-          {categoryData.length === 0 ? (
-            <Box
               sx={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'text.secondary',
+                fontWeight: 600,
+                mb: 4,
+                color: colors.text,
+                textAlign: 'center',
               }}
             >
-              <Typography variant="body2">{t('No data to display')}</Typography>
-            </Box>
-          ) : (
+              {classes.length > 1 && classFilter === 'all' ? 'Class Performance' : 'Category Performance'}
+            </Typography>
+            <Box sx={{ width: '100%', height: 400 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={categoryData}
-                margin={{ top: 20, right: 40, left: 20, bottom: 80 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={theme.palette.divider}
-                />
+                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                 <XAxis
-                  dataKey="category"
-                  tick={{ fontSize: 12 }}
-                  interval={0}
+                    dataKey="name"
+                    tick={{ fontSize: 14, fill: colors.textLight }}
                   angle={-45}
                   textAnchor="end"
                   height={80}
                 />
-                <YAxis allowDecimals={false} />
-                <RechartsTooltip />
-                <Legend />
-                <Bar
-                  dataKey="completed"
-                  name={t('Completed')}
-                  fill="#4caf50"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="total"
-                  name={t('Total')}
-                  fill="#c5cae9"
-                  radius={[4, 4, 0, 0]}
-                />
+                  <YAxis
+                    tick={{ fontSize: 14, fill: colors.textLight }}
+                    domain={[0, 100]}
+                    label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', fill: colors.text }}
+                  />
+                  <RechartsTooltip
+                    formatter={(value) => [`${value}%`, 'Score']}
+                    labelStyle={{ color: colors.text, fontWeight: 600 }}
+                    contentStyle={{
+                      backgroundColor: '#FFFFFF',
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                    ))}
+                  </Bar>
               </BarChart>
             </ResponsiveContainer>
-          )}
-        </Box>
-      </Paper>
-
-      {/* Weekly Activity Chart - Full Width Below */}
-      <Paper
-        sx={{
-          p: { xs: 3, md: 5 },
-          borderRadius: 3,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-          width: '100%',
-          backgroundColor: '#fff',
-        }}
-      >
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{ fontWeight: 700, textAlign: 'center', mb: 3 }}
-        >
-          {t('Levels Completed This Week')}
-        </Typography>
-
-        <Box sx={{ width: '100%', height: 500, mt: 2 }}>
-          {weeklyData.length === 0 ? (
-            <Box
-              sx={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'text.secondary',
-              }}
-            >
-              <Typography variant="body2">{t('No data to display')}</Typography>
             </Box>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" tickFormatter={formatDay} />
-                <YAxis allowDecimals={false} />
-                <RechartsTooltip labelFormatter={(l) => formatDay(l)} />
-                <Legend />
-                <Area
-                  type="monotone"
-                  dataKey="levelsCompleted"
-                  name={t('Levels Completed')}
-                  stroke="#1e88e5"
-                  fill="#90caf9"
-                  strokeWidth={2}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="studentsActive"
-                  name={t('Active Students')}
-                  stroke="#fb8c00"
-                  fill="#ffcc80"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </Box>
-      </Paper>
-    </Box>
-  </Box>
-)}
+          </StyledCard>
+        )}
 
-
-      {/* Student Table */}
-      <Box sx={{ mt: 4 }}>
-        {hasData && (
-          <Paper sx={{ 
-            p: 3, 
-            borderRadius: 2,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-          }}>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-              {t('Student FOUR PIC ONE WORD Progress')}
+        {/* Student Progress List */}
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
+              Student Progress
             </Typography>
-            <TableContainer sx={{ 
-              maxHeight: 500,
-              '&::-webkit-scrollbar': {
-                width: 8,
-              },
-              '&::-webkit-scrollbar-track': {
-                background: '#f1f1f1',
-                borderRadius: 4,
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#c1c1c1',
-                borderRadius: 4,
-              },
-              '&::-webkit-scrollbar-thumb:hover': {
-                background: '#a8a8a8',
-              }
-            }}>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 600 }}>{t('Student')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{t('Class')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Levels Completed')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Accuracy')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Hints Used')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Hint Rate')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Unfinished Categories')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Levels Remaining')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Time Spent')}</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{t('Last Active')}</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 600 }}>{t('Struggling')}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>{t('Actions')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {studentRows
-                    .filter(student => classFilter === 'all' || String(student.classId) === String(classFilter) || (student.className && student.className.toLowerCase() === String(classFilter).toLowerCase()))
-                    .map((student) => (
-                      <TableRow key={student.studentId} hover>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Avatar sx={{ mr: 1, width: 32, height: 32 }}>
-                              {(student.studentName || '?').charAt(0)}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton
+                onClick={(e) => setSortMenuAnchor(e.currentTarget)}
+                sx={{ color: colors.text }}
+              >
+                <SortIcon />
+              </IconButton>
+              <Menu
+                anchorEl={sortMenuAnchor}
+                open={Boolean(sortMenuAnchor)}
+                onClose={() => setSortMenuAnchor(null)}
+              >
+                <MenuItem onClick={() => { setSortBy('score'); setSortMenuAnchor(null); }}>
+                  Sort by Score
+                </MenuItem>
+                <MenuItem onClick={() => { setSortBy('progress'); setSortMenuAnchor(null); }}>
+                  Sort by Progress
+                </MenuItem>
+              </Menu>
+            </Box>
+          </Box>
+
+          {loading ? (
+            <Box>
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} variant="rectangular" height={STUDENT_CARD_HEIGHT} sx={{ mb: 2, borderRadius: 2 }} />
+              ))}
+            </Box>
+          ) : sortedStudents.length === 0 ? (
+            <StyledCard sx={{ p: 6, textAlign: 'center' }}>
+              <Typography variant="body1" sx={{ color: colors.textLight }}>
+                No student data available yet
+              </Typography>
+            </StyledCard>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {sortedStudents.map((student) => {
+                const score = Number(student.accuracy) || 0;
+                const progress = Math.min(score, 100);
+                
+                return (
+                  <StyledCard
+                    key={student.studentId}
+                    sx={{
+                      p: 3,
+                      height: STUDENT_CARD_HEIGHT,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                      },
+                    }}
+                    onClick={() => {
+                      if (student.classId) {
+                        navigate(`/teacher/classes/${student.classId}/students/${student.studentId}/fpow-progress`);
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, height: '100%' }}>
+                      <Avatar
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          bgcolor: colors.primary,
+                          fontSize: '1.3rem',
+                          fontWeight: 600,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {(student.studentName || '?').charAt(0).toUpperCase()}
                             </Avatar>
-                            <Typography sx={{ fontWeight: 600 }}>{student.studentName}</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                          <Typography variant="h6" sx={{ fontWeight: 600, color: colors.text }}>
+                            {student.studentName}
+                          </Typography>
                           <Chip 
-                            label={student.className} 
-                            size="small" 
-                            color={colorForClass(student.className)} 
-                            variant="outlined" 
+                            label={`${score}%`}
+                            sx={{
+                              bgcolor: getScoreColor(score) + '20',
+                              color: getScoreColor(score),
+                              fontWeight: 700,
+                              fontSize: '0.95rem',
+                              height: 32,
+                            }}
                           />
-                        </TableCell>
-                        <TableCell align="right">{student.levelsCompleted}</TableCell>
-                        <TableCell align="right">
-                          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
-                            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                              <CircularProgress 
+                        </Box>
+                        <Box sx={{ mb: 1.5 }}>
+                          <LinearProgress
                                 variant="determinate" 
-                                value={Number(student.accuracy) || 0} 
-                                size={28} 
-                                thickness={5} 
-                                sx={{ color: accuracyColor(Number(student.accuracy) || 0) }} 
-                              />
-                              <Box sx={{
-                                top: 0,
-                                left: 0,
-                                bottom: 0,
-                                right: 0,
-                                position: 'absolute',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}>
-                                <Typography variant="caption" component="div">
-                                  {`${Number(student.accuracy) || 0}%`}
+                            value={progress}
+                            sx={{
+                              height: 10,
+                              borderRadius: 5,
+                              bgcolor: colors.border,
+                              '& .MuiLinearProgress-bar': {
+                                bgcolor: getScoreColor(score),
+                                borderRadius: 5,
+                              },
+                            }}
+                          />
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="body2" sx={{ color: colors.textLight }}>
+                            {student.levelsCompleted || 0} levels completed
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: colors.textLight }}>
+                            {formatStudentLastActive(student.lastActive)}
                                 </Typography>
                               </Box>
                             </Box>
                           </Box>
-                        </TableCell>
-                        <TableCell align="right">{student.hintsUsed}</TableCell>
-                        <TableCell align="right">{student.hintRate != null ? `${student.hintRate}%` : '0%'}</TableCell>
-                        <TableCell align="right">{student.unfinishedCategories ?? 0}</TableCell>
-                        <TableCell align="right">{student.levelsRemaining ?? 0}</TableCell>
-                        <TableCell align="right">{formatMinutes(student.timeSpent)}</TableCell>
-                        <TableCell>
-                          {student.lastActive ? new Date(student.lastActive).toLocaleDateString() : '-'}
-                        </TableCell>
-                        <TableCell align="center">
-                          <MuiTooltip title={(student.strugglingReasons || []).map(r => {
-                            if (r === 'low_accuracy') return t('Low accuracy');
-                            if (r === 'high_hint_usage') return t('High hint usage');
-                            if (r === 'inactive_recently') return t('Inactive recently');
-                            return r;
-                          }).join(', ') || t('No issues detected')}>
-                            <Chip
-                              label={student.struggling ? t('At Risk') : t('OK')}
-                              size="small"
-                              color={student.struggling ? 'error' : 'success'}
-                              variant={student.struggling ? 'filled' : 'outlined'}
-                            />
-                          </MuiTooltip>
-                        </TableCell>
-                        <TableCell align="right">
-                          <MuiTooltip title={t('View Details')}>
-                            <IconButton 
-                              size="small" 
-                              onClick={() => {
-                                const path = student.classId
-                                  ? `/teacher/classes/${student.classId}/students/${student.studentId}/fpow-progress`
-                                  : `/teacher/student/${student.studentId}`;
-                                navigate(path);
-                              }}
-                            >
-                              <VisibilityIcon fontSize="small" />
-                            </IconButton>
-                          </MuiTooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        )}
-
-        {!loading && !fpowData && (
-          <EmptyState
-            icon={<InsightsIcon sx={{ fontSize: 56 }} />}
-            title={t('No FOUR PIC ONE WORD analytics yet')}
-            description={t('When students play Four Pics One Word, detailed analytics will appear here.')}
-          />
-        )}
+                  </StyledCard>
+                );
+              })}
+            </Box>
+          )}
+        </Box>
       </Box>
-    </Container>
+    </Box>
   );
 }
