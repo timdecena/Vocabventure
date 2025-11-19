@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
-import { triggerFeedbackAfterBoss } from '../utils/feedbackTrigger';
 
 // Character Assets
 // Wizard Animation Frames
@@ -1302,8 +1301,6 @@ const JungleLushLevel5 = () => {
         setVictoryDialogueIdx(victoryDialogueIdx + 1);
       } else {
         setVictory(true);
-        // Trigger feedback modal after boss defeat
-        triggerFeedbackAfterBoss();
       }
     }
   };

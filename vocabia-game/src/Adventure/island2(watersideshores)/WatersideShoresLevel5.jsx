@@ -4,7 +4,6 @@ import { Box, Typography, Button, Paper, Dialog, DialogActions, DialogContent } 
 import { styled, keyframes } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
-import { triggerFeedbackAfterBoss } from '../utils/feedbackTrigger';
 
 // Character Assets - Using same wizard and adventurer sprites
 // Wizard Animation Frames
@@ -1093,8 +1092,6 @@ const WatersideShoresLevel5 = () => {
       } else {
         setShowVictoryDialogue(false);
         setVictory(true);
-        // Trigger feedback modal after boss defeat
-        triggerFeedbackAfterBoss();
       }
     }
   };
