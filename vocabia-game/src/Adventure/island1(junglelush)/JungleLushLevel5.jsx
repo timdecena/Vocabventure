@@ -6,6 +6,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import MainAudioManager from '../../sound/MainAudioManager';
 import TextToSpeechManager from '../../sound/TextToSpeechManager';
+import { triggerFeedbackAfterBoss } from '../utils/feedbackTrigger';
 
 // Character Assets
 // Wizard Animation Frames
@@ -1345,6 +1346,8 @@ const JungleLushLevel5 = () => {
         setVictoryDialogueIdx(victoryDialogueIdx + 1);
       } else {
         setVictory(true);
+        // Trigger feedback modal after boss defeat
+        triggerFeedbackAfterBoss();
       }
     }
   };
@@ -1509,6 +1512,12 @@ const JungleLushLevel5 = () => {
           setSelectedLetters([]);
           setSpellingInput('');
           setDraggedItems({ causes: [], effects: [] });
+          // Re-initialize 4pics1word letters if it's that type
+          const question = phase1Questions[currentQuestion];
+          if (question && question.type === '4pics1word') {
+            const shuffled = question.letters.split('').sort(() => Math.random() - 0.5);
+            setAvailableLetters(shuffled);
+          }
           setTimeLeft(TIMER_DURATION);
         }, 600);
       } else {
