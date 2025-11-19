@@ -694,7 +694,7 @@ export default function LevelList() {
                       >
                         {isUnlocked ? LEVEL_LIST_STRINGS.play : LEVEL_LIST_STRINGS.locked}
                       </Button>
-                                          </CardContent>
+                    </CardContent>
                   </Card>
                 </Zoom>
               );

@@ -51,12 +51,11 @@ public class FourPicOneWordController {
 
     // ✅ GET /api/fpow/levels?classroomId=1&category=Animals - Get classroom-specific levels
     @GetMapping("/levels")
-    public ResponseEntity<?> getLevelsByCategory(
+    public ResponseEntity<List<Integer>> getLevelsByCategory(
             @RequestParam(required = false) Long classroomId,
             @RequestParam("category") String category) {
         try {
             if (classroomId != null) {
-                // Return full entries if fullEntries=true, otherwise just level numbers
                 List<Integer> levels = service.getLevelsByClassroomAndCategory(classroomId, category);
                 return ResponseEntity.ok(levels);
             } else {
@@ -64,41 +63,6 @@ public class FourPicOneWordController {
                 List<Integer> levels = service.getLevelsByCategory(category);
                 return ResponseEntity.ok(levels);
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(500).build();
-        }
-    }
-
-    // ✅ GET /api/fpow/entries?classroomId=1&category=Animals - Get full FPOW entries (DTOs) for teacher management
-    @GetMapping("/entries")
-    public ResponseEntity<List<FourPicOneWordDTO>> getEntries(
-            @RequestParam(required = false) Long classroomId,
-            @RequestParam(required = false) String category) {
-        try {
-            // If both classroomId and category provided, return filtered entries
-            if (classroomId != null && category != null) {
-                List<FourPicOneWordDTO> entries = service.getPuzzlesByClassroomAndCategory(classroomId, category);
-                return ResponseEntity.ok(entries);
-            }
-            return ResponseEntity.badRequest().build();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(500).build();
-        }
-    }
-    
-    // ✅ GET /api/fpow/teacher/entries - Get all FPOW entries created by the authenticated teacher
-    @GetMapping("/teacher/entries")
-    public ResponseEntity<List<FourPicOneWordDTO>> getTeacherEntries(Principal principal) {
-        try {
-            String teacherEmail = principal.getName();
-            User teacher = userService.findByEmail(teacherEmail)
-                    .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherEmail));
-            Long teacherId = teacher.getId();
-            
-            List<FourPicOneWordDTO> entries = service.getAllPuzzlesByTeacher(teacherId);
-            return ResponseEntity.ok(entries);
         } catch (Exception ex) {
             ex.printStackTrace();
             return ResponseEntity.status(500).build();
@@ -237,136 +201,6 @@ public class FourPicOneWordController {
         return ResponseEntity.status(500).body("Server error while creating puzzle");
     }
 }
-
-    // ✅ PUT /api/fpow/level/{id} - Update FPOW entry
-    @PutMapping("/level/{id}")
-    public ResponseEntity<?> updatePuzzle(
-            Principal principal,
-            @PathVariable Long id,
-            @RequestParam("classroomId") Long classroomId,
-            @RequestParam("category") String category,
-            @RequestParam("level") int level,
-            @RequestParam("answer") String answer,
-            @RequestParam(value = "hint", required = false) String hint,
-            @RequestParam("hintType") String hintType,
-            @RequestParam("difficulty") String difficultyStr,
-            @RequestParam(value = "images", required = false) MultipartFile[] images) {
-        try {
-            // Get teacher ID from authenticated user
-            String teacherEmail = principal.getName();
-            User teacher = userService.findByEmail(teacherEmail)
-                    .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherEmail));
-            Long teacherId = teacher.getId();
-
-            // Validate difficulty string and convert to enum
-            FourPicOneWord.Difficulty difficulty;
-            try {
-                difficulty = FourPicOneWord.Difficulty.valueOf(difficultyStr.trim().toUpperCase());
-            } catch (Exception ex) {
-                return ResponseEntity.badRequest().body("Invalid difficulty. Allowed: EASY, MEDIUM, HARD");
-            }
-
-            // Handle image updates
-            List<String> imageUrls = new ArrayList<>();
-            if (images != null && images.length > 0) {
-                // Validate images count (1-4 images allowed)
-                if (images.length > 4) {
-                    return ResponseEntity.badRequest().body("Maximum 4 images allowed per puzzle.");
-                }
-
-                // Ensure upload directory exists
-                File dir = new File(imagePathConfig.getFpowImageDir());
-                if (!dir.exists() && !dir.mkdirs()) {
-                    return ResponseEntity.status(500).body("Failed to create upload directory: " + imagePathConfig.getFpowImageDir());
-                }
-
-                // Process uploaded images
-                for (MultipartFile file : images) {
-                    if (file == null || file.isEmpty()) {
-                        continue;
-                    }
-
-                    // Per-file size limit (3MB)
-                    long maxBytes = 3L * 1024 * 1024;
-                    if (file.getSize() > maxBytes) {
-                        return ResponseEntity.badRequest().body("Each image must be <= 3MB.");
-                    }
-
-                    String contentType = file.getContentType();
-                    if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
-                        return ResponseEntity.badRequest().body("All uploaded files must be images.");
-                    }
-
-                    // Sanitize original filename
-                    String original = file.getOriginalFilename();
-                    if (original == null || original.trim().isEmpty()) {
-                        original = "image.jpg";
-                    }
-                    String safeName = original.replaceAll("[^a-zA-Z0-9\\.\\-\\_]", "_");
-
-                    String filename = System.currentTimeMillis() + "_" + safeName;
-                    Path filePath = Paths.get(imagePathConfig.getFpowImagePath(filename));
-
-                    try {
-                        Files.write(filePath, file.getBytes());
-                    } catch (IOException ioe) {
-                        return ResponseEntity.status(500).body("Failed to save uploaded file: " + safeName);
-                    }
-
-                    String publicPath = imagePathConfig.getFpowImageUrl(filename);
-                    imageUrls.add(publicPath);
-                }
-            }
-
-            // Build DTO
-            FourPicOneWordDTO dto = new FourPicOneWordDTO();
-            dto.setCategory(category);
-            dto.setLevel(level);
-            dto.setAnswer(answer);
-            dto.setHint(hint);
-            dto.setHintType(hintType);
-            dto.setDifficulty(difficulty);
-
-            // If new images were uploaded, use them; otherwise keep existing images
-            boolean preserveImages = imageUrls.isEmpty();
-            if (!preserveImages) {
-                dto.setImage1Url(imageUrls.size() > 0 ? imageUrls.get(0) : null);
-                dto.setImage2Url(imageUrls.size() > 1 ? imageUrls.get(1) : null);
-                dto.setImage3Url(imageUrls.size() > 2 ? imageUrls.get(2) : null);
-                dto.setImage4Url(imageUrls.size() > 3 ? imageUrls.get(3) : null);
-            }
-
-            FourPicOneWordDTO updated = service.updatePuzzle(id, dto, teacherId, preserveImages);
-            return ResponseEntity.ok(updated);
-
-        } catch (IllegalArgumentException iae) {
-            return ResponseEntity.badRequest().body(iae.getMessage());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(500).body("Server error while updating puzzle");
-        }
-    }
-
-    // ✅ DELETE /api/fpow/level/{id} - Delete FPOW entry (soft delete)
-    @DeleteMapping("/level/{id}")
-    public ResponseEntity<?> deletePuzzle(Principal principal, @PathVariable Long id) {
-        try {
-            // Get teacher ID from authenticated user
-            String teacherEmail = principal.getName();
-            User teacher = userService.findByEmail(teacherEmail)
-                    .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherEmail));
-            Long teacherId = teacher.getId();
-
-            service.deletePuzzle(id, teacherId);
-            return ResponseEntity.ok().body("Puzzle deleted successfully");
-
-        } catch (IllegalArgumentException iae) {
-            return ResponseEntity.badRequest().body(iae.getMessage());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ResponseEntity.status(500).body("Server error while deleting puzzle");
-        }
-    }
 
     // Cleanup endpoints temporarily disabled until FPOWCleanupService is available on disk.
 }

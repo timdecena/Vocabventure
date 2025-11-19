@@ -77,14 +77,6 @@ public class FourPicOneWordService {
     public List<Integer> getLevelsByCategory(String category) {
         return repo.findLevelsByCategory(category);
     }
-    
-    // Get all puzzles created by a teacher (for management page)
-    public List<FourPicOneWordDTO> getAllPuzzlesByTeacher(Long teacherId) {
-        return repo.findByTeacherIdAndIsActive(teacherId, true)
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
 
     // ✅ Create classroom-specific puzzle (teacher use) - supports 1-4 images
     public FourPicOneWordDTO createPuzzle(FourPicOneWordDTO dto, Long classroomId, Long teacherId) {
@@ -124,66 +116,6 @@ public class FourPicOneWordService {
 
         FourPicOneWord saved = repo.save(entity);
         return toDto(saved);
-    }
-
-    // ✅ Update puzzle (teacher use) - supports updating all fields including images
-    public FourPicOneWordDTO updatePuzzle(Long id, FourPicOneWordDTO dto, Long teacherId, boolean preserveImages) {
-        FourPicOneWord existing = repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Puzzle not found with id: " + id));
-        
-        // Verify ownership
-        if (!existing.getTeacherId().equals(teacherId)) {
-            throw new IllegalArgumentException("You can only update puzzles you created");
-        }
-        
-        // Update fields
-        existing.setCategory(dto.getCategory());
-        existing.setLevel(dto.getLevel());
-        existing.setAnswer(dto.getAnswer());
-        existing.setHint(dto.getHint());
-        existing.setHintType(dto.getHintType());
-        existing.setDifficulty(dto.getDifficulty());
-        
-        // Only update images if new ones were provided
-        if (!preserveImages) {
-            existing.setImage1Url(dto.getImage1Url());
-            existing.setImage2Url(dto.getImage2Url());
-            existing.setImage3Url(dto.getImage3Url());
-            existing.setImage4Url(dto.getImage4Url());
-            
-            // Validate minimum image requirement (at least 1 image)
-            int imageCount = (dto.getImage1Url() != null ? 1 : 0) +
-                           (dto.getImage2Url() != null ? 1 : 0) +
-                           (dto.getImage3Url() != null ? 1 : 0) +
-                           (dto.getImage4Url() != null ? 1 : 0);
-            
-            if (imageCount < 1) {
-                throw new IllegalArgumentException("At least 1 image is required");
-            }
-            
-            // Validate maximum image limit (up to 4 images)
-            if (imageCount > 4) {
-                throw new IllegalArgumentException("Maximum 4 images allowed per puzzle");
-            }
-        }
-        
-        FourPicOneWord saved = repo.save(existing);
-        return toDto(saved);
-    }
-
-    // ✅ Delete puzzle (teacher use) - soft delete by setting isActive to false
-    public void deletePuzzle(Long id, Long teacherId) {
-        FourPicOneWord existing = repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Puzzle not found with id: " + id));
-        
-        // Verify ownership
-        if (!existing.getTeacherId().equals(teacherId)) {
-            throw new IllegalArgumentException("You can only delete puzzles you created");
-        }
-        
-        // Soft delete
-        existing.setActive(false);
-        repo.save(existing);
     }
 
     private FourPicOneWordDTO toDto(FourPicOneWord e) {

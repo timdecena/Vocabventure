@@ -24,7 +24,6 @@ import TeacherViewClassPage from './Teacher/TeacherViewClassPage';
 import TeacherFPOWProgressPage from './Teacher/TeacherFPOWProgressPage';
 import TeacherStudentFPOWProgressPage from './Teacher/TeacherStudentFPOWProgressPage';
 import TeacherWordListsPage from './Teacher/TeacherWordListsPage';
-import TeacherAnalyticsPage from './Teacher/TeacherAnalyticsPage';
 
 // Student
 import StudentHome from './Student/StudentHome';
@@ -37,7 +36,6 @@ import CategoryList from './FourPicOneWordGame/CategoryList';
 import LevelList from './FourPicOneWordGame/LevelList';
 import GamePlay from './FourPicOneWordGame/GamePlay';
 import TeacherCreateFPOW from './FourPicOneWordGame/TeacherCreateFPOW';
-import TeacherManageFPOW from './FourPicOneWordGame/TeacherManageFPOW';
 
 // Word of the Day
 import WOTDLeaderboardPage from './WordOfTheDay/WOTDLeaderboardPage';
@@ -332,11 +330,6 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
           ? <TeacherLayout><TeacherWordListsPage /></TeacherLayout>
           : <Navigate to="/" replace />
       } />
-      <Route path="/teacher/analytics" element={
-        isAuthenticated && role === 'TEACHER'
-          ? <TeacherLayout><TeacherAnalyticsPage /></TeacherLayout>
-          : <Navigate to="/" replace />
-      } />
       <Route path="/teacher/profile" element={
         isAuthenticated && role === 'TEACHER'
           ? <TeacherLayout><Profile /></TeacherLayout>
@@ -379,11 +372,6 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/teacher/fpow/create" element={
         isAuthenticated && role === 'TEACHER'
           ? <TeacherLayout><TeacherCreateFPOW /></TeacherLayout>
-          : <Navigate to="/" replace />
-      } />
-      <Route path="/teacher/fpow/manage" element={
-        isAuthenticated && role === 'TEACHER'
-          ? <TeacherLayout><TeacherManageFPOW /></TeacherLayout>
           : <Navigate to="/" replace />
       } />
 

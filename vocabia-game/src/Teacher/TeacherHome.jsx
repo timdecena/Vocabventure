@@ -5,6 +5,8 @@ import {
   Typography,
   Button,
   Grid,
+  Card,
+  CardContent,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -12,10 +14,8 @@ import {
   TextField,
   CircularProgress,
   Alert,
+  Chip,
   InputAdornment,
-  Paper,
-  Avatar,
-  Skeleton,
 } from '@mui/material';
 import {
   School as SchoolIcon,
@@ -25,11 +25,10 @@ import {
   Assignment as AssignmentIcon,
   ArrowForward as ArrowForwardIcon,
   Search as SearchIcon,
-  TrendingUp as TrendingUpIcon,
 } from '@mui/icons-material';
 import api from '../api/api';
 import { t } from './utils/i18n';
-import { colors, PrimaryButton, SecondaryButton, StyledCard, PageTitle } from './components/DesignSystem';
+import { colors, PrimaryButton, SecondaryButton } from './components/DesignSystem';
 
 const TeacherHome = () => {
   const navigate = useNavigate();
@@ -43,9 +42,8 @@ const TeacherHome = () => {
   const [classes, setClasses] = useState([]);
   const [studentsCount, setStudentsCount] = useState(0);
   const [assignmentsCount, setAssignmentsCount] = useState(0);
-  const [avgScore, setAvgScore] = useState(0);
   const [search, setSearch] = useState('');
-  const [loadingData, setLoadingData] = useState(true);
+
 
   useEffect(() => {
     const decodeJwt = (token) => {
@@ -64,6 +62,7 @@ const TeacherHome = () => {
     };
 
     const fetchTeacherInfo = async () => {
+      // Prefer decoding from JWT to avoid noisy 404s on profile endpoints
       const token = localStorage.getItem('token');
       const payload = token ? decodeJwt(token) : null;
       if (payload) {
@@ -75,15 +74,22 @@ const TeacherHome = () => {
         };
       }
 
-      const candidates = ['/api/auth/me', '/api/user/me', '/api/me'];
+      // Fallback: try stable endpoints only (avoid /api/teacher/profile which 404s)
+      const candidates = [
+        '/api/auth/me',
+        '/api/user/me',
+        '/api/me',
+      ];
       for (const url of candidates) {
         try {
           const res = await api.get(url);
           if (res?.data) return res.data;
         } catch (_) {
+          // Silently continue to avoid console noise for missing optional endpoints
           continue;
         }
       }
+      // Final fallback
       return {
         firstName: 'Teacher',
         lastName: '',
@@ -93,10 +99,11 @@ const TeacherHome = () => {
 
     const fetchData = async () => {
       try {
-        setLoadingData(true);
+        // Teacher info
         const info = await fetchTeacherInfo();
         setTeacherInfo(info);
 
+        // Classes
         let effectiveClasses = [];
         try {
           const classEndpoints = ['/api/teacher/classes', '/teacher/classes'];
@@ -109,6 +116,10 @@ const TeacherHome = () => {
                 break;
               }
             } catch (e) {
+              console.warn(
+                `[TeacherHome] Classes endpoint ${endpoint} failed:`,
+                e?.response?.status
+              );
               continue;
             }
           }
@@ -119,6 +130,7 @@ const TeacherHome = () => {
           setClasses([]);
         }
 
+        // Students count - derive locally from loaded classes to avoid 404s on missing endpoints
         try {
           const totalStudents = Array.isArray(effectiveClasses)
             ? effectiveClasses.reduce((sum, c) => {
@@ -132,40 +144,25 @@ const TeacherHome = () => {
           setStudentsCount(0);
         }
 
+        // Assignments count - No backend endpoint yet; use local estimate from classes to avoid 404s
         const estimatedAssignments = effectiveClasses.length > 0 
           ? Math.floor(effectiveClasses.length * 1.5) 
           : 0;
         setAssignmentsCount(estimatedAssignments);
 
-        // Try to fetch average score from analytics
-        try {
-          const analyticsRes = await api.get('/api/teacher/fpow-progress?range=30d');
-          if (analyticsRes?.data?.studentProgress && Array.isArray(analyticsRes.data.studentProgress)) {
-            const students = analyticsRes.data.studentProgress;
-            if (students.length > 0) {
-              const totalAccuracy = students.reduce((sum, s) => sum + (Number(s.accuracy) || 0), 0);
-              const avg = Math.round(totalAccuracy / students.length);
-              setAvgScore(avg);
-            }
-          }
-        } catch (e) {
-          // If analytics endpoint fails, set to 0
-          setAvgScore(0);
-        }
+        // Classes loaded successfully
       } catch (err) {
-        console.error('Failed to fetch data', err);
+        console.error('Failed to fetch data (unhandled)', err);
         setTeacherInfo({ firstName: 'Teacher', lastName: '', email: '' });
         setClasses([]);
         setStudentsCount(0);
         setAssignmentsCount(0);
-        setAvgScore(0);
-      } finally {
-        setLoadingData(false);
       }
     };
 
     fetchData();
   }, []);
+
 
   const handleOpenCreateClass = () => {
     setSuccessMsg('');
@@ -206,7 +203,6 @@ const TeacherHome = () => {
 
       setTimeout(() => {
         handleCloseCreateClass();
-        window.location.reload();
       }, 1500);
     } catch (err) {
       setErrorMsg(
@@ -216,6 +212,87 @@ const TeacherHome = () => {
     }
   };
 
+  // Metric Card Component (renamed to avoid confusion with DesignSystem.StatCard)
+  const MetricCard = ({ icon, value, label, color, trend, onClick }) => (
+    <Card
+      onClick={onClick}
+      sx={{
+        height: '100%',
+        minHeight: { xs: 120, sm: 140 },
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.3s ease',
+        border: `1px solid ${colors.border}`,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        borderRadius: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        '&:hover': onClick ? {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+          borderColor: color,
+        } : {
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        },
+      }}
+    >
+      <CardContent sx={{ p: { xs: 2.5, sm: 3 }, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 1.25 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <Box
+            sx={{
+              width: { xs: 48, sm: 52, md: 56 },
+              height: { xs: 48, sm: 52, md: 56 },
+              borderRadius: '50%',
+              bgcolor: `${color}15`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Box sx={{ fontSize: { xs: 24, sm: 26, md: 28 }, color }}>{icon}</Box>
+          </Box>
+          {trend && (
+            <Chip
+              label={trend}
+              size="small"
+              sx={{
+                bgcolor: trend.startsWith('+') ? `${colors.success}15` : `${colors.error}15`,
+                color: trend.startsWith('+') ? colors.success : colors.error,
+                fontWeight: 600,
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                height: { xs: 22, sm: 24 },
+              }}
+            />
+          )}
+        </Box>
+        <Typography 
+          variant="h2" 
+          sx={{ 
+            fontWeight: 800, 
+            color: colors.text, 
+            mb: 0.25,
+            letterSpacing: '-0.5px',
+            fontSize: { xs: '1.75rem', sm: '2.1rem', md: '2.4rem' },
+            lineHeight: 1.2
+          }}
+        >
+          {value}
+        </Typography>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: colors.textLight, 
+            fontWeight: 600,
+            fontSize: { xs: '0.85rem', sm: '0.9rem' }
+          }}
+        >
+          {label}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+
+  // Filtered classes based on search query (name/description)
   const displayedClasses = Array.isArray(classes)
     ? classes.filter((c) => {
         const q = (search || '').toLowerCase();
@@ -227,64 +304,40 @@ const TeacherHome = () => {
       })
     : [];
 
-  // Fixed card colors for summary metrics
-  const summaryCardColors = [
-    { bg: '#E3F2FD', text: '#1976D2', icon: '#1976D2' }, // Blue
-    { bg: '#E8F5E9', text: '#388E3C', icon: '#388E3C' }, // Green
-    { bg: '#FFF3E0', text: '#F57C00', icon: '#F57C00' }, // Orange
-    { bg: '#F3E5F5', text: '#7B1FA2', icon: '#7B1FA2' }, // Purple
-  ];
-
-  // Fixed dimensions
-  const SUMMARY_CARD_WIDTH = 200;
-  const SUMMARY_CARD_HEIGHT = 120;
-  const CLASS_CARD_WIDTH = 280;
-  const CLASS_CARD_HEIGHT = 180;
-
   return (
-    <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', pb: 6, pt: 3 }}>
-      <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', px: { xs: 2, sm: 3, md: 4 } }}>
+    <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', pb: 6 }}>
+      <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', pt: 4, px: { xs: 2, sm: 3, md: 3, lg: 4 } }}>
         {/* Welcome Header */}
-        <Box sx={{ mb: 4 }}>
-          <PageTitle icon={<SchoolIcon sx={{ fontSize: 32 }} />}>
-            Welcome back, {teacherInfo.firstName || t('Teacher')}! 👋
-          </PageTitle>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: colors.textLight, 
-              mt: 1,
-              fontWeight: 400,
-              fontSize: '1.1rem',
-              ml: { xs: 0, md: 10 },
-            }}
-          >
-            {t("Here's what's happening with your classes today")}
-          </Typography>
-        </Box>
-
-        {/* Search Bar */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+          <Box>
+            <Typography 
+              variant="h3" 
+              sx={{ 
+                fontWeight: 700, 
+                mb: 1, 
+                color: colors.text,
+                fontSize: { xs: '1.75rem', sm: '2.125rem', md: '2.5rem' }
+              }}
+            >
+              {t('Welcome back')}, {teacherInfo.firstName || t('Teacher')}! 👋
+            </Typography>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                color: colors.textLight, 
+                fontSize: { xs: '0.95rem', sm: '1rem', md: '1.1rem' },
+                fontWeight: 400
+              }}
+            >
+              {t("Here's what's happening with your classes today")}
+            </Typography>
+          </Box>
           <TextField
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('Search classes...')}
-            size="medium"
-            fullWidth
-            sx={{
-              maxWidth: 500,
-              bgcolor: '#FFFFFF',
-              borderRadius: '12px',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '12px',
-                '& fieldset': {
-                  borderColor: colors.border,
-                },
-                '&:hover fieldset': {
-                  borderColor: colors.primary,
-                },
-              },
-            }}
+            size="small"
+            sx={{ minWidth: { xs: '100%', sm: 260, md: 320 } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -295,466 +348,222 @@ const TeacherHome = () => {
           />
         </Box>
 
-        {/* Fixed-Size Summary Cards Row */}
-        <Box sx={{ 
-          mb: 5,
-          display: 'flex',
-          gap: 3,
-          flexWrap: 'wrap',
-          justifyContent: { xs: 'center', md: 'flex-start' },
-        }}>
-          {/* Total Classes */}
-          <Paper
-            sx={{
-              width: SUMMARY_CARD_WIDTH,
-              height: SUMMARY_CARD_HEIGHT,
-              p: 3,
-              borderRadius: '16px',
-              bgcolor: summaryCardColors[0].bg,
-              border: 'none',
-              boxShadow: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-              },
-            }}
-            onClick={() => navigate('/teacher/classes')}
-          >
-            {loadingData ? (
-              <Skeleton variant="text" width={60} height={48} />
-            ) : (
-              <>
-                <ClassIcon sx={{ fontSize: 36, color: summaryCardColors[0].icon, mb: 1.5 }} />
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: 700,
-                    color: summaryCardColors[0].text,
-                    mb: 0.5,
-                    fontSize: '2.5rem',
-                    lineHeight: 1,
-                  }}
-                >
-                  {classes.length}
-                </Typography>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: colors.textLight, 
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  Total Classes
-                </Typography>
-              </>
-            )}
-          </Paper>
-
-          {/* Total Students */}
-          <Paper
-            sx={{
-              width: SUMMARY_CARD_WIDTH,
-              height: SUMMARY_CARD_HEIGHT,
-              p: 3,
-              borderRadius: '16px',
-              bgcolor: summaryCardColors[1].bg,
-              border: 'none',
-              boxShadow: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            {loadingData ? (
-              <Skeleton variant="text" width={60} height={48} />
-            ) : (
-              <>
-                <PeopleIcon sx={{ fontSize: 36, color: summaryCardColors[1].icon, mb: 1.5 }} />
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: 700,
-                    color: summaryCardColors[1].text,
-                    mb: 0.5,
-                    fontSize: '2.5rem',
-                    lineHeight: 1,
-                  }}
-                >
-                  {studentsCount}
-                </Typography>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: colors.textLight, 
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  Total Students
-                </Typography>
-              </>
-            )}
-          </Paper>
-
-          {/* Active Assignments */}
-          <Paper
-            sx={{
-              width: SUMMARY_CARD_WIDTH,
-              height: SUMMARY_CARD_HEIGHT,
-              p: 3,
-              borderRadius: '16px',
-              bgcolor: summaryCardColors[2].bg,
-              border: 'none',
-              boxShadow: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            {loadingData ? (
-              <Skeleton variant="text" width={60} height={48} />
-            ) : (
-              <>
-                <AssignmentIcon sx={{ fontSize: 36, color: summaryCardColors[2].icon, mb: 1.5 }} />
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: 700,
-                    color: summaryCardColors[2].text,
-                    mb: 0.5,
-                    fontSize: '2.5rem',
-                    lineHeight: 1,
-                  }}
-                >
-                  {assignmentsCount}
-                </Typography>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: colors.textLight, 
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  Active Assignments
-                </Typography>
-              </>
-            )}
-          </Paper>
-
-          {/* Average Score */}
-          <Paper
-            sx={{
-              width: SUMMARY_CARD_WIDTH,
-              height: SUMMARY_CARD_HEIGHT,
-              p: 3,
-              borderRadius: '16px',
-              bgcolor: summaryCardColors[3].bg,
-              border: 'none',
-              boxShadow: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-              },
-            }}
-            onClick={() => navigate('/teacher/analytics')}
-          >
-            {loadingData ? (
-              <Skeleton variant="text" width={60} height={48} />
-            ) : (
-              <>
-                <TrendingUpIcon sx={{ fontSize: 36, color: summaryCardColors[3].icon, mb: 1.5 }} />
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: 700,
-                    color: summaryCardColors[3].text,
-                    mb: 0.5,
-                    fontSize: '2.5rem',
-                    lineHeight: 1,
-                  }}
-                >
-                  {avgScore > 0 ? `${avgScore}%` : '—'}
-                </Typography>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: colors.textLight, 
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  Average Score
-                </Typography>
-              </>
-            )}
-          </Paper>
-        </Box>
+        {/* Key Metrics Grid */}
+        <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={4}>
+            <MetricCard
+              icon={<ClassIcon />}
+              value={classes.length}
+              label={t('Total Classes')}
+              color={colors.primary}
+              trend="+2"
+              onClick={() => navigate('/teacher/classes')}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <MetricCard
+              icon={<PeopleIcon />}
+              value={studentsCount}
+              label={t('Total Students')}
+              color={colors.secondary}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <MetricCard
+              icon={<AssignmentIcon />}
+              value={assignmentsCount}
+              label={t('Active Assignments')}
+              color={colors.accent}
+            />
+          </Grid>
+        </Grid>
 
         {/* Quick Actions */}
-        <Box sx={{ mb: 5, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ mb: 5, display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-start' }}>
           <PrimaryButton
             startIcon={<SchoolIcon />}
             onClick={() => navigate('/teacher/classes')}
-            sx={{ px: 4, py: 1.5, fontSize: '1rem', borderRadius: '12px' }}
+            sx={{ px: 3.5, py: 1.25, fontSize: '0.95rem' }}
           >
             {t('Manage Classes')}
           </PrimaryButton>
           <SecondaryButton
             startIcon={<AddCircleOutlineIcon />}
             onClick={handleOpenCreateClass}
-            sx={{ px: 4, py: 1.5, fontSize: '1rem', borderRadius: '12px' }}
+            sx={{ px: 3.5, py: 1.25, fontSize: '0.95rem' }}
           >
             {t('Create New Class')}
           </SecondaryButton>
         </Box>
 
-        {/* My Classes Section */}
-        <Box>
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            mb: 3,
-            flexWrap: 'wrap',
-            gap: 2,
-          }}>
-            <Box>
-              <Typography 
-                variant="h5" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: colors.text,
-                  mb: 0.5,
-                }}
-              >
-                {t('My Classes')}
-              </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  color: colors.textLight,
-                }}
-              >
-                {t('Manage and view all your classes')}
-              </Typography>
-            </Box>
-            {displayedClasses.length > 0 && (
-              <Button
-                variant="text"
-                endIcon={<ArrowForwardIcon />}
-                onClick={() => navigate('/teacher/classes')}
-                sx={{
-                  color: colors.primary,
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  fontSize: '0.95rem',
-                  px: 2,
-                  py: 1,
-                  '&:hover': {
-                    bgcolor: `${colors.primary}10`,
-                  },
-                }}
-              >
-                {t('View All Classes')}
-              </Button>
-            )}
-          </Box>
-
-          {/* Fixed-Size Class Cards Grid */}
-          {loadingData ? (
-            <Box sx={{ 
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(4, 1fr)',
-              },
-              gap: 3,
+        {/* Main Content Grid */}
+        <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+          {/* My Classes Overview */}
+          <Grid item xs={12}>
+            <Card sx={{ 
+              border: `1px solid ${colors.border}`,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              borderRadius: 2
             }}>
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton 
-                  key={i} 
-                  variant="rectangular" 
-                  width={CLASS_CARD_WIDTH} 
-                  height={CLASS_CARD_HEIGHT} 
-                  sx={{ 
-                    borderRadius: '12px',
-                    mx: 'auto',
-                  }} 
-                />
-              ))}
-            </Box>
-          ) : displayedClasses.length > 0 ? (
-            <Box sx={{ 
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(4, 1fr)',
-              },
-              gap: 3,
-              justifyContent: { xs: 'center', md: 'flex-start' },
-            }}>
-              {displayedClasses.map((cls) => (
-                <StyledCard
-                  key={cls.id}
-                  sx={{
-                    width: CLASS_CARD_WIDTH,
-                    height: CLASS_CARD_HEIGHT,
-                    p: 3,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                    },
-                  }}
-                  onClick={() => navigate(`/teacher/classes/${cls.id}`)}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2, flex: 1 }}>
-                    <Avatar
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        bgcolor: colors.primary,
-                        mr: 2,
-                        flexShrink: 0,
+              <CardContent sx={{ p: { xs: 2.5, sm: 3, md: 3 } }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: { xs: 'flex-start', sm: 'center' },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 2, sm: 0 },
+                  mb: 3 
+                }}>
+                  <Box>
+                    <Typography 
+                      variant="h5" 
+                      sx={{ 
+                        fontWeight: 700, 
+                        color: colors.text, 
+                        mb: 0.5,
+                        fontSize: { xs: '1.2rem', sm: '1.3rem', md: '1.4rem' }
                       }}
                     >
-                      <ClassIcon sx={{ fontSize: 20 }} />
-                    </Avatar>
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 600,
-                          color: colors.text,
-                          mb: 1,
-                          fontSize: '1.1rem',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {cls.name}
-                      </Typography>
-                      {cls.description && (
-                        <Typography
-                          variant="body2"
+                      {t('My Classes')}
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: colors.textLight,
+                        fontSize: { xs: '0.8rem', sm: '0.85rem' }
+                      }}
+                    >
+                      {t('Manage and view all your classes')}
+                    </Typography>
+                  </Box>
+                  <Button
+                    variant="text"
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={() => navigate('/teacher/classes')}
+                    sx={{
+                      color: colors.primary,
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      fontSize: '0.9rem',
+                      px: 2,
+                      py: 1,
+                      '&:hover': {
+                        bgcolor: `${colors.primary}10`,
+                      }
+                    }}
+                  >
+                    {t('View All Classes')}
+                  </Button>
+                </Box>
+                {displayedClasses.length > 0 ? (
+                  <Box>
+                    {/* Header Row */}
+                    <Box sx={{
+                      display: 'grid',
+                      gridTemplateColumns: { xs: '1fr 110px 130px', sm: '1fr 140px 160px' },
+                      gap: 2,
+                      px: { xs: 1, sm: 2 },
+                      py: 1,
+                      color: colors.textLight,
+                      fontWeight: 600,
+                    }}>
+                      <Typography variant="caption">{t('Class')}</Typography>
+                      <Typography variant="caption">{t('Students')}</Typography>
+                      <Typography variant="caption">{t('Created')}</Typography>
+                    </Box>
+                    {/* Rows */}
+                    <Box>
+                      {displayedClasses.slice(0, 7).map((cls) => (
+                        <Box
+                          key={cls.id}
+                          onClick={() => navigate(`/teacher/classes/${cls.id}`)}
                           sx={{
-                            color: colors.textLight,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            fontSize: '0.875rem',
-                            lineHeight: 1.4,
+                            display: 'grid',
+                            gridTemplateColumns: { xs: '1fr 110px 130px', sm: '1fr 140px 160px' },
+                            gap: 2,
+                            px: { xs: 1, sm: 2 },
+                            py: 1.25,
+                            borderTop: `1px solid ${colors.border}`,
+                            cursor: 'pointer',
+                            '&:hover': { bgcolor: `${colors.primary}08` },
                           }}
                         >
-                          {cls.description}
-                        </Typography>
-                      )}
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+                            <ClassIcon sx={{ fontSize: 18, color: colors.primary }} />
+                            <Typography sx={{ fontWeight: 600, color: colors.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {cls.name}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <PeopleIcon sx={{ fontSize: 16, color: colors.textLight }} />
+                            <Typography variant="body2" sx={{ color: colors.textLight }}>
+                              {cls.studentCount || 0}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" sx={{ color: colors.textLight }}>
+                            {cls.createdAt ? new Date(cls.createdAt).toLocaleDateString() : '--'}
+                          </Typography>
+                        </Box>
+                      ))}
                     </Box>
                   </Box>
-
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    mt: 'auto',
-                    pt: 2, 
-                    borderTop: `1px solid ${colors.border}` 
-                  }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <PeopleIcon sx={{ fontSize: 18, color: colors.textLight }} />
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          color: colors.text, 
-                          fontWeight: 600,
-                          fontSize: '0.875rem',
-                        }}
-                      >
-                        {cls.studentCount || 0} {t('students')}
-                      </Typography>
-                    </Box>
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: { xs: 5, sm: 6, md: 8 } }}>
+                    <SchoolIcon sx={{ fontSize: { xs: 64, sm: 72, md: 80 }, color: colors.border, opacity: 0.4, mb: 2 }} />
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        color: colors.text, 
+                        mb: 1, 
+                        fontWeight: 600,
+                        fontSize: { xs: '1.15rem', sm: '1.25rem' }
+                      }}
+                    >
+                      {t('No Classes Yet')}
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: colors.textLight, 
+                        mb: 3,
+                        fontSize: { xs: '0.875rem', sm: '0.9375rem' },
+                        maxWidth: 400,
+                        mx: 'auto'
+                      }}
+                    >
+                      {t('Create your first class to start tracking student performance')}
+                    </Typography>
+                    <SecondaryButton
+                      startIcon={<AddCircleOutlineIcon />}
+                      onClick={handleOpenCreateClass}
+                      sx={{ px: 3.5, py: 1.25 }}
+                    >
+                      {t('Create Your First Class')}
+                    </SecondaryButton>
                   </Box>
-                </StyledCard>
-              ))}
-            </Box>
-          ) : (
-            <StyledCard sx={{ p: 6, textAlign: 'center', maxWidth: 600, mx: 'auto' }}>
-              <SchoolIcon sx={{ fontSize: 80, color: colors.border, opacity: 0.4, mb: 3 }} />
-              <Typography 
-                variant="h5" 
-                sx={{ 
-                  color: colors.text, 
-                  mb: 1.5, 
-                  fontWeight: 600,
-                }}
-              >
-                {t('No Classes Yet')}
-              </Typography>
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: colors.textLight, 
-                  mb: 4,
-                }}
-              >
-                {t('Create your first class to start tracking student performance')}
-              </Typography>
-              <SecondaryButton
-                startIcon={<AddCircleOutlineIcon />}
-                onClick={handleOpenCreateClass}
-                sx={{ px: 4, py: 1.5, fontSize: '1rem', borderRadius: '12px' }}
-              >
-                {t('Create Your First Class')}
-              </SecondaryButton>
-            </StyledCard>
-          )}
-        </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Box>
 
       {/* Create Class Modal */}
       <Dialog open={open} onClose={handleCloseCreateClass} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: 'background.paper', pb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <AddCircleOutlineIcon sx={{ color: colors.primary, fontSize: 28 }} />
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              {t('Create New Class')}
-            </Typography>
+        <DialogTitle sx={{ bgcolor: 'background.paper' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <AddCircleOutlineIcon color="primary" sx={{ mr: 1 }} />
+            <Typography variant="h6">{t('Create New Class')}</Typography>
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
+        <DialogContent sx={{ pt: 3 }}>
           {successMsg && (
-            <Alert severity="success" sx={{ mb: 2, borderRadius: '8px' }}>
+            <Alert severity="success" sx={{ mb: 2 }}>
               {successMsg}
             </Alert>
           )}
           {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
               {errorMsg}
             </Alert>
           )}
@@ -768,11 +577,6 @@ const TeacherHome = () => {
             variant="outlined"
             autoFocus
             inputProps={{ maxLength: 50 }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-              },
-            }}
           />
           <TextField
             label={t('Description (optional)')}
@@ -784,20 +588,10 @@ const TeacherHome = () => {
             minRows={3}
             variant="outlined"
             inputProps={{ maxLength: 200 }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-              },
-            }}
           />
         </DialogContent>
-        <DialogActions sx={{ p: 3, bgcolor: 'background.paper', gap: 1 }}>
-          <Button 
-            onClick={handleCloseCreateClass} 
-            color="inherit" 
-            disabled={loading}
-            sx={{ borderRadius: '8px', px: 3 }}
-          >
+        <DialogActions sx={{ p: 3, bgcolor: 'background.paper' }}>
+          <Button onClick={handleCloseCreateClass} color="inherit" disabled={loading}>
             {t('Cancel')}
           </Button>
           <Button
@@ -806,7 +600,6 @@ const TeacherHome = () => {
             color="primary"
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : null}
-            sx={{ borderRadius: '8px', px: 3 }}
           >
             {loading ? t('Creating...') : t('Create Class')}
           </Button>
