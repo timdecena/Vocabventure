@@ -25,6 +25,7 @@ import {
   Assignment as AssignmentIcon,
   ArrowForward as ArrowForwardIcon,
   Search as SearchIcon,
+  Visibility as ViewIcon,
 } from '@mui/icons-material';
 import api from '../api/api';
 import { t } from './utils/i18n';
@@ -393,6 +394,20 @@ const TeacherHome = () => {
             sx={{ px: 3.5, py: 1.25, fontSize: '0.95rem' }}
           >
             {t('Create New Class')}
+          </SecondaryButton>
+          <SecondaryButton
+            startIcon={<AssignmentIcon />}
+            onClick={() => navigate('/teacher/fpow/create')}
+            sx={{ px: 3.5, py: 1.25, fontSize: '0.95rem' }}
+          >
+            {t('Create 4 Pics 1 Word')}
+          </SecondaryButton>
+          <SecondaryButton
+            startIcon={<ViewIcon />}
+            onClick={() => navigate('/teacher/fpow/manage')}
+            sx={{ px: 3.5, py: 1.25, fontSize: '0.95rem' }}
+          >
+            {t('Manage FPOW')}
           </SecondaryButton>
         </Box>
 

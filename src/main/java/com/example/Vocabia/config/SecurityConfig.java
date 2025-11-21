@@ -98,7 +98,9 @@ public class SecurityConfig {
 .requestMatchers(HttpMethod.POST, "/api/fpow/create").hasRole("TEACHER")
 .requestMatchers("/api/fpow/categories", "/api/fpow/levels").permitAll()
 .requestMatchers("/api/fpow/cleanup/**").permitAll() // Cleanup endpoints (temporary for migration)
-.requestMatchers("/api/fpow/**").authenticated()                
+.requestMatchers("/api/fpow/**").authenticated()
+                // Teacher FPOW Management
+.requestMatchers("/api/teacher/fpow/**").hasRole("TEACHER")                
                 // Teacher endpoints
                 .requestMatchers(HttpMethod.POST, "/api/teacher/spelling/upload-audio").hasRole("TEACHER")
                 .requestMatchers("/api/teacher/**").hasRole("TEACHER")

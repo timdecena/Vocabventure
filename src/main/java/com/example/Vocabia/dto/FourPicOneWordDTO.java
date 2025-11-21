@@ -25,6 +25,7 @@ public class FourPicOneWordDTO {
     private Difficulty difficulty;
     private boolean isActive;
     private LocalDateTime createdAt;
+    private String classroomName; // For display purposes in teacher manage page
     
     // ✅ Computed field for image count
     public int getImageCount() {

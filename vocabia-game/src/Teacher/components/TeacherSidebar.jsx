@@ -28,6 +28,7 @@ export default function TeacherSidebar({ collapsed = false }) {
     { icon: <AddCircleOutlineIcon />, label: t('Create Class'), path: '/teacher/classes/create' },
     { icon: <EditNoteIcon />, label: t('Create Level'), path: '/teacher/spelling/create' },
     { icon: <EditNoteIcon />, label: t('Create 4Pics1Word'), path: '/teacher/fpow/create' },
+    { icon: <EditNoteIcon />, label: t('Manage FPOW'), path: '/teacher/fpow/manage' },
   ];
 
   return (

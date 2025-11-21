@@ -261,6 +261,18 @@ export default function TeacherViewClassPage() {
                   <Grid item xs={12}>
                     <Button
                       fullWidth
+                      variant="contained"
+                      color="secondary"
+                      startIcon={<EditIcon />}
+                      onClick={() => navigate('/teacher/fpow/create')}
+                      sx={{ justifyContent: "flex-start" }}
+                    >
+                      {t('Create 4 Pics 1 Word Level')}
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      fullWidth
                       variant="outlined"
                       onClick={() => navigate(`/teacher/classes/${id}/fpow-progress`)}
                       sx={{ justifyContent: "flex-start" }}

@@ -36,6 +36,7 @@ import CategoryList from './FourPicOneWordGame/CategoryList';
 import LevelList from './FourPicOneWordGame/LevelList';
 import GamePlay from './FourPicOneWordGame/GamePlay';
 import TeacherCreateFPOW from './FourPicOneWordGame/TeacherCreateFPOW';
+import TeacherFPOWManage from './Teacher/TeacherFPOWManage';
 
 // Word of the Day
 import WOTDLeaderboardPage from './WordOfTheDay/WOTDLeaderboardPage';
@@ -372,6 +373,11 @@ function AppRoutes({ isAuthenticated, setIsAuthenticated, role, setRole, isSideb
       <Route path="/teacher/fpow/create" element={
         isAuthenticated && role === 'TEACHER'
           ? <TeacherLayout><TeacherCreateFPOW /></TeacherLayout>
+          : <Navigate to="/" replace />
+      } />
+      <Route path="/teacher/fpow/manage" element={
+        isAuthenticated && role === 'TEACHER'
+          ? <TeacherLayout><TeacherFPOWManage /></TeacherLayout>
           : <Navigate to="/" replace />
       } />
 

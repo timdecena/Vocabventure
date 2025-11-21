@@ -30,4 +30,9 @@ public interface FourPicOneWordRepository extends JpaRepository<FourPicOneWord, 
     
     @Query("SELECT DISTINCT f.level FROM FourPicOneWord f WHERE f.category = :category AND f.isActive = true ORDER BY f.level")
     List<Integer> findLevelsByCategory(String category);
+    
+    // Teacher-specific queries for FPOW management
+    List<FourPicOneWord> findByTeacherIdOrderByCreatedAtDesc(Long teacherId);
+    
+    Optional<FourPicOneWord> findByIdAndTeacherId(Long id, Long teacherId);
 }

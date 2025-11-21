@@ -3,6 +3,7 @@ package com.example.Vocabia.service;
 import com.example.Vocabia.dto.FourPicOneWordDTO;
 import com.example.Vocabia.entity.FourPicOneWord;
 import com.example.Vocabia.repository.FourPicOneWordRepository;
+import com.example.Vocabia.repository.ClassroomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class FourPicOneWordService {
 
     private final FourPicOneWordRepository repo;
+    private final ClassroomRepository classroomRepository;
 
     // ==================== CLASSROOM-SPECIFIC METHODS ====================
     
@@ -116,6 +118,62 @@ public class FourPicOneWordService {
 
         FourPicOneWord saved = repo.save(entity);
         return toDto(saved);
+    }
+
+    // ==================== TEACHER FPOW MANAGEMENT METHODS ====================
+    
+    public List<FourPicOneWordDTO> getAllPuzzlesByTeacher(Long teacherId) {
+        return repo.findByTeacherIdOrderByCreatedAtDesc(teacherId)
+                .stream()
+                .map(puzzle -> {
+                    FourPicOneWordDTO dto = toDto(puzzle);
+                    // Add classroom name for display
+                    classroomRepository.findById(puzzle.getClassroomId())
+                            .ifPresent(classroom -> dto.setClassroomName(classroom.getName()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+    
+    public Optional<FourPicOneWordDTO> getPuzzleByIdAndTeacher(Long id, Long teacherId) {
+        return repo.findByIdAndTeacherId(id, teacherId)
+                .map(this::toDto);
+    }
+    
+    public FourPicOneWordDTO updatePuzzle(Long id, Long teacherId, FourPicOneWordDTO dto) {
+        FourPicOneWord existing = repo.findByIdAndTeacherId(id, teacherId)
+                .orElseThrow(() -> new RuntimeException("FPOW puzzle not found or you don't have permission to edit it"));
+        
+        // Validate image count
+        if (dto.getImageCount() < 1) {
+            throw new IllegalArgumentException("At least 1 image is required");
+        }
+        if (dto.getImageCount() > 4) {
+            throw new IllegalArgumentException("Maximum 4 images allowed per puzzle");
+        }
+        
+        // Update fields
+        existing.setCategory(dto.getCategory());
+        existing.setLevel(dto.getLevel());
+        existing.setAnswer(dto.getAnswer());
+        existing.setHint(dto.getHint());
+        existing.setHintType(dto.getHintType());
+        existing.setImage1Url(dto.getImage1Url());
+        existing.setImage2Url(dto.getImage2Url());
+        existing.setImage3Url(dto.getImage3Url());
+        existing.setImage4Url(dto.getImage4Url());
+        existing.setDifficulty(dto.getDifficulty());
+        existing.setActive(dto.isActive());
+        
+        FourPicOneWord updated = repo.save(existing);
+        return toDto(updated);
+    }
+    
+    public void deletePuzzle(Long id, Long teacherId) {
+        FourPicOneWord existing = repo.findByIdAndTeacherId(id, teacherId)
+                .orElseThrow(() -> new RuntimeException("FPOW puzzle not found or you don't have permission to delete it"));
+        
+        repo.delete(existing);
     }
 
     private FourPicOneWordDTO toDto(FourPicOneWord e) {
