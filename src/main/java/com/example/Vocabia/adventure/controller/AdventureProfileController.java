@@ -44,16 +44,34 @@ public class AdventureProfileController {
      */
     @GetMapping("/unlocked-fpow-levels")
     public ResponseEntity<Map<String, Object>> getUnlockedFpowLevels(Principal principal) {
-        Set<Integer> unlockedLevels = profileService.getUnlockedFpowLevels(principal.getName());
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("unlockedLevels", unlockedLevels);
-        response.put("totalLevels", 10);
-        
-        logger.info("User '{}' has {} FPOW levels unlocked: {}", 
-                    principal.getName(), unlockedLevels.size(), unlockedLevels);
-        
-        return ResponseEntity.ok(response);
+        try {
+            if (principal == null || principal.getName() == null) {
+                logger.error("Principal is null or has no name");
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("error", "User not authenticated");
+                return ResponseEntity.status(401).body(errorResponse);
+            }
+            
+            String email = principal.getName();
+            logger.info("Getting unlocked FPOW levels for user: {}", email);
+            
+            Set<Integer> unlockedLevels = profileService.getUnlockedFpowLevels(email);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("unlockedLevels", unlockedLevels);
+            response.put("totalLevels", 10);
+            
+            logger.info("User '{}' has {} FPOW levels unlocked: {}", 
+                        email, unlockedLevels.size(), unlockedLevels);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error getting unlocked FPOW levels", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to retrieve unlocked levels");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 
     /**

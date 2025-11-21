@@ -24,12 +24,14 @@ public class AdventureProfileService {
     }
 
     public AdventureProfile getOrCreateProfile(String email) {
-        User user = userRepo.findByEmail(email).orElseThrow();
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
         return profileRepo.findByUser(user).orElseGet(() -> {
             AdventureProfile newProfile = new AdventureProfile();
             newProfile.setUser(user);
             newProfile.setXp(0);
             newProfile.setLevel(1);
+            newProfile.setUnlockedFpowLevels(""); // Initialize empty string
             return profileRepo.save(newProfile);
         });
     }

@@ -38,6 +38,6 @@ public class User {
     private int progressPoints = 0;
     
     @Lob
-    @Column(name = "profile_image")
+    @Column(name = "profile_image", columnDefinition = "LONGBLOB", nullable = true)
     private byte[] profileImage; // Store profile image as binary
 }

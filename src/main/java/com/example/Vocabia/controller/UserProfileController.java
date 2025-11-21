@@ -29,21 +29,40 @@ public class UserProfileController {
     }
 
     @PostMapping("/profile-image")
-    public ResponseEntity<UserProfileResponse> uploadProfileImage(
+    public ResponseEntity<?> uploadProfileImage(
             HttpServletRequest request,
             @RequestParam("file") MultipartFile file
-    ) throws Exception {
-        String email = jwtUtil.extractUsernameFromRequest(request);
-        // --- File size and type validation ---
-        if (file.getSize() > 1024 * 1024) { // 1MB
-            throw new IllegalArgumentException("File too large");
+    ) {
+        try {
+            String email = jwtUtil.extractUsernameFromRequest(request);
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.status(401).body("User not authenticated");
+            }
+            
+            // --- File size and type validation ---
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body("No file provided");
+            }
+            
+            if (file.getSize() > 1024 * 1024) { // 1MB
+                return ResponseEntity.badRequest().body("File too large. Maximum size is 1MB");
+            }
+            
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ResponseEntity.badRequest().body("Invalid file type. Only images are allowed");
+            }
+            
+            byte[] bytes = file.getBytes();
+            UserProfileResponse response = userService.updateProfileImage(email, bytes);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("User not found: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to upload profile image: " + e.getMessage());
         }
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("Invalid file type");
-        }
-        byte[] bytes = file.getBytes();
-        return ResponseEntity.ok(userService.updateProfileImage(email, bytes));
     }
     
     @PutMapping
