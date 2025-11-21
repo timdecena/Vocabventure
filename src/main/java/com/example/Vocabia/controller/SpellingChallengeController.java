@@ -63,7 +63,7 @@ public ResponseEntity<?> uploadAudio(@RequestParam("file") MultipartFile file) {
         String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
         
         // ✅ Save inside audio folder
-        Path audioDir = Paths.get(uploadDir, "audio");
+Path audioDir = Paths.get(uploadDir, "audio", "spelling");
         Files.createDirectories(audioDir);
 
         Path filePath = audioDir.resolve(filename);
