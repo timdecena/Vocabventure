@@ -140,7 +140,8 @@ public class SecurityConfig {
             "http://127.0.0.1:3000",
             "http://localhost:3001",
             "http://127.0.0.1:3001",
-            "http://34.207.235.102"
+            "http://34.207.235.102",
+            "https://vocabia.duckdns.org" 
 ));
         
         // CRITICAL: Allow all HTTP methods including OPTIONS for preflight
