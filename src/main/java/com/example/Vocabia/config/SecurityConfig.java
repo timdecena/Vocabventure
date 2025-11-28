@@ -141,6 +141,7 @@ public class SecurityConfig {
             "http://localhost:3001",
             "http://127.0.0.1:3001",
             "http://34.207.235.102",
+            "http://54.210.180.36",
             "https://vocabia.duckdns.org" 
 ));
         
