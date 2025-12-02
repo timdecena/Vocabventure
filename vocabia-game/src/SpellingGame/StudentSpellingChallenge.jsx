@@ -671,34 +671,33 @@ export default function StudentSpellingChallenge() {
 
                 {/* Audio Section */}
                 {currentChallenge.audioUrl && (
-                  <>
-                    <audio
-  ref={audioRef}
-  src={
-    currentChallenge.audioUrl.startsWith("http")
-      ? currentChallenge.audioUrl
-      : `${window.location.origin}${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
-  }
-  preload="auto"
-  onError={(e) => {
-    console.error("Audio loading error:", e);
-    console.error("Attempted to load:", e.target.src);
-  }}
-/>
-                    <audio ref={successSoundRef} src="/sounds/success.mp3" preload="auto" />
-                    <audio ref={errorSoundRef} src="/sounds/error.mp3" preload="auto" />
-                    
-                    <PlayButton
-                      variant="contained"
-                      startIcon={<VolumeUp />}
-                      onClick={handlePlayAudio}
-                      disabled={timerStarted}
-                      sx={{ mb: 4 }}
-                    >
-                      {timerStarted ? `Playing... (${timer}s)` : "Play Word"}
-                    </PlayButton>
-                  </>
-                )}
+  <>
+    <audio
+      ref={audioRef}
+      src={
+        currentChallenge.audioUrl.startsWith("http")
+          ? currentChallenge.audioUrl
+          : `${window.location.origin}${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
+      }
+      preload="auto"
+      onError={(e) => {
+        console.error("Audio loading error:", e);
+        console.error("Attempted to load:", e.target.src);
+      }}
+    />
+    <audio ref={successSoundRef} src="/sounds/success.mp3" preload="auto" />
+    <audio ref={errorSoundRef} src="/sounds/error.mp3" preload="auto" />
+
+    <PlayButton
+      variant="contained"
+      startIcon={<VolumeUp />}
+      onClick={handlePlayAudio}
+      sx={{ mb: 4 }}
+    >
+      {isAudioPlaying ? `Playing... (${timer}s)` : "Play Word"}
+    </PlayButton>
+  </>
+)}
 
                 {/* Show hints when audio starts playing */}
                 {showHint && (
