@@ -188,6 +188,15 @@ const [gold, setGold] = useState(loadState("gold", null));
             mb: "24px"
           }}
         >
+                  <Button
+            onClick={() => window.history.back()}
+            sx={{
+              minWidth: "auto",
+              padding: "4px",
+              color: "#00eaff",
+              "&:hover": { background: "#00eaff22" }
+            }}
+          ></Button>
           <Typography
             variant="h4"
             sx={{
@@ -491,25 +500,7 @@ const [gold, setGold] = useState(loadState("gold", null));
         )}
       </Card>
 
-      {/* Game mascot/character */}
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          zIndex: 100
-        }}
-      >
-        <Avatar
-          src="/fantasy/wizard_avatar.png"
-          sx={{
-            width: 120,
-            height: 120,
-            border: "2px solid #ff00c8",
-            boxShadow: "0 0 16px #ff00c8"
-          }}
-        />
-      </Box>
+    
 
       <style>
         {`
