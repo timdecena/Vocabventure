@@ -548,19 +548,19 @@ export default function StudentSpellingChallenge() {
               </Box>
 
               <Button 
-                variant="contained" 
-                size="large"
-                onClick={() => navigate("/levels")}
-                sx={{
-                  background: "linear-gradient(45deg, #667eea, #764ba2)",
-                  borderRadius: "25px",
-                  padding: "16px 40px",
-                  fontSize: "18px",
-                  fontWeight: "bold"
-                }}
-              >
-                Return to Levels
-              </Button>
+  variant="contained" 
+  size="large"
+  onClick={() => navigate("/student/classes/1/spelling-levels")}
+  sx={{
+    background: "linear-gradient(45deg, #667eea, #764ba2)",
+    borderRadius: "25px",
+    padding: "16px 40px",
+    fontSize: "18px",
+    fontWeight: "bold"
+  }}
+>
+  Continue
+</Button>
             </CardContent>
           </MainCard>
         </Zoom>
