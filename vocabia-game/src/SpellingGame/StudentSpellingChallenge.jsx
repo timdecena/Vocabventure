@@ -256,6 +256,7 @@ export default function StudentSpellingChallenge() {
   const [showWordInfo, setShowWordInfo] = useState(false);
   const [remainingAttempts, setRemainingAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   const audioRef = useRef(null);
   const successSoundRef = useRef(null);
@@ -323,15 +324,24 @@ export default function StudentSpellingChallenge() {
   }, [timerStarted, timer, isSubmitted]);
 
   const handlePlayAudio = () => {
-    if (audioRef.current?.src) {
-      audioRef.current.play().catch(err => {
-        console.error("Audio play error:", err);
-      });
+  if (!audioRef.current?.src) return;
+
+  audioRef.current
+    .play()
+    .then(() => {
+      setIsAudioPlaying(true);
       setTimerStarted(true);
       setStartTime(Date.now());
-      setShowHint(true); // Show hints when audio starts playing
-    }
+      setShowHint(true);
+    })
+    .catch((err) => console.error("Audio play error:", err));
+
+  audioRef.current.onended = () => {
+    setIsAudioPlaying(false);
   };
+};
+
+ 
 
   const createConfetti = () => {
     const confettiPieces = [];
@@ -689,13 +699,13 @@ export default function StudentSpellingChallenge() {
     <audio ref={errorSoundRef} src="/sounds/error.mp3" preload="auto" />
 
     <PlayButton
-      variant="contained"
-      startIcon={<VolumeUp />}
-      onClick={handlePlayAudio}
-      sx={{ mb: 4 }}
-    >
-      {isAudioPlaying ? `Playing... (${timer}s)` : "Play Word"}
-    </PlayButton>
+  variant="contained"
+  startIcon={<VolumeUp />}
+  onClick={handlePlayAudio}
+  sx={{ mb: 4 }}
+>
+  {isAudioPlaying ? `Playing... (${timer}s)` : "Play Word"}
+</PlayButton>
   </>
 )}
 
