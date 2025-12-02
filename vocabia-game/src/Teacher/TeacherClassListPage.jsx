@@ -49,15 +49,32 @@ export default function TeacherClassListPage() {
   const [classToDelete, setClassToDelete] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [highlightNew, setHighlightNew] = useState(false);
+  const [studentCounts, setStudentCounts] = useState({});
 
   useEffect(() => {
     const fetchClasses = async () => {
       try {
         const res = await api.get("/api/teacher/classes");
-        setClasses(res.data);
+        const classesData = res.data;
+        setClasses(classesData);
+        
+        // Fetch student counts for each class
+        const counts = {};
+        await Promise.all(
+          classesData.map(async (cls) => {
+            try {
+              const studentsRes = await api.get(`/api/teacher/classes/${cls.id}/students`);
+              counts[cls.id] = studentsRes.data.length || 0;
+            } catch (err) {
+              console.warn(`Could not fetch students for class ${cls.id}:`, err);
+              counts[cls.id] = 0;
+            }
+          })
+        );
+        setStudentCounts(counts);
         
         // Check if we just created a new class
-        if (location.state?.justCreated && res.data.length > 0) {
+        if (location.state?.justCreated && classesData.length > 0) {
           setHighlightNew(true);
           showSnackbar(t("Class created successfully!"), "success");
           // Clear the state to prevent re-highlighting on refresh
@@ -79,6 +96,12 @@ export default function TeacherClassListPage() {
     try {
       await api.delete(`/api/teacher/classes/${id}`);
       setClasses(prev => prev.filter(c => c.id !== id));
+      // Remove from student counts
+      setStudentCounts(prev => {
+        const newCounts = { ...prev };
+        delete newCounts[id];
+        return newCounts;
+      });
       showSnackbar("Class deleted successfully", "success");
     } catch (err) {
       console.error("Failed to delete class:", err);
@@ -127,6 +150,9 @@ export default function TeacherClassListPage() {
     );
   });
 
+  // Calculate total students across all classes
+  const totalStudents = Object.values(studentCounts).reduce((sum, count) => sum + count, 0);
+
   if (loading) {
     return (
       <Box sx={{ 
@@ -169,6 +195,22 @@ export default function TeacherClassListPage() {
         >
           {t('My Classes')}
         </PageTitle>
+
+        {/* Page Stats */}
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <Chip 
+            label={`${classes.length} ${classes.length === 1 ? t('Class') : t('Classes')}`} 
+            color="primary" 
+            variant="outlined"
+            sx={{ fontWeight: 600 }}
+          />
+          <Chip 
+            label={`${totalStudents} ${totalStudents === 1 ? t('Total Student') : t('Total Students')}`} 
+            color="secondary" 
+            variant="outlined"
+            sx={{ fontWeight: 600 }}
+          />
+        </Box>
 
         {/* Search Bar */}
         <Box sx={{ mb: 4 }}>
@@ -214,7 +256,7 @@ export default function TeacherClassListPage() {
             {filteredClasses.map((cls, index) => {
               const description = cls.description || t('No description provided');
               const isNewest = index === 0 && highlightNew;
-              const studentCount = cls.studentCount || cls.students?.length || 0;
+              const studentCount = studentCounts[cls.id] || 0;
               
               return (
                 <StyledCard

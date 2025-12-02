@@ -152,19 +152,6 @@ export default function TeacherLayout({ children }) {
               {t('My Classes')}
             </Button>
 
-            <Button
-              component={Link}
-              to="/teacher/analytics"
-              className="analytics-link"
-              sx={{
-                color: location.pathname.includes('/teacher/analytics') ? colors.primary : colors.text,
-                fontWeight: location.pathname.includes('/teacher/analytics') ? 600 : 500,
-                '&:hover': { bgcolor: `${colors.primary}10` }
-              }}
-            >
-              {t('Analytics')}
-            </Button>
-
             <Tooltip title="Take a quick tour">
               <IconButton 
                 sx={{ color: colors.textLight }}
