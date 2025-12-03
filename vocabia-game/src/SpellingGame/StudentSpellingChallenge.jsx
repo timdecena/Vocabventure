@@ -756,6 +756,18 @@ export default function StudentSpellingChallenge() {
                         onChange={(e) => setAnswer(e.target.value)}
                         disabled={!timerStarted}
                         autoFocus
+
+                        spellCheck={false}
+                        inputProps={{
+                          spellCheck: false,
+                          autoCorrect: "off",
+                          autoCapitalize: "off",
+                          autoComplete: "off",
+                          "data-gramm": "false",
+                          "data-gramm_editor": "false",
+                          "data-enable-grammarly": "false"
+                        }}
+
                         sx={{
                           mb: 4,
                           mt: showHint ? 3 : 0,
@@ -773,6 +785,7 @@ export default function StudentSpellingChallenge() {
                           }
                         }}
                       />
+
 
                       <SubmitButton
                         variant="contained"
