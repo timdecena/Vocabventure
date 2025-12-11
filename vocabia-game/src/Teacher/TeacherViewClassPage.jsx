@@ -74,10 +74,35 @@ export default function TeacherViewClassPage() {
     const fetchStudents = async () => {
       try {
         setStudentsLoading(true);
+        console.log(`[TeacherViewClassPage] Fetching students for class ${id}`);
         const res = await api.get(`/api/teacher/classes/${id}/students`);
-        setStudents(res.data || []);
+        console.log(`[TeacherViewClassPage] Students response:`, res.data);
+        
+        // Validate and normalize student data
+        if (Array.isArray(res.data)) {
+          const normalizedStudents = res.data.map((s) => ({
+            id: s.id,
+            firstName: s.firstName || s.first_name || '',
+            lastName: s.lastName || s.last_name || '',
+            email: s.email || '',
+            // Preserve any additional fields
+            ...s
+          }));
+          console.log(`[TeacherViewClassPage] Normalized ${normalizedStudents.length} students`);
+          setStudents(normalizedStudents);
+        } else {
+          console.warn("[TeacherViewClassPage] Students response is not an array:", res.data);
+          setStudents([]);
+        }
       } catch (err) {
-        console.error("Failed to fetch students:", err);
+        console.error("[TeacherViewClassPage] Failed to fetch students:", err);
+        if (err.response?.status === 403) {
+          setError("You don't have permission to view students in this class");
+        } else if (err.response?.status === 404) {
+          setError("Class not found");
+        } else {
+          console.error("[TeacherViewClassPage] Student fetch error details:", err.response?.data || err.message);
+        }
         setStudents([]);
       } finally {
         setStudentsLoading(false);
@@ -322,8 +347,14 @@ export default function TeacherViewClassPage() {
                       )}
                     </Box>
                   }>
-                    <Avatar sx={{ mr: 2 }}>{(s.firstName?.[0] || '?')}{(s.lastName?.[0] || '')}</Avatar>
-                    <ListItemText primary={`${s.firstName || t('Student')} ${s.lastName || ''}`} secondary={s.email || ''} />
+                    <Avatar sx={{ mr: 2 }}>
+                      {s.firstName?.[0] || s.first_name?.[0] || '?'}
+                      {s.lastName?.[0] || s.last_name?.[0] || ''}
+                    </Avatar>
+                    <ListItemText 
+                      primary={`${s.firstName || s.first_name || t('Student')} ${s.lastName || s.last_name || ''}`.trim()} 
+                      secondary={s.email || ''} 
+                    />
                   </ListItem>
                 ))}
               </List>

@@ -129,15 +129,37 @@ const TeacherHome = () => {
           setClasses([]);
         }
 
-        // Students count
+        // Students count - Fetch from each class individually
         try {
-          const totalStudents = effectiveClasses.reduce((sum, c) => {
-            if (Array.isArray(c.students)) return sum + c.students.length;
-            if (typeof c.studentCount === 'number') return sum + c.studentCount;
-            return sum;
-          }, 0);
+          let totalStudents = 0;
+          const studentCountPromises = effectiveClasses.map(async (c) => {
+            try {
+              const studentsRes = await api.get(`/api/teacher/classes/${c.id}/students`);
+              if (Array.isArray(studentsRes.data)) {
+                console.log(`[TeacherHome] Class ${c.id} (${c.name}): ${studentsRes.data.length} students`);
+                return studentsRes.data.length;
+              }
+              console.warn(`[TeacherHome] Class ${c.id} students response is not an array:`, studentsRes.data);
+              return 0;
+            } catch (err) {
+              console.warn(`[TeacherHome] Could not fetch students for class ${c.id} (${c.name}):`, err?.response?.status || err.message);
+              return 0;
+            }
+          });
+          
+          const counts = await Promise.all(studentCountPromises);
+          totalStudents = counts.reduce((sum, count) => sum + count, 0);
+          console.log(`[TeacherHome] Total students across all classes: ${totalStudents}`);
+          
+          // Also update classes with student counts for display
+          const classesWithCounts = effectiveClasses.map((c, idx) => ({
+            ...c,
+            studentCount: counts[idx] || 0
+          }));
+          setClasses(classesWithCounts);
           setStudentsCount(totalStudents);
         } catch (e) {
+          console.error('[TeacherHome] Student count calculation failed:', e);
           setStudentsCount(0);
         }
 
