@@ -141,11 +141,47 @@ const TeacherHome = () => {
           setStudentsCount(0);
         }
 
-        // Assignments count
-        const estimatedAssignments = effectiveClasses.length > 0
-          ? Math.floor(effectiveClasses.length * 1.5)
-          : 0;
-        setAssignmentsCount(estimatedAssignments);
+        // Assignments count - Fetch real data from FPOW and Spelling Challenges
+        let totalAssignments = 0;
+        try {
+          // Count FPOW levels
+          try {
+            const fpowRes = await api.get('/api/teacher/fpow');
+            if (Array.isArray(fpowRes.data)) {
+              totalAssignments += fpowRes.data.length;
+            }
+          } catch (e) {
+            console.warn('[TeacherHome] FPOW count failed:', e);
+          }
+
+          // Count Spelling Levels across all classes
+          try {
+            let spellingCount = 0;
+            for (const cls of effectiveClasses) {
+              try {
+                const spellingRes = await api.get(`/api/spelling-level/classroom/${cls.id}`);
+                if (Array.isArray(spellingRes.data)) {
+                  spellingCount += spellingRes.data.length;
+                }
+              } catch (e) {
+                // Skip if endpoint doesn't exist or class has no spelling levels
+                continue;
+              }
+            }
+            totalAssignments += spellingCount;
+          } catch (e) {
+            console.warn('[TeacherHome] Spelling levels count failed:', e);
+          }
+
+          // Fallback to estimate if no data available
+          if (totalAssignments === 0 && effectiveClasses.length > 0) {
+            totalAssignments = Math.floor(effectiveClasses.length * 1.5);
+          }
+        } catch (e) {
+          console.warn('[TeacherHome] Assignments count failed:', e);
+          totalAssignments = effectiveClasses.length > 0 ? Math.floor(effectiveClasses.length * 1.5) : 0;
+        }
+        setAssignmentsCount(totalAssignments);
 
         // Fetch FPOW Analytics for quick stats
         try {
@@ -370,7 +406,10 @@ const TeacherHome = () => {
             </Typography>
           </StyledCard>
 
-          <StyledCard>
+          <StyledCard
+            sx={{ cursor: 'pointer' }}
+            onClick={() => navigate('/teacher/fpow/manage')}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
               <Box
                 sx={{
@@ -391,7 +430,10 @@ const TeacherHome = () => {
               {assignmentsCount}
             </Typography>
             <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
-              {t('Active Assignments')}
+              {t('Active FPOW Levels')}
+            </Typography>
+            <Typography variant="caption" sx={{ color: colors.textLight, mt: 0.5, display: 'block' }}>
+              {t('FPOW')}
             </Typography>
           </StyledCard>
 
