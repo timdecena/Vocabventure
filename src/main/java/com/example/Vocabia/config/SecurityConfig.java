@@ -140,7 +140,7 @@ public class SecurityConfig {
             "http://127.0.0.1:3000",
             "http://localhost:3001",
             "http://127.0.0.1:3001",
-            "http://34.228.31.132",
+            "http://34.229.18.167",
             "http://ec2-34-228-31-132.compute-1.amazonaws.com",
             "https://vocabia.duckdns.org" 
 ));
