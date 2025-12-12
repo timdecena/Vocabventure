@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -47,9 +47,10 @@ export default function TeacherCreateSpellingLevel() {
   const [title, setTitle] = useState("");
   const [words, setWords] = useState([]);
   const [message, setMessage] = useState({ text: "", severity: "info" });
-  const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [maxAttempts, setMaxAttempts] = useState(1);
+  const mediaRecordersRef = useRef({}); // Store MediaRecorder per word index
+  const streamsRef = useRef({}); // Store streams per word index for cleanup
 
   useEffect(() => {
     api.get("/api/teacher/classes")
@@ -78,13 +79,50 @@ export default function TeacherCreateSpellingLevel() {
 
   const startRecording = async (index) => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream);
+      // Stop any existing recording for this word
+      if (mediaRecordersRef.current[index] && mediaRecordersRef.current[index].state !== 'inactive') {
+        mediaRecordersRef.current[index].stop();
+      }
+      
+      // Clean up any existing stream for this word
+      if (streamsRef.current[index]) {
+        streamsRef.current[index].getTracks().forEach(track => track.stop());
+        delete streamsRef.current[index];
+      }
+
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } 
+      });
+      
+      // Store stream for cleanup
+      streamsRef.current[index] = stream;
+
+      // Determine MIME type based on browser support
+      let mimeType = 'audio/webm';
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
+        mimeType = 'audio/ogg;codecs=opus';
+      }
+
+      const mr = new MediaRecorder(stream, { mimeType });
       let chunks = [];
       
-      mr.ondataavailable = (e) => chunks.push(e.data);
+      mr.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+      
       mr.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const blob = new Blob(chunks, { type: mimeType });
         const audioUrl = URL.createObjectURL(blob);
         const updated = [...words];
         updated[index] = {
@@ -94,10 +132,37 @@ export default function TeacherCreateSpellingLevel() {
           recordingUrl: audioUrl
         };
         setWords(updated);
-        stream.getTracks().forEach(track => track.stop());
+        
+        // Clean up stream
+        if (streamsRef.current[index]) {
+          streamsRef.current[index].getTracks().forEach(track => track.stop());
+          delete streamsRef.current[index];
+        }
+        delete mediaRecordersRef.current[index];
+      };
+
+      mr.onerror = (e) => {
+        console.error('MediaRecorder error:', e);
+        setMessage({ text: t("Recording error occurred"), severity: "error" });
+        const updated = [...words];
+        updated[index] = {
+          ...updated[index],
+          isRecording: false
+        };
+        setWords(updated);
+        
+        // Clean up on error
+        if (streamsRef.current[index]) {
+          streamsRef.current[index].getTracks().forEach(track => track.stop());
+          delete streamsRef.current[index];
+        }
+        delete mediaRecordersRef.current[index];
       };
       
-      mr.start();
+      // Start recording
+      mr.start(100); // Collect data every 100ms
+      
+      // Update word state
       const updated = [...words];
       updated[index] = {
         ...updated[index],
@@ -109,30 +174,78 @@ export default function TeacherCreateSpellingLevel() {
         audioUrl: null
       };
       setWords(updated);
-      setMediaRecorder(mr);
+      
+      // Store MediaRecorder
+      mediaRecordersRef.current[index] = mr;
+      
     } catch (err) {
-      setMessage({ text: t("Microphone access denied"), severity: "error" });
+      console.error('Recording error:', err);
+      let errorMessage = t("Microphone access denied");
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        errorMessage = t("Please allow microphone access to record audio");
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        errorMessage = t("No microphone found. Please connect a microphone.");
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        errorMessage = t("Microphone is already in use by another application");
+      } else {
+        errorMessage = t("Failed to start recording: ") + err.message;
+      }
+      setMessage({ text: errorMessage, severity: "error" });
+      
+      // Update word state to remove recording flag
+      const updated = [...words];
+      updated[index] = {
+        ...updated[index],
+        isRecording: false
+      };
+      setWords(updated);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setMediaRecorder(null);
+  const stopRecording = (index) => {
+    if (mediaRecordersRef.current[index]) {
+      const mr = mediaRecordersRef.current[index];
+      if (mr.state === 'recording') {
+        mr.stop();
+      }
     }
   };
 
   const handleUseRecording = (index) => {
     const updated = [...words];
-    updated[index] = {
-      ...updated[index],
-      audioBlob: updated[index].recordingBlob,
-      audioUrl: updated[index].recordingUrl,
-      recordingBlob: null,
-      recordingUrl: null
-    };
-    setWords(updated);
+    if (updated[index].recordingBlob && updated[index].recordingUrl) {
+      updated[index] = {
+        ...updated[index],
+        audioBlob: updated[index].recordingBlob,
+        audioUrl: updated[index].recordingUrl,
+        recordingBlob: null,
+        recordingUrl: null,
+        isRecording: false
+      };
+      setWords(updated);
+    }
   };
+
+  // Cleanup function to stop all recordings when component unmounts
+  useEffect(() => {
+    return () => {
+      // Stop all active recordings
+      Object.keys(mediaRecordersRef.current).forEach(index => {
+        const mr = mediaRecordersRef.current[index];
+        if (mr && mr.state !== 'inactive') {
+          mr.stop();
+        }
+      });
+      
+      // Stop all streams
+      Object.keys(streamsRef.current).forEach(index => {
+        const stream = streamsRef.current[index];
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+      });
+    };
+  }, []);
 
   const removeWordRow = (index) => {
     const updated = [...words];
@@ -492,29 +605,54 @@ export default function TeacherCreateSpellingLevel() {
                         {t('Audio Pronunciation')}
                       </Typography>
                       
-                      {!word.audioUrl && !word.isRecording && (
-                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                      {!word.audioUrl && !word.audioBlob && (
+                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
                           <SecondaryButton
                             component="label"
                             startIcon={<UploadIcon />}
                             sx={{ minWidth: 140 }}
+                            disabled={word.isRecording}
                           >
                             {t('Upload MP3')}
                             <input
                               type="file"
-                              accept=".mp3,audio/mp3,audio/mpeg"
+                              accept=".mp3,audio/mp3,audio/mpeg,audio/*"
                               hidden
-                              onChange={(e) => handleFileChange(index, e.target.files[0])}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleFileChange(index, e.target.files[0]);
+                                }
+                              }}
                             />
                           </SecondaryButton>
                           <SecondaryButton
                             startIcon={word.isRecording ? <StopIcon /> : <MicIcon />}
-                            onClick={() => word.isRecording ? stopRecording() : startRecording(index)}
+                            onClick={() => {
+                              if (word.isRecording) {
+                                stopRecording(index);
+                              } else {
+                                startRecording(index);
+                              }
+                            }}
                             color={word.isRecording ? "error" : "primary"}
                             sx={{ minWidth: 140 }}
                           >
                             {word.isRecording ? t('Stop Recording') : t('Record Audio')}
                           </SecondaryButton>
+                          {word.isRecording && (
+                            <Chip
+                              label={t('Recording...')}
+                              color="error"
+                              size="small"
+                              sx={{
+                                animation: 'pulse 1.5s ease-in-out infinite',
+                                '@keyframes pulse': {
+                                  '0%, 100%': { opacity: 1 },
+                                  '50%': { opacity: 0.5 }
+                                }
+                              }}
+                            />
+                          )}
                         </Box>
                       )}
 
@@ -534,15 +672,19 @@ export default function TeacherCreateSpellingLevel() {
                         </Box>
                       )}
 
-                      {word.recordingUrl && (
+                      {word.recordingUrl && !word.isRecording && (
                         <Box sx={{ mt: 2 }}>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
                             <Typography variant="body2" sx={{ fontWeight: 600, color: colors.text }}>
                               {t('Recording Preview')}:
                             </Typography>
-                            <audio controls src={word.recordingUrl} style={{ flex: 1, maxWidth: 300 }} />
+                            <audio 
+                              controls 
+                              src={word.recordingUrl} 
+                              style={{ flex: 1, minWidth: 200, maxWidth: 400 }} 
+                            />
                           </Box>
-                          <Box sx={{ display: "flex", gap: 1 }}>
+                          <Box sx={{ display: "flex", gap: 1, flexWrap: 'wrap' }}>
                             <PrimaryButton
                               size="small"
                               startIcon={<CheckIcon />}
@@ -553,27 +695,63 @@ export default function TeacherCreateSpellingLevel() {
                             <GhostButton
                               size="small"
                               startIcon={<CloseIcon />}
-                              onClick={() => handleWordChange(index, "recordingUrl", null)}
+                              onClick={() => {
+                                // Clean up the recording URL
+                                if (word.recordingUrl) {
+                                  URL.revokeObjectURL(word.recordingUrl);
+                                }
+                                const updated = [...words];
+                                updated[index] = {
+                                  ...updated[index],
+                                  recordingBlob: null,
+                                  recordingUrl: null,
+                                  isRecording: false
+                                };
+                                setWords(updated);
+                              }}
                             >
                               {t('Discard')}
+                            </GhostButton>
+                            <GhostButton
+                              size="small"
+                              startIcon={<MicIcon />}
+                              onClick={() => startRecording(index)}
+                            >
+                              {t('Record Again')}
                             </GhostButton>
                           </Box>
                         </Box>
                       )}
 
-                      {word.audioUrl && !word.file && (
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
+                      {word.audioUrl && !word.file && !word.isRecording && (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1, flexWrap: 'wrap' }}>
                           <Chip
                             icon={<VolumeIcon />}
                             label={t('Recording')}
-                            onDelete={() => handleWordChange(index, "audioUrl", null)}
+                            onDelete={() => {
+                              // Clean up the audio URL
+                              if (word.audioUrl && word.audioUrl.startsWith('blob:')) {
+                                URL.revokeObjectURL(word.audioUrl);
+                              }
+                              const updated = [...words];
+                              updated[index] = {
+                                ...updated[index],
+                                audioBlob: null,
+                                audioUrl: null
+                              };
+                              setWords(updated);
+                            }}
                             sx={{
                               bgcolor: colors.secondary + '20',
                               color: colors.secondary,
                               fontWeight: 600,
                             }}
                           />
-                          <audio controls src={word.audioUrl} style={{ flex: 1, maxWidth: 300 }} />
+                          <audio 
+                            controls 
+                            src={word.audioUrl} 
+                            style={{ flex: 1, minWidth: 200, maxWidth: 400 }} 
+                          />
                         </Box>
                       )}
                     </Box>

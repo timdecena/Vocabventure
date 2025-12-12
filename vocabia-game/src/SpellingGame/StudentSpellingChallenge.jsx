@@ -26,6 +26,18 @@ import {
   PlayArrow
 } from "@mui/icons-material";
 
+// Helper function to get the backend base URL (same logic as api.js)
+const getBackendBaseURL = () => {
+  const host = window.location.hostname;
+  const isLocal = host === "localhost" || host === "127.0.0.1";
+  
+  return process.env.REACT_APP_API_URL 
+    ? process.env.REACT_APP_API_URL
+    : (isLocal
+        ? "http://localhost:8080"
+        : "");
+};
+
 // Styled Components
 const GameContainer = styled("div")({
   minHeight: "100vh",
@@ -98,7 +110,9 @@ const LevelInfoCard = styled(Card)({
   boxShadow: "0 8px 25px rgba(0, 0, 0, 0.1)",
 });
 
-const TimerCircle = styled("div")(({ percentage, isCritical }) => ({
+const TimerCircle = styled("div", {
+  shouldForwardProp: (prop) => prop !== 'percentage' && prop !== 'isCritical',
+})(({ percentage, isCritical }) => ({
   width: "120px",
   height: "120px",
   borderRadius: "50%",
@@ -122,7 +136,9 @@ const TimerCircle = styled("div")(({ percentage, isCritical }) => ({
   }
 }));
 
-const TimerText = styled(Typography)(({ isCritical }) => ({
+const TimerText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'isCritical',
+})(({ isCritical }) => ({
   position: "relative",
   zIndex: 1,
   fontWeight: "bold",
@@ -263,6 +279,7 @@ export default function StudentSpellingChallenge() {
   const errorSoundRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const [audioError, setAudioError] = useState(false);
   
   const queryParams = new URLSearchParams(location.search);
   const levelId = queryParams.get("levelId");
@@ -324,22 +341,37 @@ export default function StudentSpellingChallenge() {
   }, [timerStarted, timer, isSubmitted]);
 
   const handlePlayAudio = () => {
-  if (!audioRef.current?.src) return;
-
-  audioRef.current
-    .play()
-    .then(() => {
-      setIsAudioPlaying(true);
+    if (!audioRef.current?.src) {
+      setAudioError(true);
+      // Still allow the game to proceed even if audio is not available
       setTimerStarted(true);
       setStartTime(Date.now());
       setShowHint(true);
-    })
-    .catch((err) => console.error("Audio play error:", err));
+      return;
+    }
 
-  audioRef.current.onended = () => {
-    setIsAudioPlaying(false);
+    audioRef.current
+      .play()
+      .then(() => {
+        setIsAudioPlaying(true);
+        setTimerStarted(true);
+        setStartTime(Date.now());
+        setShowHint(true);
+        setAudioError(false);
+      })
+      .catch((err) => {
+        console.error("Audio play error:", err);
+        setAudioError(true);
+        // Still allow the game to proceed even if audio fails
+        setTimerStarted(true);
+        setStartTime(Date.now());
+        setShowHint(true);
+      });
+
+    audioRef.current.onended = () => {
+      setIsAudioPlaying(false);
+    };
   };
-};
 
  
 
@@ -364,7 +396,12 @@ export default function StudentSpellingChallenge() {
     setResultType("error");
     setFeedback("Time's up! ⏰");
     setShowResult(true);
-    errorSoundRef.current?.play();
+    // Play error sound if available
+    if (errorSoundRef.current) {
+      errorSoundRef.current.play().catch(err => {
+        console.warn("Could not play error sound:", err);
+      });
+    }
     
     setTimeout(() => {
       setShowResult(false);
@@ -394,11 +431,21 @@ export default function StudentSpellingChallenge() {
       if (correct) {
         setFeedback(`Correct! 🎯 +${pointsEarned} points`);
         setScore(s => s + pointsEarned);
-        successSoundRef.current?.play();
+        // Play success sound if available
+        if (successSoundRef.current) {
+          successSoundRef.current.play().catch(err => {
+            console.warn("Could not play success sound:", err);
+          });
+        }
         createConfetti();
       } else {
         setFeedback("Incorrect ❌");
-        errorSoundRef.current?.play();
+        // Play error sound if available
+        if (errorSoundRef.current) {
+          errorSoundRef.current.play().catch(err => {
+            console.warn("Could not play error sound:", err);
+          });
+        }
       }
 
       // Refresh remaining attempts after submission
@@ -684,28 +731,69 @@ export default function StudentSpellingChallenge() {
   <>
     <audio
       ref={audioRef}
-      src={
-        currentChallenge.audioUrl.startsWith("http")
-          ? currentChallenge.audioUrl
-          : `${window.location.origin}${currentChallenge.audioUrl.startsWith("/") ? "" : "/"}${currentChallenge.audioUrl}`
-      }
+      src={(() => {
+        const backendBaseURL = getBackendBaseURL();
+        
+        // If audioUrl is already a full URL, use it as-is
+        if (currentChallenge.audioUrl.startsWith("http")) {
+          return currentChallenge.audioUrl;
+        }
+        
+        // If it starts with /, it's a relative path - construct full URL using backend
+        if (currentChallenge.audioUrl.startsWith("/")) {
+          return backendBaseURL ? `${backendBaseURL}${currentChallenge.audioUrl}` : `${window.location.origin}${currentChallenge.audioUrl}`;
+        }
+        
+        // Otherwise, assume it's a relative path and prepend /audio/
+        return backendBaseURL ? `${backendBaseURL}/audio/${currentChallenge.audioUrl}` : `${window.location.origin}/audio/${currentChallenge.audioUrl}`;
+      })()}
       preload="auto"
       onError={(e) => {
         console.error("Audio loading error:", e);
         console.error("Attempted to load:", e.target.src);
+        console.error("Original audioUrl from API:", currentChallenge.audioUrl);
+        console.error("Backend base URL:", getBackendBaseURL());
+        setAudioError(true);
+      }}
+      onLoadedData={() => {
+        setAudioError(false);
+        console.log("✅ Audio loaded successfully:", audioRef.current?.src);
+      }}
+      onCanPlay={() => {
+        console.log("✅ Audio can play:", audioRef.current?.src);
       }}
     />
-    <audio ref={successSoundRef} src="/sounds/success.mp3" preload="auto" />
-    <audio ref={errorSoundRef} src="/sounds/error.mp3" preload="auto" />
+    <audio 
+      ref={successSoundRef} 
+      src="/adventure_mode_sound/correct_answer_sound_effect.mp3" 
+      preload="auto"
+      onError={(e) => {
+        console.warn("Success sound failed to load:", e);
+      }}
+    />
+    <audio 
+      ref={errorSoundRef} 
+      src="/adventure_mode_sound/wrong_answer_sound_effect.mp3" 
+      preload="auto"
+      onError={(e) => {
+        console.warn("Error sound failed to load:", e);
+      }}
+    />
+
+    {audioError && (
+      <Alert severity="warning" sx={{ mb: 2 }}>
+        Audio file could not be loaded. You can still proceed with the challenge - hints will be shown automatically.
+      </Alert>
+    )}
 
     <PlayButton
-  variant="contained"
-  startIcon={<VolumeUp />}
-  onClick={handlePlayAudio}
-  sx={{ mb: 4 }}
->
-  {isAudioPlaying ? `Playing... (${timer}s)` : "Play Word"}
-</PlayButton>
+      variant="contained"
+      startIcon={<VolumeUp />}
+      onClick={handlePlayAudio}
+      sx={{ mb: 4 }}
+    >
+      {isAudioPlaying ? `Playing... (${timer}s)` : audioError ? "Continue Without Audio" : "Play Word"}
+    </PlayButton>
   </>
 )}
 
