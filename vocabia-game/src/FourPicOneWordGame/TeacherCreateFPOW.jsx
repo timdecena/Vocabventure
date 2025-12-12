@@ -12,7 +12,7 @@ import {
   IconButton,
   Chip,
   Stack,
-  Container,
+  Divider,
   Paper,
 } from '@mui/material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
@@ -20,6 +20,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
 import api from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -29,6 +31,7 @@ import {
   PageTitle,
   SecondaryButton,
   PrimaryButton,
+  GhostButton,
   StyledInput,
   SectionHeader,
 } from '../Teacher/components/DesignSystem';
@@ -61,7 +64,7 @@ export default function TeacherCreateFPOW() {
         setClassrooms(res.data || []);
         // Auto-select first classroom if available
         if (res.data && res.data.length > 0) {
-          setForm(prev => ({ ...prev, classroomId: res.data[0].id }));
+          setForm(prev => ({ ...prev, classroomId: res.data[0].id.toString() }));
         }
       } catch (err) {
         console.error('Error fetching classrooms:', err);
@@ -75,7 +78,12 @@ export default function TeacherCreateFPOW() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    // Ensure classroomId is stored as string for consistency
+    if (name === 'classroomId') {
+      setForm(prev => ({ ...prev, [name]: value.toString() }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleImageAdd = (e) => {
@@ -153,13 +161,7 @@ export default function TeacherCreateFPOW() {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('You must be logged in as a teacher.');
-        setLoading(false);
-        return;
-      }
-
+      // Validate form before submission
       if (images.length === 0) {
         setError('At least 1 image is required to create a puzzle.');
         setLoading(false);
@@ -183,7 +185,9 @@ export default function TeacherCreateFPOW() {
       formData.append('category', form.category.trim());
       formData.append('level', form.level);
       formData.append('answer', form.answer.trim().toUpperCase());
-      formData.append('hint', form.hint.trim());
+      if (form.hint && form.hint.trim()) {
+        formData.append('hint', form.hint.trim());
+      }
       formData.append('hintType', form.hintType);
       formData.append('difficulty', form.difficulty);
 
@@ -191,12 +195,11 @@ export default function TeacherCreateFPOW() {
         formData.append('images', file);
       });
 
-      console.log(`🎯 Creating FPOW puzzle with ${images.length} images`);
+      console.log(`🎯 Creating FPOW puzzle with ${images.length} image${images.length !== 1 ? 's' : ''}`);
 
       await api.post('/api/fpow/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -210,117 +213,224 @@ export default function TeacherCreateFPOW() {
     }
   };
 
+  // Validation helpers
+  const isFormValid = () => {
+    return form.classroomId && 
+           form.category.trim() && 
+           form.level && 
+           form.answer.trim() && 
+           images.length > 0;
+  };
+
+  const formCompletion = {
+    classroom: !!form.classroomId,
+    category: !!form.category.trim(),
+    level: !!form.level,
+    answer: !!form.answer.trim(),
+    images: images.length > 0,
+  };
+
+  const completionCount = Object.values(formCompletion).filter(Boolean).length;
+  const totalFields = Object.keys(formCompletion).length;
+  const completionPercentage = (completionCount / totalFields) * 100;
+
   return (
     <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', pb: 4, pt: 2 }}>
-      <Container maxWidth="lg">
+      <Box sx={{ maxWidth: 1000, mx: 'auto', px: { xs: 2, sm: 3, md: 4 } }}>
         {/* Header Section */}
         <Box sx={{ mb: 4 }}>
           <PageTitle icon={<CloudUploadIcon sx={{ fontSize: 32 }} />}>
             Create 4 Pics 1 Word Level
           </PageTitle>
           <Typography 
-            variant="h6" 
+            variant="body1" 
             sx={{ 
               color: colors.textLight, 
               mt: 1,
               fontWeight: 400,
-              fontSize: '1.1rem'
+              fontSize: '1rem'
             }}
           >
             Create engaging picture puzzles for your students
           </Typography>
         </Box>
 
+        {/* Error Alert */}
         {error && (
           <Alert 
             severity="error" 
             sx={{ 
-              mb: 4, 
+              mb: 3, 
               borderRadius: 2,
               '& .MuiAlert-message': { fontSize: '0.95rem' }
             }}
+            onClose={() => setError('')}
           >
             {error}
           </Alert>
         )}
 
-        <StyledCard sx={{ p: { xs: 3, md: 4 }, borderRadius: 3 }}>
+        {/* Progress Indicator */}
+        {totalFields > 0 && (
+          <StyledCard sx={{ mb: 3, p: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ flex: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: colors.text }}>
+                    Form Completion
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: colors.primary }}>
+                    {completionCount}/{totalFields}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    bgcolor: colors.border,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      height: '100%',
+                      width: `${completionPercentage}%`,
+                      bgcolor: completionPercentage === 100 ? colors.success : colors.primary,
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </Box>
+              </Box>
+              {completionPercentage === 100 && (
+                <CheckCircleIcon sx={{ color: colors.success, fontSize: 32 }} />
+              )}
+            </Box>
+          </StyledCard>
+        )}
+
+        <StyledCard sx={{ p: { xs: 3, md: 4 } }}>
           <form onSubmit={handleSubmit}>
             {/* Level Information Section */}
             <SectionHeader sx={{ mb: 3 }}>Level Information</SectionHeader>
+            
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <TextField
-                  select
-                  name="classroomId"
-                  label="Select Classroom *"
-                  value={form.classroomId}
-                  onChange={handleChange}
-                  fullWidth
-                  required
-                  disabled={loadingClassrooms}
-                  variant="outlined"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      bgcolor: colors.cardBg,
-                      '& fieldset': { 
-                        borderColor: colors.border, 
-                        borderWidth: '2px',
-                        transition: 'all 0.3s ease'
+                <Box>
+                  <TextField
+                    select
+                    name="classroomId"
+                    label="Select Classroom *"
+                    value={form.classroomId}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    disabled={loadingClassrooms}
+                    variant="outlined"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        bgcolor: colors.cardBg,
+                        '& fieldset': { 
+                          borderColor: formCompletion.classroom ? colors.success : colors.border, 
+                          borderWidth: '2px',
+                          transition: 'all 0.3s ease'
+                        },
+                        '&:hover fieldset': { borderColor: colors.primary },
+                        '&.Mui-focused fieldset': { 
+                          borderColor: colors.primary, 
+                          borderWidth: '2px',
+                          boxShadow: `0 0 0 3px ${colors.primary}20`
+                        },
                       },
-                      '&:hover fieldset': { borderColor: colors.primary },
-                      '&.Mui-focused fieldset': { 
-                        borderColor: colors.primary, 
-                        borderWidth: '2px',
-                        boxShadow: `0 0 0 3px ${colors.primary}20`
-                      },
-                    },
-                    '& .MuiSelect-select': {
-                      py: 1.5,
-                    }
-                  }}
-                  helperText={loadingClassrooms ? "Loading classrooms..." : classrooms.length === 0 ? "No classrooms found. Please create a classroom first." : "Select which classroom this puzzle belongs to"}
-                >
-                  {classrooms.map((classroom) => (
-                    <MenuItem key={classroom.id} value={classroom.id}>
-                      {classroom.name} {classroom.description && `- ${classroom.description}`}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                      '& .MuiSelect-select': {
+                        py: 1.5,
+                      }
+                    }}
+                    helperText={loadingClassrooms ? "Loading classrooms..." : classrooms.length === 0 ? "No classrooms found. Please create a classroom first." : "Select which classroom this puzzle belongs to"}
+                  >
+                    {classrooms.map((classroom) => (
+                      <MenuItem key={classroom.id} value={classroom.id.toString()}>
+                        {classroom.name} {classroom.description && `- ${classroom.description}`}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  {formCompletion.classroom && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                      <CheckCircleIcon sx={{ fontSize: 16, color: colors.success }} />
+                      <Typography variant="caption" sx={{ color: colors.success, fontWeight: 500 }}>
+                        Classroom selected
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Grid>
+              
               <Grid item xs={12} md={6}>
-                <StyledInput
-                  name="category"
-                  label="Category *"
-                  value={form.category}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g., Animals, Food, Sports"
-                />
+                <Box>
+                  <StyledInput
+                    name="category"
+                    label="Category *"
+                    value={form.category}
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g., Animals, Food, Sports"
+                  />
+                  {formCompletion.category && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                      <CheckCircleIcon sx={{ fontSize: 16, color: colors.success }} />
+                      <Typography variant="caption" sx={{ color: colors.success, fontWeight: 500 }}>
+                        Category entered
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Grid>
+              
               <Grid item xs={12} md={6}>
-                <StyledInput
-                  name="level"
-                  label="Level Number *"
-                  type="number"
-                  value={form.level}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g., 1, 2, 3"
-                />
+                <Box>
+                  <StyledInput
+                    name="level"
+                    label="Level Number *"
+                    type="number"
+                    value={form.level}
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g., 1, 2, 3"
+                    inputProps={{ min: 1 }}
+                  />
+                  {formCompletion.level && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                      <CheckCircleIcon sx={{ fontSize: 16, color: colors.success }} />
+                      <Typography variant="caption" sx={{ color: colors.success, fontWeight: 500 }}>
+                        Level number set
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Grid>
+              
               <Grid item xs={12}>
-                <StyledInput
-                  name="answer"
-                  label="Answer Word *"
-                  value={form.answer}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter the correct answer"
-                  helperText="This will be converted to uppercase automatically"
-                />
+                <Box>
+                  <StyledInput
+                    name="answer"
+                    label="Answer Word *"
+                    value={form.answer}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter the correct answer"
+                    helperText="This will be converted to uppercase automatically"
+                  />
+                  {formCompletion.answer && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                      <CheckCircleIcon sx={{ fontSize: 16, color: colors.success }} />
+                      <Typography variant="caption" sx={{ color: colors.success, fontWeight: 500 }}>
+                        Answer: {form.answer.toUpperCase()}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Grid>
+              
               <Grid item xs={12}>
                 <StyledInput
                   name="hint"
@@ -332,6 +442,7 @@ export default function TeacherCreateFPOW() {
                   placeholder="Provide a helpful hint for students..."
                 />
               </Grid>
+              
               <Grid item xs={12} md={6}>
                 <TextField
                   select
@@ -343,7 +454,7 @@ export default function TeacherCreateFPOW() {
                   variant="outlined"
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
+                      borderRadius: '8px',
                       bgcolor: colors.cardBg,
                       '& fieldset': { 
                         borderColor: colors.border, 
@@ -366,6 +477,7 @@ export default function TeacherCreateFPOW() {
                   <MenuItem value="REVEAL_LETTER">Reveal Letter</MenuItem>
                 </TextField>
               </Grid>
+              
               <Grid item xs={12} md={6}>
                 <TextField
                   select
@@ -377,7 +489,7 @@ export default function TeacherCreateFPOW() {
                   variant="outlined"
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
+                      borderRadius: '8px',
                       bgcolor: colors.cardBg,
                       '& fieldset': { 
                         borderColor: colors.border, 
@@ -433,9 +545,34 @@ export default function TeacherCreateFPOW() {
               </Grid>
             </Grid>
 
+            <Divider sx={{ my: 4, opacity: 0.3 }} />
+
             {/* Image Upload Section */}
-            <Box sx={{ mt: 5 }}>
-              <SectionHeader sx={{ mb: 3 }}>Upload Images</SectionHeader>
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <SectionHeader sx={{ mb: 0 }}>Upload Images</SectionHeader>
+                {images.length > 0 && (
+                  <Chip
+                    label={`${images.length}/4 images`}
+                    sx={{
+                      bgcolor: images.length === 4 ? colors.success + '20' : colors.primary + '20',
+                      color: images.length === 4 ? colors.success : colors.primary,
+                      fontWeight: 600,
+                    }}
+                  />
+                )}
+              </Box>
+              
+              {!formCompletion.images && (
+                <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <WarningIcon />
+                    <Typography variant="body2">
+                      At least 1 image is required to create a puzzle
+                    </Typography>
+                  </Box>
+                </Alert>
+              )}
               
               {/* Upload Area */}
               <Paper
@@ -616,6 +753,18 @@ export default function TeacherCreateFPOW() {
                   >
                     {showPreview ? 'Hide Preview' : 'Preview Puzzle'}
                   </SecondaryButton>
+                  {form.answer && (
+                    <Chip
+                      label={`Answer: ${form.answer.toUpperCase()}`}
+                      sx={{
+                        bgcolor: colors.primary + '15',
+                        color: colors.primary,
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                        height: 36,
+                      }}
+                    />
+                  )}
                 </Box>
               )}
 
@@ -703,32 +852,39 @@ export default function TeacherCreateFPOW() {
               )}
             </Box>
 
+            <Divider sx={{ my: 4, opacity: 0.3 }} />
+
             {/* Submit Button */}
             <Box sx={{ 
               display: 'flex', 
               gap: 2, 
-              mt: 6, 
-              pt: 3, 
-              borderTop: `1px solid ${colors.border}`,
-              flexWrap: 'wrap'
+              flexWrap: 'wrap',
+              justifyContent: 'flex-end'
             }}>
+              <GhostButton
+                onClick={() => navigate('/teacher/classes')}
+                disabled={loading}
+                sx={{ minWidth: 120 }}
+              >
+                Cancel
+              </GhostButton>
               <PrimaryButton
                 type="submit"
                 size="large"
-                fullWidth
-                disabled={loading || images.length === 0}
+                disabled={loading || !isFormValid()}
                 startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
                 sx={{
+                  minWidth: 200,
                   py: 1.5,
                   fontSize: '1rem',
                   fontWeight: 600,
                   borderRadius: 2,
-                  background: loading || images.length === 0 
+                  background: loading || !isFormValid()
                     ? `${colors.textLight}40` 
                     : `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
                   '&:hover': {
-                    transform: images.length > 0 ? 'translateY(-2px)' : 'none',
-                    boxShadow: images.length > 0 ? `0 8px 25px ${colors.primary}40` : 'none',
+                    transform: isFormValid() ? 'translateY(-2px)' : 'none',
+                    boxShadow: isFormValid() ? `0 8px 25px ${colors.primary}40` : 'none',
                   },
                   transition: 'all 0.3s ease',
                 }}
@@ -738,7 +894,7 @@ export default function TeacherCreateFPOW() {
             </Box>
           </form>
         </StyledCard>
-      </Container>
+      </Box>
     </Box>
   );
 }

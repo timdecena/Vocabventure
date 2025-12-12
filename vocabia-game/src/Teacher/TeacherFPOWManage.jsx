@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -28,6 +28,10 @@ import {
   TableRow,
   Paper,
   Stack,
+  InputAdornment,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -36,6 +40,9 @@ import {
   Visibility as ViewIcon,
   AddPhotoAlternate as AddPhotoAlternateIcon,
   DragIndicator as DragIndicatorIcon,
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Clear as ClearIcon,
 } from "@mui/icons-material";
 import api from "../api/api";
 import { toast } from "react-toastify";
@@ -45,7 +52,10 @@ import {
   PageTitle,
   PrimaryButton,
   SecondaryButton,
+  GhostButton,
   StyledInput,
+  StyledCard,
+  EmptyState,
 } from "./components/DesignSystem";
 
 export default function TeacherFPOWManage() {
@@ -76,6 +86,9 @@ export default function TeacherFPOWManage() {
   const [newImages, setNewImages] = useState([]); // Array of File objects
   const [newImagePreviews, setNewImagePreviews] = useState([]); // Array of preview URLs
   const [dragIndex, setDragIndex] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [classroomFilter, setClassroomFilter] = useState("all");
 
   useEffect(() => {
     fetchFPOWs();
@@ -302,6 +315,28 @@ export default function TeacherFPOWManage() {
     return `${fpow.category} - Level ${fpow.level}`;
   };
 
+  // Filter and search logic
+  const filteredFPOWs = useMemo(() => {
+    return fpowList.filter((fpow) => {
+      const matchesSearch = 
+        !searchQuery ||
+        getFPOWName(fpow).toLowerCase().includes(searchQuery.toLowerCase()) ||
+        fpow.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (fpow.classroomName && fpow.classroomName.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      const matchesStatus = 
+        statusFilter === "all" ||
+        (statusFilter === "active" && fpow.isActive) ||
+        (statusFilter === "inactive" && !fpow.isActive);
+      
+      const matchesClassroom = 
+        classroomFilter === "all" ||
+        fpow.classroomId.toString() === classroomFilter;
+      
+      return matchesSearch && matchesStatus && matchesClassroom;
+    });
+  }, [fpowList, searchQuery, statusFilter, classroomFilter]);
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
@@ -328,104 +363,246 @@ export default function TeacherFPOWManage() {
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
+        {/* Search and Filters */}
+        {fpowList.length > 0 && (
+          <StyledCard sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+              <StyledInput
+                placeholder={t("Search FPOW puzzles...")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                sx={{ flex: 1, minWidth: 250 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: colors.textLight }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchQuery && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => setSearchQuery("")}
+                        sx={{ color: colors.textLight }}
+                      >
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <FormControl sx={{ minWidth: 150 }}>
+                <InputLabel>{t('Status')}</InputLabel>
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  label={t('Status')}
+                  sx={{
+                    borderRadius: '8px',
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
+                      '&:hover fieldset': { borderColor: colors.primary },
+                      '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
+                    },
+                  }}
+                >
+                  <MenuItem value="all">{t('All Status')}</MenuItem>
+                  <MenuItem value="active">{t('Active')}</MenuItem>
+                  <MenuItem value="inactive">{t('Inactive')}</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl sx={{ minWidth: 180 }}>
+                <InputLabel>{t('Classroom')}</InputLabel>
+                <Select
+                  value={classroomFilter}
+                  onChange={(e) => setClassroomFilter(e.target.value)}
+                  label={t('Classroom')}
+                  sx={{
+                    borderRadius: '8px',
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
+                      '&:hover fieldset': { borderColor: colors.primary },
+                      '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
+                    },
+                  }}
+                >
+                  <MenuItem value="all">{t('All Classrooms')}</MenuItem>
+                  {classrooms.map((c) => (
+                    <MenuItem key={c.id} value={c.id.toString()}>
+                      {c.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+            {(searchQuery || statusFilter !== "all" || classroomFilter !== "all") && (
+              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Chip
+                  icon={<FilterIcon />}
+                  label={`${filteredFPOWs.length} ${t('result(s)')}`}
+                  sx={{
+                    bgcolor: colors.primary + '15',
+                    color: colors.primary,
+                    fontWeight: 600,
+                  }}
+                />
+                <GhostButton
+                  size="small"
+                  startIcon={<ClearIcon />}
+                  onClick={() => {
+                    setSearchQuery("");
+                    setStatusFilter("all");
+                    setClassroomFilter("all");
+                  }}
+                >
+                  {t('Clear Filters')}
+                </GhostButton>
+              </Box>
+            )}
+          </StyledCard>
+        )}
+
         {/* FPOW List */}
         {fpowList.length === 0 ? (
-          <Card sx={{ p: 6, textAlign: "center" }}>
-            <Typography variant="h6" sx={{ mb: 2, color: colors.textLight }}>
-              No FPOW puzzles created yet
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 3, color: colors.textLight }}>
-              Create your first 4 Pics 1 Word puzzle to get started
-            </Typography>
-            <PrimaryButton
-              startIcon={<AddIcon />}
-              onClick={() => navigate("/teacher/fpow/create")}
-            >
-              Create Your First FPOW
-            </PrimaryButton>
-          </Card>
+          <EmptyState
+            icon={<ViewIcon sx={{ fontSize: 64 }} />}
+            title={t('No FPOW puzzles created yet')}
+            description={t('Create your first 4 Pics 1 Word puzzle to get started')}
+            action={
+              <PrimaryButton
+                startIcon={<AddIcon />}
+                onClick={() => navigate("/teacher/fpow/create")}
+              >
+                {t('Create Your First FPOW')}
+              </PrimaryButton>
+            }
+          />
+        ) : filteredFPOWs.length === 0 ? (
+          <EmptyState
+            icon={<SearchIcon sx={{ fontSize: 64 }} />}
+            title={t('No puzzles found')}
+            description={t('Try adjusting your search or filter criteria')}
+            action={
+              <GhostButton
+                startIcon={<ClearIcon />}
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                  setClassroomFilter("all");
+                }}
+              >
+                {t('Clear All Filters')}
+              </GhostButton>
+            }
+          />
         ) : (
-          <TableContainer component={Paper} sx={{ borderRadius: 2, overflow: "hidden" }}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ bgcolor: colors.cardBg }}>
-                  <TableCell sx={{ fontWeight: 700, color: colors.text }}>FPOW Name</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: colors.text }}>Classroom</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: colors.text }}>Date Created</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: colors.text }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 700, color: colors.text }}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {fpowList.map((fpow) => (
-                  <TableRow
-                    key={fpow.id}
-                    sx={{
-                      "&:hover": { bgcolor: colors.primary + "08" },
-                      borderBottom: `1px solid ${colors.border}`,
-                    }}
-                  >
-                    <TableCell>
-                      <Typography sx={{ fontWeight: 600, color: colors.text }}>
-                        {getFPOWName(fpow)}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: colors.textLight }}>
-                        Answer: {fpow.answer}
-                      </Typography>
+          <StyledCard sx={{ p: 0, overflow: 'hidden' }}>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: colors.primary + '08' }}>
+                    <TableCell sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                      {t('FPOW Name')}
                     </TableCell>
-                    <TableCell>
-                      <Typography sx={{ color: colors.text }}>
-                        {fpow.classroomName || `Classroom ${fpow.classroomId}`}
-                      </Typography>
+                    <TableCell sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                      {t('Classroom')}
                     </TableCell>
-                    <TableCell>
-                      <Typography sx={{ color: colors.textLight }}>
-                        {formatDate(fpow.createdAt)}
-                      </Typography>
+                    <TableCell sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                      {t('Date Created')}
                     </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={fpow.isActive ? "Active" : "Inactive"}
-                        size="small"
-                        sx={{
-                          bgcolor: fpow.isActive ? colors.success + "20" : colors.error + "20",
-                          color: fpow.isActive ? colors.success : colors.error,
-                          fontWeight: 600,
-                        }}
-                      />
+                    <TableCell sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                      {t('Status')}
                     </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Tooltip title="Edit">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleEditClick(fpow)}
-                            sx={{ color: colors.primary }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDeleteClick(fpow)}
-                            sx={{ color: colors.error }}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
+                    <TableCell sx={{ fontWeight: 700, color: colors.text, py: 2, textAlign: 'center' }}>
+                      {t('Actions')}
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {filteredFPOWs.map((fpow) => (
+                    <TableRow
+                      key={fpow.id}
+                      sx={{
+                        "&:hover": { bgcolor: colors.primary + "08" },
+                        borderBottom: `1px solid ${colors.border}`,
+                        transition: 'background-color 0.2s ease',
+                      }}
+                    >
+                      <TableCell>
+                        <Typography sx={{ fontWeight: 600, color: colors.text, mb: 0.5 }}>
+                          {getFPOWName(fpow)}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: colors.textLight }}>
+                          {t('Answer')}: <strong>{fpow.answer}</strong>
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={fpow.classroomName || `Classroom ${fpow.classroomId}`}
+                          size="small"
+                          sx={{
+                            bgcolor: colors.primary + '15',
+                            color: colors.primary,
+                            fontWeight: 600,
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ color: colors.textLight, fontSize: '0.875rem' }}>
+                          {formatDate(fpow.createdAt)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={fpow.isActive ? t("Active") : t("Inactive")}
+                          size="small"
+                          sx={{
+                            bgcolor: fpow.isActive ? colors.success + "20" : colors.error + "20",
+                            color: fpow.isActive ? colors.success : colors.error,
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: "flex", gap: 1, justifyContent: 'center' }}>
+                          <Tooltip title={t("Edit")}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditClick(fpow)}
+                              sx={{
+                                color: colors.primary,
+                                '&:hover': { bgcolor: colors.primary + '15' },
+                              }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={t("Delete")}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteClick(fpow)}
+                              sx={{
+                                color: colors.error,
+                                '&:hover': { bgcolor: colors.error + '15' },
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </StyledCard>
         )}
 
         {/* Delete Confirmation Dialog */}

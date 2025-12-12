@@ -121,6 +121,17 @@ const TeacherHome = () => {
           const res = await api.get('/api/teacher/classes');
           if (Array.isArray(res.data)) {
             effectiveClasses = res.data;
+            // Log first class structure to debug date fields
+            if (res.data.length > 0) {
+              console.log('[TeacherHome] Sample class data structure:', {
+                id: res.data[0].id,
+                name: res.data[0].name,
+                availableFields: Object.keys(res.data[0]),
+                createdAt: res.data[0].createdAt,
+                created_at: res.data[0].created_at,
+                dateCreated: res.data[0].dateCreated,
+              });
+            }
             setClasses(res.data);
           }
         } catch (e) {
@@ -651,7 +662,25 @@ const TeacherHome = () => {
                         </Typography>
                       </Box>
                       <Typography variant="body2" sx={{ color: colors.textLight }}>
-                        {cls.createdAt ? new Date(cls.createdAt).toLocaleDateString() : '--'}
+                        {(() => {
+                          // Try multiple possible date field names
+                          const dateValue = cls.createdAt || cls.created_at || cls.dateCreated || cls.createdDate;
+                          if (dateValue) {
+                            try {
+                              const date = new Date(dateValue);
+                              if (!isNaN(date.getTime())) {
+                                return date.toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                });
+                              }
+                            } catch (e) {
+                              console.warn('[TeacherHome] Invalid date format:', dateValue);
+                            }
+                          }
+                          return '—';
+                        })()}
                       </Typography>
                     </Box>
                   ))}
