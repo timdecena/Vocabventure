@@ -99,7 +99,22 @@ export default function TeacherFPOWManage() {
     try {
       setLoading(true);
       const res = await api.get("/api/teacher/fpow");
-      setFpowList(res.data || []);
+      // Normalize the data to ensure isActive is always a boolean
+      // Default to true if null/undefined (matching database default)
+      const normalizedData = (res.data || []).map(fpow => {
+        const isActive = fpow.isActive;
+        let normalizedIsActive = true; // default
+        if (isActive === false || isActive === "false" || isActive === 0 || isActive === "0") {
+          normalizedIsActive = false;
+        } else if (isActive === true || isActive === "true" || isActive === 1 || isActive === "1") {
+          normalizedIsActive = true;
+        }
+        return {
+          ...fpow,
+          isActive: normalizedIsActive
+        };
+      });
+      setFpowList(normalizedData);
       setError(null);
     } catch (err) {
       console.error("Failed to load FPOWs:", err);
@@ -140,6 +155,14 @@ export default function TeacherFPOWManage() {
 
   const handleEditClick = (fpow) => {
     setEditingFpow(fpow);
+    // Normalize isActive to boolean (default to true if null/undefined)
+    const isActiveValue = fpow.isActive;
+    let normalizedIsActive = true; // default
+    if (isActiveValue === false || isActiveValue === "false" || isActiveValue === 0 || isActiveValue === "0") {
+      normalizedIsActive = false;
+    } else if (isActiveValue === true || isActiveValue === "true" || isActiveValue === 1 || isActiveValue === "1") {
+      normalizedIsActive = true;
+    }
     setEditForm({
       category: fpow.category || "",
       level: fpow.level || "",
@@ -147,7 +170,7 @@ export default function TeacherFPOWManage() {
       hint: fpow.hint || "",
       hintType: fpow.hintType || "TEXT_HINT",
       difficulty: fpow.difficulty || "EASY",
-      isActive: fpow.isActive !== undefined ? fpow.isActive : true,
+      isActive: normalizedIsActive,
     });
     
     // Load existing images from the FPOW
@@ -259,7 +282,8 @@ export default function TeacherFPOWManage() {
       if (editForm.hint) formData.append('hint', editForm.hint.trim());
       formData.append('hintType', editForm.hintType);
       formData.append('difficulty', editForm.difficulty);
-      formData.append('isActive', editForm.isActive.toString());
+      // Ensure isActive is explicitly sent as "true" or "false" string
+      formData.append('isActive', editForm.isActive ? 'true' : 'false');
 
       // Add existing image URLs that should be kept
       existingImages.forEach(url => {
@@ -271,19 +295,50 @@ export default function TeacherFPOWManage() {
         formData.append('images', file);
       });
 
-      await api.put(`/api/teacher/fpow/${editingFpow.id}`, formData, {
+      const response = await api.put(`/api/teacher/fpow/${editingFpow.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       
-      await fetchFPOWs(); // Refresh list
+      // Immediately update the list with the new status
+      // Use form state directly for isActive since that's what user just set (most reliable)
+      const updatedIsActive = Boolean(editForm.isActive);
+      
+      // Update state immediately for instant UI feedback
+      setFpowList(prevList => {
+        return prevList.map(fpow => {
+          if (fpow.id === editingFpow.id) {
+            // Create new object to ensure React detects the change
+            const updated = {
+              ...fpow, // Preserve existing fields like classroomName
+              ...response.data, // Update with response data
+              isActive: updatedIsActive, // Use form state for immediate, reliable update
+            };
+            // Ensure classroomName is preserved
+            if (!updated.classroomName && fpow.classroomName) {
+              updated.classroomName = fpow.classroomName;
+            }
+            return updated;
+          }
+          return fpow;
+        });
+      });
+      
       showSnackbar("FPOW puzzle updated successfully", "success");
       setEditDialogOpen(false);
       setEditingFpow(null);
       setExistingImages([]);
       setNewImages([]);
       setNewImagePreviews([]);
+      
+      // Refresh from server in background to ensure full consistency
+      // Use a small delay to let the UI update first
+      setTimeout(() => {
+        fetchFPOWs().catch(err => {
+          console.error("Background refresh failed:", err);
+        });
+      }, 200);
     } catch (err) {
       console.error("Failed to update FPOW:", err);
       showSnackbar(err.response?.data || "Failed to update FPOW puzzle", "error");
@@ -324,10 +379,19 @@ export default function TeacherFPOWManage() {
         fpow.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (fpow.classroomName && fpow.classroomName.toLowerCase().includes(searchQuery.toLowerCase()));
       
+      // Ensure isActive is treated as boolean for filtering
+      // Default to true if null/undefined
+      const isActiveValue = fpow.isActive;
+      let isActive = true; // default
+      if (isActiveValue === false || isActiveValue === "false" || isActiveValue === 0 || isActiveValue === "0") {
+        isActive = false;
+      } else if (isActiveValue === true || isActiveValue === "true" || isActiveValue === 1 || isActiveValue === "1") {
+        isActive = true;
+      }
       const matchesStatus = 
         statusFilter === "all" ||
-        (statusFilter === "active" && fpow.isActive) ||
-        (statusFilter === "inactive" && !fpow.isActive);
+        (statusFilter === "active" && isActive) ||
+        (statusFilter === "inactive" && !isActive);
       
       const matchesClassroom = 
         classroomFilter === "all" ||
@@ -558,16 +622,29 @@ export default function TeacherFPOWManage() {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={fpow.isActive ? t("Active") : t("Inactive")}
-                          size="small"
-                          sx={{
-                            bgcolor: fpow.isActive ? colors.success + "20" : colors.error + "20",
-                            color: fpow.isActive ? colors.success : colors.error,
-                            fontWeight: 600,
-                            fontSize: '0.75rem',
-                          }}
-                        />
+                        {(() => {
+                          // Ensure isActive is properly converted to boolean
+                          // Default to true if null/undefined (matching database default)
+                          const isActiveValue = fpow.isActive;
+                          let isActive = true; // default
+                          if (isActiveValue === false || isActiveValue === "false" || isActiveValue === 0 || isActiveValue === "0") {
+                            isActive = false;
+                          } else if (isActiveValue === true || isActiveValue === "true" || isActiveValue === 1 || isActiveValue === "1") {
+                            isActive = true;
+                          }
+                          return (
+                            <Chip
+                              label={isActive ? t("Active") : t("Inactive")}
+                              size="small"
+                              sx={{
+                                bgcolor: isActive ? colors.success + "20" : colors.error + "20",
+                                color: isActive ? colors.success : colors.error,
+                                fontWeight: 600,
+                                fontSize: '0.75rem',
+                              }}
+                            />
+                          );
+                        })()}
                       </TableCell>
                       <TableCell>
                         <Box sx={{ display: "flex", gap: 1, justifyContent: 'center' }}>
@@ -606,7 +683,10 @@ export default function TeacherFPOWManage() {
         )}
 
         {/* Delete Confirmation Dialog */}
-        <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <Dialog 
+          open={deleteDialogOpen} 
+          onClose={() => setDeleteDialogOpen(false)}
+        >
           <DialogTitle>Delete FPOW Puzzle</DialogTitle>
           <DialogContent>
             <Typography>
@@ -640,97 +720,177 @@ export default function TeacherFPOWManage() {
             setNewImages([]);
             setNewImagePreviews([]);
           }}
-          maxWidth="md"
+          maxWidth="lg"
           fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              bgcolor: colors.mainBg,
+            }
+          }}
         >
-          <DialogTitle>Edit FPOW Puzzle</DialogTitle>
-          <DialogContent>
-            <Grid container spacing={2} sx={{ mt: 1 }}>
-              <Grid item xs={12} md={6}>
-                <StyledInput
-                  label="Category *"
-                  value={editForm.category}
-                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                  fullWidth
-                  required
-                />
+          <DialogTitle sx={{ 
+            pb: 2,
+            borderBottom: `2px solid ${colors.border}`,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2
+          }}>
+            <EditIcon sx={{ color: colors.primary, fontSize: 28 }} />
+            <Typography variant="h5" sx={{ fontWeight: 700, color: colors.text }}>
+              Edit FPOW Puzzle
+            </Typography>
+          </DialogTitle>
+          <DialogContent sx={{ pt: 3 }}>
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="subtitle2" sx={{ 
+                color: colors.textLight, 
+                fontWeight: 600, 
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+                mb: 2
+              }}>
+                Basic Information
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <StyledInput
+                    label="Category *"
+                    value={editForm.category}
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StyledInput
+                    label="Level *"
+                    type="number"
+                    value={editForm.level}
+                    onChange={(e) => setEditForm({ ...editForm, level: e.target.value })}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <StyledInput
+                    label="Answer *"
+                    value={editForm.answer}
+                    onChange={(e) => setEditForm({ ...editForm, answer: e.target.value.toUpperCase() })}
+                    fullWidth
+                    required
+                    sx={{
+                      '& input': {
+                        textTransform: 'uppercase',
+                        fontWeight: 600,
+                        fontSize: '1.1rem',
+                        letterSpacing: 1
+                      }
+                    }}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <StyledInput
-                  label="Level *"
-                  type="number"
-                  value={editForm.level}
-                  onChange={(e) => setEditForm({ ...editForm, level: e.target.value })}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <StyledInput
-                  label="Answer *"
-                  value={editForm.answer}
-                  onChange={(e) => setEditForm({ ...editForm, answer: e.target.value.toUpperCase() })}
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <StyledInput
-                  label="Hint (Optional)"
-                  value={editForm.hint}
-                  onChange={(e) => setEditForm({ ...editForm, hint: e.target.value })}
-                  multiline
-                  rows={3}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  select
-                  label="Hint Type"
-                  value={editForm.hintType}
-                  onChange={(e) => setEditForm({ ...editForm, hintType: e.target.value })}
-                  fullWidth
-                  variant="outlined"
-                >
-                  <MenuItem value="TEXT_HINT">Text Hint</MenuItem>
-                  <MenuItem value="REVEAL_LETTER">Reveal Letter</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  select
-                  label="Difficulty"
-                  value={editForm.difficulty}
-                  onChange={(e) => setEditForm({ ...editForm, difficulty: e.target.value })}
-                  fullWidth
-                  variant="outlined"
-                >
-                  <MenuItem value="EASY">Easy</MenuItem>
-                  <MenuItem value="MEDIUM">Medium</MenuItem>
-                  <MenuItem value="HARD">Hard</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  select
-                  label="Status"
-                  value={editForm.isActive ? "ACTIVE" : "INACTIVE"}
-                  onChange={(e) => setEditForm({ ...editForm, isActive: e.target.value === "ACTIVE" })}
-                  fullWidth
-                  variant="outlined"
-                >
-                  <MenuItem value="ACTIVE">Active</MenuItem>
-                  <MenuItem value="INACTIVE">Inactive</MenuItem>
-                </TextField>
-              </Grid>
+            </Box>
 
-              {/* Image Management Section */}
-              <Grid item xs={12}>
-                <Box sx={{ mt: 2, mb: 2 }}>
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: colors.text }}>
-                    Images ({existingImages.length + newImages.length}/4)
-                  </Typography>
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="subtitle2" sx={{ 
+                color: colors.textLight, 
+                fontWeight: 600, 
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+                mb: 2
+              }}>
+                Hint & Settings
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <StyledInput
+                    label="Hint (Optional)"
+                    value={editForm.hint}
+                    onChange={(e) => setEditForm({ ...editForm, hint: e.target.value })}
+                    multiline
+                    rows={3}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Hint Type</InputLabel>
+                    <Select
+                      value={editForm.hintType}
+                      onChange={(e) => setEditForm({ ...editForm, hintType: e.target.value })}
+                      label="Hint Type"
+                      sx={{
+                        borderRadius: '8px',
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
+                          '&:hover fieldset': { borderColor: colors.primary },
+                          '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
+                        },
+                      }}
+                    >
+                      <MenuItem value="TEXT_HINT">Text Hint</MenuItem>
+                      <MenuItem value="REVEAL_LETTER">Reveal Letter</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Difficulty</InputLabel>
+                    <Select
+                      value={editForm.difficulty}
+                      onChange={(e) => setEditForm({ ...editForm, difficulty: e.target.value })}
+                      label="Difficulty"
+                      sx={{
+                        borderRadius: '8px',
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
+                          '&:hover fieldset': { borderColor: colors.primary },
+                          '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
+                        },
+                      }}
+                    >
+                      <MenuItem value="EASY">Easy</MenuItem>
+                      <MenuItem value="MEDIUM">Medium</MenuItem>
+                      <MenuItem value="HARD">Hard</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                      value={editForm.isActive ? "ACTIVE" : "INACTIVE"}
+                      onChange={(e) => setEditForm({ ...editForm, isActive: e.target.value === "ACTIVE" })}
+                      label="Status"
+                      sx={{
+                        borderRadius: '8px',
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': { borderColor: colors.border, borderWidth: '2px' },
+                          '&:hover fieldset': { borderColor: colors.primary },
+                          '&.Mui-focused fieldset': { borderColor: colors.primary, borderWidth: '2px' },
+                        },
+                      }}
+                    >
+                      <MenuItem value="ACTIVE">Active</MenuItem>
+                      <MenuItem value="INACTIVE">Inactive</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Image Management Section */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ 
+                color: colors.textLight, 
+                fontWeight: 600, 
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+                mb: 2
+              }}>
+                Images ({existingImages.length + newImages.length}/4)
+              </Typography>
 
                   {/* Existing Images */}
                   {existingImages.length > 0 && (
@@ -929,22 +1089,57 @@ export default function TeacherFPOWManage() {
                     </Paper>
                   )}
 
-                  {existingImages.length + newImages.length === 0 && (
-                    <Alert severity="warning" sx={{ mt: 2 }}>
-                      At least 1 image is required
-                    </Alert>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
+              {existingImages.length + newImages.length === 0 && (
+                <Alert severity="warning" sx={{ mt: 2, borderRadius: 2 }}>
+                  At least 1 image is required
+                </Alert>
+              )}
+            </Box>
           </DialogContent>
-          <DialogActions>
-            <SecondaryButton onClick={() => setEditDialogOpen(false)}>
+          <DialogActions sx={{ 
+            px: 3, 
+            py: 2.5,
+            borderTop: `2px solid ${colors.border}`,
+            gap: 2
+          }}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                // Cleanup preview URLs
+                newImagePreviews.forEach(url => URL.revokeObjectURL(url));
+                setEditDialogOpen(false);
+                setEditingFpow(null);
+                setExistingImages([]);
+                setNewImages([]);
+                setNewImagePreviews([]);
+              }}
+              sx={{ 
+                px: 3,
+                borderColor: colors.border,
+                color: colors.text,
+                '&:hover': {
+                  borderColor: colors.primary,
+                  bgcolor: colors.primary + '08'
+                }
+              }}
+            >
               Cancel
-            </SecondaryButton>
-            <PrimaryButton onClick={handleEditSave}>
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleEditSave}
+              startIcon={<EditIcon />}
+              sx={{ 
+                px: 3,
+                bgcolor: colors.primary,
+                color: '#FFFFFF',
+                '&:hover': {
+                  bgcolor: colors.primaryDark
+                }
+              }}
+            >
               Save Changes
-            </PrimaryButton>
+            </Button>
           </DialogActions>
         </Dialog>
 

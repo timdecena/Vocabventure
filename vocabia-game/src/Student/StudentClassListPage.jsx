@@ -6,10 +6,8 @@ import {
   Button,
   Avatar,
   CircularProgress,
-  Tooltip,
   Paper,
 } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EmojiNatureIcon from "@mui/icons-material/EmojiNature";
 import SchoolIcon from "@mui/icons-material/School";
 import GroupIcon from "@mui/icons-material/Group";
@@ -95,31 +93,6 @@ const StudentClassListPage = () => {
               Select a class to start your adventure!
             </Typography>
           </Box>
-          <Tooltip title="Join New Class">
-            <Button
-              size="large"
-              startIcon={<AddCircleOutlineIcon />}
-              onClick={() => navigate("/student/classes/join")}
-              sx={{
-                background: "linear-gradient(90deg, #00eaff 60%, #ff00c8 100%)",
-                color: "#191924",
-                fontWeight: 700,
-                borderRadius: "14px",
-                fontFamily: "'Press Start 2P', monospace",
-                boxShadow: "0 0 12px #00eaff90",
-                textTransform: "none",
-                px: 3,
-                fontSize: 15,
-                "&:hover": {
-                  background: "#ff00c8",
-                  color: "#fff",
-                  boxShadow: "0 0 22px #ff00c8",
-                },
-              }}
-            >
-              Join New Class
-            </Button>
-          </Tooltip>
         </Box>
 
         {/* Class Card List */}

@@ -641,7 +641,10 @@ const GamePlay = () => {
       const res = await api.get('/api/fpow/puzzle', { 
         params: id ? { classroomId: id, category, level } : { category, level } 
       });
-      if (!res.data || !res.data.answer) throw new Error('No puzzle found');
+      if (!res.data || !res.data.answer) {
+        // Puzzle not found - could be inactive or doesn't exist
+        throw new Error('This puzzle is not available. It may have been deactivated by your teacher.');
+      }
 
       // ✅ Collect and normalize the four image URLs from backend
       const rawUrls = [
@@ -663,7 +666,11 @@ const GamePlay = () => {
         setTimerStart(Date.now());
       }
     } catch (e) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to load puzzle.' });
+      // Handle 404 (puzzle not found/inactive) with a more specific message
+      const errorMessage = e.response?.status === 404 || e.message?.includes('not available')
+        ? 'This puzzle is not available. It may have been deactivated by your teacher.'
+        : 'Failed to load puzzle. Please try again later.';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
     }
   }
 

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import {
-  Container,
   Typography,
   Box,
   Tabs,
   Tab,
-  Button,
   Grid,
   TableContainer,
   Table,
@@ -15,13 +13,11 @@ import {
   TableCell,
   TableBody,
   CircularProgress,
-  Card,
-  CardContent,
   Chip,
   LinearProgress,
-  Tooltip,
-  alpha,
-  useTheme
+  Avatar,
+  Divider,
+  Alert,
 } from "@mui/material";
 import {
   LineChart,
@@ -44,14 +40,20 @@ import InsightsIcon from "@mui/icons-material/Insights";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import PageHeader from "./components/PageHeader";
 import { t } from "./utils/i18n";
+import {
+  colors,
+  StyledCard,
+  PageTitle,
+  SecondaryButton,
+  GhostButton,
+  EmptyState as DSEmptyState,
+} from "./components/DesignSystem";
 
 export default function TeacherFPOWProgressPage() {
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const theme = useTheme();
   const classId = params.classId || params.id || (location.state && location.state.classId);
 
   const [loading, setLoading] = useState(true);
@@ -184,115 +186,10 @@ export default function TeacherFPOWProgressPage() {
     }
   };
 
-  const handleLoginRedirect = () => {
-    navigate("/login", { state: { from: location.pathname } });
-  };
-
-  const handleBackToClasses = () => {
-    navigate("/teacher/classes");
-  };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Card sx={{ border: 1, borderColor: 'divider' }}>
-          <CardContent>
-            <Typography variant="h6" color="error" gutterBottom fontWeight={600}>
-              Error
-            </Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
-              {error}
-            </Typography>
-            {error.includes("logged in") || error.includes("Authentication") ? (
-              <Button variant="contained" onClick={handleLoginRedirect} sx={{ mt: 2 }}>
-                Go to Login
-              </Button>
-            ) : (
-              <Button startIcon={<ArrowBackIcon />} variant="outlined" onClick={handleBackToClasses} sx={{ mt: 2 }}>
-                Back to Classes
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      </Container>
-    );
-  }
-
-  const StatCard = ({ title, value, subtitle, color, icon, unit = "%" }) => (
-    <Card 
-      sx={{ 
-        height: "100%", 
-        borderRadius: 2,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-        }
-      }}
-    >
-      <CardContent>
-        <Box display="flex" alignItems="center" gap={2} mb={2}>
-          <Box
-            sx={{
-              p: 1.5,
-              borderRadius: 2,
-              bgcolor: alpha(color, 0.1),
-              color: color,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
-          >
-            {icon}
-          </Box>
-          <Box flex={1}>
-            <Typography variant="subtitle2" color="text.secondary" fontWeight={500}>
-              {title}
-            </Typography>
-            <Typography variant="h4" fontWeight={700} color="text.primary" mt={0.5}>
-              {value}
-              <Typography component="span" variant="body1" color="text.secondary" fontWeight={400} ml={0.5}>
-                {unit}
-              </Typography>
-            </Typography>
-          </Box>
-        </Box>
-        <Typography variant="body2" color="text.secondary">
-          {subtitle}
-        </Typography>
-        <LinearProgress
-          variant="determinate"
-          value={value}
-          sx={{
-            mt: 2,
-            height: 4,
-            borderRadius: 2,
-            bgcolor: alpha(color, 0.1),
-            "& .MuiLinearProgress-bar": { 
-              bgcolor: color,
-              borderRadius: 2 
-            }
-          }}
-        />
-      </CardContent>
-    </Card>
-  );
-
   const getStatusColor = (accuracy) => {
-    if (accuracy > 85) return "success";
-    if (accuracy > 70) return "warning";
-    return "error";
+    if (accuracy > 85) return colors.success;
+    if (accuracy > 70) return colors.warning;
+    return colors.error;
   };
 
   const getStatusLabel = (accuracy) => {
@@ -301,406 +198,563 @@ export default function TeacherFPOWProgressPage() {
     return t("Needs Improvement");
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ 
+        bgcolor: colors.mainBg, 
+        minHeight: '100vh',
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center" 
+      }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', p: 3 }}>
+        <Box sx={{ maxWidth: '800px', mx: 'auto', mt: 4 }}>
+          <StyledCard>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+            <SecondaryButton
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate("/teacher/classes")}
+            >
+              {t("Back to Classes")}
+            </SecondaryButton>
+          </StyledCard>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
-      <PageHeader
-        backTo={`/teacher/classes/${classId}`}
-        backLabel={t("Back to Class")}
-        title={
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <AssessmentIcon sx={{ color: 'primary.main' }} />
-            <Typography variant="h5" fontWeight={700} color="text.primary">
-              {t("Four Pic One Word")}
-            </Typography>
-          </Box>
-        }
-        subtitle={
-          <Typography variant="body1" color="text.secondary">
-            {className} • {t("Progress Analytics")}
-          </Typography>
-        }
-        actions={
-          <Box display="flex" gap={1.5}>
-            <Tooltip title="Export detailed report">
-              <Button
-                variant="outlined"
+    <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', p: 3 }}>
+      <Box sx={{ maxWidth: '1400px', mx: 'auto' }}>
+        {/* Page Header */}
+        <PageTitle
+          icon={<AssessmentIcon />}
+          action={
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <SecondaryButton
                 startIcon={<DownloadIcon />}
                 onClick={handleExportReport}
                 disabled={exportLoading}
-                sx={{
-                  borderRadius: 2,
-                  textTransform: "none",
-                  fontWeight: 500,
-                  px: 2
-                }}
               >
                 {exportLoading ? t("Exporting...") : t("Export Report")}
-              </Button>
-            </Tooltip>
-            <Button
-              variant="contained"
-              startIcon={<ArrowBackIcon />}
-              component={Link}
-              to={`/teacher/classes/${classId}`}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 500,
-                px: 2
-              }}
-            >
-              {t("Back to Class")}
-            </Button>
-          </Box>
-        }
-      />
+              </SecondaryButton>
+              <SecondaryButton
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate(`/teacher/classes/${classId}`)}
+              >
+                {t("Back to Class")}
+              </SecondaryButton>
+            </Box>
+          }
+        >
+          {t("FPOW Progress")} • {className}
+        </PageTitle>
 
-      <Box sx={{ mt: 3 }}>
-        <Tabs
-          value={activeTab}
-          onChange={handleTabChange}
+        {/* Subtitle */}
+        <Typography
+          variant="body1"
           sx={{
+            color: colors.textLight,
             mb: 3,
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              fontWeight: 500,
-              fontSize: '0.95rem',
-              minHeight: 48,
-              color: 'text.secondary',
-              '&.Mui-selected': {
-                color: 'primary.main',
-                fontWeight: 600
-              }
-            },
-            '& .MuiTabs-indicator': {
-              height: 3,
-              borderRadius: '3px 3px 0 0'
-            }
+            fontSize: '1rem',
           }}
         >
-          <Tab
-            icon={<InsightsIcon />}
-            iconPosition="start"
-            label={t("Class Overview")}
-          />
-          <Tab
-            icon={<PersonIcon />}
-            iconPosition="start"
-            label={t("Student Performance")}
-          />
-        </Tabs>
+          {t("Track and analyze student performance in Four Pic One Word")}
+        </Typography>
+
+        {/* Tabs */}
+        <Box sx={{ mb: 3 }}>
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            sx={{
+              borderBottom: `2px solid ${colors.border}`,
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '0.95rem',
+                minHeight: 48,
+                color: colors.textLight,
+                '&.Mui-selected': {
+                  color: colors.primary,
+                  fontWeight: 600
+                }
+              },
+              '& .MuiTabs-indicator': {
+                height: 3,
+                borderRadius: '3px 3px 0 0',
+                bgcolor: colors.primary
+              }
+            }}
+          >
+            <Tab
+              icon={<InsightsIcon />}
+              iconPosition="start"
+              label={t("Class Overview")}
+            />
+            <Tab
+              icon={<PersonIcon />}
+              iconPosition="start"
+              label={t("Student Performance")}
+            />
+          </Tabs>
+        </Box>
 
         {/* Class Overview Tab */}
         {activeTab === 0 && classData && (
           <Box>
-            <Grid container spacing={3}>
-              {/* Summary Cards */}
-              <Grid item xs={12} sm={6} lg={3}>
-                <StatCard
-                  title={t("Completion Rate")}
+            {/* Key Metrics Grid */}
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+              gap: 2,
+              mb: 3
+            }}>
+              <StyledCard>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      bgcolor: `${colors.primary}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 1.5,
+                    }}
+                  >
+                    <CheckCircleIcon sx={{ fontSize: 24, color: colors.primary }} />
+                  </Box>
+                </Box>
+                <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+                  {classData.averageCompletionRate}%
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
+                  {t("Completion Rate")}
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
                   value={classData.averageCompletionRate}
-                  subtitle={t("Average class completion")}
-                  color="#4f46e5"
-                  icon={<CheckCircleIcon />}
+                  sx={{
+                    mt: 1.5,
+                    height: 6,
+                    borderRadius: 3,
+                    bgcolor: `${colors.primary}15`,
+                    '& .MuiLinearProgress-bar': {
+                      bgcolor: colors.primary,
+                    }
+                  }}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6} lg={3}>
-                <StatCard
-                  title={t("Accuracy")}
-                  value={classData.averageAccuracy}
-                  subtitle={t("Correct answers ratio")}
-                  color="#10b981"
-                  icon={<TrendingUpIcon />}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} lg={3}>
-                <StatCard
-                  title={t("Hint Usage")}
-                  value={classData.averageHintUsage}
-                  subtitle={t("Levels with hints used")}
-                  color="#f59e0b"
-                  icon={<HelpOutlineIcon />}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} lg={3}>
-                <StatCard
-                  title={t("Avg. Time")}
-                  value={classData.averageTimePerLevel}
-                  subtitle={t("Per level completion")}
-                  color="#3b82f6"
-                  icon={<ScheduleIcon />}
-                  unit="s"
-                />
-              </Grid>
+              </StyledCard>
 
+              <StyledCard>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      bgcolor: `${colors.secondary}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 1.5,
+                    }}
+                  >
+                    <TrendingUpIcon sx={{ fontSize: 24, color: colors.secondary }} />
+                  </Box>
+                </Box>
+                <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+                  {classData.averageAccuracy}%
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
+                  {t("Accuracy")}
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={classData.averageAccuracy}
+                  sx={{
+                    mt: 1.5,
+                    height: 6,
+                    borderRadius: 3,
+                    bgcolor: `${colors.secondary}15`,
+                    '& .MuiLinearProgress-bar': {
+                      bgcolor: colors.secondary,
+                    }
+                  }}
+                />
+              </StyledCard>
+
+              <StyledCard>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      bgcolor: `${colors.warning}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 1.5,
+                    }}
+                  >
+                    <HelpOutlineIcon sx={{ fontSize: 24, color: colors.warning }} />
+                  </Box>
+                </Box>
+                <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+                  {classData.averageHintUsage}%
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
+                  {t("Hint Usage")}
+                </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={classData.averageHintUsage}
+                  sx={{
+                    mt: 1.5,
+                    height: 6,
+                    borderRadius: 3,
+                    bgcolor: `${colors.warning}15`,
+                    '& .MuiLinearProgress-bar': {
+                      bgcolor: colors.warning,
+                    }
+                  }}
+                />
+              </StyledCard>
+
+              <StyledCard>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      bgcolor: `${colors.accent}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 1.5,
+                    }}
+                  >
+                    <ScheduleIcon sx={{ fontSize: 24, color: colors.accent }} />
+                  </Box>
+                </Box>
+                <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+                  {classData.averageTimePerLevel}s
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
+                  {t("Avg. Time")}
+                </Typography>
+              </StyledCard>
+            </Box>
+
+            {/* Main Content Grid */}
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' },
+              gap: 3,
+              mb: 3
+            }}>
               {/* Progress Chart */}
-              <Grid item xs={12} lg={8}>
-                <Card sx={{ borderRadius: 2, height: '100%' }}>
-                  <CardContent sx={{ height: '100%', p: 3 }}>
-                    <Typography variant="h6" fontWeight={600} gutterBottom color="text.primary">
+              <StyledCard>
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 3
+                }}>
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
                       {t("Class Progress Over Time")}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" paragraph>
+                    <Typography variant="body2" sx={{ color: colors.textLight }}>
                       {t("Weekly completion rate and accuracy trends")}
                     </Typography>
-                    <Box sx={{ height: 300, mt: 2 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={classData.progressOverTime}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis 
-                            dataKey="date" 
-                            stroke="#666"
-                            tick={{ fill: '#666' }}
-                          />
-                          <YAxis 
-                            stroke="#666"
-                            tick={{ fill: '#666' }}
-                          />
-                          <RechartsTooltip
-                            contentStyle={{
-                              borderRadius: 8,
-                              border: '1px solid #e0e0e0',
-                              background: 'white',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                            }}
-                          />
-                          <Legend />
-                          <Line
-                            type="monotone"
-                            dataKey="completionRate"
-                            name={t("Completion %")}
-                            stroke="#4f46e5"
-                            strokeWidth={2}
-                            dot={{ r: 4, fill: "#4f46e5" }}
-                            activeDot={{ r: 6, fill: "#4f46e5" }}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="accuracy"
-                            name={t("Accuracy %")}
-                            stroke="#10b981"
-                            strokeWidth={2}
-                            dot={{ r: 4, fill: "#10b981" }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
+                  </Box>
+                </Box>
+                <Box sx={{ height: 300, mt: 2 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={classData.progressOverTime}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke={colors.textLight}
+                        tick={{ fill: colors.textLight, fontSize: 12 }}
+                      />
+                      <YAxis 
+                        stroke={colors.textLight}
+                        tick={{ fill: colors.textLight, fontSize: 12 }}
+                      />
+                      <RechartsTooltip
+                        contentStyle={{
+                          borderRadius: 8,
+                          border: `1px solid ${colors.border}`,
+                          background: colors.cardBg,
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="completionRate"
+                        name={t("Completion %")}
+                        stroke={colors.primary}
+                        strokeWidth={2}
+                        dot={{ r: 4, fill: colors.primary }}
+                        activeDot={{ r: 6, fill: colors.primary }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="accuracy"
+                        name={t("Accuracy %")}
+                        stroke={colors.secondary}
+                        strokeWidth={2}
+                        dot={{ r: 4, fill: colors.secondary }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              </StyledCard>
 
               {/* Performance Summary */}
-              <Grid item xs={12} lg={4}>
-                <Card sx={{ borderRadius: 2, height: '100%' }}>
-                  <CardContent sx={{ height: '100%', p: 3 }}>
-                    <Typography variant="h6" fontWeight={600} gutterBottom color="text.primary">
-                      {t("Performance Summary")}
-                    </Typography>
-                    <Box mt={3}>
-                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2.5}>
-                        <Typography variant="body1" color="text.secondary">
-                          {t("Total Levels Completed")}
-                        </Typography>
-                        <Typography variant="h6" fontWeight={600} color="text.primary">
-                          {classData.totalLevelsCompleted}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2.5}>
-                        <Typography variant="body1" color="text.secondary">
-                          {t("Active Students")}
-                        </Typography>
-                        <Typography variant="h6" fontWeight={600} color="text.primary">
-                          {studentData.length}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                        <Typography variant="body1" color="text.secondary">
-                          {t("Avg. Levels per Student")}
-                        </Typography>
-                        <Typography variant="h6" fontWeight={600} color="text.primary">
-                          {studentData.length > 0
-                            ? Math.round(classData.totalLevelsCompleted / studentData.length)
-                            : 0}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    
-                    <Box 
-                      sx={{ 
-                        mt: 4, 
-                        pt: 3, 
-                        borderTop: 1, 
-                        borderColor: 'divider' 
-                      }}
-                    >
-                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        {t("Overall Class Health")}
+              <StyledCard>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mb: 2
+                }}>
+                  <InsightsIcon sx={{ color: colors.primary, fontSize: 24, mr: 1 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: colors.text }}>
+                    {t("Performance Summary")}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="body2" sx={{ color: colors.textLight }}>
+                        {t("Total Levels Completed")}
                       </Typography>
-                      <Box display="flex" alignItems="center" gap={2}>
-                        <Chip
-                          label={getStatusLabel(classData.averageAccuracy)}
-                          color={getStatusColor(classData.averageAccuracy)}
-                          size="medium"
-                          sx={{ fontWeight: 600 }}
-                        />
-                        <Typography variant="body2" color="text.secondary">
-                          {classData.averageAccuracy}% {t("average accuracy")}
-                        </Typography>
-                      </Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: colors.text }}>
+                        {classData.totalLevelsCompleted}
+                      </Typography>
                     </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
+                  </Box>
+                  <Divider />
+                  <Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="body2" sx={{ color: colors.textLight }}>
+                        {t("Active Students")}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: colors.text }}>
+                        {studentData.length}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Divider />
+                  <Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="body2" sx={{ color: colors.textLight }}>
+                        {t("Avg. Levels per Student")}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: colors.text }}>
+                        {studentData.length > 0
+                          ? Math.round(classData.totalLevelsCompleted / studentData.length)
+                          : 0}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+                
+                <Box 
+                  sx={{ 
+                    mt: 4, 
+                    pt: 3, 
+                    borderTop: `2px solid ${colors.border}` 
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ color: colors.textLight, fontWeight: 600, mb: 1.5 }}>
+                    {t("Overall Class Health")}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Chip
+                      label={getStatusLabel(classData.averageAccuracy)}
+                      sx={{
+                        bgcolor: `${getStatusColor(classData.averageAccuracy)}15`,
+                        color: getStatusColor(classData.averageAccuracy),
+                        fontWeight: 600,
+                      }}
+                    />
+                    <Typography variant="body2" sx={{ color: colors.textLight }}>
+                      {classData.averageAccuracy}% {t("average accuracy")}
+                    </Typography>
+                  </Box>
+                </Box>
+              </StyledCard>
+            </Box>
           </Box>
         )}
 
         {/* Student Performance Tab */}
         {activeTab === 1 && (
           <Box>
-            <Card sx={{ mb: 3 }}>
-              <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Typography variant="h6" fontWeight={600} gutterBottom color="text.primary">
-                      {t("Student Performance")}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {studentData.length} {t("students in class")}
-                    </Typography>
-                  </Box>
-                  <Chip
-                    label={`${t("Avg. Accuracy")}: ${classData?.averageAccuracy || 0}%`}
-                    color="primary"
-                    variant="outlined"
-                    sx={{ fontWeight: 500 }}
-                  />
+            <StyledCard sx={{ mb: 3 }}>
+              <Box sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+                    {t("Student Performance")}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: colors.textLight }}>
+                    {studentData.length} {t("students in class")}
+                  </Typography>
                 </Box>
-              </CardContent>
-            </Card>
+                <Chip
+                  label={`${t("Avg. Accuracy")}: ${classData?.averageAccuracy || 0}%`}
+                  sx={{
+                    bgcolor: `${colors.primary}15`,
+                    color: colors.primary,
+                    fontWeight: 600,
+                  }}
+                />
+              </Box>
+            </StyledCard>
 
-            <Card sx={{ borderRadius: 2 }}>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                      <TableCell sx={{ fontWeight: 600, py: 2.5 }}>
-                        {t("Student")}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600, py: 2.5 }}>
-                        {t("Levels")}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600, py: 2.5 }}>
-                        {t("Accuracy")}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600, py: 2.5 }}>
-                        {t("Avg. Time")}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600, py: 2.5 }}>
-                        {t("Hint Usage")}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600, py: 2.5 }}>
-                        {t("Last Active")}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600, py: 2.5 }}>
-                        {t("Actions")}
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {studentData.map((student) => (
-                      <TableRow
-                        key={student.id}
-                        hover
-                        sx={{
-                          '&:last-child td': { borderBottom: 0 },
-                          transition: 'background-color 0.2s'
-                        }}
-                      >
-                        <TableCell sx={{ py: 2.5 }}>
-                          <Box>
-                            <Typography variant="body1" fontWeight={500} color="text.primary">
-                              {student.firstName} {student.lastName}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                              {student.email}
-                            </Typography>
-                          </Box>
+            {studentData.length === 0 ? (
+              <DSEmptyState
+                icon={<PersonIcon />}
+                title={t("No Student Data")}
+                description={t("No student progress data available for this class")}
+              />
+            ) : (
+              <StyledCard sx={{ p: 0, overflow: 'hidden' }}>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: `${colors.primary}08` }}>
+                        <TableCell sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                          {t("Student")}
                         </TableCell>
-                        <TableCell align="right" sx={{ py: 2.5 }}>
-                          <Typography variant="body1" fontWeight={500} color="text.primary">
-                            {student.progress.levelsCompleted}
-                          </Typography>
+                        <TableCell align="right" sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                          {t("Levels")}
                         </TableCell>
-                        <TableCell align="right" sx={{ py: 2.5 }}>
-                          <Chip
-                            label={`${student.progress.accuracy}%`}
-                            size="small"
-                            sx={{
-                              fontWeight: 600,
-                              backgroundColor: alpha(
-                                getStatusColor(student.progress.accuracy) === 'success' ? '#10b981' :
-                                getStatusColor(student.progress.accuracy) === 'warning' ? '#f59e0b' : '#ef4444',
-                                0.1
-                              ),
-                              color: getStatusColor(student.progress.accuracy) === 'success' ? '#10b981' :
-                                    getStatusColor(student.progress.accuracy) === 'warning' ? '#f59e0b' : '#ef4444'
-                            }}
-                          />
+                        <TableCell align="right" sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                          {t("Accuracy")}
                         </TableCell>
-                        <TableCell align="right" sx={{ py: 2.5 }}>
-                          <Typography variant="body1" color="text.primary">
-                            {student.progress.averageTime}s
-                          </Typography>
+                        <TableCell align="right" sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                          {t("Avg. Time")}
                         </TableCell>
-                        <TableCell align="right" sx={{ py: 2.5 }}>
-                          <Typography variant="body1" color="text.primary">
-                            {student.progress.hintUsage}%
-                          </Typography>
+                        <TableCell align="right" sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                          {t("Hint Usage")}
                         </TableCell>
-                        <TableCell align="right" sx={{ py: 2.5 }}>
-                          <Typography variant="body2" color="text.secondary">
-                            {student.progress.lastActive
-                              ? new Date(student.progress.lastActive).toLocaleDateString()
-                              : t("Never")}
-                          </Typography>
+                        <TableCell align="right" sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                          {t("Last Active")}
                         </TableCell>
-                        <TableCell align="right" sx={{ py: 2.5 }}>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            component={Link}
-                            to={`/teacher/classes/${classId}/students/${student.id}/fpow-progress`}
-                            sx={{
-                              borderRadius: 1.5,
-                              textTransform: "none",
-                              fontWeight: 500,
-                              fontSize: '0.875rem'
-                            }}
-                          >
-                            {t("Details")}
-                          </Button>
+                        <TableCell align="right" sx={{ fontWeight: 700, color: colors.text, py: 2 }}>
+                          {t("Actions")}
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              {studentData.length === 0 && (
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  py={8}
-                  color="text.secondary"
-                >
-                  <Typography variant="body1">{t("No student data available")}</Typography>
-                </Box>
-              )}
-            </Card>
+                    </TableHead>
+                    <TableBody>
+                      {studentData.map((student) => (
+                        <TableRow
+                          key={student.id}
+                          hover
+                          sx={{
+                            '&:last-child td': { borderBottom: 0 },
+                            transition: 'background-color 0.2s',
+                            '&:hover': {
+                              bgcolor: `${colors.primary}05`
+                            }
+                          }}
+                        >
+                          <TableCell sx={{ py: 2.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                              <Avatar sx={{
+                                bgcolor: colors.primary,
+                                width: 36,
+                                height: 36,
+                                fontSize: '0.875rem',
+                                fontWeight: 600
+                              }}>
+                                {(student.firstName?.[0] || '?').toUpperCase()}
+                                {(student.lastName?.[0] || '').toUpperCase()}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="body1" sx={{ fontWeight: 600, color: colors.text }}>
+                                  {student.firstName} {student.lastName}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: colors.textLight, fontSize: '0.75rem' }}>
+                                  {student.email}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell align="right" sx={{ py: 2.5 }}>
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: colors.text }}>
+                              {student.progress.levelsCompleted}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right" sx={{ py: 2.5 }}>
+                            <Chip
+                              label={`${student.progress.accuracy}%`}
+                              size="small"
+                              sx={{
+                                fontWeight: 600,
+                                bgcolor: `${getStatusColor(student.progress.accuracy)}15`,
+                                color: getStatusColor(student.progress.accuracy),
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell align="right" sx={{ py: 2.5 }}>
+                            <Typography variant="body1" sx={{ color: colors.text }}>
+                              {student.progress.averageTime}s
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right" sx={{ py: 2.5 }}>
+                            <Typography variant="body1" sx={{ color: colors.text }}>
+                              {student.progress.hintUsage}%
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right" sx={{ py: 2.5 }}>
+                            <Typography variant="body2" sx={{ color: colors.textLight }}>
+                              {student.progress.lastActive
+                                ? new Date(student.progress.lastActive).toLocaleDateString()
+                                : t("Never")}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right" sx={{ py: 2.5 }}>
+                            <GhostButton
+                              size="small"
+                              component={Link}
+                              to={`/teacher/classes/${classId}/students/${student.id}/fpow-progress`}
+                            >
+                              {t("Details")}
+                            </GhostButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </StyledCard>
+            )}
           </Box>
         )}
       </Box>
-    </Container>
+    </Box>
   );
 }

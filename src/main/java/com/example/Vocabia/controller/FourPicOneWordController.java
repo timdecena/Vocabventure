@@ -18,7 +18,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/fpow")
@@ -62,6 +65,30 @@ public class FourPicOneWordController {
                 // Legacy: return levels without classroom filter (for Adventure Mode)
                 List<Integer> levels = service.getLevelsByCategory(category);
                 return ResponseEntity.ok(levels);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    // ✅ GET /api/fpow/level-status?classroomId=1&category=Animals&level=5 - Get level status (active/inactive)
+    @GetMapping("/level-status")
+    public ResponseEntity<Map<String, Object>> getLevelStatus(
+            @RequestParam(required = false) Long classroomId,
+            @RequestParam("category") String category,
+            @RequestParam("level") int level) {
+        try {
+            if (classroomId != null) {
+                Optional<Boolean> status = service.getLevelStatusByClassroomAndCategoryAndLevel(classroomId, category, level);
+                Map<String, Object> response = new HashMap<>();
+                response.put("isActive", status.orElse(false));
+                return ResponseEntity.ok(response);
+            } else {
+                // For legacy (Adventure Mode), assume active
+                Map<String, Object> response = new HashMap<>();
+                response.put("isActive", true);
+                return ResponseEntity.ok(response);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

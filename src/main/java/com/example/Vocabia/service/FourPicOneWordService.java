@@ -21,15 +21,15 @@ public class FourPicOneWordService {
     // ==================== CLASSROOM-SPECIFIC METHODS ====================
     
     public Optional<FourPicOneWordDTO> getPuzzleByClassroomAndCategoryAndLevel(Long classroomId, String category, int level) {
+        // Repository query already filters by isActive = true, so inactive puzzles are never returned
         return repo.findByClassroomIdAndCategoryAndLevel(classroomId, category, level)
-                .filter(FourPicOneWord::isActive)
                 .map(this::toDto);
     }
 
     public List<FourPicOneWordDTO> getPuzzlesByClassroomAndCategory(Long classroomId, String category) {
+        // Repository query already filters by isActive = true, so inactive puzzles are never returned
         return repo.findByClassroomIdAndCategory(classroomId, category)
                 .stream()
-                .filter(FourPicOneWord::isActive)
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -42,18 +42,32 @@ public class FourPicOneWordService {
         return repo.findLevelsByClassroomIdAndCategory(classroomId, category);
     }
     
+    public Optional<Boolean> getLevelStatusByClassroomAndCategoryAndLevel(Long classroomId, String category, int level) {
+        return repo.findLevelStatusByClassroomIdAndCategoryAndLevel(classroomId, category, level);
+    }
+    
+    public int getTotalLevelsByClassroom(Long classroomId) {
+        // Count all distinct levels across all categories for this classroom
+        return repo.countTotalLevelsByClassroom(classroomId);
+    }
+    
+    public int getTotalLevelsByClassroomAndCategory(Long classroomId, String category) {
+        // Count all levels (active and inactive) for this category in this classroom
+        return repo.findLevelsByClassroomIdAndCategory(classroomId, category).size();
+    }
+    
     // ==================== LEGACY METHODS (Adventure Mode) ====================
     
     public Optional<FourPicOneWordDTO> getPuzzleByCategoryAndLevel(String category, int level) {
+        // Repository query already filters by isActive = true, so inactive puzzles are never returned
         return repo.findByCategoryAndLevel(category, level)
-                .filter(FourPicOneWord::isActive)
                 .map(this::toDto);
     }
 
     public List<FourPicOneWordDTO> getPuzzlesByCategory(String category) {
+        // Repository query already filters by isActive = true, so inactive puzzles are never returned
         return repo.findByCategory(category)
                 .stream()
-                .filter(FourPicOneWord::isActive)
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -74,6 +88,21 @@ public class FourPicOneWordService {
         return allCategories.stream()
             .filter(cat -> !staticCategoriesToExclude.contains(cat))
             .collect(Collectors.toList());
+    }
+    
+    /**
+     * Get categories created by a specific teacher (only their custom-created categories)
+     * This excludes Adventure Mode categories (AdventureChronicles, JungleLush) and static categories
+     */
+    public List<String> getCategoriesByTeacher(Long teacherId) {
+        return repo.findDistinctCategoriesByTeacherId(teacherId);
+    }
+    
+    /**
+     * Count only active FPOW levels created by a specific teacher
+     */
+    public long countActivePuzzlesByTeacher(Long teacherId) {
+        return repo.countActivePuzzlesByTeacherId(teacherId);
     }
 
     public List<Integer> getLevelsByCategory(String category) {

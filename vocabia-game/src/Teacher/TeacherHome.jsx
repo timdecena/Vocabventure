@@ -60,6 +60,7 @@ const TeacherHome = () => {
   const [classes, setClasses] = useState([]);
   const [studentsCount, setStudentsCount] = useState(0);
   const [assignmentsCount, setAssignmentsCount] = useState(0);
+  const [activeFPOWCount, setActiveFPOWCount] = useState(0);
   const [search, setSearch] = useState('');
   const [fpowStats, setFpowStats] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
@@ -174,18 +175,43 @@ const TeacherHome = () => {
           setStudentsCount(0);
         }
 
-        // Assignments count - Fetch real data from FPOW and Spelling Challenges
-        let totalAssignments = 0;
+        // Active FPOW Levels count - Only count ACTIVE levels
+        let activeFPOWLevels = 0;
         try {
-          // Count FPOW levels
+          // Use dedicated endpoint for active count
+          const fpowCountRes = await api.get('/api/teacher/fpow/active-count');
+          if (typeof fpowCountRes.data === 'number') {
+            activeFPOWLevels = fpowCountRes.data;
+          } else {
+            // Fallback: fetch all and filter if endpoint doesn't work
+            const fpowRes = await api.get('/api/teacher/fpow');
+            if (Array.isArray(fpowRes.data)) {
+              activeFPOWLevels = fpowRes.data.filter(fpow => {
+                const isActive = fpow.isActive;
+                return isActive === true || isActive === "true" || isActive === 1 || isActive === "1";
+              }).length;
+            }
+          }
+        } catch (e) {
+          console.warn('[TeacherHome] FPOW active count failed:', e);
+          // Fallback: try to fetch all and filter
           try {
             const fpowRes = await api.get('/api/teacher/fpow');
             if (Array.isArray(fpowRes.data)) {
-              totalAssignments += fpowRes.data.length;
+              activeFPOWLevels = fpowRes.data.filter(fpow => {
+                const isActive = fpow.isActive;
+                return isActive === true || isActive === "true" || isActive === 1 || isActive === "1";
+              }).length;
             }
-          } catch (e) {
-            console.warn('[TeacherHome] FPOW count failed:', e);
+          } catch (fallbackErr) {
+            console.warn('[TeacherHome] FPOW fallback count also failed:', fallbackErr);
           }
+        }
+        setActiveFPOWCount(activeFPOWLevels);
+
+        // Assignments count - Fetch real data from FPOW and Spelling Challenges
+        let totalAssignments = activeFPOWLevels; // Start with active FPOW count
+        try {
 
           // Count Spelling Levels across all classes
           try {
@@ -262,6 +288,7 @@ const TeacherHome = () => {
         setClasses([]);
         setStudentsCount(0);
         setAssignmentsCount(0);
+        setActiveFPOWCount(0);
         setLoadingStats(false);
       }
     };
@@ -460,7 +487,7 @@ const TeacherHome = () => {
               </Box>
             </Box>
             <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
-              {assignmentsCount}
+              {activeFPOWCount}
             </Typography>
             <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
               {t('Active FPOW Levels')}

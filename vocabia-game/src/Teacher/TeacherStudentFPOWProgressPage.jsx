@@ -1,24 +1,24 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-  Container, Grid, Paper, Typography, Box, Card, CardContent,
-  CircularProgress, Alert, Divider, List, ListItem, ListItemText
+  Box, Typography, CircularProgress, Alert, LinearProgress, Chip, Avatar
 } from "@mui/material";
-import { 
-  LineChart, Line, BarChart, Bar, RadarChart, PolarGrid, 
-  PolarAngleAxis, PolarRadiusAxis, Radar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
-} from "recharts";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import api from "../api/api";
-import PageHeader from "./components/PageHeader";
 import { t } from "./utils/i18n";
+import {
+  colors,
+  StyledCard,
+  PageTitle,
+} from "./components/DesignSystem";
 
 export default function TeacherStudentFPOWProgressPage() {
   const { classId, studentId } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [studentData, setStudentData] = useState(null);
@@ -234,92 +234,353 @@ export default function TeacherStudentFPOWProgressPage() {
     </Box>
   );
 
-  if (error) return <Alert severity="error">{error}</Alert>;
+  if (error) return (
+    <Box sx={{ bgcolor: colors.mainBg, minHeight: "100vh", pb: 4, pt: 2 }}>
+      <Box sx={{ maxWidth: 1400, mx: "auto", px: { xs: 2, sm: 3, md: 4 } }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    </Box>
+  );
+
+  const completionPercentage = progressData?.summary?.totalLevels > 0 
+    ? Math.round((progressData.summary.levelsCompleted / progressData.summary.totalLevels) * 100)
+    : 0;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <PageHeader
-        backTo={`/teacher/classes/${classId}/fpow-progress`}
-        backLabel={t('Back to Class Progress')}
-        title={`${studentData.firstName} ${studentData.lastName}${t("'s Progress")}`}
-        subtitle={`${t('Four Pic One Word')} - ${className}`}
-      />
+    <Box sx={{ bgcolor: colors.mainBg, minHeight: "100vh", pb: 4, pt: 2 }}>
+      <Box sx={{ maxWidth: 1400, mx: "auto", px: { xs: 2, sm: 3, md: 4 } }}>
+        {/* Header */}
+        <Box sx={{ mb: 4, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+          <Box
+            onClick={() => navigate(`/teacher/classes/${classId}/fpow-progress`)}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+              color: colors.primary,
+              '&:hover': { color: colors.primaryDark }
+            }}
+          >
+            <ArrowBackIcon sx={{ mr: 1 }} />
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {t('Back to Class Progress')}
+            </Typography>
+          </Box>
+        </Box>
 
-      <Grid container spacing={3}>
-        {/* Summary Cards */}
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Box display="flex" alignItems="center" mb={1}>
-                <EmojiEventsIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="text.secondary">
-                  {t('Completion')}
-                </Typography>
+        <PageTitle icon={<EmojiEventsIcon sx={{ fontSize: 32 }} />}>
+          {studentData?.firstName} {studentData?.lastName}{t("'s Progress")}
+        </PageTitle>
+        
+        <Typography variant="body1" sx={{ color: colors.textLight, mb: 4 }}>
+          {t('Four Pic One Word')} - {className}
+        </Typography>
+
+        {/* Key Metrics Grid - Matching TeacherHome style */}
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' },
+          gap: 2,
+          mb: 3
+        }}>
+          <StyledCard>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: `${colors.primary}15`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: 1.5,
+                }}
+              >
+                <EmojiEventsIcon sx={{ fontSize: 24, color: colors.primary }} />
               </Box>
-              <Typography variant="h3" color="primary">
-                {progressData.summary.levelsCompleted}/{progressData.summary.totalLevels}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {Math.round((progressData.summary.levelsCompleted / progressData.summary.totalLevels) * 100)}% {t('of levels completed')}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Box display="flex" alignItems="center" mb={1}>
-                <TrendingUpIcon color="secondary" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="text.secondary">
-                  {t('Accuracy')}
-                </Typography>
+              <Chip
+                label={`${completionPercentage}%`}
+                size="small"
+                sx={{
+                  bgcolor: `${colors.secondary}15`,
+                  color: colors.secondary,
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 22,
+                }}
+              />
+            </Box>
+            <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+              {progressData?.summary?.levelsCompleted || 0}/{progressData?.summary?.totalLevels || 0}
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, mb: 1.5 }}>
+              {t('Levels Completed')}
+            </Typography>
+            <LinearProgress 
+              variant="determinate" 
+              value={completionPercentage}
+              sx={{ 
+                height: 6, 
+                borderRadius: 3,
+                bgcolor: colors.border,
+                '& .MuiLinearProgress-bar': {
+                  bgcolor: colors.primary,
+                  borderRadius: 3
+                }
+              }}
+            />
+          </StyledCard>
+
+          <StyledCard>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: `${colors.secondary}15`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: 1.5,
+                }}
+              >
+                <TrendingUpIcon sx={{ fontSize: 24, color: colors.secondary }} />
               </Box>
-              <Typography variant="h3" color="secondary">
-                {progressData.summary.accuracy}%
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {t('Correct answers ratio')}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Box display="flex" alignItems="center" mb={1}>
-                <LightbulbIcon color="warning" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="text.secondary">
-                  {t('Hint Usage')}
-                </Typography>
+              <Chip
+                label={progressData?.summary?.accuracy >= 80 ? 'Excellent' : progressData?.summary?.accuracy >= 60 ? 'Good' : 'Needs Improvement'}
+                size="small"
+                sx={{
+                  bgcolor: progressData?.summary?.accuracy >= 80 
+                    ? `${colors.success}15` 
+                    : progressData?.summary?.accuracy >= 60 
+                    ? `${colors.warning}15` 
+                    : `${colors.error}15`,
+                  color: progressData?.summary?.accuracy >= 80 
+                    ? colors.success 
+                    : progressData?.summary?.accuracy >= 60 
+                    ? colors.warning 
+                    : colors.error,
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 22,
+                }}
+              />
+            </Box>
+            <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+              {progressData?.summary?.accuracy || 0}%
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, mb: 1.5 }}>
+              {t('Accuracy Rate')}
+            </Typography>
+            <LinearProgress 
+              variant="determinate" 
+              value={progressData?.summary?.accuracy || 0}
+              sx={{ 
+                height: 6, 
+                borderRadius: 3,
+                bgcolor: colors.border,
+                '& .MuiLinearProgress-bar': {
+                  bgcolor: colors.secondary,
+                  borderRadius: 3
+                }
+              }}
+            />
+          </StyledCard>
+
+          <StyledCard>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: `${colors.warning}15`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: 1.5,
+                }}
+              >
+                <LightbulbIcon sx={{ fontSize: 24, color: colors.warning }} />
               </Box>
-              <Typography variant="h3" color="warning.main">
-                {progressData.summary.hintUsage}%
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {t('Levels with hints used')}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Box display="flex" alignItems="center" mb={1}>
-                <AccessTimeIcon color="info" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="text.secondary">
-                  {t('Avg. Time')}
-                </Typography>
+              <Chip
+                label={progressData?.summary?.hintUsage < 30 ? 'Low' : progressData?.summary?.hintUsage < 50 ? 'Moderate' : 'High'}
+                size="small"
+                sx={{
+                  bgcolor: progressData?.summary?.hintUsage < 30 
+                    ? `${colors.success}15` 
+                    : progressData?.summary?.hintUsage < 50 
+                    ? `${colors.warning}15` 
+                    : `${colors.error}15`,
+                  color: progressData?.summary?.hintUsage < 30 
+                    ? colors.success 
+                    : progressData?.summary?.hintUsage < 50 
+                    ? colors.warning 
+                    : colors.error,
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 22,
+                }}
+              />
+            </Box>
+            <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+              {progressData?.summary?.hintUsage || 0}%
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, mb: 1.5 }}>
+              {t('Hint Usage Rate')}
+            </Typography>
+            <LinearProgress 
+              variant="determinate" 
+              value={progressData?.summary?.hintUsage || 0}
+              sx={{ 
+                height: 6, 
+                borderRadius: 3,
+                bgcolor: colors.border,
+                '& .MuiLinearProgress-bar': {
+                  bgcolor: colors.warning,
+                  borderRadius: 3
+                }
+              }}
+            />
+          </StyledCard>
+
+          <StyledCard>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  bgcolor: `${colors.info}15`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mr: 1.5,
+                }}
+              >
+                <AccessTimeIcon sx={{ fontSize: 24, color: colors.info }} />
               </Box>
-              <Typography variant="h3" color="info.main">
-                {progressData.summary.averageTime}s
+              <Chip
+                label={progressData?.summary?.averageTime < 45 ? 'Fast' : progressData?.summary?.averageTime < 60 ? 'Average' : 'Slow'}
+                size="small"
+                sx={{
+                  bgcolor: progressData?.summary?.averageTime < 45 
+                    ? `${colors.success}15` 
+                    : progressData?.summary?.averageTime < 60 
+                    ? `${colors.warning}15` 
+                    : `${colors.error}15`,
+                  color: progressData?.summary?.averageTime < 45 
+                    ? colors.success 
+                    : progressData?.summary?.averageTime < 60 
+                    ? colors.warning 
+                    : colors.error,
+                  fontWeight: 600,
+                  fontSize: '0.7rem',
+                  height: 22,
+                }}
+              />
+            </Box>
+            <Typography variant="h3" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+              {progressData?.summary?.averageTime || 0}s
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
+              {t('Average Time per Level')}
+            </Typography>
+          </StyledCard>
+        </Box>
+
+        {/* Progress Summary Section - Matching TeacherHome style */}
+        <StyledCard sx={{ mt: 3 }}>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3
+          }}>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 700, color: colors.text, mb: 0.5 }}>
+                {t('Progress Summary')}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                {t('Per level completion')}
+              <Typography variant="body2" sx={{ color: colors.textLight }}>
+                {t('Overall performance and completion status')}
               </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Container>
+            </Box>
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
+                {t('Overall Progress')}
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: colors.text }}>
+                {progressData?.summary?.levelsCompleted || 0} / {progressData?.summary?.totalLevels || 0} {t('levels')}
+              </Typography>
+            </Box>
+            <LinearProgress 
+              variant="determinate" 
+              value={completionPercentage}
+              sx={{ 
+                height: 10, 
+                borderRadius: 5,
+                bgcolor: colors.border,
+                '& .MuiLinearProgress-bar': {
+                  bgcolor: colors.primary,
+                  borderRadius: 5
+                }
+              }}
+            />
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+            <Chip 
+              label={`${t('Completed')}: ${progressData?.summary?.levelsCompleted || 0}`}
+              sx={{
+                bgcolor: `${colors.success}15`,
+                color: colors.success,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                height: 32,
+              }}
+            />
+            <Chip 
+              label={`${t('Remaining')}: ${(progressData?.summary?.totalLevels || 0) - (progressData?.summary?.levelsCompleted || 0)}`}
+              sx={{
+                bgcolor: `${colors.border}`,
+                color: colors.text,
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                height: 32,
+              }}
+            />
+            {progressData?.summary?.bestCategory && (
+              <Chip 
+                label={`${t('Best Category')}: ${progressData.summary.bestCategory}`}
+                sx={{
+                  bgcolor: `${colors.primary}15`,
+                  color: colors.primary,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  height: 32,
+                }}
+              />
+            )}
+            {progressData?.summary?.worstCategory && progressData.summary.worstCategory !== 'None' && (
+              <Chip 
+                label={`${t('Needs Practice')}: ${progressData.summary.worstCategory}`}
+                sx={{
+                  bgcolor: `${colors.warning}15`,
+                  color: colors.warning,
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  height: 32,
+                }}
+              />
+            )}
+          </Box>
+        </StyledCard>
+      </Box>
+    </Box>
   );
 }

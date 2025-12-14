@@ -13,17 +13,21 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Paper,
+  Divider,
+  Chip,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import api from '../api/api';
 import { useUser } from '../UserContext';
-// NOTE: Import the 'Press Start 2P' font in your CSS or index.html via Google Fonts.
 
-// Constants for UI text - move to constants.js for better i18n support
 const PROFILE_AVATAR_ALT = 'Profile avatar';
 const MESSAGES = {
   UPLOAD_SUCCESS: 'Profile image updated successfully!',
@@ -43,7 +47,6 @@ const MESSAGES = {
 
 const Profile = () => {
   const { user, setUser } = useUser();
-  // Change Password State
   const [changePassword, setChangePassword] = useState({
     currentPassword: '',
     newPassword: '',
@@ -52,7 +55,6 @@ const Profile = () => {
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
-  // Change Password Handlers
   const handleChangePasswordInput = (e) => {
     const { name, value } = e.target;
     setChangePassword((prev) => ({ ...prev, [name]: value }));
@@ -100,7 +102,6 @@ const Profile = () => {
     setChangePassword({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
   };
 
-  // Profile State
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -118,7 +119,6 @@ const Profile = () => {
     severity: 'success'
   });
 
-  // Fetch user profile
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -131,10 +131,8 @@ const Profile = () => {
         throw new Error('No profile data received');
       }
       
-      // Log profile data to help debug image issues
       console.log('Profile data received:', response.data);
       
-      // Check if profilePicture exists and is valid
       if (response.data.profilePicture) {
         console.log('Profile picture URL:', response.data.profilePicture);
       } else {
@@ -142,7 +140,7 @@ const Profile = () => {
       }
       
       setProfile(response.data);
-      setUser(response.data); // Update global user context
+      setUser(response.data);
       setFormData({
         firstName: response.data.firstName || '',
         lastName: response.data.lastName || '',
@@ -155,7 +153,6 @@ const Profile = () => {
     }
   };
 
-  // Form Handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -199,14 +196,12 @@ const Profile = () => {
       const formDataObj = new FormData();
       formDataObj.append('file', selectedFile);
       
-      // Upload image and get updated user object
       const response = await api.post('/api/users/me/profile-image', formDataObj, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
       console.log('Profile image upload response:', response.data);
       
-      // Response is UserProfileResponse, with .profileImageBase64
       const updatedProfile = response.data;
       if (!updatedProfile || !updatedProfile.profileImageBase64) {
         setUploading(false);
@@ -241,7 +236,6 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
-      // Validate form data
       if (!formData.firstName || !formData.lastName) {
         setSnackbar({
           open: true,
@@ -252,7 +246,6 @@ const Profile = () => {
       }
       
       setLoading(true);
-      // Only send firstName and lastName per backend contract
       const response = await api.put('/api/users/me', {
         firstName: formData.firstName,
         lastName: formData.lastName
@@ -263,7 +256,7 @@ const Profile = () => {
       }
       
       setProfile(response.data);
-      setUser(response.data); // Update global user context
+      setUser(response.data);
       setEditMode(false);
       setLoading(false);
       setSnackbar({
@@ -293,137 +286,126 @@ const Profile = () => {
 
   return (
     <>
-      <style>
-        {`
-          .profile-container {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            padding: 2rem;
-            font-family: 'Press Start 2P', cursive;
-          }
-          .profile-title {
-            color: #00eaff;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1.5rem;
-            text-shadow: 0 0 10px #00eaff;
-            margin-bottom: 2rem;
-            text-align: center;
-          }
-          .profile-card {
-            background: rgba(24, 24, 27, 0.9);
-            border: 2px solid #00eaff;
-            border-radius: 16px;
-            box-shadow: 0 0 20px #00eaff80;
-            padding: 2rem;
-            max-width: 800px;
-            margin: 0 auto;
-          }
-          .avatar-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-            border: 2px solid #00eaff;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            position: relative;
-          }
-          .role-badge {
-            background: #ff00c8;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            font-weight: bold;
-            margin-top: 1rem;
-            text-shadow: 0 0 5px #ff00c8;
-            border: 1px solid #ff00c8;
-          }
-          .gold-badge {
-            background: #ffd700;
-            color: #000;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            font-weight: bold;
-            margin-top: 0.5rem;
-            text-shadow: none;
-            border: 1px solid #ffd700;
-          }
-          .info-section {
-            padding: 1rem;
-          }
-          .info-label {
-            color: #00eaff;
-            font-size: 0.7rem;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 5px #00eaff;
-          }
-          .info-value {
-            color: white;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #333;
-          }
-          .edit-button {
-            background: #00eaff !important;
-            color: #18181b !important;
-            font-family: 'Press Start 2P', cursive !important;
-            font-size: 0.6rem !important;
-            padding: 8px 16px !important;
-            border-radius: 8px !important;
-            border: 2px solid #00eaff !important;
-            box-shadow: 0 0 10px #00eaff !important;
-          }
-          .edit-button:hover {
-            background: #18181b !important;
-            color: #00eaff !important;
-            box-shadow: 0 0 15px #00eaff !important;
-          }
-          .change-password-button {
-            background: #00eaff !important;
-            color: #18181b !important;
-            font-family: 'Press Start 2P', cursive !important;
-            font-size: 0.6rem !important;
-            padding: 8px 16px !important;
-            border-radius: 8px !important;
-            border: 2px solid #00eaff !important;
-            box-shadow: 0 0 10px #00eaff !important;
-            margin-top: 1rem !important;
-          }
-          .change-password-button:hover {
-            background: #18181b !important;
-            color: #00eaff !important;
-            box-shadow: 0 0 15px #00eaff !important;
-          }
-        `}
-      </style>
-      <Box className="profile-container">
-        <Typography className="profile-title">MY PROFILE</Typography>
-        
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-            <CircularProgress sx={{ color: '#00eaff' }} />
+      <Box
+        sx={{
+          minHeight: "100vh",
+          width: "100vw",
+          background: "linear-gradient(120deg, #17172b 0%, #23233b 100%)",
+          py: { xs: 3, md: 6 },
+          px: 2,
+        }}
+      >
+        <Paper
+          elevation={8}
+          sx={{
+            maxWidth: 900,
+            mx: "auto",
+            borderRadius: "28px",
+            border: "3px solid #00eaff",
+            boxShadow: "0 0 50px #00eaff44, 0 0 90px #ff00c855",
+            background: "rgba(33,33,44, 0.98)",
+            p: { xs: 2.5, md: 5 },
+          }}
+        >
+          {/* Header */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              mb: 4,
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Typography
+                variant="h2"
+                sx={{
+                  color: "#00eaff",
+                  fontFamily: "'Press Start 2P', monospace",
+                  textShadow: "0 0 18px #00eaff, 0 0 44px #ff00c8",
+                  fontWeight: 700,
+                  fontSize: { xs: 24, md: 32 },
+                }}
+              >
+                My Profile
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#ff00c8",
+                  fontFamily: "'Press Start 2P', monospace",
+                  textShadow: "0 0 10px #ff00c8",
+                  fontSize: { xs: 11, md: 14 },
+                  fontWeight: 600,
+                  mt: 1,
+                }}
+              >
+                Manage your account settings and preferences
+              </Typography>
+            </Box>
           </Box>
-        ) : error ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-            <Typography color="error" sx={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8rem' }}>
-              {error}
-            </Typography>
-          </Box>
-        ) : (
-          <Box className="profile-card">
+
+          {loading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: 400,
+              }}
+            >
+              <CircularProgress
+                sx={{
+                  color: "#00eaff",
+                  "& .MuiCircularProgress-circle": {
+                    strokeLinecap: "round",
+                  },
+                }}
+                size={62}
+              />
+            </Box>
+          ) : error ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: 400,
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "#ff00c8",
+                  fontFamily: "'Press Start 2P', monospace",
+                  fontSize: 14,
+                  textShadow: "0 0 10px #ff00c8",
+                }}
+              >
+                {error}
+              </Typography>
+            </Box>
+          ) : (
             <Grid container spacing={4}>
               {/* Avatar Section */}
               <Grid item xs={12} md={4}>
-                <Box className="avatar-section">
+                <Paper
+                  elevation={8}
+                  sx={{
+                    background: "#1a1a26",
+                    border: "2.5px solid #00eaff",
+                    borderRadius: "21px",
+                    boxShadow: "0 0 34px #00eaff66",
+                    p: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    position: "relative",
+                  }}
+                >
                   <Box position="relative">
                     <Avatar
                       src={
-                        // Robust avatar source logic with improved fallbacks:
                         previewUrl
                           ? previewUrl
                           : profile?.profileImageBase64
@@ -432,30 +414,36 @@ const Profile = () => {
                       }
                       alt={PROFILE_AVATAR_ALT}
                       sx={{
-                        width: 120,
-                        height: 120,
-                        border: '3px solid #ff00c8',
-                        boxShadow: '0 0 15px #ff00c8'
+                        width: 140,
+                        height: 140,
+                        border: "3px solid #ff00c8",
+                        boxShadow: "0 0 20px #ff00c8, 0 0 40px #00eaff",
+                        mb: 2,
                       }}
-                      onError={e => { 
-                        console.log('Avatar load error, using default'); 
-                        e.target.onerror = null; 
-                        e.target.src = '/default-avatar.png'; 
+                      onError={(e) => {
+                        console.log('Avatar load error, using default');
+                        e.target.onerror = null;
+                        e.target.src = '/default-avatar.png';
                       }}
                     />
-                    {console.log('Avatar src attempt:', previewUrl || user?.profilePicture || profile?.profilePicture || 'default')}
                     <IconButton
                       component="label"
                       sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        right: 0,
-                        backgroundColor: '#ff00c8',
-                        color: 'white',
-                        '&:hover': { backgroundColor: '#ff00c8dd' }
+                        position: "absolute",
+                        bottom: 10,
+                        right: 10,
+                        backgroundColor: "#00eaff",
+                        color: "#191924",
+                        border: "2px solid #ff00c8",
+                        boxShadow: "0 0 10px #00eaff",
+                        "&:hover": {
+                          backgroundColor: "#ff00c8",
+                          color: "#fff",
+                          boxShadow: "0 0 15px #ff00c8",
+                        },
                       }}
                     >
-                      <PhotoCameraIcon fontSize="small" />
+                      <PhotoCameraIcon />
                       <input
                         type="file"
                         hidden
@@ -464,54 +452,102 @@ const Profile = () => {
                       />
                     </IconButton>
                   </Box>
-                  
-                  <Box className="role-badge">
-                    {profile?.role || 'USER'}
-                  </Box>
-                  
-                  {profile?.role === 'STUDENT' && (
-                    <Box className="gold-badge">
-                      {profile?.gold || 0} GOLD
-                    </Box>
-                  )}
-                  
+
                   {selectedFile && (
                     <Button
                       variant="contained"
                       onClick={handleUploadImage}
                       disabled={uploading}
-                      sx={{ mt: 2, fontSize: '0.6rem' }}
-                      className="edit-button"
+                      sx={{
+                        background: "linear-gradient(90deg, #00eaff 60%, #ff00c8 100%)",
+                        color: "#191924",
+                        fontWeight: 700,
+                        borderRadius: "8px",
+                        fontFamily: "'Press Start 2P', monospace",
+                        boxShadow: "0 0 8px #00eaff80",
+                        textTransform: "none",
+                        px: 2.5,
+                        fontSize: 11,
+                        mt: 1,
+                        "&:hover": {
+                          background: "#ff00c8",
+                          color: "#fff",
+                        },
+                      }}
                     >
-                      {uploading ? <CircularProgress size={16} /> : 'UPLOAD'}
+                      {uploading ? <CircularProgress size={16} sx={{ color: "#191924" }} /> : "UPLOAD"}
                     </Button>
                   )}
-                </Box>
+
+                  <Divider sx={{ width: "100%", my: 2, borderColor: "#00eaff44" }} />
+
+                  <Chip
+                    label={profile?.role || 'USER'}
+                    sx={{
+                      background: "linear-gradient(90deg, #00eaff 60%, #ff00c8 100%)",
+                      color: "#191924",
+                      fontFamily: "'Press Start 2P', monospace",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      px: 1,
+                      mb: 1,
+                    }}
+                  />
+
+                  {profile?.role === 'STUDENT' && (
+                    <Chip
+                      icon={<Typography sx={{ fontSize: 14 }}>💰</Typography>}
+                      label={`${profile?.gold || 0} GOLD`}
+                      sx={{
+                        background: "#ffd700",
+                        color: "#000",
+                        fontFamily: "'Press Start 2P', monospace",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        px: 1,
+                      }}
+                    />
+                  )}
+                </Paper>
               </Grid>
 
               {/* Info Section */}
               <Grid item xs={12} md={8}>
-                <Box className="info-section">
+                <Paper
+                  elevation={8}
+                  sx={{
+                    background: "#1a1a26",
+                    border: "2.5px solid #00eaff",
+                    borderRadius: "21px",
+                    boxShadow: "0 0 34px #00eaff66",
+                    p: 3,
+                    minHeight: 400,
+                  }}
+                >
                   {editMode ? (
-                    <>
+                    <Box>
                       <TextField
                         fullWidth
                         label="Username"
                         name="username"
-                        value={formData.username || ''}
-                        onChange={handleInputChange}
-                        variant="outlined"
-                        margin="normal"
+                        value={formData.username || profile?.username || ''}
                         disabled
+                        margin="normal"
                         InputProps={{
                           sx: {
-                            backgroundColor: '#23232b',
-                            color: 'white',
-                            borderRadius: '8px'
-                          }
+                            backgroundColor: "#23232b",
+                            color: "#fff",
+                            borderRadius: "8px",
+                            fontFamily: "'Press Start 2P', monospace",
+                            fontSize: 12,
+                          },
                         }}
                         InputLabelProps={{
-                          sx: { color: '#00eaff', fontFamily: "'Press Start 2P', cursive", fontSize: '0.7rem' }
+                          sx: {
+                            color: "#00eaff",
+                            fontFamily: "'Press Start 2P', monospace",
+                            fontSize: 10,
+                          },
                         }}
                       />
                       <TextField
@@ -520,17 +556,22 @@ const Profile = () => {
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        variant="outlined"
                         margin="normal"
                         InputProps={{
                           sx: {
-                            backgroundColor: '#23232b',
-                            color: 'white',
-                            borderRadius: '8px'
-                          }
+                            backgroundColor: "#23232b",
+                            color: "#fff",
+                            borderRadius: "8px",
+                            fontFamily: "'Press Start 2P', monospace",
+                            fontSize: 12,
+                          },
                         }}
                         InputLabelProps={{
-                          sx: { color: '#00eaff', fontFamily: "'Press Start 2P', cursive", fontSize: '0.7rem' }
+                          sx: {
+                            color: "#00eaff",
+                            fontFamily: "'Press Start 2P', monospace",
+                            fontSize: 10,
+                          },
                         }}
                       />
                       <TextField
@@ -539,26 +580,45 @@ const Profile = () => {
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        variant="outlined"
                         margin="normal"
                         InputProps={{
                           sx: {
-                            backgroundColor: '#23232b',
-                            color: 'white',
-                            borderRadius: '8px'
-                          }
+                            backgroundColor: "#23232b",
+                            color: "#fff",
+                            borderRadius: "8px",
+                            fontFamily: "'Press Start 2P', monospace",
+                            fontSize: 12,
+                          },
                         }}
                         InputLabelProps={{
-                          sx: { color: '#00eaff', fontFamily: "'Press Start 2P', cursive", fontSize: '0.7rem' }
+                          sx: {
+                            color: "#00eaff",
+                            fontFamily: "'Press Start 2P', monospace",
+                            fontSize: 10,
+                          },
                         }}
                       />
 
-                      <Box display="flex" gap={2} mt={2}>
+                      <Box display="flex" gap={2} mt={3}>
                         <Button
                           variant="contained"
-                          className="edit-button"
                           startIcon={<SaveIcon />}
                           onClick={handleSaveProfile}
+                          sx={{
+                            background: "linear-gradient(90deg, #00eaff 60%, #ff00c8 100%)",
+                            color: "#191924",
+                            fontWeight: 700,
+                            borderRadius: "8px",
+                            fontFamily: "'Press Start 2P', monospace",
+                            boxShadow: "0 0 8px #00eaff80",
+                            textTransform: "none",
+                            px: 2.5,
+                            fontSize: 11,
+                            "&:hover": {
+                              background: "#ff00c8",
+                              color: "#fff",
+                            },
+                          }}
                         >
                           SAVE
                         </Button>
@@ -566,90 +626,222 @@ const Profile = () => {
                           variant="outlined"
                           onClick={() => setEditMode(false)}
                           sx={{
-                            color: '#00eaff',
-                            borderColor: '#00eaff',
-                            fontFamily: "'Press Start 2P', cursive",
-                            fontSize: '0.6rem'
+                            color: "#00eaff",
+                            borderColor: "#00eaff",
+                            fontFamily: "'Press Start 2P', monospace",
+                            borderRadius: "8px",
+                            textTransform: "none",
+                            px: 2.5,
+                            fontSize: 11,
+                            "&:hover": {
+                              background: "#00eaff22",
+                              borderColor: "#ff00c8",
+                              color: "#fff",
+                            },
                           }}
                         >
                           CANCEL
                         </Button>
                       </Box>
-                    </>
+                    </Box>
                   ) : (
-                    <>
-                      <Box mb={2}>
-                        <Typography className="info-label">USERNAME</Typography>
-                        <Typography className="info-value">{profile?.username || 'N/A'}</Typography>
+                    <Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          mb: 3,
+                          p: 2,
+                          background: "rgba(0, 234, 255, 0.05)",
+                          borderRadius: "12px",
+                          border: "1px solid #00eaff44",
+                        }}
+                      >
+                        <AccountCircleIcon sx={{ color: "#00eaff", fontSize: 28 }} />
+                        <Box>
+                          <Typography
+                            sx={{
+                              color: "#00eaff",
+                              fontFamily: "'Press Start 2P', monospace",
+                              fontSize: 10,
+                              textShadow: "0 0 8px #00eaff",
+                              mb: 0.5,
+                            }}
+                          >
+                            USERNAME
+                          </Typography>
+                          <Typography
+                            sx={{
+                              color: "#fff",
+                              fontFamily: "'Press Start 2P', monospace",
+                              fontSize: 12,
+                            }}
+                          >
+                            {profile?.username || 'N/A'}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box mb={2}>
-                        <Typography className="info-label">FIRST NAME</Typography>
-                        <Typography className="info-value">{profile?.firstName || 'N/A'}</Typography>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          mb: 3,
+                          p: 2,
+                          background: "rgba(0, 234, 255, 0.05)",
+                          borderRadius: "12px",
+                          border: "1px solid #00eaff44",
+                        }}
+                      >
+                        <PersonIcon sx={{ color: "#00eaff", fontSize: 28 }} />
+                        <Box>
+                          <Typography
+                            sx={{
+                              color: "#00eaff",
+                              fontFamily: "'Press Start 2P', monospace",
+                              fontSize: 10,
+                              textShadow: "0 0 8px #00eaff",
+                              mb: 0.5,
+                            }}
+                          >
+                            FULL NAME
+                          </Typography>
+                          <Typography
+                            sx={{
+                              color: "#fff",
+                              fontFamily: "'Press Start 2P', monospace",
+                              fontSize: 12,
+                            }}
+                          >
+                            {profile?.firstName || 'N/A'} {profile?.lastName || ''}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box mb={2}>
-                        <Typography className="info-label">LAST NAME</Typography>
-                        <Typography className="info-value">{profile?.lastName || 'N/A'}</Typography>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          mb: 3,
+                          p: 2,
+                          background: "rgba(0, 234, 255, 0.05)",
+                          borderRadius: "12px",
+                          border: "1px solid #00eaff44",
+                        }}
+                      >
+                        <EmailIcon sx={{ color: "#00eaff", fontSize: 28 }} />
+                        <Box>
+                          <Typography
+                            sx={{
+                              color: "#00eaff",
+                              fontFamily: "'Press Start 2P', monospace",
+                              fontSize: 10,
+                              textShadow: "0 0 8px #00eaff",
+                              mb: 0.5,
+                            }}
+                          >
+                            EMAIL
+                          </Typography>
+                          <Typography
+                            sx={{
+                              color: "#fff",
+                              fontFamily: "'Press Start 2P', monospace",
+                              fontSize: 12,
+                            }}
+                          >
+                            {profile?.email || 'N/A'}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box mb={2}>
-                        <Typography className="info-label">EMAIL</Typography>
-                        <Typography className="info-value">{profile?.email || 'N/A'}</Typography>
-                      </Box>
-                      
-                      <Box display="flex" gap={2} mt={3}>
+
+                      <Box display="flex" gap={2} mt={4} flexWrap="wrap">
                         <Button
                           variant="contained"
-                          className="edit-button"
                           startIcon={<EditIcon />}
                           onClick={() => setEditMode(true)}
+                          sx={{
+                            background: "linear-gradient(90deg, #00eaff 60%, #ff00c8 100%)",
+                            color: "#191924",
+                            fontWeight: 700,
+                            borderRadius: "8px",
+                            fontFamily: "'Press Start 2P', monospace",
+                            boxShadow: "0 0 8px #00eaff80",
+                            textTransform: "none",
+                            px: 2.5,
+                            fontSize: 11,
+                            "&:hover": {
+                              background: "#ff00c8",
+                              color: "#fff",
+                            },
+                          }}
                         >
                           EDIT PROFILE
                         </Button>
                         <Button
-                          variant="contained"
-                          className="change-password-button"
+                          variant="outlined"
                           startIcon={<LockIcon />}
                           onClick={handleOpenPasswordDialog}
+                          sx={{
+                            color: "#00eaff",
+                            borderColor: "#00eaff",
+                            fontFamily: "'Press Start 2P', monospace",
+                            borderRadius: "8px",
+                            textTransform: "none",
+                            px: 2.5,
+                            fontSize: 11,
+                            "&:hover": {
+                              background: "#00eaff22",
+                              borderColor: "#ff00c8",
+                              color: "#fff",
+                            },
+                          }}
                         >
                           CHANGE PASSWORD
                         </Button>
                       </Box>
-                    </>
+                    </Box>
                   )}
-                </Box>
+                </Paper>
               </Grid>
             </Grid>
-          </Box>
-        )}
+          )}
+        </Paper>
       </Box>
+
       {/* Password Change Dialog */}
-      <Dialog 
-        open={passwordDialogOpen} 
+      <Dialog
+        open={passwordDialogOpen}
         onClose={handleClosePasswordDialog}
         PaperProps={{
           sx: {
-            backgroundColor: '#18181b',
-            border: '2px solid #00eaff',
-            borderRadius: '12px',
-            boxShadow: '0 0 20px #00eaff',
-            minWidth: { xs: '90%', sm: '500px' },
-            maxWidth: '600px'
-          }
+            background: "#1a1a26",
+            border: "3px solid #00eaff",
+            borderRadius: "21px",
+            boxShadow: "0 0 50px #00eaff44, 0 0 90px #ff00c855",
+            minWidth: { xs: "90%", sm: "500px" },
+            maxWidth: "600px",
+          },
         }}
       >
-        <DialogTitle sx={{ 
-          color: '#00eaff', 
-          fontFamily: "'Press Start 2P', cursive",
-          fontSize: '1rem',
-          textAlign: 'center',
-          textShadow: '0 0 10px #00eaff',
-          borderBottom: '1px solid #00eaff',
-          padding: '16px 24px'
-        }}>
+        <DialogTitle
+          sx={{
+            color: "#00eaff",
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 16,
+            textAlign: "center",
+            textShadow: "0 0 10px #00eaff",
+            borderBottom: "2px solid #00eaff44",
+            padding: "20px 24px",
+          }}
+        >
           CHANGE PASSWORD
         </DialogTitle>
-        <DialogContent sx={{ padding: '24px' }}>
+        <DialogContent sx={{ padding: "24px" }}>
           <TextField
-            placeholder="Current Secret Code"
+            placeholder="Current Password"
             type="password"
             name="currentPassword"
             value={changePassword.currentPassword}
@@ -658,16 +850,16 @@ const Profile = () => {
             fullWidth
             InputProps={{
               sx: {
-                backgroundColor: '#23232b',
-                color: 'white',
-                borderRadius: '8px',
-                '&:hover': { boxShadow: '0 0 5px #00eaff' },
-                '&.Mui-focused': { boxShadow: '0 0 10px #00eaff' }
-              }
+                backgroundColor: "#23232b",
+                color: "#fff",
+                borderRadius: "8px",
+                fontFamily: "'Press Start 2P', monospace",
+                fontSize: 11,
+              },
             }}
           />
           <TextField
-            placeholder="New Secret Code"
+            placeholder="New Password"
             type="password"
             name="newPassword"
             value={changePassword.newPassword}
@@ -676,16 +868,16 @@ const Profile = () => {
             fullWidth
             InputProps={{
               sx: {
-                backgroundColor: '#23232b',
-                color: 'white',
-                borderRadius: '8px',
-                '&:hover': { boxShadow: '0 0 5px #00eaff' },
-                '&.Mui-focused': { boxShadow: '0 0 10px #00eaff' }
-              }
+                backgroundColor: "#23232b",
+                color: "#fff",
+                borderRadius: "8px",
+                fontFamily: "'Press Start 2P', monospace",
+                fontSize: 11,
+              },
             }}
           />
           <TextField
-            placeholder="Confirm New Secret Code"
+            placeholder="Confirm New Password"
             type="password"
             name="confirmNewPassword"
             value={changePassword.confirmNewPassword}
@@ -694,25 +886,31 @@ const Profile = () => {
             fullWidth
             InputProps={{
               sx: {
-                backgroundColor: '#23232b',
-                color: 'white',
-                borderRadius: '8px',
-                '&:hover': { boxShadow: '0 0 5px #00eaff' },
-                '&.Mui-focused': { boxShadow: '0 0 10px #00eaff' }
-              }
+                backgroundColor: "#23232b",
+                color: "#fff",
+                borderRadius: "8px",
+                fontFamily: "'Press Start 2P', monospace",
+                fontSize: 11,
+              },
             }}
           />
         </DialogContent>
-        <DialogActions sx={{ padding: '16px 24px', borderTop: '1px solid #00eaff', justifyContent: 'space-between' }}>
-          <Button 
+        <DialogActions
+          sx={{
+            padding: "16px 24px",
+            borderTop: "2px solid #00eaff44",
+            justifyContent: "space-between",
+          }}
+        >
+          <Button
             onClick={handleClosePasswordDialog}
             sx={{
-              color: '#00eaff',
-              fontFamily: "'Press Start 2P', cursive",
-              fontSize: '0.7rem',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 234, 255, 0.1)'
-              }
+              color: "#00eaff",
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: 10,
+              "&:hover": {
+                backgroundColor: "rgba(0, 234, 255, 0.1)",
+              },
             }}
           >
             CANCEL
@@ -722,36 +920,42 @@ const Profile = () => {
             onClick={handleChangePassword}
             disabled={changingPassword}
             sx={{
-              backgroundColor: '#00eaff',
-              color: '#18181b',
-              fontFamily: "'Press Start 2P', cursive",
-              fontSize: '0.7rem',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: '2px solid #00eaff',
-              boxShadow: '0 0 10px #00eaff',
-              '&:hover': {
-                backgroundColor: '#18181b',
-                color: '#00eaff',
-                boxShadow: '0 0 15px #00eaff'
-              }
+              background: "linear-gradient(90deg, #00eaff 60%, #ff00c8 100%)",
+              color: "#191924",
+              fontFamily: "'Press Start 2P', monospace",
+              fontSize: 10,
+              padding: "8px 16px",
+              borderRadius: "8px",
+              textTransform: "none",
+              "&:hover": {
+                background: "#ff00c8",
+                color: "#fff",
+              },
             }}
           >
-            {changingPassword ? <CircularProgress size={20} sx={{ color: '#00eaff' }} /> : 'SECURE VAULT'}
+            {changingPassword ? (
+              <CircularProgress size={20} sx={{ color: "#191924" }} />
+            ) : (
+              "UPDATE"
+            )}
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity} 
-          sx={{ width: '100%' }}
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{
+            width: "100%",
+            fontFamily: "'Press Start 2P', monospace",
+            fontSize: 10,
+          }}
         >
           {snackbar.message}
         </Alert>

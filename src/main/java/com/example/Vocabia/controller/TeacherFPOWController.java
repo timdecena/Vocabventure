@@ -58,6 +58,27 @@ public class TeacherFPOWController {
     }
 
     /**
+     * GET /api/teacher/fpow/active-count
+     * Get count of active FPOW puzzles created by the current teacher
+     */
+    @GetMapping("/active-count")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Long> getActiveFPOWCount(Principal principal) {
+        try {
+            User teacher = getCurrentUser(principal);
+            if (!"TEACHER".equalsIgnoreCase(teacher.getRole())) {
+                return ResponseEntity.status(403).build();
+            }
+            
+            long activeCount = fpowService.countActivePuzzlesByTeacher(teacher.getId());
+            return ResponseEntity.ok(activeCount);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    /**
      * PUT /api/teacher/fpow/:id
      * Update an existing FPOW puzzle (supports image uploads)
      */
@@ -99,7 +120,13 @@ public class TeacherFPOWController {
             dto.setHintType(hintType != null ? hintType : existingDto.getHintType());
             dto.setDifficulty(difficultyStr != null ? 
                 FourPicOneWord.Difficulty.valueOf(difficultyStr.trim().toUpperCase()) : existingDto.getDifficulty());
-            dto.setActive(isActiveStr != null ? Boolean.parseBoolean(isActiveStr) : existingDto.isActive());
+            // Always update isActive if provided, otherwise keep existing value
+            // Explicitly handle "true"/"false" strings to ensure correct boolean conversion
+            if (isActiveStr != null && !isActiveStr.trim().isEmpty()) {
+                dto.setActive(Boolean.parseBoolean(isActiveStr.trim()));
+            } else {
+                dto.setActive(existingDto.isActive());
+            }
             
             // Handle images: combine existing URLs (if not removed) with new uploads
             List<String> finalImageUrls = new ArrayList<>();

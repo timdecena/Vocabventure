@@ -9,6 +9,7 @@ import com.example.Vocabia.repository.UserRepository;
 import com.example.Vocabia.service.ClassroomService;
 import com.example.Vocabia.service.EnrollmentService;
 import com.example.Vocabia.service.UserProgressService;
+import com.example.Vocabia.service.FourPicOneWordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class ClassroomController {
     private final EnrollmentService enrollmentService;
     private final UserRepository userRepository;
     private final UserProgressService userProgressService;
+    private final FourPicOneWordService fourPicOneWordService;
 
     private User getCurrentUser(Principal principal) {
         return userRepository.findByEmail(principal.getName())
@@ -208,9 +210,12 @@ public class ClassroomController {
         response.put("lastName", student.getLastName());
         response.put("email", student.getEmail());
 
+        // Calculate actual total levels for this classroom
+        int totalLevels = fourPicOneWordService.getTotalLevelsByClassroom(classId);
+        
         Map<String, Object> summary = new HashMap<>();
         summary.put("levelsCompleted", levels);
-        summary.put("totalLevels", 30);
+        summary.put("totalLevels", totalLevels > 0 ? totalLevels : 1); // Avoid division by zero
         summary.put("accuracy", accuracy);
         summary.put("wrongAnswers", wrong);
         summary.put("averageTime", attempts > 0 ? 45 : 0);

@@ -62,8 +62,8 @@ public class TeacherAnalyticsController {
             }
         }
 
-        // Categories to include
-        List<String> categories = fourPicOneWordService.getCategories();
+        // Categories to include - only show teacher's custom-created categories
+        List<String> categories = fourPicOneWordService.getCategoriesByTeacher(teacher.getId());
         if (categoryFilter != null && !"all".equalsIgnoreCase(categoryFilter)) {
             categories = categories.stream()
                     .filter(cat -> cat.equalsIgnoreCase(categoryFilter))
@@ -221,7 +221,7 @@ public class TeacherAnalyticsController {
         response.put("studentProgress", studentProgress);
         response.put("categoryProgress", categoryProgress);
         response.put("weeklyProgress", weeklyProgress);
-        response.put("categories", fourPicOneWordService.getCategories());
+        response.put("categories", fourPicOneWordService.getCategoriesByTeacher(teacher.getId()));
         return ResponseEntity.ok(response);
     }
 }

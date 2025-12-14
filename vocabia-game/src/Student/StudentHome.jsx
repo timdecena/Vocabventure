@@ -408,7 +408,7 @@ useEffect(() => {
                         <div className="arcade-class-info">
                           <span className="arcade-class-name">Class Name: {cls.name}</span>
                         </div>
-                        <button className="arcade-view-btn" onClick={() => navigate(`/student/classes/${cls.id}/spelling-levels`)}>View</button>
+                        <button className="arcade-view-btn" onClick={() => navigate(`/student/classes`)}>View</button>
                       </div>
                     ))
                   ) : (

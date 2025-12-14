@@ -101,6 +101,9 @@ export default function LevelList() {
   const [completedLevels, setCompletedLevels] = useState([]); // unique completed levels for progress display
   const [showUnlockDialog, setShowUnlockDialog] = useState(false);
   const [selectedLockedLevel, setSelectedLockedLevel] = useState(null);
+  const [levelStatuses, setLevelStatuses] = useState({}); // Track active/inactive status for each level
+  const [showInactiveDialog, setShowInactiveDialog] = useState(false);
+  const [selectedInactiveLevel, setSelectedInactiveLevel] = useState(null);
   const navigate = useNavigate();
   
   // Check if this is the Adventure Chronicles category
@@ -147,6 +150,34 @@ export default function LevelList() {
         });
         if (!Array.isArray(res.data)) throw new Error('Invalid response format for levels');
         if (isMounted) setLevels(res.data);
+        
+        // Fetch level statuses (active/inactive) for each level
+        if (id && res.data.length > 0) {
+          const statusPromises = res.data.map(async (level) => {
+            try {
+              const statusRes = await api.get(`/api/fpow/level-status`, {
+                params: { classroomId: id, category, level }
+              });
+              return { level: Number(level), isActive: statusRes.data?.isActive !== false };
+            } catch (err) {
+              console.warn(`Failed to fetch status for level ${level}:`, err);
+              return { level: Number(level), isActive: true }; // Default to active if status fetch fails
+            }
+          });
+          const statuses = await Promise.all(statusPromises);
+          const statusMap = {};
+          statuses.forEach(s => {
+            statusMap[s.level] = s.isActive;
+          });
+          if (isMounted) setLevelStatuses(statusMap);
+        } else {
+          // For non-classroom categories (Adventure Mode), assume all are active
+          const statusMap = {};
+          res.data.forEach(level => {
+            statusMap[Number(level)] = true;
+          });
+          if (isMounted) setLevelStatuses(statusMap);
+        }
 
         // Initialize unlock map
         const unlockMap = {};
@@ -308,6 +339,13 @@ export default function LevelList() {
   }, [category, id, loadCompletedLevels, isAdventureChronicles]);
 
   const handlePlay = (lvl) => {
+    // Check if level is inactive
+    if (id && levelStatuses[lvl] === false) {
+      setSelectedInactiveLevel(lvl);
+      setShowInactiveDialog(true);
+      return;
+    }
+    
     if (!unlocked[lvl]) {
       // For Adventure Chronicles, show special unlock message
       if (isAdventureChronicles) {
@@ -494,6 +532,8 @@ export default function LevelList() {
             {levels.map((level, i) => {
               const theme = LEVEL_THEMES[i % LEVEL_THEMES.length];
               const isUnlocked = Boolean(unlocked[Number(level)]);
+              const isActive = levelStatuses[Number(level)] !== false; // Default to true if not loaded yet
+              const isInactive = id && levelStatuses[Number(level)] === false;
 
               return (
                 <Zoom in timeout={600 + i * 100} key={level}>
@@ -505,10 +545,10 @@ export default function LevelList() {
                         overflow: 'visible',
                         minHeight: 260,
                         width: 220,
-                        cursor: isUnlocked ? 'pointer' : 'default',
+                        cursor: (isUnlocked && isActive) ? 'pointer' : 'default',
                         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                        filter: isUnlocked ? 'none' : 'grayscale(0.8) brightness(0.6)',
-                        opacity: isUnlocked ? 1 : 0.5,
+                        filter: (isUnlocked && isActive) ? 'none' : isInactive ? 'grayscale(1) brightness(0.5)' : 'grayscale(0.8) brightness(0.6)',
+                        opacity: (isUnlocked && isActive) ? 1 : isInactive ? 0.4 : 0.5,
                         boxShadow: isUnlocked 
                           ? `0 10px 30px rgba(0,0,0,0.3), 0 0 0 1px ${theme.glowColor}40`
                           : '0 5px 15px rgba(0,0,0,0.1)',
@@ -622,7 +662,7 @@ export default function LevelList() {
                           </Typography>
                           
                           <Chip
-                            label={isUnlocked ? theme.difficulty : 'Locked'}
+                            label={isInactive ? 'Inactive' : (isUnlocked ? theme.difficulty : 'Locked')}
                             size="small"
                             icon={!isUnlocked ? <Box sx={{ 
                               fontSize: '1rem',
@@ -648,10 +688,10 @@ export default function LevelList() {
                       {/* Action Button */}
                       <Button
                         variant="contained"
-                        startIcon={isUnlocked ? <PlayArrowIcon /> : <Box sx={{ fontSize: '1.2rem' }}>🔒</Box>}
+                        startIcon={(isUnlocked && isActive) ? <PlayArrowIcon /> : <Box sx={{ fontSize: '1.2rem' }}>🔒</Box>}
                         fullWidth
-                        disabled={!isUnlocked}
-                        aria-label={isUnlocked ? `Play level ${level}` : LEVEL_LIST_STRINGS.locked}
+                        disabled={!isUnlocked || isInactive}
+                        aria-label={(isUnlocked && isActive) ? `Play level ${level}` : isInactive ? 'Level inactive' : LEVEL_LIST_STRINGS.locked}
                         sx={{
                           mt: 2,
                           py: 1.6,
@@ -690,9 +730,9 @@ export default function LevelList() {
                           },
                           transition: 'all 0.25s ease'
                         }}
-                        onClick={(e) => { e.stopPropagation(); isUnlocked && handlePlay(level); }}
+                        onClick={(e) => { e.stopPropagation(); (isUnlocked && isActive) && handlePlay(level); }}
                       >
-                        {isUnlocked ? LEVEL_LIST_STRINGS.play : LEVEL_LIST_STRINGS.locked}
+                        {isInactive ? 'Inactive' : (isUnlocked ? LEVEL_LIST_STRINGS.play : LEVEL_LIST_STRINGS.locked)}
                       </Button>
                     </CardContent>
                   </Card>
@@ -788,6 +828,61 @@ export default function LevelList() {
             }}
           >
             Go to Adventure Mode
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      {/* Inactive Level Dialog */}
+      <Dialog
+        open={showInactiveDialog}
+        onClose={() => setShowInactiveDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+            color: 'white',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          textAlign: 'center', 
+          fontSize: '1.8rem', 
+          fontWeight: 800,
+          pt: 4
+        }}>
+          ⚠️ Level Inactive
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', px: 4, pb: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            This level is currently inactive and has been disabled by the teacher.
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.9, lineHeight: 1.6 }}>
+            Level {selectedInactiveLevel} is not available for play at this time. 
+            Please check back later or contact your teacher if you have questions.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 4, px: 4 }}>
+          <Button
+            onClick={() => setShowInactiveDialog(false)}
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)',
+              color: 'white',
+              fontWeight: 700,
+              '&:hover': {
+                background: 'linear-gradient(135deg, #FFDF4D 0%, #FFB300 100%)',
+                transform: 'scale(1.05)'
+              },
+              borderRadius: 999,
+              px: 4,
+              py: 1,
+              boxShadow: '0 8px 20px rgba(255, 193, 7, 0.4)'
+            }}
+          >
+            OK
           </Button>
         </DialogActions>
       </Dialog>
