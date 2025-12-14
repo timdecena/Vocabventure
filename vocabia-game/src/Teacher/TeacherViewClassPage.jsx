@@ -140,14 +140,14 @@ export default function TeacherViewClassPage() {
     return (
       <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', p: 3 }}>
         <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
           <GhostButton
-            startIcon={<BackIcon />}
-            onClick={() => navigate("/teacher/classes")}
-          >
-            {t('Back to My Classes')}
+          startIcon={<BackIcon />}
+          onClick={() => navigate("/teacher/classes")}
+        >
+          {t('Back to My Classes')}
           </GhostButton>
         </Box>
       </Box>
@@ -158,14 +158,14 @@ export default function TeacherViewClassPage() {
     return (
       <Box sx={{ bgcolor: colors.mainBg, minHeight: '100vh', p: 3 }}>
         <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
-          <Alert severity="warning" sx={{ mb: 2 }}>
-            Class not found
-          </Alert>
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Class not found
+        </Alert>
           <GhostButton
-            startIcon={<BackIcon />}
-            onClick={() => navigate("/teacher/classes")}
-          >
-            {t('Back to My Classes')}
+          startIcon={<BackIcon />}
+          onClick={() => navigate("/teacher/classes")}
+        >
+          {t('Back to My Classes')}
           </GhostButton>
         </Box>
       </Box>
@@ -193,18 +193,18 @@ export default function TeacherViewClassPage() {
               <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                 <GhostButton
                   startIcon={<InsightsIcon />}
-                  onClick={() => navigate(`/teacher/classes/${id}/fpow-progress`)}
-                >
+                onClick={() => navigate(`/teacher/classes/${id}/fpow-progress`)}
+              >
                   {t('View Progress')}
                 </GhostButton>
                 <PrimaryButton
-                  startIcon={<EditIcon />}
-                  onClick={() => navigate(`/teacher/classes/${id}/edit`)}
-                >
-                  {t('Edit Class')}
+                startIcon={<EditIcon />}
+                onClick={() => navigate(`/teacher/classes/${id}/edit`)}
+              >
+                {t('Edit Class')}
                 </PrimaryButton>
-              </Box>
-            }
+            </Box>
+          }
           >
             {classroom.name}
           </PageTitle>
@@ -276,20 +276,20 @@ export default function TeacherViewClassPage() {
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500, mb: 0.5 }}>
-                  {t('Join Code')}
-                </Typography>
+                      {t('Join Code')}
+                    </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Chip
-                    label={classroom.joinCode}
-                    sx={{
-                      fontWeight: 600,
+                      <Chip
+                        label={classroom.joinCode}
+                        sx={{ 
+                          fontWeight: 600,
                       bgcolor: `${colors.primary}10`,
                       color: colors.primary,
                       fontFamily: 'monospace',
                       fontSize: '0.9rem'
-                    }}
-                  />
-                  <Tooltip title={t('Copy join code')}>
+                        }}
+                      />
+                      <Tooltip title={t('Copy join code')}>
                     <IconButton
                       size="small"
                       onClick={copyJoinCode}
@@ -299,9 +299,9 @@ export default function TeacherViewClassPage() {
                       }}
                     >
                       <CopyIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
               </Box>
             </Box>
           </StyledCard>
@@ -327,8 +327,8 @@ export default function TeacherViewClassPage() {
                   {formatDate(classroom.createdAt || classroom.created_at || classroom.dateCreated)}
                 </Typography>
                 <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
-                  {t('Created On')}
-                </Typography>
+                      {t('Created On')}
+                    </Typography>
               </Box>
             </Box>
           </StyledCard>
@@ -355,7 +355,7 @@ export default function TeacherViewClassPage() {
               <Box>
                 <Typography variant="body1" sx={{ fontWeight: 600, color: colors.primary, mb: 0.5 }}>
                   {t('View All')}
-                </Typography>
+                    </Typography>
                 <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
                   {t('Student Details')}
                 </Typography>
@@ -378,8 +378,8 @@ export default function TeacherViewClassPage() {
               {students.length > 0 && (
                 <GhostButton
                   size="small"
-                  onClick={() => navigate(`/teacher/classes/${id}/students`)}
-                >
+                      onClick={() => navigate(`/teacher/classes/${id}/students`)}
+                    >
                   {t('View All')}
                 </GhostButton>
               )}
@@ -405,7 +405,7 @@ export default function TeacherViewClassPage() {
                 {students.slice(0, 8).map((s, idx) => (
                   <Box
                     key={s.id || idx}
-                    onClick={() => navigate(`/teacher/classes/${id}/students/${s.id}/fpow-progress`)}
+                        onClick={() => navigate(`/teacher/classes/${id}/students/${s.id}/fpow-progress`)}
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -539,36 +539,36 @@ export default function TeacherViewClassPage() {
                       </IconButton>
                     </Tooltip>
                   </Box>
-                </Box>
+        </Box>
                 <Divider />
                 <Box>
                   <Typography variant="body2" sx={{ color: colors.textLight, mb: 0.5, fontWeight: 500 }}>
                     {t('Created On')}
-                  </Typography>
+          </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 600, color: colors.text }}>
                     {formatDate(classroom.createdAt || classroom.created_at || classroom.dateCreated)}
-                  </Typography>
+            </Typography>
                 </Box>
               </Stack>
             </StyledCard>
-          </Box>
         </Box>
+      </Box>
 
-        {/* Snackbar for notifications */}
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
         >
-          <Alert 
-            onClose={handleCloseSnackbar} 
-            severity={snackbar.severity}
-            sx={{ width: "100%" }}
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       </Box>
     </Box>
   );
