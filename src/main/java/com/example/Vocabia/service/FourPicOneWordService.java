@@ -59,9 +59,80 @@ public class FourPicOneWordService {
     // ==================== LEGACY METHODS (Adventure Mode) ====================
     
     public Optional<FourPicOneWordDTO> getPuzzleByCategoryAndLevel(String category, int level) {
+        // For Adventure Chronicles, try to load from static resources if not in database
+        if ("Adventure Chronicles".equalsIgnoreCase(category)) {
+            // First try database
+            Optional<FourPicOneWordDTO> dbPuzzle = repo.findByCategoryAndLevel(category, level)
+                    .map(this::toDto);
+            if (dbPuzzle.isPresent()) {
+                return dbPuzzle;
+            }
+            
+            // If not in database, try to load from static JSON file
+            try {
+                FourPicOneWordDTO staticPuzzle = loadAdventureChroniclesPuzzle(level);
+                if (staticPuzzle != null) {
+                    return Optional.of(staticPuzzle);
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to load Adventure Chronicles puzzle from static resources: " + e.getMessage());
+            }
+        }
+        
         // Repository query already filters by isActive = true, so inactive puzzles are never returned
         return repo.findByCategoryAndLevel(category, level)
                 .map(this::toDto);
+    }
+    
+    /**
+     * Load Adventure Chronicles puzzle from static JSON file
+     */
+    private FourPicOneWordDTO loadAdventureChroniclesPuzzle(int level) {
+        try {
+            // Try to load from Spring Boot resources
+            java.io.InputStream is = getClass().getClassLoader()
+                    .getResourceAsStream("static/images/Four_Pic_One_Word_Category/Adventure Chronicles/" + level + "/level.json");
+            
+            if (is == null) {
+                // Try React public folder
+                java.io.File projectRoot = new java.io.File(System.getProperty("user.dir"));
+                java.io.File jsonFile = new java.io.File(projectRoot, 
+                    "vocabia-game/public/static/images/Four_Pic_One_Word_Category/Adventure Chronicles/" + level + "/level.json");
+                
+                if (!jsonFile.exists()) {
+                    return null;
+                }
+                
+                is = new java.io.FileInputStream(jsonFile);
+            }
+            
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode json = mapper.readTree(is);
+            is.close();
+            
+            FourPicOneWordDTO dto = new FourPicOneWordDTO();
+            dto.setCategory("Adventure Chronicles");
+            dto.setLevel(level);
+            dto.setAnswer(json.get("answer").asText());
+            dto.setHint(json.has("hint") ? json.get("hint").asText() : null);
+            dto.setDifficulty(json.has("difficulty") ? 
+                FourPicOneWord.Difficulty.values()[Math.min(json.get("difficulty").asInt() - 1, 2)] : 
+                FourPicOneWord.Difficulty.MEDIUM);
+            
+            // Load images from JSON
+            if (json.has("images") && json.get("images").isArray()) {
+                com.fasterxml.jackson.databind.JsonNode images = json.get("images");
+                if (images.size() > 0) dto.setImage1Url(images.get(0).asText());
+                if (images.size() > 1) dto.setImage2Url(images.get(1).asText());
+                if (images.size() > 2) dto.setImage3Url(images.get(2).asText());
+                if (images.size() > 3) dto.setImage4Url(images.get(3).asText());
+            }
+            
+            return dto;
+        } catch (Exception e) {
+            System.err.println("Error loading Adventure Chronicles puzzle level " + level + ": " + e.getMessage());
+            return null;
+        }
     }
 
     public List<FourPicOneWordDTO> getPuzzlesByCategory(String category) {
@@ -106,6 +177,10 @@ public class FourPicOneWordService {
     }
 
     public List<Integer> getLevelsByCategory(String category) {
+        // Adventure Chronicles always has 10 levels (unlocked based on Adventure Mode progress)
+        if ("Adventure Chronicles".equalsIgnoreCase(category)) {
+            return List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        }
         return repo.findLevelsByCategory(category);
     }
 

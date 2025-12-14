@@ -638,12 +638,38 @@ const GamePlay = () => {
         dispatch({ type: 'SET_STORED_ATTEMPTS', payload: storedAttempts });
       }
 
+      // Adventure Chronicles is Adventure Mode content - don't use classroomId
+      const isAdventureChronicles = category === "Adventure Chronicles";
+      
+      // For Adventure Chronicles, check if level is unlocked first
+      if (isAdventureChronicles) {
+        try {
+          const unlockCheck = await api.get(`/api/adventure/profile/check-fpow-level/${level}`);
+          if (!unlockCheck.data?.isUnlocked) {
+            dispatch({ 
+              type: 'SET_ERROR', 
+              payload: 'This level is locked. Complete the corresponding Adventure Mode level to unlock it!' 
+            });
+            return;
+          }
+        } catch (unlockErr) {
+          console.warn('Could not check unlock status:', unlockErr);
+          // Continue anyway - let the puzzle fetch determine if it exists
+        }
+      }
+
+      // For Adventure Chronicles, don't pass classroomId (it's Adventure Mode content)
       const res = await api.get('/api/fpow/puzzle', { 
-        params: id ? { classroomId: id, category, level } : { category, level } 
+        params: (id && !isAdventureChronicles) ? { classroomId: id, category, level } : { category, level } 
       });
+      
       if (!res.data || !res.data.answer) {
-        // Puzzle not found - could be inactive or doesn't exist
-        throw new Error('This puzzle is not available. It may have been deactivated by your teacher.');
+        // Puzzle not found - provide appropriate error message
+        if (isAdventureChronicles) {
+          throw new Error('This Adventure Chronicles level is not available. Please try again later.');
+        } else {
+          throw new Error('This puzzle is not available. It may have been deactivated by your teacher.');
+        }
       }
 
       // ✅ Collect and normalize the four image URLs from backend
@@ -666,10 +692,20 @@ const GamePlay = () => {
         setTimerStart(Date.now());
       }
     } catch (e) {
-      // Handle 404 (puzzle not found/inactive) with a more specific message
-      const errorMessage = e.response?.status === 404 || e.message?.includes('not available')
-        ? 'This puzzle is not available. It may have been deactivated by your teacher.'
-        : 'Failed to load puzzle. Please try again later.';
+      // Handle errors with appropriate messages based on category
+      const isAdventureChronicles = category === "Adventure Chronicles";
+      let errorMessage = 'Failed to load puzzle. Please try again later.';
+      
+      if (e.response?.status === 404 || e.message?.includes('not available')) {
+        if (isAdventureChronicles) {
+          errorMessage = 'This Adventure Chronicles level is not available. Please try again later.';
+        } else {
+          errorMessage = 'This puzzle is not available. It may have been deactivated by your teacher.';
+        }
+      } else if (e.message && e.message.includes('locked')) {
+        errorMessage = e.message; // Use the unlock check message
+      }
+      
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     }
   }

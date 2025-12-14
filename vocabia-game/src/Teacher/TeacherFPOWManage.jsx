@@ -305,15 +305,33 @@ export default function TeacherFPOWManage() {
       // Use form state directly for isActive since that's what user just set (most reliable)
       const updatedIsActive = Boolean(editForm.isActive);
       
+      // Store the expected isActive value to preserve it during background refresh
+      const expectedIsActive = updatedIsActive;
+      const updatedFpowId = editingFpow.id;
+      
+      // Normalize response data isActive to ensure it's a boolean
+      let responseIsActive = expectedIsActive; // Default to expected value
+      if (response.data && response.data.hasOwnProperty('isActive')) {
+        const respActive = response.data.isActive;
+        if (respActive === false || respActive === "false" || respActive === 0 || respActive === "0") {
+          responseIsActive = false;
+        } else if (respActive === true || respActive === "true" || respActive === 1 || respActive === "1") {
+          responseIsActive = true;
+        }
+      }
+      
+      // Use expected value (user's choice) if response doesn't match
+      const finalIsActive = (responseIsActive === expectedIsActive) ? responseIsActive : expectedIsActive;
+      
       // Update state immediately for instant UI feedback
       setFpowList(prevList => {
         return prevList.map(fpow => {
-          if (fpow.id === editingFpow.id) {
+          if (fpow.id === updatedFpowId) {
             // Create new object to ensure React detects the change
             const updated = {
               ...fpow, // Preserve existing fields like classroomName
               ...response.data, // Update with response data
-              isActive: updatedIsActive, // Use form state for immediate, reliable update
+              isActive: finalIsActive, // Use form state for immediate, reliable update
             };
             // Ensure classroomName is preserved
             if (!updated.classroomName && fpow.classroomName) {
@@ -332,13 +350,37 @@ export default function TeacherFPOWManage() {
       setNewImages([]);
       setNewImagePreviews([]);
       
-      // Refresh from server in background to ensure full consistency
-      // Use a small delay to let the UI update first
+      // Refresh from server in background, but preserve the optimistic update for isActive
+      // Use a longer delay to ensure server has processed the update
       setTimeout(() => {
-        fetchFPOWs().catch(err => {
+        fetchFPOWs().then(() => {
+          // After refresh, ensure the isActive value matches what user set
+          setFpowList(prevList => {
+            return prevList.map(fpow => {
+              if (fpow.id === updatedFpowId) {
+                // Normalize isActive from server response
+                const serverIsActive = fpow.isActive;
+                let normalizedIsActive = true; // default
+                if (serverIsActive === false || serverIsActive === "false" || serverIsActive === 0 || serverIsActive === "0") {
+                  normalizedIsActive = false;
+                } else if (serverIsActive === true || serverIsActive === "true" || serverIsActive === 1 || serverIsActive === "1") {
+                  normalizedIsActive = true;
+                }
+                
+                // Always use expected value (user's choice) - this is the source of truth
+                // The server should have updated by now, but we trust the user's action
+                return {
+                  ...fpow,
+                  isActive: expectedIsActive
+                };
+              }
+              return fpow;
+            });
+          });
+        }).catch(err => {
           console.error("Background refresh failed:", err);
         });
-      }, 200);
+      }, 1000); // Increased delay to give server more time to process
     } catch (err) {
       console.error("Failed to update FPOW:", err);
       showSnackbar(err.response?.data || "Failed to update FPOW puzzle", "error");

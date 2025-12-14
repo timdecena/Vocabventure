@@ -187,14 +187,25 @@ export default function LevelList() {
           try {
             // Fetch unlocked levels from Adventure progress
             const adventureRes = await api.get('/api/adventure/profile/unlocked-fpow-levels');
-            const unlockedSet = new Set(adventureRes.data.unlockedLevels || []);
+            const unlockedLevels = adventureRes.data?.unlockedLevels || [];
+            const unlockedSet = new Set(unlockedLevels.map(Number));
+            
+            // Ensure we have all 10 levels (even if not in database)
+            const allLevels = res.data.length > 0 ? res.data : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             
             // Only unlock levels that have been earned through Adventure Mode
-            res.data.forEach(lvl => {
+            allLevels.forEach(lvl => {
               unlockMap[Number(lvl)] = unlockedSet.has(Number(lvl));
             });
             
+            console.log("Adventure Chronicles - Total levels:", allLevels.length);
             console.log("Adventure Chronicles unlocks:", Array.from(unlockedSet));
+            console.log("Unlock map:", unlockMap);
+            
+            // Update levels state if we had to use default list
+            if (res.data.length === 0 && isMounted) {
+              setLevels(allLevels);
+            }
             
             // Fetch completed levels for progress tracking
             try {
@@ -226,9 +237,13 @@ export default function LevelList() {
           } catch (adventureErr) {
             console.warn("Could not fetch Adventure unlocks, all levels locked:", adventureErr);
             // If can't fetch, lock all levels
-            res.data.forEach(lvl => {
+            const allLevels = res.data.length > 0 ? res.data : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            allLevels.forEach(lvl => {
               unlockMap[Number(lvl)] = false;
             });
+            if (res.data.length === 0 && isMounted) {
+              setLevels(allLevels);
+            }
           }
           
           if (isMounted) {

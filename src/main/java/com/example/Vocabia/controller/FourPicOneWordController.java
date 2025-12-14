@@ -103,6 +103,13 @@ public class FourPicOneWordController {
             @RequestParam("category") String category,
             @RequestParam("level") int level) {
         try {
+            // Adventure Chronicles is Adventure Mode content - ignore classroomId
+            if ("Adventure Chronicles".equalsIgnoreCase(category)) {
+                return service.getPuzzleByCategoryAndLevel(category, level)
+                        .map(ResponseEntity::ok)
+                        .orElse(ResponseEntity.notFound().build());
+            }
+            
             if (classroomId != null) {
                 return service.getPuzzleByClassroomAndCategoryAndLevel(classroomId, category, level)
                         .map(ResponseEntity::ok)
