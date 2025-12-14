@@ -129,7 +129,7 @@ const [gold, setGold] = useState(loadState("gold", null));
         saveState("wotd_streak", res.data.streak);
       }
     } catch {
-      setResult("❌ Already played or error occurred");
+      setResult("❌ Already played ");
     }
   };
 
