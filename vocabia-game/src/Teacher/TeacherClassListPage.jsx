@@ -179,7 +179,7 @@ export default function TeacherClassListPage() {
     );
   }
 
-  const hasStudents = studentCount > 0;
+
 
   return (
     <Box sx={{ 
@@ -261,9 +261,10 @@ export default function TeacherClassListPage() {
             gap: 3
           }}>
             {filteredClasses.map((cls, index) => {
-              const description = cls.description || t('No description provided');
-              const isNewest = index === 0 && highlightNew;
-              const studentCount = studentCounts[cls.id] || 0;
+          const description = cls.description || t('No description provided');
+          const isNewest = index === 0 && highlightNew;
+          const studentCount = studentCounts[cls.id] || 0;
+          const hasStudents = studentCount > 0;
               
               return (
                 <StyledCard
@@ -436,7 +437,7 @@ export default function TeacherClassListPage() {
         </Snackbar>
 
         <ConfirmDialog
-          open={confirmOpen}
+          open={confirmOpen}  
           title={t('Delete this class?')}
           description={
             classToDelete ? t(`Class "${classToDelete.name}" and its enrollments will be removed. This action cannot be undone.`) :
