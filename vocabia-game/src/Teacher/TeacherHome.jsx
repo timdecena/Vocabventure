@@ -685,27 +685,7 @@ const TeacherHome = () => {
                           {cls.studentCount || 0}
                         </Typography>
                       </Box>
-                      <Typography variant="body2" sx={{ color: colors.textLight }}>
-                        {(() => {
-                          // Try multiple possible date field names
-                          const dateValue = cls.createdAt || cls.created_at || cls.dateCreated || cls.createdDate;
-                          if (dateValue) {
-                            try {
-                              const date = new Date(dateValue);
-                              if (!isNaN(date.getTime())) {
-                                return date.toLocaleDateString('en-US', { 
-                                  year: 'numeric', 
-                                  month: 'short', 
-                                  day: 'numeric' 
-                                });
-                              }
-                            } catch (e) {
-                              console.warn('[TeacherHome] Invalid date format:', dateValue);
-                            }
-                          }
-                          return '—';
-                        })()}
-                      </Typography>
+                    
                     </Box>
                   ))}
                 </Box>
