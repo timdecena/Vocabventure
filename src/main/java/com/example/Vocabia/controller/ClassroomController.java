@@ -50,9 +50,19 @@ public class ClassroomController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteClass(@PathVariable Long id, Principal principal) {
-        User teacher = getCurrentUser(principal);
-        classroomService.deleteClassroom(id, teacher);
+    public ResponseEntity<Map<String, Object>> deleteClass(@PathVariable Long id, Principal principal) {
+        try {
+            User teacher = getCurrentUser(principal);
+            classroomService.deleteClassroom(id, teacher);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Classroom deleted successfully"));
+        } catch (RuntimeException e) {
+            // Return proper error response instead of letting it become 500
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("success", false, "message", "Failed to delete classroom: " + e.getMessage()));
+        }
     }
 
     @GetMapping
@@ -164,7 +174,9 @@ public class ClassroomController {
             throw new RuntimeException("Student is not enrolled in this class");
         }
 
-        List<UserProgressDTO> progresses = userProgressService.getAllUserProgress(student);
+        // Get progress filtered by classroom
+        List<UserProgressDTO> progresses = userProgressService.getUserProgressByClassroom(student, classId);
+        
         int levels = 0, correct = 0, wrong = 0, hints = 0, attempts = 0, streak = 0, maxStreak = 0;
         LocalDateTime lastActive = null;
         Map<String, Map<String, Integer>> categoryStats = new HashMap<>();

@@ -278,6 +278,12 @@ public class UserProgressService {
                 .collect(Collectors.toList());
     }
 
+    public List<UserProgressDTO> getUserProgressByClassroom(User user, Long classroomId) {
+        return repo.findByUserAndClassroomId(user, classroomId).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
     private UserProgressDTO toDto(UserProgress e) {
         return UserProgressDTO.builder()
                 .id(e.getId())

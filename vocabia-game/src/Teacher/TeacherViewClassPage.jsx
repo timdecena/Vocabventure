@@ -306,33 +306,6 @@ export default function TeacherViewClassPage() {
             </Box>
           </StyledCard>
 
-          <StyledCard>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box
-                sx={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 2,
-                  bgcolor: `${colors.accent}15`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: colors.accent
-                }}
-              >
-                <CalendarIcon sx={{ fontSize: 28 }} />
-              </Box>
-              <Box>
-                <Typography variant="body1" sx={{ fontWeight: 600, color: colors.text, mb: 0.5 }}>
-                  {formatDate(classroom.createdAt || classroom.created_at || classroom.dateCreated)}
-                </Typography>
-                <Typography variant="body2" sx={{ color: colors.textLight, fontWeight: 500 }}>
-                      {t('Created On')}
-                    </Typography>
-              </Box>
-            </Box>
-          </StyledCard>
-
           <StyledCard
             sx={{ cursor: 'pointer' }}
             onClick={() => navigate(`/teacher/classes/${id}/students`)}
@@ -540,15 +513,6 @@ export default function TeacherViewClassPage() {
                     </Tooltip>
                   </Box>
         </Box>
-                <Divider />
-                <Box>
-                  <Typography variant="body2" sx={{ color: colors.textLight, mb: 0.5, fontWeight: 500 }}>
-                    {t('Created On')}
-          </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600, color: colors.text }}>
-                    {formatDate(classroom.createdAt || classroom.created_at || classroom.dateCreated)}
-            </Typography>
-                </Box>
               </Stack>
             </StyledCard>
         </Box>

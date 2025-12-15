@@ -94,18 +94,23 @@ export default function TeacherClassListPage() {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/teacher/classes/${id}`);
-      setClasses(prev => prev.filter(c => c.id !== id));
-      // Remove from student counts
-      setStudentCounts(prev => {
-        const newCounts = { ...prev };
-        delete newCounts[id];
-        return newCounts;
-      });
-      showSnackbar("Class deleted successfully", "success");
+      const response = await api.delete(`/api/teacher/classes/${id}`);
+      if (response.data && response.data.success) {
+        setClasses(prev => prev.filter(c => c.id !== id));
+        // Remove from student counts
+        setStudentCounts(prev => {
+          const newCounts = { ...prev };
+          delete newCounts[id];
+          return newCounts;
+        });
+        showSnackbar(response.data.message || "Class deleted successfully", "success");
+      } else {
+        showSnackbar(response.data?.message || "Failed to delete class", "error");
+      }
     } catch (err) {
       console.error("Failed to delete class:", err);
-      showSnackbar("Failed to delete class", "error");
+      const errorMessage = err.response?.data?.message || err.message || "Failed to delete class";
+      showSnackbar(errorMessage, "error");
     }
   };
 

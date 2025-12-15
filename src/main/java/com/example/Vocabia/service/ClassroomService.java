@@ -1,8 +1,10 @@
 package com.example.Vocabia.service;
 
 import com.example.Vocabia.entity.Classroom;
+import com.example.Vocabia.entity.Enrollment;
 import com.example.Vocabia.entity.User;
 import com.example.Vocabia.repository.ClassroomRepository;
+import com.example.Vocabia.repository.EnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.UUID;
 public class ClassroomService {
 
     private final ClassroomRepository classroomRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     public String generateJoinCode() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 8);
@@ -46,6 +49,13 @@ public class ClassroomService {
         if (!classroom.getTeacher().getId().equals(teacher.getId())) {
             throw new RuntimeException("Forbidden");
         }
+        
+        // Check if there are enrolled students
+        List<Enrollment> enrollments = enrollmentRepository.findByClassroom(classroom);
+        if (enrollments != null && !enrollments.isEmpty()) {
+            throw new RuntimeException("Cannot delete classroom with enrolled students. Please remove all students first.");
+        }
+        
         classroomRepository.delete(classroom);
     }
 

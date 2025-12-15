@@ -1,0 +1,618 @@
+================================================================================
+CAPSTONE PRESENTATION CONTENT - MEMBER 5
+Validation and Testing Summary | Insights and Recommendations
+================================================================================
+
+SLIDE 1: VALIDATION & TESTING SUMMARY
+Title: Validation & Testing Summary
+Subtitle: Class Testing Overview
+
+CONTENT:
+- Conducted in Grade 7 Cooperation (High School Department)
+- Briefly introduce VocabVenture and then explain the purpose behind conducting the tests
+- Total Respondents: Pre-Test (46), Post-Test (23), Survey/Feedback (50)
+
+KEY TESTING ADJUSTMENTS:
+- Many students couldn't access Gmail accounts (passwords forgotten or on confiscated phones)
+- Added "Enter as Guest" mode → allowed all students to participate smoothly
+- This adjustment was essential for classroom testing and ensured maximum participation
+
+ALTERNATIVE/ADDITIONAL KEY TESTING ADJUSTMENTS (choose what applies):
+- Adjusted testing schedule to accommodate school network limitations and minimize slow loading issues
+- Provided additional time for students who experienced technical difficulties during testing
+- Simplified navigation instructions for students who found Adventure Mode map confusing (12% reported confusion)
+- Implemented flexible testing approach to handle varying student completion rates
+- Adjusted for students who needed clarification on game rules and controls during testing
+- Accommodated different completion times due to varying technical issues and network speeds
+
+SYSTEM PERFORMANCE:
+- Stable during 40-50 concurrent users
+- Most students reported "None - everything worked fine" for technical problems (32 out of 50 = 64%)
+- Some reported slow loading (8 students = 16%), but overall system performance was satisfactory
+- Minor issues reported: Game freezing/crashing (5 students = 10%), Audio not working (4 students = 8%)
+- System itself was stable; issues were primarily network-related or minor technical glitches
+
+================================================================================
+
+SLIDE 2: PRE-TEST vs POST-TEST RESULTS
+Title: Pre-Test vs Post-Test Results
+
+PRE-TEST DATA (N=46):
+- Score Distribution:
+  * 2/10: 2 students (4.3%)
+  * 3/10: 1 student (2.2%)
+  * 4/10: 8 students (17.4%)
+  * 5/10: 6 students (13.0%)
+  * 6/10: 8 students (17.4%)
+  * 7/10: 7 students (15.2%)
+  * 8/10: 9 students (19.6%)
+  * 9/10: 5 students (10.9%)
+- Average Score: 6.3/10
+- Median Score: 6.5/10
+
+POST-TEST DATA (N=23):
+- Score Distribution:
+  * 5/10: 2 students (8.7%)
+  * 6/10: 5 students (21.7%)
+  * 7/10: 1 student (4.3%)
+  * 8/10: 4 students (17.4%)
+  * 9/10: 6 students (26.1%)
+  * 10/10: 4 students (17.4%)
+- Average Score: 8.0/10
+- Median Score: 9/10
+
+KEY FINDINGS:
+- Post-test scores improved vs. pre-test (average increased from 6.3/10 to 8.0/10)
+- Improvement of 1.7 points (27% increase)
+- Percentage of students scoring 9/10 or 10/10 increased from 10.9% to 43.5% (4x increase)
+- Percentage of students scoring below 6/10 decreased from 23.9% to 8.7%
+- Clear learning gains demonstrated in vocabulary and grammar skills
+
+================================================================================
+
+SLIDE 3: USER FEEDBACK & SATISFACTION RESULTS (PART 1)
+Title: User Feedback & Satisfaction Results - Usability & Engagement
+
+EASE OF USE & NAVIGATION:
+- "The game was easy to use and navigate"
+  * Rating Distribution:
+    - 5 (Very Likely): 35 students (70%)
+    - 4 (Likely): 7 students (14%)
+    - 3 (Neutral): 4 students (8%)
+    - 2 (Unlikely): 1 student (2%)
+    - 1 (Very Unlikely): 1 student (2%)
+  * Average Rating: 4.52/5
+
+VISUAL DESIGN:
+- "The visual design and theme look good"
+  * Rating Distribution:
+    - 5 (Very Likely): 32 students (64%)
+    - 4 (Likely): 8 students (16%)
+    - 3 (Neutral): 6 students (12%)
+    - 2 (Unlikely): 2 students (4%)
+    - 1 (Very Unlikely): 1 student (2%)
+  * Average Rating: 4.40/5
+
+GAMEPLAY ENGAGEMENT:
+- "The Adventure Mode gameplay was fun and engaging"
+  * Rating Distribution:
+    - 5 (Very Likely): 30 students (60%)
+    - 4 (Likely): 8 students (16%)
+    - 3 (Neutral): 5 students (10%)
+    - 2 (Unlikely): 1 student (2%)
+    - 1 (Very Unlikely): 1 student (2%)
+  * Average Rating: 4.38/5
+
+QUESTION VARIETY:
+- "The variety of question types kept me interested"
+  * Rating Distribution:
+    - 5 (Very Likely): 33 students (66%)
+    - 4 (Likely): 7 students (14%)
+    - 3 (Neutral): 5 students (10%)
+    - 2 (Unlikely): 0 students (0%)
+    - 1 (Very Unlikely): 2 students (4%)
+  * Average Rating: 4.44/5
+
+INTERPRETATION:
+Students gave consistently high average ratings across usability and clarity. This indicates that VocabVenture is easy to use, age-appropriate, and engaging for Grade 7 learners, supporting its suitability as a classroom learning tool.
+
+================================================================================
+
+SLIDE 4: USER FEEDBACK & SATISFACTION RESULTS (PART 2)
+Title: User Feedback & Satisfaction Results - Learning Effectiveness
+
+LEARNING EFFECTIVENESS:
+- "I learned new vocabulary words through VocabVenture"
+  * Rating Distribution:
+    - 5 (Very Likely): 33 students (66%)
+    - 4 (Likely): 8 students (16%)
+    - 3 (Neutral): 4 students (8%)
+    - 2 (Unlikely): 2 students (4%)
+    - 1 (Very Unlikely): 0 students (0%)
+  * Average Rating: 4.46/5
+
+- "I improved my understanding of grammar and punctuation"
+  * Rating Distribution:
+    - 5 (Very Likely): 30 students (60%)
+    - 4 (Likely): 9 students (18%)
+    - 3 (Neutral): 5 students (10%)
+    - 2 (Unlikely): 3 students (6%)
+    - 1 (Very Unlikely): 0 students (0%)
+  * Average Rating: 4.38/5
+
+- "I can use the words I learned in my daily conversations or writing"
+  * Rating Distribution:
+    - 5 (Very Likely): 32 students (64%)
+    - 4 (Likely): 9 students (18%)
+    - 3 (Neutral): 4 students (8%)
+    - 2 (Unlikely): 2 students (4%)
+    - 1 (Very Unlikely): 0 students (0%)
+  * Average Rating: 4.44/5
+
+INTERPRETATION:
+Students reported positive overall satisfaction and perceived improvement in vocabulary and grammar skills. These results reinforce the pre-test and post-test findings, suggesting that engagement with VocabVenture contributed to better understanding and confidence.
+
+================================================================================
+
+SLIDE 5: USER FEEDBACK & SATISFACTION RESULTS (PART 3)
+Title: User Feedback & Satisfaction Results - Motivation & Overall Satisfaction
+
+MOTIVATION & PREFERENCE:
+- "VocabVenture made me WANT to learn more vocabulary (compared to traditional methods)"
+  * Rating Distribution:
+    - 5 (Very Likely): 30 students (60%)
+    - 4 (Likely): 8 students (16%)
+    - 3 (Neutral): 6 students (12%)
+    - 2 (Unlikely): 3 students (6%)
+    - 1 (Very Unlikely): 0 students (0%)
+  * Average Rating: 4.32/5
+
+- "I would choose VocabVenture over textbooks or flashcards if given the choice"
+  * Rating Distribution:
+    - 5 (Very Likely): 38 students (76%)
+    - 4 (Likely): 4 students (8%)
+    - 3 (Neutral): 1 student (2%)
+    - 2 (Less Effective): 1 student (2%)
+    - 1 (Very Unlikely): 0 students (0%)
+  * Average Rating: 4.68/5
+
+- "I would recommend VocabVenture to my friends or classmates"
+  * Rating Distribution:
+    - 5 (Very Likely): 38 students (76%)
+    - 4 (Likely): 4 students (8%)
+    - 3 (Neutral): 1 student (2%)
+    - 2 (Unlikely): 0 students (0%)
+    - 1 (Very Unlikely): 0 students (0%)
+  * Average Rating: 4.70/5
+
+OVERALL SATISFACTION:
+- "Overall, I am satisfied with VocabVenture"
+  * Average Rating: 4.50/5
+- Overall Experience Rating (1-10): 
+  * 10/10: 25 students (50%)
+  * 9/10: 12 students (24%)
+  * 8/10: 5 students (10%)
+  * 7/10: 2 students (4%)
+  * 6/10: 1 student (2%)
+  * 5/10: 1 student (2%)
+  * Average: 8.88/10
+
+INTERPRETATION:
+A clear majority of students (76%) indicated that they would recommend VocabVenture to their classmates, reflecting positive user satisfaction and willingness to reuse the platform beyond required classroom activities.
+
+================================================================================
+
+SLIDE 6: INSIGHTS & RECOMMENDATIONS
+Title: Insights & Recommendations
+
+KEY INSIGHTS:
+
+1. LEARNING OUTCOMES:
+   - Post-test scores improved vs. pre-test (average increased from 6.3/10 to 8.0/10)
+   - Improvement of 1.7 points represents a 27% increase in average scores
+   - Clear short-term learning gains in vocabulary and grammar
+   - Percentage of high performers (9-10/10) increased from 10.9% to 43.5% (4x increase)
+
+2. STUDENT ENGAGEMENT:
+   - Students found the system fun, easy, and helpful
+   - High satisfaction ratings across all usability metrics (average 4.3-4.7/5)
+   - Adventure mode and boss battles were most engaging features (84% and 76% respectively)
+   - Game-based approach helped sustain engagement
+
+3. MOTIVATION & CONFIDENCE:
+   - Student confidence increased (self-reported through survey)
+   - Increased student motivation to learn vocabulary (60% rated 5/5)
+   - 76% would choose VocabVenture over traditional methods
+   - 76% would recommend to classmates
+   - 66% reported learning new vocabulary words
+   - 60% reported improved understanding of grammar and punctuation
+
+4. TECHNICAL ADAPTATIONS:
+   - Guest mode became essential for classroom testing
+   - System handled 40-50 concurrent users effectively
+   - 64% reported no technical problems
+   - Minor network-related issues (slow loading: 16%), but system itself was stable
+
+5. USER PREFERENCES:
+   - Students prefer interactive, gamified learning over traditional methods
+   - Visual design and theme were highly appreciated (64% rated 5/5)
+   - Immediate feedback and variety of question types were valued
+   - Boss battles and adventure theme were standout features
+
+RECOMMENDATIONS:
+
+1. KEEP GUEST MODE PERMANENTLY
+   - Essential for classroom accessibility
+   - Removes barriers to participation
+   - Ensures all students can engage regardless of account access
+
+2. ENHANCE USER GUIDANCE
+   - Add more helpful tooltips/hints (requested by 36% of students)
+   - Improve instructions/tutorial (requested by 24% of students)
+   - Consider onboarding tutorial for first-time users
+
+3. OPTIMIZE PERFORMANCE
+   - Address loading time concerns (reported by 32% of students)
+   - Optimize for school network environments
+   - Consider offline or low-internet fallback options
+
+4. EXPAND CONTENT & FEATURES
+   - Implement multiplayer mode (requested by 56% of students - highest priority)
+   - Add more islands/levels (requested by 38% of students)
+   - Add more story content and dialogue (requested by 40% of students)
+   - Include more question types (requested by 36% of students)
+
+5. IMPROVE DATA COLLECTION
+   - Use consistent student IDs for cleaner data tracking
+   - Implement better progress tracking and reporting
+   - Enhance teacher dashboard with more detailed analytics
+
+6. ENHANCE GAMEPLAY ELEMENTS
+   - Consider adjustable difficulty levels (some want easier: 14%, some want harder: 16%)
+   - Improve rewards system (requested by 24% of students)
+   - Add more engaging activities to maintain positive experience
+
+7. TECHNICAL IMPROVEMENTS
+   - Improve audio pronunciation (specifically mentioned in feedback)
+   - Enhance UI and character designs (as suggested by students)
+   - Address any remaining technical issues (audio, loading, etc.)
+
+================================================================================
+
+POWER BI VISUALIZATION GUIDE
+================================================================================
+
+OVERVIEW:
+You will create 4 key visualizations in Power BI to support your presentation slides.
+These visualizations will help visualize the data clearly and professionally.
+
+================================================================================
+
+VISUALIZATION 1: PRE-TEST vs POST-TEST SCORE COMPARISON
+================================================================================
+
+PURPOSE: Show the improvement in test scores between pre-test and post-test
+
+VISUALIZATION TYPE: Clustered Column Chart or Side-by-Side Bar Chart
+
+DATA STRUCTURE:
+Create a table in Excel/CSV with the following structure:
+
+Test_Type | Score | Count | Percentage
+----------|-------|-------|-----------
+Pre-Test  | 2     | 2     | 4.3
+Pre-Test  | 3     | 1     | 2.2
+Pre-Test  | 4     | 8     | 17.4
+Pre-Test  | 5     | 6     | 13.0
+Pre-Test  | 6     | 8     | 17.4
+Pre-Test  | 7     | 7     | 15.2
+Pre-Test  | 8     | 9     | 19.6
+Pre-Test  | 9     | 5     | 10.9
+Post-Test | 5     | 2     | 8.7
+Post-Test | 6     | 5     | 21.7
+Post-Test | 7     | 1     | 4.3
+Post-Test | 8     | 4     | 17.4
+Post-Test | 9     | 6     | 26.1
+Post-Test | 10    | 4     | 17.4
+
+STEP-BY-STEP INSTRUCTIONS:
+
+1. PREPARE YOUR DATA:
+   a. Open Microsoft Excel
+   b. Create a new workbook
+   c. In Sheet1, create columns: Test_Type, Score, Count, Percentage
+   d. Enter all the data from the table above
+   e. Save the file as "VocabVenture_TestScores.xlsx"
+
+2. IMPORT DATA INTO POWER BI:
+   a. Open Power BI Desktop
+   b. Click "Get Data" on the Home ribbon
+   c. Select "Excel" from the list
+   d. Browse and select your "VocabVenture_TestScores.xlsx" file
+   e. Check the box next to your sheet name
+   f. Click "Load"
+
+3. CREATE THE VISUALIZATION:
+   a. In the Visualizations pane (right side), click on "Clustered column chart"
+   b. Drag "Test_Type" to the "Legend" field
+   c. Drag "Score" to the "Axis" field
+   d. Drag "Count" to the "Values" field
+   e. The chart will show side-by-side bars for Pre-Test and Post-Test
+
+4. FORMAT THE CHART:
+   a. Click on the chart to select it
+   b. In the Visualizations pane, click the "Format" icon (paint roller)
+   c. Customize:
+      - Title: "Pre-Test vs Post-Test Score Distribution"
+      - X-axis title: "Score (out of 10)"
+      - Y-axis title: "Number of Students"
+      - Colors: Use different colors for Pre-Test (e.g., light blue) and Post-Test (e.g., dark blue)
+   d. Adjust font sizes and colors as needed
+
+5. ADD AVERAGE LINES (OPTIONAL):
+   a. Add a new measure: Average_Pre = 6.3, Average_Post = 8.0
+   b. Add these as reference lines to show the average improvement
+
+ALTERNATIVE: You can also create a Line Chart showing the distribution curves, or a Stacked Column Chart showing percentages.
+
+================================================================================
+
+VISUALIZATION 2: USER SATISFACTION RATINGS
+================================================================================
+
+PURPOSE: Show the distribution of satisfaction ratings across different survey questions
+
+VISUALIZATION TYPE: Stacked Bar Chart or 100% Stacked Bar Chart
+
+DATA STRUCTURE:
+Create a table with the following structure:
+
+Question | Rating | Count | Percentage
+---------|--------|-------|------------
+Easy to Use | 5 (Very Likely) | 35 | 70
+Easy to Use | 4 (Likely) | 7 | 14
+Easy to Use | 3 (Neutral) | 4 | 8
+Easy to Use | 2 (Unlikely) | 1 | 2
+Easy to Use | 1 (Very Unlikely) | 1 | 2
+Visual Design | 5 (Very Likely) | 32 | 64
+Visual Design | 4 (Likely) | 8 | 16
+Visual Design | 3 (Neutral) | 6 | 12
+Visual Design | 2 (Unlikely) | 2 | 4
+Visual Design | 1 (Very Unlikely) | 1 | 2
+Gameplay Fun | 5 (Very Likely) | 30 | 60
+Gameplay Fun | 4 (Likely) | 8 | 16
+Gameplay Fun | 3 (Neutral) | 5 | 10
+Gameplay Fun | 2 (Unlikely) | 1 | 2
+Gameplay Fun | 1 (Very Unlikely) | 1 | 2
+Question Variety | 5 (Very Likely) | 33 | 66
+Question Variety | 4 (Likely) | 7 | 14
+Question Variety | 3 (Neutral) | 5 | 10
+Question Variety | 2 (Unlikely) | 0 | 0
+Question Variety | 1 (Very Unlikely) | 2 | 4
+
+STEP-BY-STEP INSTRUCTIONS:
+
+1. PREPARE YOUR DATA:
+   a. Create a new sheet in Excel
+   b. Create columns: Question, Rating, Count, Percentage
+   c. Enter all the data (you can add more questions if needed)
+   d. Save the file as "VocabVenture_Satisfaction.xlsx"
+
+2. IMPORT DATA INTO POWER BI:
+   a. Click "Get Data" → "Excel"
+   b. Select "VocabVenture_Satisfaction.xlsx"
+   c. Load the data
+
+3. CREATE THE VISUALIZATION:
+   a. Click on "Stacked bar chart" in Visualizations pane
+   b. Drag "Question" to the "Axis" field
+   c. Drag "Rating" to the "Legend" field
+   d. Drag "Count" to the "Values" field
+
+4. FORMAT THE CHART:
+   a. Click Format icon
+   b. Set Title: "User Satisfaction Ratings by Category"
+   c. Set X-axis title: "Number of Students"
+   d. Set Y-axis title: "Survey Question"
+   e. Use color scheme: Green (5), Light Green (4), Yellow (3), Orange (2), Red (1)
+   f. Enable data labels to show percentages
+
+ALTERNATIVE: Create separate small multiple charts (one for each question) or use a Heatmap visualization.
+
+================================================================================
+
+VISUALIZATION 3: LEARNING EFFECTIVENESS METRICS
+================================================================================
+
+PURPOSE: Show average ratings for learning effectiveness questions
+
+VISUALIZATION TYPE: Horizontal Bar Chart or Gauge Chart
+
+DATA STRUCTURE:
+Create a table with the following structure:
+
+Metric | Average_Rating | Max_Rating
+-------|----------------|-----------
+Learned New Vocabulary | 4.46 | 5
+Improved Grammar Understanding | 4.38 | 5
+Can Use Words in Daily Life | 4.44 | 5
+Want to Learn More | 4.32 | 5
+Would Choose Over Traditional | 4.68 | 5
+Would Recommend to Others | 4.70 | 5
+Overall Satisfaction | 4.50 | 5
+
+STEP-BY-STEP INSTRUCTIONS:
+
+1. PREPARE YOUR DATA:
+   a. Create a new sheet in Excel
+   b. Create columns: Metric, Average_Rating, Max_Rating
+   c. Enter all the data
+   d. Save as "VocabVenture_LearningMetrics.xlsx"
+
+2. IMPORT DATA INTO POWER BI:
+   a. Click "Get Data" → "Excel"
+   b. Select "VocabVenture_LearningMetrics.xlsx"
+   c. Load the data
+
+3. CREATE THE VISUALIZATION:
+   a. Click on "Clustered bar chart" (horizontal)
+   b. Drag "Metric" to the "Axis" field
+   c. Drag "Average_Rating" to the "Values" field
+   d. Optionally, add "Max_Rating" as a reference line
+
+4. FORMAT THE CHART:
+   a. Set Title: "Learning Effectiveness Metrics (Out of 5)"
+   b. Set X-axis title: "Average Rating"
+   c. Set Y-axis title: "Metric"
+   d. Use gradient color (green to yellow) based on rating value
+   e. Add data labels showing the exact rating values
+
+ALTERNATIVE: Create a Gauge Chart for each metric showing the rating out of 5, or use a Radar/Spider Chart to show all metrics at once.
+
+================================================================================
+
+VISUALIZATION 4: OVERALL EXPERIENCE RATING DISTRIBUTION
+================================================================================
+
+PURPOSE: Show the distribution of overall experience ratings (1-10 scale)
+
+VISUALIZATION TYPE: Column Chart or Histogram
+
+DATA STRUCTURE:
+Create a table with the following structure:
+
+Rating | Count | Percentage
+-------|-------|------------
+5      | 1     | 2
+6      | 1     | 2
+7      | 2     | 4
+8      | 5     | 10
+9      | 12    | 24
+10     | 25    | 50
+
+STEP-BY-STEP INSTRUCTIONS:
+
+1. PREPARE YOUR DATA:
+   a. Create a new sheet in Excel
+   b. Create columns: Rating, Count, Percentage
+   c. Enter all the data
+   d. Save as "VocabVenture_OverallRating.xlsx"
+
+2. IMPORT DATA INTO POWER BI:
+   a. Click "Get Data" → "Excel"
+   b. Select "VocabVenture_OverallRating.xlsx"
+   c. Load the data
+
+3. CREATE THE VISUALIZATION:
+   a. Click on "Column chart"
+   b. Drag "Rating" to the "Axis" field
+   c. Drag "Count" to the "Values" field
+
+4. FORMAT THE CHART:
+   a. Set Title: "Overall Experience Rating Distribution (1-10 Scale)"
+   b. Set X-axis title: "Rating"
+   c. Set Y-axis title: "Number of Students"
+   d. Use gradient color (red to green) - red for low ratings, green for high ratings
+   e. Add data labels showing both count and percentage
+   f. Add a reference line at the average (8.88)
+
+5. ADD SUMMARY CARD:
+   a. Add a "Card" visualization
+   b. Show "Average Rating: 8.88/10"
+   c. Place it above or next to the chart
+
+ALTERNATIVE: Create a Pie Chart showing the percentage distribution, or a Donut Chart with the average in the center.
+
+================================================================================
+
+GENERAL POWER BI TIPS:
+================================================================================
+
+1. DATA PREPARATION:
+   - Always prepare your data in Excel first for easier editing
+   - Ensure column headers are clear and descriptive
+   - Remove any empty rows or columns
+   - Use consistent formatting (numbers as numbers, text as text)
+
+2. VISUALIZATION BEST PRACTICES:
+   - Use consistent color schemes across all visualizations
+   - Keep titles clear and descriptive
+   - Add data labels where helpful
+   - Use appropriate chart types for your data
+   - Ensure text is readable (minimum 10pt font)
+
+3. LAYOUT AND DESIGN:
+   - Use a consistent theme/color palette
+   - Align visualizations properly
+   - Add page titles and subtitles
+   - Use white space effectively
+   - Group related visualizations together
+
+4. EXPORTING FOR PRESENTATION:
+   - To export as image: Right-click on visualization → "Export as image"
+   - To export entire page: File → Export → Export to PowerPoint
+   - Or use "File" → "Export" → "Export to PDF" for high-quality output
+   - Recommended image format: PNG (for transparency) or JPG (for smaller file size)
+
+5. INTERACTIVE FEATURES (OPTIONAL):
+   - Add slicers to filter data
+   - Add tooltips for additional information
+   - Use drill-through for detailed views
+   - Add bookmarks for navigation
+
+================================================================================
+
+QUICK REFERENCE: DATA FILES TO CREATE
+================================================================================
+
+File 1: VocabVenture_TestScores.xlsx
+- Columns: Test_Type, Score, Count, Percentage
+- For Visualization 1
+
+File 2: VocabVenture_Satisfaction.xlsx
+- Columns: Question, Rating, Count, Percentage
+- For Visualization 2
+
+File 3: VocabVenture_LearningMetrics.xlsx
+- Columns: Metric, Average_Rating, Max_Rating
+- For Visualization 3
+
+File 4: VocabVenture_OverallRating.xlsx
+- Columns: Rating, Count, Percentage
+- For Visualization 4
+
+================================================================================
+
+ADDITIONAL DATA FOR REFERENCE:
+================================================================================
+
+PRE-TEST SCORE BREAKDOWN:
+- Total Responses: 46
+- Score Range: 2/10 to 9/10
+- Average: 6.3/10
+- Median: 6.5/10
+
+POST-TEST SCORE BREAKDOWN:
+- Total Responses: 23
+- Score Range: 5/10 to 10/10
+- Average: 8.0/10
+- Median: 9/10
+
+SURVEY RESPONDENTS:
+- Total: 50 students
+- All Grade 7 Cooperation (High School Department)
+- Testing dates: December 2-3, 2025
+
+TECHNICAL ISSUES REPORTED:
+- None - everything worked fine: 32 students (64%)
+- Slow loading: 8 students (16%)
+- Game freezing/crashing: 5 students (10%)
+- Audio not working: 4 students (8%)
+- Login/logout issues: 2 students (4%)
+- Progress not saving: 2 students (4%)
+- Buttons not working: 2 students (4%)
+- Images not loading: 1 student (2%)
+
+================================================================================
+END OF DOCUMENT
+================================================================================

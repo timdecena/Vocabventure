@@ -81,6 +81,10 @@ export default function TeacherCreateFPOW() {
     // Ensure classroomId is stored as string for consistency
     if (name === 'classroomId') {
       setForm(prev => ({ ...prev, [name]: value.toString() }));
+    } else if (name === 'level') {
+      // Convert level to number
+      const numValue = value === '' ? '' : parseInt(value, 10);
+      setForm(prev => ({ ...prev, [name]: numValue }));
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
     }
