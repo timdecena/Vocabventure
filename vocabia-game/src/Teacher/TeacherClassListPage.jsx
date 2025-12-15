@@ -179,6 +179,8 @@ export default function TeacherClassListPage() {
     );
   }
 
+  const hasStudents = studentCount > 0;
+
   return (
     <Box sx={{ 
       bgcolor: colors.mainBg,
@@ -384,18 +386,30 @@ export default function TeacherClassListPage() {
                       </IconButton>
                     </Tooltip>
                     <Box sx={{ flexGrow: 1 }} />
-                    <Tooltip title={t('Delete')}>
-                      <IconButton
-                        size="small"
-                        onClick={() => openDeleteDialog(cls)}
-                        sx={{
-                          color: colors.error,
-                          '&:hover': { bgcolor: `${colors.error}20` }
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
+                    <Tooltip
+  title={
+    hasStudents
+      ? t("You cannot delete a class with enrolled students")
+      : t("Delete")
+  }
+>
+  {/* Tooltip needs a wrapper when button is disabled */}
+  <span>
+    <IconButton
+      size="small"
+      disabled={hasStudents}
+      onClick={() => openDeleteDialog(cls)}
+      sx={{
+        color: hasStudents ? colors.textSecondary : colors.error,
+        '&:hover': {
+          bgcolor: hasStudents ? 'transparent' : `${colors.error}20`,
+        }
+      }}
+    >
+      <DeleteIcon />
+    </IconButton>
+  </span>
+</Tooltip>
                   </Box>
                 </StyledCard>
               );
