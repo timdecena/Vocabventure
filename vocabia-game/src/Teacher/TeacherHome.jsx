@@ -649,9 +649,6 @@ const TeacherHome = () => {
                   <Typography variant="caption" sx={{ fontWeight: 600, color: colors.text }}>
                     {t('Students')}
                   </Typography>
-                  <Typography variant="caption" sx={{ fontWeight: 600, color: colors.text }}>
-                    {t('Created')}
-                  </Typography>
                 </Box>
                 {/* Rows */}
                 <Box>
