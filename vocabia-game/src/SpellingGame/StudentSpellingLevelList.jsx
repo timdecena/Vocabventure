@@ -680,36 +680,6 @@ export default function StudentSpellingLevelList() {
                             </RemoveButton>
                           )}
                         </Box>
-
-                        {/* Progress Bar */}
-                        {total > 0 && (
-                          <ProgressContainer>
-                            <Star sx={{ 
-                              color: isRemoved ? "#ffa726" : completed ? "rgba(255,255,255,0.9)" : "#ffd700", 
-                              fontSize: 20 
-                            }} />
-                            <ProgressBar progress={progress} completed={completed} removed={isRemoved} />
-                            <Typography 
-                              variant="body2" 
-                              fontWeight="bold"
-                              color={isRemoved ? "#2c3e50" : completed ? "white" : "#2c3e50"}
-                              minWidth="60px"
-                            >
-                              {progress}%
-                            </Typography>
-                          </ProgressContainer>
-                        )}
-
-                        {/* Progress Text */}
-                        {total > 0 && (
-                          <Typography 
-                            variant="body2" 
-                            color={isRemoved ? "#666" : completed ? "rgba(255,255,255,0.9)" : "#666"}
-                            mt={1}
-                          >
-                            {levelScores[level.id] || 0} of {total} words mastered
-                          </Typography>
-                        )}
                       </LevelCardContent>
                     </LevelCard>
                   </Fade>
