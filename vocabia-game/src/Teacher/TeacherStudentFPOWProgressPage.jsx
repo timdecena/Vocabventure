@@ -554,18 +554,7 @@ export default function TeacherStudentFPOWProgressPage() {
                 height: 32,
               }}
             />
-            {progressData?.summary?.bestCategory && (
-              <Chip 
-                label={`${t('Best Category')}: ${progressData.summary.bestCategory}`}
-                sx={{
-                  bgcolor: `${colors.primary}15`,
-                  color: colors.primary,
-                  fontWeight: 600,
-                  fontSize: '0.875rem',
-                  height: 32,
-                }}
-              />
-            )}
+            
             {progressData?.summary?.worstCategory && progressData.summary.worstCategory !== 'None' && (
               <Chip 
                 label={`${t('Needs Practice')}: ${progressData.summary.worstCategory}`}

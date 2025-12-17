@@ -445,7 +445,7 @@ export default function TeacherViewClassPage() {
                 {students.length > 8 && (
                   <Box sx={{ pt: 2, textAlign: 'center' }}>
                     <GhostButton onClick={() => navigate(`/teacher/classes/${id}/students`)}>
-                      {t('View All {{count}} Students', { count: students.length })}
+                      {t('View All Students', { count: students.length })}
                     </GhostButton>
                   </Box>
                 )}
