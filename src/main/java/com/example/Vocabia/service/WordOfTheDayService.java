@@ -26,10 +26,17 @@ public class WordOfTheDayService {
 
     public WordOfTheDay getTodayWord() {
         LocalDate today = computeGameDate();
-        // First try exact date, then gracefully fall back to the most recent word
+        // First try exact date, then fall back to latest; if none exist, seed a default so we never 404
         return wordRepo.findByDateAvailable(today)
                 .orElseGet(() -> wordRepo.findTopByOrderByDateAvailableDesc()
-                        .orElseThrow(() -> new RuntimeException("No word available in database")));
+                        .orElseGet(() -> {
+                            WordOfTheDay seed = new WordOfTheDay();
+                            seed.setWord("Explore");
+                            seed.setDefinition("Default word of the day placeholder.");
+                            seed.setDateAvailable(today);
+                            seed.setImageUrl("word_placeholder.png"); // ensure this file exists in your static images
+                            return wordRepo.save(seed);
+                        }));
     }
 
     public boolean hasPlayed(User student, WordOfTheDay word) {

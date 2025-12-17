@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import api from "../api/api";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+
 import { styled } from "@mui/system";
 import { 
   Typography, 
@@ -16,6 +16,8 @@ import {
   Chip,
   CircularProgress
 } from "@mui/material";
+import api from "../api/api";
+
 import { 
   VolumeUp, 
   EmojiEvents, 
@@ -247,13 +249,13 @@ const WordRevealCard = styled(Card)({
   color: "white",
   borderRadius: "20px",
   padding: "32px",
-  margin: "16px 0",
   textAlign: "center",
 });
 
+// ...
+
 export default function StudentSpellingChallenge() {
   const [challenges, setChallenges] = useState([]);
-  const [levelInfo, setLevelInfo] = useState(null);
   const [completedIds, setCompletedIds] = useState([]);
   const [current, setCurrent] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -273,72 +275,61 @@ export default function StudentSpellingChallenge() {
   const [remainingAttempts, setRemainingAttempts] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-
   const audioRef = useRef(null);
   const successSoundRef = useRef(null);
   const errorSoundRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { classId } = useParams();
   const [audioError, setAudioError] = useState(false);
-  
+
   const queryParams = new URLSearchParams(location.search);
   const levelId = queryParams.get("levelId");
 
   const timePercentage = (timer / 15) * 100;
   const isCriticalTime = timer <= 5;
 
-  // Generate floating particles
-  useEffect(() => {
-    const newParticles = [];
-    for (let i = 0; i < 15; i++) {
-      newParticles.push({
-        id: i,
-        size: Math.random() * 20 + 10,
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        delay: Math.random() * 5,
-        duration: 4 + Math.random() * 4
-      });
-    }
-    setParticles(newParticles);
-  }, []);
-
-  // Fetch challenges, level info, and remaining attempts
+  // Fetch challenges, completed IDs, and remaining attempts
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const [challengesRes, completedRes, attemptsRes] = await Promise.all([
           api.get(`/api/spelling-level/${levelId}/challenges`),
           api.get(`/api/game/spelling/completed`),
           api.get(`/api/game/spelling/level/${levelId}/remaining-attempts`)
         ]);
-        
+
         setChallenges(Array.isArray(challengesRes.data) ? challengesRes.data : []);
         setCompletedIds(Array.isArray(completedRes.data) ? completedRes.data : []);
         setRemainingAttempts(attemptsRes.data.remainingAttempts || 0);
-        
       } catch (err) {
+        console.error("Error loading game data:", err);
         setError("Error loading game data");
-        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    if (levelId) {
+      fetchData();
+    }
   }, [levelId]);
 
-  // Timer logic
-  useEffect(() => {
-    if (timerStarted && !isSubmitted && timer > 0) {
-      const timeout = setTimeout(() => {
-        setTimer(t => t - 1);
-      }, 1000);
-      return () => clearTimeout(timeout);
+  const createConfetti = () => {
+    const confettiPieces = [];
+
+    for (let i = 0; i < 50; i++) {
+      confettiPieces.push({
+        id: Math.random(),
+        left: Math.random() * 100,
+        delay: Math.random() * 0.5,
+        duration: 1 + Math.random() * 1
+      });
     }
-    if (timer === 0 && !isSubmitted) {
-      handleAutoSubmit();
-    }
-  }, [timerStarted, timer, isSubmitted]);
+    setConfetti(confettiPieces);
+    setTimeout(() => setConfetti([]), 2000);
+  };
 
   const handlePlayAudio = () => {
     if (!audioRef.current?.src) {
@@ -373,26 +364,12 @@ export default function StudentSpellingChallenge() {
     };
   };
 
- 
+  // ...
 
-  const createConfetti = () => {
-    const confettiPieces = [];
-    for (let i = 0; i < 50; i++) {
-      confettiPieces.push({
-        id: Math.random(),
-        left: Math.random() * 100,
-        delay: Math.random() * 0.5,
-        duration: 1 + Math.random() * 1
-      });
-    }
-    setConfetti(confettiPieces);
-    setTimeout(() => setConfetti([]), 2000);
-  };
-
-  const handleAutoSubmit = async () => {
+  const handleAutoSubmit = useCallback(async () => {
     if (isSubmitted) return;
     setIsSubmitted(true);
-    
+
     setResultType("error");
     setFeedback("Time's up! ⏰");
     setShowResult(true);
@@ -402,18 +379,18 @@ export default function StudentSpellingChallenge() {
         console.warn("Could not play error sound:", err);
       });
     }
-    
+
     setTimeout(() => {
       setShowResult(false);
       setShowWordInfo(true);
     }, 1500);
-  };
+  }, [isSubmitted]);
 
   const handleSubmit = useCallback(async () => {
     if (isSubmitted) return;
     setIsSubmitted(true);
     const endTime = Date.now();
-    const elapsedTime = (endTime - startTime) / 1000;
+    const elapsedTime = startTime ? (endTime - startTime) / 1000 : 0;
 
     try {
       const res = await api.post("/api/game/spelling/submit", {
@@ -431,7 +408,6 @@ export default function StudentSpellingChallenge() {
       if (correct) {
         setFeedback(`Correct! 🎯 +${pointsEarned} points`);
         setScore(s => s + pointsEarned);
-        // Play success sound if available
         if (successSoundRef.current) {
           successSoundRef.current.play().catch(err => {
             console.warn("Could not play success sound:", err);
@@ -440,7 +416,6 @@ export default function StudentSpellingChallenge() {
         createConfetti();
       } else {
         setFeedback("Incorrect ❌");
-        // Play error sound if available
         if (errorSoundRef.current) {
           errorSoundRef.current.play().catch(err => {
             console.warn("Could not play error sound:", err);
@@ -448,7 +423,6 @@ export default function StudentSpellingChallenge() {
         }
       }
 
-      // Refresh remaining attempts after submission
       const attemptsRes = await api.get(`/api/game/spelling/level/${levelId}/remaining-attempts`);
       setRemainingAttempts(attemptsRes.data.remainingAttempts);
 
@@ -468,6 +442,19 @@ export default function StudentSpellingChallenge() {
       }, 1500);
     }
   }, [isSubmitted, startTime, challenges, current, answer, levelId]);
+
+  // Timer logic
+  useEffect(() => {
+    if (timerStarted && !isSubmitted && timer > 0) {
+      const timeout = setTimeout(() => {
+        setTimer(t => t - 1);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+    if (timer === 0 && !isSubmitted) {
+      handleAutoSubmit();
+    }
+  }, [timerStarted, timer, isSubmitted, handleAutoSubmit]);
 
   const nextChallenge = () => {
     setAnswer("");
@@ -544,7 +531,7 @@ export default function StudentSpellingChallenge() {
               <Button 
                 variant="contained" 
                 size="large"
-                onClick={() => navigate("/levels")}
+                onClick={() => navigate(`/student/classes/${classId}/spelling-levels`)}
                 sx={{
                   background: "linear-gradient(45deg, #667eea, #764ba2)",
                   borderRadius: "25px",
@@ -605,19 +592,19 @@ export default function StudentSpellingChallenge() {
               </Box>
 
               <Button 
-  variant="contained" 
-  size="large"
-  onClick={() => navigate("/student/classes/1/spelling-levels")}
-  sx={{
-    background: "linear-gradient(45deg, #667eea, #764ba2)",
-    borderRadius: "25px",
-    padding: "16px 40px",
-    fontSize: "18px",
-    fontWeight: "bold"
-  }}
->
-  Continue
-</Button>
+                variant="contained" 
+                size="large"
+                onClick={() => navigate(`/student/classes/${classId}/spelling-levels`)}
+                sx={{
+                  background: "linear-gradient(45deg, #667eea, #764ba2)",
+                  borderRadius: "25px",
+                  padding: "16px 40px",
+                  fontSize: "18px",
+                  fontWeight: "bold"
+                }}
+              >
+                Continue
+              </Button>
             </CardContent>
           </MainCard>
         </Zoom>

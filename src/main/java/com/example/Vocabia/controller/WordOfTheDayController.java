@@ -22,8 +22,16 @@ public class WordOfTheDayController {
     private final UserService userService;
 
     @GetMapping
-    public Map<String, Object> getToday(Principal principal) {
-        WordOfTheDay word = wotdService.getTodayWord();
+    public ResponseEntity<?> getToday(Principal principal) {
+        WordOfTheDay word;
+        try {
+            word = wotdService.getTodayWord();
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "message", "No Word of the Day is configured yet.",
+                    "error", ex.getMessage()
+            ));
+        }
 
         boolean hasPlayed = false;
         if (principal != null) {
@@ -43,12 +51,12 @@ public class WordOfTheDayController {
 
         List<String> choices = wotdService.generateChoices(word.getWord());
 
-        return Map.of(
+        return ResponseEntity.ok(Map.of(
                 "definition", word.getDefinition(),
                 "hasPlayed", hasPlayed,
                 "imageUrl", word.getImageUrl(),
                 "choices", choices
-        );
+        ));
     }
 
 

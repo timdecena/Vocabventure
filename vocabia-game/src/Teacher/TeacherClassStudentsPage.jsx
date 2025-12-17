@@ -14,20 +14,18 @@ import {
   TableRow,
   CircularProgress,
   Alert,
-  Avatar,
-  Chip,
   TextField,
   InputAdornment,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Tooltip,
   IconButton,
   Snackbar,
   Grid,
   alpha,
-  Stack
+  Stack,
+  Chip,
+  Avatar,
+  Autocomplete,
+  Pagination
 } from "@mui/material";
 import {
   ArrowBack as BackIcon,
@@ -39,8 +37,7 @@ import {
   Search as SearchIcon,
   Download as DownloadIcon,
   ContentCopy as CopyIcon,
-  Insights as InsightsIcon,
-  FilterList as FilterIcon
+  Insights as InsightsIcon
 } from "@mui/icons-material";
 import api from "../api/api";
 import PageHeader from "./components/PageHeader";
@@ -55,7 +52,6 @@ export default function TeacherClassStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("name_asc");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
@@ -87,23 +83,12 @@ export default function TeacherClassStudentsPage() {
 
   const filteredStudents = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const base = !q
-      ? students
-      : students.filter((s) =>
-          `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase().includes(q) ||
-          (s.email || '').toLowerCase().includes(q)
-        );
-    const sorted = [...base].sort((a, b) => {
-      const nameA = `${a.firstName || ''} ${a.lastName || ''}`.toLowerCase();
-      const nameB = `${b.firstName || ''} ${b.lastName || ''}`.toLowerCase();
-      if (sortBy === 'name_asc') return nameA.localeCompare(nameB);
-      if (sortBy === 'name_desc') return nameB.localeCompare(nameA);
-      if (sortBy === 'correct_desc') return (b.correctAnswers || 0) - (a.correctAnswers || 0);
-      if (sortBy === 'progress_desc') return (b.progressPoints || 0) - (a.progressPoints || 0);
-      return 0;
-    });
-    return sorted;
-  }, [students, search, sortBy]);
+    if (!q) return students;
+    return students.filter((s) =>
+      `${s.firstName || ''} ${s.lastName || ''}`.toLowerCase().includes(q) ||
+      (s.email || '').toLowerCase().includes(q)
+    );
+  }, [students, search]);
 
   const avgCorrect = useMemo(() => {
     if (!students.length) return 0;
@@ -344,25 +329,6 @@ export default function TeacherClassStudentsPage() {
                     sx: { borderRadius: 1.5 }
                   }}
                 />
-                <FormControl size="small" sx={{ minWidth: 200 }}>
-                  <InputLabel>{t('Sort By')}</InputLabel>
-                  <Select 
-                    label={t('Sort By')} 
-                    value={sortBy} 
-                    onChange={(e) => setSortBy(e.target.value)}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <FilterIcon fontSize="small" />
-                      </InputAdornment>
-                    }
-                    sx={{ borderRadius: 1.5 }}
-                  >
-                    <MenuItem value="name_asc">{t('Name (A–Z)')}</MenuItem>
-                    <MenuItem value="name_desc">{t('Name (Z–A)')}</MenuItem>
-                    <MenuItem value="correct_desc">{t('Correct Answers (High→Low)')}</MenuItem>
-                    <MenuItem value="progress_desc">{t('Progress Points (High→Low)')}</MenuItem>
-                  </Select>
-                </FormControl>
               </Stack>
             </CardContent>
           </Card>
